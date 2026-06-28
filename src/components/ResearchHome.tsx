@@ -153,7 +153,7 @@ export default function ResearchHome({
             {savedFocus ? (
               <div className="bg-white dark:bg-stone-950 p-4 border border-stone-200 dark:border-stone-800 rounded flex justify-between items-start">
                 <div>
-                  <span className="text-[10px] font-mono uppercase tracking-wider text-amber-800 dark:text-amber-500">Current Objective</span>
+                  <span className="text-[10px] font-mono capitalize tracking-wide text-amber-800 dark:text-amber-500">Current objective</span>
                   <p className="font-sans font-medium text-stone-800 dark:text-stone-200 text-sm mt-1">{savedFocus}</p>
                 </div>
                 <button
@@ -249,7 +249,7 @@ export default function ResearchHome({
             <div className="space-y-4">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-4 h-4 text-amber-800 dark:text-amber-400" />
-                <h3 className="font-sans font-medium text-xs text-amber-800 dark:text-amber-400 uppercase tracking-wider">Advisor Check-In Dialogue</h3>
+                <h3 className="font-sans font-medium text-xs text-amber-800 dark:text-amber-400 tracking-wide">Advisor check-in dialogue</h3>
               </div>
 
               <div className="max-w-3xl">
@@ -301,7 +301,7 @@ export default function ResearchHome({
               <div>
                 <div className="flex justify-between items-start gap-2 mb-2">
                   <h4 className="font-sans font-semibold text-stone-900 dark:text-stone-100 text-sm truncate">{j.title}</h4>
-                  <span className="font-mono text-[9px] uppercase bg-stone-100 dark:bg-stone-900 border border-stone-200/60 dark:border-stone-800/80 px-2 py-0.5 rounded text-stone-500">
+                  <span className="font-mono text-[9px] capitalize bg-stone-100 dark:bg-stone-900 border border-stone-200/60 dark:border-stone-800/80 px-2 py-0.5 rounded text-stone-500">
                     {j.type}
                   </span>
                 </div>

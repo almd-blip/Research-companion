@@ -257,7 +257,7 @@ export default function ResearchWorkspace({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-stone-200 dark:border-stone-800 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <span className="font-sans text-[10px] bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 px-2.5 py-0.5 rounded border border-amber-200/50 uppercase font-mono">
+            <span className="font-sans text-[10px] bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 px-2.5 py-0.5 rounded border border-amber-200/50 capitalize font-mono">
               {activeJourney.type}
             </span>
             <select
@@ -367,7 +367,7 @@ export default function ResearchWorkspace({
 
           {/* Connected literature sidebar */}
           <div className="lg:col-span-1 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-5 rounded-lg space-y-4 h-fit">
-            <h4 className="font-sans font-medium text-xs text-amber-800 uppercase tracking-wider flex items-center gap-1">
+            <h4 className="font-sans font-medium text-xs text-amber-800 tracking-wide flex items-center gap-1">
               <Link className="w-3.5 h-3.5" /> Associated References
             </h4>
             <p className="font-sans text-[11px] text-stone-500">Papers linked directly to this investigation context.</p>
@@ -395,7 +395,7 @@ export default function ResearchWorkspace({
           {/* Chapter selector lists */}
           <div className="lg:col-span-1 space-y-4">
             <div className="bg-white dark:bg-stone-950 border border-stone-200 rounded-lg p-4 space-y-3">
-              <h4 className="font-sans font-medium text-xs text-stone-500 uppercase tracking-wider">Chapter Outlines</h4>
+              <h4 className="font-sans font-medium text-xs text-stone-500 tracking-wide">Chapter outlines</h4>
               
               <div className="space-y-1 max-h-[300px] overflow-y-auto">
                 {activeJourney.chapters.map((ch, idx) => (
@@ -573,7 +573,7 @@ export default function ResearchWorkspace({
                   <div className="flex items-center gap-2">
                     <span className="font-mono text-[10px] text-stone-400">{event.date}</span>
                     <span className="font-semibold text-xs text-stone-900">{event.title}</span>
-                    <span className="text-[9px] uppercase font-mono px-1.5 py-0.5 rounded bg-stone-100 text-stone-400">{event.type}</span>
+                    <span className="text-[9px] capitalize font-mono px-1.5 py-0.5 rounded bg-stone-100 text-stone-400">{event.type}</span>
                   </div>
                   <p className="text-xs text-stone-500 leading-normal">{event.description}</p>
                 </div>

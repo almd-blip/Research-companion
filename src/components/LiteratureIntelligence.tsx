@@ -114,7 +114,7 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
           {/* Controls column */}
           <div className="lg:col-span-1 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-5 rounded-lg h-fit space-y-4">
             <div className="space-y-1.5">
-              <label className="font-sans font-medium text-[10px] text-stone-400 uppercase tracking-wider">Select Document</label>
+              <label className="font-sans font-medium text-[10px] text-stone-400 tracking-wide">Select Document</label>
               <select
                 value={selectedPaperId}
                 onChange={(e) => setSelectedPaperId(e.target.value)}
@@ -157,7 +157,7 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
                 {/* Visual Title Header */}
                 <div className="border-b border-stone-100 dark:border-stone-900 pb-4 flex justify-between items-start gap-4">
                   <div>
-                    <span className="font-sans text-[9px] text-amber-800 uppercase tracking-wider font-semibold">Gemini Intelligence Profile</span>
+                    <span className="font-sans text-[9px] text-amber-800 tracking-wide font-semibold">Gemini Intelligence Profile</span>
                     <h2 className="font-sans font-bold text-stone-900 dark:text-stone-100 text-lg leading-snug mt-1">
                       {selectedPaper.title}
                     </h2>
@@ -165,7 +165,7 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
                   
                   {/* Evidence Strength Star Bar */}
                   <div className="text-right flex flex-col items-end shrink-0">
-                    <span className="font-sans text-[9px] text-stone-400 uppercase tracking-wider mb-1">Evidence Strength</span>
+                    <span className="font-sans text-[9px] text-stone-400 tracking-wide mb-1">Evidence Strength</span>
                     <div className="flex gap-0.5 text-amber-500">
                       {Array.from({ length: 5 }).map((_, i) => (
                         <Star
@@ -263,7 +263,7 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
           
           {/* Paper selector checkboxes column */}
           <div className="lg:col-span-1 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-5 rounded-lg h-fit space-y-4">
-            <h3 className="font-sans font-medium text-xs text-amber-800 dark:text-amber-400 uppercase tracking-wider">Select Synthesis Sources</h3>
+            <h3 className="font-sans font-medium text-xs text-amber-800 dark:text-amber-400 tracking-wide">Select Synthesis Sources</h3>
             <p className="font-sans text-[11px] text-stone-500 leading-tight">
               Check at least two documents in your library to explore agreement, methodological debates, and thematic consensus.
             </p>
@@ -307,7 +307,7 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
             ) : synthesisResult ? (
               <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-6">
                 <div className="border-b border-stone-100 dark:border-stone-900 pb-3">
-                  <span className="font-sans text-[9px] text-amber-800 uppercase tracking-wider font-semibold">Gemini Synthesis Report</span>
+                  <span className="font-sans text-[9px] text-amber-800 tracking-wide font-semibold">Gemini Synthesis Report</span>
                   <h3 className="font-sans font-bold text-stone-900 dark:text-stone-100 text-base mt-1">Cross-Paper Synthesis Output</h3>
                 </div>
 

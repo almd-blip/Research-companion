@@ -132,7 +132,7 @@ export default function CitationEngine({ papers, onVerifyMetadata }: CitationEng
       {/* METADATA AUDIT WORKBENCH SIDEBAR */}
       <div className="lg:col-span-1 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-5 rounded-lg space-y-4 h-fit">
         <div>
-          <h4 className="font-sans font-medium text-xs text-amber-800 uppercase tracking-wider">Metadata Verification Workbench</h4>
+          <h4 className="font-sans font-medium text-xs text-amber-800 tracking-wide">Metadata Verification Workbench</h4>
           <p className="font-sans text-[11px] text-stone-500 mt-1">
             References with incomplete parameters violate citation accuracy standards. Complete missing DOIs to lock academic integrity.
           </p>

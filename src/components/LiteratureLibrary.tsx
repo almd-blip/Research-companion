@@ -371,7 +371,7 @@ export default function LiteratureLibrary({
             {/* Header detail */}
             <div className="space-y-2">
               <div className="flex justify-between items-start gap-2">
-                <span className="font-sans text-[9px] text-stone-400 uppercase tracking-wider">Document Inspector</span>
+                <span className="font-sans text-[9px] text-stone-400 tracking-wide">Document Inspector</span>
                 <button
                   onClick={() => {
                     if (confirm('Delete this reference material permanently from local database?')) {
@@ -396,7 +396,7 @@ export default function LiteratureLibrary({
 
             {/* Metadata check block */}
             <div className="p-3 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded space-y-2">
-              <h4 className="font-sans font-medium text-[10px] text-stone-400 dark:text-stone-500 uppercase tracking-wider">Metadata Completeness</h4>
+              <h4 className="font-sans font-medium text-[10px] text-stone-400 dark:text-stone-500 tracking-wide">Metadata completeness</h4>
               
               <div className="flex items-center justify-between text-xs font-sans">
                 <span className="text-stone-500">DOI Reference:</span>
@@ -419,7 +419,7 @@ export default function LiteratureLibrary({
                   <p className="text-[10px] font-sans text-amber-800 dark:text-amber-400 flex items-center gap-1">
                     <ShieldAlert className="w-3.5 h-3.5" /> Missing fields for citation formatting:
                   </p>
-                  <p className="text-[10px] font-mono text-stone-400 uppercase mt-1">
+                  <p className="text-[10px] font-mono text-stone-400 mt-1">
                     {selectedPaper.missingFields.join(', ')}
                   </p>
                 </div>
@@ -429,7 +429,7 @@ export default function LiteratureLibrary({
             {/* Abstract */}
             {selectedPaper.abstract && (
               <div className="space-y-1">
-                <h4 className="font-sans font-semibold text-[10px] text-stone-400 uppercase tracking-wider">Abstract</h4>
+                <h4 className="font-sans font-semibold text-[10px] text-stone-400 tracking-wide">Abstract</h4>
                 <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed italic line-clamp-4">
                   "{selectedPaper.abstract}"
                 </p>
@@ -438,7 +438,7 @@ export default function LiteratureLibrary({
 
             {/* Local Notes */}
             <div className="space-y-2">
-              <label htmlFor="local-notes-textarea" className="font-sans font-semibold text-[10px] text-stone-400 uppercase tracking-wider block">Local Notes</label>
+              <label htmlFor="local-notes-textarea" className="font-sans font-semibold text-[10px] text-stone-400 tracking-wide block">Local notes</label>
               <textarea
                 id="local-notes-textarea"
                 value={selectedPaper.notes}
@@ -454,7 +454,7 @@ export default function LiteratureLibrary({
 
             {/* Highlights and Annotations workbench */}
             <div className="space-y-3">
-              <h4 className="font-sans font-semibold text-[10px] text-stone-400 uppercase tracking-wider">Highlights & PDF Annotations</h4>
+              <h4 className="font-sans font-semibold text-[10px] text-stone-400 tracking-wide">Highlights & PDF annotations</h4>
               
               <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
                 {selectedPaper.annotations.map((ann) => (

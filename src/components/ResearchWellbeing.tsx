@@ -274,7 +274,7 @@ export default function ResearchWellbeing() {
           {/* Pomodoro Timer Block */}
           <div className="bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-8 rounded-lg flex flex-col items-center justify-center space-y-6">
             <div className="text-center">
-              <span className="font-sans text-[10px] uppercase font-mono tracking-wider text-amber-800 dark:text-amber-500">
+              <span className="font-sans text-[10px] capitalize font-mono tracking-wide text-amber-800 dark:text-amber-500">
                 {isBreak ? 'Gentle Break Interval' : 'Deep Work Focus Hour'}
               </span>
               <h2 className="font-mono text-5xl font-light text-stone-900 dark:text-stone-100 tracking-tight mt-2">
@@ -327,7 +327,7 @@ export default function ResearchWellbeing() {
                     }`}
                   >
                     <span>{sound.name}</span>
-                    <span className="font-mono text-[9px] uppercase bg-stone-50 px-2 py-0.5 rounded text-stone-400">
+                    <span className="font-mono text-[9px] capitalize bg-stone-50 px-2 py-0.5 rounded text-stone-400">
                       {activeSoundscape === sound.id ? 'synthesizing' : sound.type}
                     </span>
                   </button>
@@ -351,7 +351,7 @@ export default function ResearchWellbeing() {
           
           {/* Guides navigation list */}
           <div className="lg:col-span-1 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-4 rounded-lg h-fit space-y-2">
-            <h4 className="font-sans font-medium text-xs text-amber-800 uppercase tracking-wider mb-2">Support Topics</h4>
+            <h4 className="font-sans font-medium text-xs text-amber-800 tracking-wide mb-2">Support topics</h4>
             
             <button
               onClick={() => setActiveGuide('impostor')}
@@ -384,7 +384,7 @@ export default function ResearchWellbeing() {
           {/* Guide detail rendering */}
           <div className="lg:col-span-2 bg-white dark:bg-stone-950 border border-stone-200 rounded-lg p-6 space-y-6">
             <div>
-              <span className="font-sans text-[10px] uppercase font-mono tracking-wider text-amber-800">Support Material</span>
+              <span className="font-sans text-[10px] capitalize font-mono tracking-wide text-amber-800">Support material</span>
               <h2 className="font-sans font-bold text-stone-950 text-base leading-snug mt-1">
                 {guide.title}
               </h2>

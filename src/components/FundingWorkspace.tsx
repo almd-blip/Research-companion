@@ -147,7 +147,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-1">
-                  <label className="font-sans text-[10px] text-stone-400 uppercase tracking-wider font-semibold">Funder / Scheme Name</label>
+                  <label className="font-sans text-[10px] text-stone-400 tracking-wide font-semibold">Funder / Scheme Name</label>
                   <input
                     type="text"
                     value={activeJourney.fundingDetails?.funderName || ''}
@@ -157,7 +157,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
                   />
                 </div>
                 <div className="space-y-1">
-                  <label className="font-sans text-[10px] text-stone-400 uppercase tracking-wider font-semibold font-semibold">Active Collaborators</label>
+                  <label className="font-sans text-[10px] text-stone-400 tracking-wide font-semibold">Active Collaborators</label>
                   <input
                     type="text"
                     value={activeJourney.fundingDetails?.collaborators || ''}
@@ -234,7 +234,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
 
           {/* SIDEBAR: Reusable Snippets & Capability Profile */}
           <div className="lg:col-span-1 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-5 rounded-lg space-y-4 h-fit">
-            <h4 className="font-sans font-medium text-xs text-amber-800 uppercase tracking-wider flex items-center gap-1.5">
+            <h4 className="font-sans font-medium text-xs text-amber-800 tracking-wide flex items-center gap-1.5">
               <Layers className="w-4 h-4 text-amber-800" /> Reusable Bio & Capability Profile
             </h4>
             <p className="font-sans text-[11px] text-stone-500">

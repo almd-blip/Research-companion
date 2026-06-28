@@ -105,7 +105,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
       <div className="w-full lg:w-96 bg-amber-50/15 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 rounded-lg p-5 flex flex-col">
         <div className="flex items-center gap-2 mb-4 border-b border-amber-900/10 pb-3">
           <Library className="w-4 h-4 text-amber-800 dark:text-amber-400" />
-          <h3 className="font-sans font-medium text-xs text-amber-800 dark:text-amber-400 uppercase tracking-wider">AI Scholar Claim-Checker</h3>
+          <h3 className="font-sans font-medium text-xs text-amber-800 dark:text-amber-400 tracking-wide">AI Scholar Claim-Checker</h3>
         </div>
 
         {loadingAnalysis ? (
@@ -161,7 +161,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
                 <div className="space-y-3">
                   {analysisResult.unsupportedClaims?.map((item: any, idx: number) => (
                     <div key={idx} className="p-3.5 bg-red-50/50 dark:bg-red-950/10 border border-red-150 dark:border-red-900/40 rounded-lg space-y-1.5 text-xs">
-                      <div className="flex items-center gap-1.5 text-red-700 dark:text-red-400 font-semibold text-[10px] uppercase">
+                      <div className="flex items-center gap-1.5 text-red-700 dark:text-red-400 font-semibold text-[10px]">
                         <AlertTriangle className="w-3.5 h-3.5" /> Unsupported Statement
                       </div>
                       <p className="italic text-stone-700 dark:text-stone-300">"{item.claimText}"</p>
@@ -180,7 +180,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
                 <div className="space-y-3">
                   {analysisResult.supportedByLibrary?.map((item: any, idx: number) => (
                     <div key={idx} className="p-3.5 bg-emerald-50/45 dark:bg-emerald-950/10 border border-emerald-150 dark:border-emerald-900/40 rounded-lg space-y-1.5 text-xs">
-                      <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold text-[10px] uppercase">
+                      <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400 font-semibold text-[10px]">
                         <BookOpen className="w-3.5 h-3.5" /> Supported by Library
                       </div>
                       <p className="italic text-stone-700 dark:text-stone-300">"{item.claimText}"</p>
@@ -199,7 +199,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
                 <div className="space-y-3">
                   {analysisResult.contradictoryEvidence?.map((item: any, idx: number) => (
                     <div key={idx} className="p-3.5 bg-amber-50/50 dark:bg-amber-950/10 border border-amber-150 dark:border-amber-900/40 rounded-lg space-y-1.5 text-xs">
-                      <div className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-semibold text-[10px] uppercase">
+                      <div className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-semibold text-[10px]">
                         <MessageSquare className="w-3.5 h-3.5" /> Relational Contradiction
                       </div>
                       <p className="italic text-stone-700 dark:text-stone-300">"{item.draftClaim}"</p>

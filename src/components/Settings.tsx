@@ -53,7 +53,7 @@ export default function Settings({ onResetAllData }: SettingsProps) {
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
-            <label className="font-sans text-[10px] text-stone-400 uppercase tracking-wider font-semibold">Scholar Name</label>
+            <label className="font-sans text-[10px] text-stone-400 tracking-wide font-semibold">Scholar name</label>
             <input
               type="text"
               value={scholarName}
@@ -64,7 +64,7 @@ export default function Settings({ onResetAllData }: SettingsProps) {
           </div>
 
           <div className="space-y-1">
-            <label className="font-sans text-[10px] text-stone-400 uppercase tracking-wider font-semibold font-semibold">Institution / Affiliation</label>
+            <label className="font-sans text-[10px] text-stone-400 tracking-wide font-semibold">Institution / Affiliation</label>
             <input
               type="text"
               value={affiliation}
@@ -75,7 +75,7 @@ export default function Settings({ onResetAllData }: SettingsProps) {
         </div>
 
         <div className="space-y-1">
-          <label className="font-sans text-[10px] text-stone-400 uppercase tracking-wider font-semibold">Field of Inquiry / Specialty</label>
+          <label className="font-sans text-[10px] text-stone-400 tracking-wide font-semibold">Field of inquiry / specialty</label>
           <input
             type="text"
             value={fieldOfStudy}

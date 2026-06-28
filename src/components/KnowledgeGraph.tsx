@@ -250,11 +250,11 @@ export default function KnowledgeGraph({ papers, journeys }: KnowledgeGraphProps
       {/* Selected Node Inspector Sidebar */}
       <div className="w-full lg:w-80 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 rounded-lg p-5 flex flex-col justify-between">
         <div>
-          <h4 className="font-sans font-medium text-xs text-amber-800 dark:text-amber-400 uppercase tracking-wider mb-3">Node Inspector</h4>
+          <h4 className="font-sans font-medium text-xs text-amber-800 dark:text-amber-400 tracking-wide mb-3">Node inspector</h4>
           {selectedNode ? (
             <div className="space-y-4">
               <div>
-                <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-mono mb-2 uppercase ${
+                <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-mono mb-2 capitalize ${
                   selectedNode.type === 'journey' ? 'bg-amber-100 text-amber-800' :
                   selectedNode.type === 'paper' ? 'bg-emerald-100 text-emerald-800' :
                   selectedNode.type === 'concept' ? 'bg-blue-100 text-blue-800' : 'bg-violet-100 text-violet-800'
@@ -273,7 +273,7 @@ export default function KnowledgeGraph({ papers, journeys }: KnowledgeGraphProps
               )}
 
               <div>
-                <h5 className="font-sans font-medium text-[11px] text-stone-400 dark:text-stone-500 uppercase mb-2">Direct Connections</h5>
+                <h5 className="font-sans font-medium text-[11px] text-stone-400 dark:text-stone-500 mb-2">Direct connections</h5>
                 <div className="space-y-1.5 max-h-[180px] overflow-y-auto">
                   {getLinkedNodes(selectedNode.id).map(linked => (
                     <button
