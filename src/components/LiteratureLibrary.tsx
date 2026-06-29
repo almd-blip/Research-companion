@@ -356,7 +356,7 @@ export default function LiteratureLibrary({
           })}
 
           {filteredPapers.length === 0 && (
-            <div className="text-center py-12 text-stone-400 dark:text-stone-500 font-sans text-xs">
+            <div className="text-left py-12 text-stone-400 dark:text-stone-500 font-sans text-xs">
               No matching literature found in your local library.
             </div>
           )}
@@ -514,7 +514,7 @@ export default function LiteratureLibrary({
 
           </div>
         ) : (
-          <div className="text-center py-24 text-stone-400 dark:text-stone-500 font-sans text-xs">
+          <div className="text-left py-24 text-stone-400 dark:text-stone-500 font-sans text-xs">
             <p>Select a document from the list to view its citation completeness, record notes, and manage marginal highlights.</p>
           </div>
         )}

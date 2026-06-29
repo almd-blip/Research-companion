@@ -292,14 +292,14 @@ export default function KnowledgeGraph({ papers, journeys }: KnowledgeGraphProps
               </div>
             </div>
           ) : (
-            <div className="text-center py-12 text-stone-400 dark:text-stone-500 font-sans text-xs">
+            <div className="text-left py-12 text-stone-400 dark:text-stone-500 font-sans text-xs">
               <p>Click on any node in the graph to inspect its details and trace academic connections.</p>
             </div>
           )}
         </div>
 
         {selectedNode && (
-          <div className="pt-4 border-t border-amber-900/10 dark:border-stone-800 mt-4 text-center">
+          <div className="pt-4 border-t border-amber-900/10 dark:border-stone-800 mt-4 text-left">
             <p className="font-sans text-[10px] text-stone-400">
               Double click on nodes to reposition or zoom to recalibrate perspective.
             </p>

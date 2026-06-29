@@ -98,7 +98,7 @@ export interface FundingDetails {
 export interface MoodCheckIn {
   id: string;
   timestamp: string;
-  state: 'focused' | 'curious' | 'overwhelmed' | 'stuck' | 'doubting' | 'tired';
+  state: 'focused' | 'curious' | 'overwhelmed' | 'stuck' | 'doubting' | 'tired' | 'avoiding_writing' | 'anxious';
   note?: string;
 }
 

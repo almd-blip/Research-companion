@@ -107,8 +107,8 @@ export default function PlatformSpecificationView() {
         </div>
 
         {/* Article header */}
-        <div className="text-center space-y-3 pb-6 border-b border-stone-150/80 max-w-2xl mx-auto">
-          <span className="font-sans text-[10px] capitalize font-mono tracking-wide text-amber-800 font-semibold flex items-center gap-1 justify-center">
+        <div className="text-left space-y-3 pb-6 border-b border-stone-150/80 max-w-2xl">
+          <span className="font-sans text-[10px] capitalize font-mono tracking-wide text-amber-800 font-semibold flex items-center gap-1 justify-start">
             <BookOpen className="w-4 h-4" /> Academic Specification Paper
           </span>
           <h1 className="font-sans font-bold tracking-tight text-xl md:text-2xl text-stone-950 leading-tight">
@@ -116,7 +116,7 @@ export default function PlatformSpecificationView() {
           </h1>
           <p className="font-sans text-xs text-stone-500 italic font-light">{SYSTEM_SPECIFICATION.subtitle}</p>
 
-          <div className="pt-3 flex justify-center gap-4 text-[10px] text-stone-400 font-mono">
+          <div className="pt-3 flex justify-start gap-4 text-[10px] text-stone-400 font-mono">
             <span>By: {SYSTEM_SPECIFICATION.authors}</span>
             <span>·</span>
             <span>Published: {SYSTEM_SPECIFICATION.date}</span>

@@ -1,10 +1,16 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap');
 @import "tailwindcss";
 
+@variant dark (&:where(.dark, .dark *));
+
 @theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
   --font-serif: "Playfair Display", Georgia, Cambria, serif;
+}
+
+body {
+  font-family: var(--font-sans);
 }
 
 /* Custom fade animation for seamless module transitions */
@@ -41,3 +47,135 @@
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(120, 110, 90, 0.3);
 }
+
+/* High Contrast Mode CSS Rules */
+.high-contrast {
+  --border-primary: #000000 !important;
+  --text-main: #000000 !important;
+  --text-muted: #1c1917 !important;
+}
+
+.dark.high-contrast,
+.dark .high-contrast {
+  --border-primary: #ffffff !important;
+  --text-main: #ffffff !important;
+  --text-muted: #f5f5f4 !important;
+}
+
+/* Apply high-contrast text depth */
+.high-contrast p,
+.high-contrast span,
+.high-contrast h1,
+.high-contrast h2,
+.high-contrast h3,
+.high-contrast h4,
+.high-contrast h5,
+.high-contrast h6,
+.high-contrast label,
+.high-contrast th,
+.high-contrast td,
+.high-contrast code,
+.high-contrast pre {
+  color: var(--text-main) !important;
+  font-weight: 500 !important;
+}
+
+/* Overwrite muted texts to much deeper weights and colors */
+.high-contrast .text-stone-400,
+.high-contrast .text-stone-500,
+.high-contrast .text-stone-600,
+.high-contrast .text-stone-700,
+.high-contrast .text-gray-400,
+.high-contrast .text-gray-500,
+.high-contrast .text-gray-600,
+.high-contrast .text-zinc-400,
+.high-contrast .text-zinc-500,
+.high-contrast .text-zinc-600,
+.high-contrast .text-slate-400,
+.high-contrast .text-slate-500,
+.high-contrast .text-slate-600,
+.high-contrast .text-neutral-400,
+.high-contrast .text-neutral-500,
+.high-contrast .text-neutral-600 {
+  color: var(--text-muted) !important;
+  font-weight: 500 !important;
+}
+
+/* Elevate borders and dividers */
+.high-contrast .border,
+.high-contrast .border-t,
+.high-contrast .border-b,
+.high-contrast .border-l,
+.high-contrast .border-r,
+.high-contrast div[class*="border-"] {
+  border-color: var(--border-primary) !important;
+  border-width: 1.5px !important;
+}
+
+/* High contrast inputs and textareas */
+.high-contrast input,
+.high-contrast textarea,
+.high-contrast select {
+  border: 2px solid var(--border-primary) !important;
+  color: var(--text-main) !important;
+  background-color: transparent !important;
+}
+
+/* High contrast buttons and active tabs */
+.high-contrast button {
+  border: 1.5px solid var(--border-primary) !important;
+}
+
+.high-contrast button[aria-selected="true"],
+.high-contrast button[role="tab"][aria-selected="true"] {
+  background-color: var(--border-primary) !important;
+  color: var(--text-main-inverse, #ffffff) !important;
+  font-weight: 700 !important;
+}
+
+.dark.high-contrast button[aria-selected="true"],
+.dark .high-contrast button[aria-selected="true"],
+.dark .high-contrast button[role="tab"][aria-selected="true"] {
+  background-color: #ffffff !important;
+  color: #000000 !important;
+}
+
+/* Enhance SVGs stroke and fill for perfect readability */
+.high-contrast svg {
+  stroke: var(--border-primary) !important;
+  stroke-width: 2.25px !important;
+}
+
+.dark .high-contrast svg {
+  stroke: #ffffff !important;
+}
+
+/* Custom Dark Theme Rules: Muted/Grey text to White, Yellow/Amber text to Burgundy (#912A4A) */
+.dark [class*="text-stone-"],
+.dark [class*="text-gray-"],
+.dark [class*="text-slate-"],
+.dark [class*="text-zinc-"],
+.dark [class*="text-neutral-"],
+.dark .text-stone-100, .dark .text-stone-200, .dark .text-stone-300, .dark .text-stone-400, .dark .text-stone-500, .dark .text-stone-600, .dark .text-stone-700, .dark .text-stone-800, .dark .text-stone-900,
+.dark .text-gray-100, .dark .text-gray-200, .dark .text-gray-300, .dark .text-gray-400, .dark .text-gray-500, .dark .text-gray-600, .dark .text-gray-700, .dark .text-gray-800, .dark .text-gray-900,
+.dark .text-slate-100, .dark .text-slate-200, .dark .text-slate-300, .dark .text-slate-400, .dark .text-slate-500, .dark .text-slate-600, .dark .text-slate-700, .dark .text-slate-800, .dark .text-slate-900,
+.dark .text-zinc-100, .dark .text-zinc-200, .dark .text-zinc-300, .dark .text-zinc-400, .dark .text-zinc-500, .dark .text-zinc-600, .dark .text-zinc-700, .dark .text-zinc-800, .dark .text-zinc-900,
+.dark .text-neutral-100, .dark .text-neutral-200, .dark .text-neutral-300, .dark .text-neutral-400, .dark .text-neutral-500, .dark .text-neutral-600, .dark .text-neutral-700, .dark .text-neutral-800, .dark .text-neutral-900,
+.dark .dark\:text-stone-100, .dark .dark\:text-stone-200, .dark .dark\:text-stone-300, .dark .dark\:text-stone-400, .dark .dark\:text-stone-500, .dark .dark\:text-stone-600, .dark .dark\:text-stone-700, .dark .dark\:text-stone-800, .dark .dark\:text-stone-900,
+.dark .dark\:text-gray-100, .dark .dark\:text-gray-200, .dark .dark\:text-gray-300, .dark .dark\:text-gray-400, .dark .dark\:text-gray-500, .dark .dark\:text-gray-600, .dark .dark\:text-gray-700, .dark .dark\:text-gray-800, .dark .dark\:text-gray-900,
+.dark .dark\:text-slate-100, .dark .dark\:text-slate-200, .dark .dark\:text-slate-300, .dark .dark\:text-slate-400, .dark .dark\:text-slate-500, .dark .dark\:text-slate-600, .dark .dark\:text-slate-700, .dark .dark\:text-slate-800, .dark .dark\:text-slate-900,
+.dark .dark\:text-zinc-100, .dark .dark\:text-zinc-200, .dark .dark\:text-zinc-300, .dark .dark\:text-zinc-400, .dark .dark\:text-zinc-500, .dark .dark\:text-zinc-600, .dark .dark\:text-zinc-700, .dark .dark\:text-zinc-800, .dark .dark\:text-zinc-900,
+.dark .dark\:text-neutral-100, .dark .dark\:text-neutral-200, .dark .dark\:text-neutral-300, .dark .dark\:text-neutral-400, .dark .dark\:text-neutral-500, .dark .dark\:text-neutral-600, .dark .dark\:text-neutral-700, .dark .dark\:text-neutral-800, .dark .dark\:text-neutral-900 {
+  color: #ffffff !important;
+}
+
+/* Propagate the colors correctly to svg elements inside grey/stone parent containers */
+.dark [class*="text-stone-"] svg,
+.dark [class*="text-gray-"] svg,
+.dark [class*="text-slate-"] svg,
+.dark [class*="text-zinc-"] svg,
+.dark [class*="text-neutral-"] svg {
+  color: #ffffff !important;
+  stroke: #ffffff !important;
+}
+

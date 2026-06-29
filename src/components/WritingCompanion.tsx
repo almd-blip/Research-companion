@@ -109,9 +109,9 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
         </div>
 
         {loadingAnalysis ? (
-          <div className="flex-1 flex flex-col items-center justify-center py-16 space-y-3">
+          <div className="flex-1 flex flex-col items-start justify-start py-16 space-y-3">
             <div className="w-5 h-5 border-2 border-amber-900 border-t-transparent rounded-full animate-spin"></div>
-            <p className="font-sans text-xs text-stone-500 italic text-center px-4">Scanning your library, checking local findings, tracking evidence lines...</p>
+            <p className="font-sans text-xs text-stone-500 italic text-left px-4">Scanning your library, checking local findings, tracking evidence lines...</p>
           </div>
         ) : analysisResult ? (
           <div className="flex-1 flex flex-col">
@@ -119,7 +119,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
             <div className="grid grid-cols-4 gap-1 border-b border-stone-200 dark:border-stone-800 pb-3 mb-4 text-[10px] font-sans">
               <button
                 onClick={() => setActiveAnalysisTab('unsupported')}
-                className={`py-1 rounded text-center cursor-pointer ${
+                className={`py-1 rounded text-left cursor-pointer ${
                   activeAnalysisTab === 'unsupported' ? 'bg-amber-900/10 text-amber-900 font-semibold' : 'text-stone-400'
                 }`}
                 title="Unsupported claims in draft"
@@ -128,7 +128,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
               </button>
               <button
                 onClick={() => setActiveAnalysisTab('supported')}
-                className={`py-1 rounded text-center cursor-pointer ${
+                className={`py-1 rounded text-left cursor-pointer ${
                   activeAnalysisTab === 'supported' ? 'bg-amber-900/10 text-amber-900 font-semibold' : 'text-stone-400'
                 }`}
                 title="Claims supported by library"
@@ -137,7 +137,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
               </button>
               <button
                 onClick={() => setActiveAnalysisTab('contradictions')}
-                className={`py-1 rounded text-center cursor-pointer ${
+                className={`py-1 rounded text-left cursor-pointer ${
                   activeAnalysisTab === 'contradictions' ? 'bg-amber-900/10 text-amber-900 font-semibold' : 'text-stone-400'
                 }`}
                 title="Contradictions in library"
@@ -146,7 +146,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
               </button>
               <button
                 onClick={() => setActiveAnalysisTab('suggestions')}
-                className={`py-1 rounded text-center cursor-pointer ${
+                className={`py-1 rounded text-left cursor-pointer ${
                   activeAnalysisTab === 'suggestions' ? 'bg-amber-900/10 text-amber-900 font-semibold' : 'text-stone-400'
                 }`}
                 title="Argument outline suggestions"
@@ -171,7 +171,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
                   ))}
 
                   {(!analysisResult.unsupportedClaims || analysisResult.unsupportedClaims.length === 0) && (
-                    <p className="text-center py-12 text-stone-400 text-xs italic">All claims in draft possess trace evidence lines!</p>
+                    <p className="text-left py-12 text-stone-400 text-xs italic">All claims in draft possess trace evidence lines!</p>
                   )}
                 </div>
               )}
@@ -190,7 +190,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
                   ))}
 
                   {(!analysisResult.supportedByLibrary || analysisResult.supportedByLibrary.length === 0) && (
-                    <p className="text-center py-12 text-stone-400 text-xs italic">No matching library evidence found for active statements.</p>
+                    <p className="text-left py-12 text-stone-400 text-xs italic">No matching library evidence found for active statements.</p>
                   )}
                 </div>
               )}
@@ -209,7 +209,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
                   ))}
 
                   {(!analysisResult.contradictoryEvidence || analysisResult.contradictoryEvidence.length === 0) && (
-                    <p className="text-center py-12 text-stone-400 text-xs italic">No contradictory citations flagged in your library.</p>
+                    <p className="text-left py-12 text-stone-400 text-xs italic">No contradictory citations flagged in your library.</p>
                   )}
                 </div>
               )}
@@ -232,7 +232,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
             </div>
           </div>
         ) : (
-          <div className="flex-1 flex flex-col items-center justify-center py-24 text-center text-stone-400 dark:text-stone-500 font-sans text-xs">
+          <div className="flex-1 flex flex-col items-start justify-start py-24 text-left text-stone-400 dark:text-stone-500 font-sans text-xs">
             <HelpCircle className="w-8 h-8 text-stone-300 mb-2" />
             <p className="px-4">Click "Cross-Reference Library" on the left to verify academic statement support, track contradictions, and organize argument hierarchies.</p>
           </div>

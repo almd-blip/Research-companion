@@ -358,10 +358,65 @@ Explain where they agree, where they disagree or conflict (methodologically or c
   }
 });
 
+// 6. AI Assistant General Chat Route
+app.post('/api/gemini/chat', async (req, res) => {
+  try {
+    const { message, history, customGuidance } = req.body;
+    if (!message) {
+      return res.status(400).json({ error: 'Message is required' });
+    }
+
+    const ai = getGeminiClient();
+    
+    // Construct contents matching GoogleGenAI format
+    const formattedHistory = (history || []).map((h: any) => ({
+      role: h.role === 'model' ? 'model' : 'user',
+      parts: [{ text: h.text || '' }]
+    }));
+    
+    const contents = [
+      ...formattedHistory,
+      { role: 'user', parts: [{ text: message }] }
+    ];
+
+    const systemInstruction = `You are an exceptional, wise, encouraging, and academically rigorous PhD supervisor and scholarly research companion. 
+Your goal is to guide the researcher on their academic journey with clarity, compassion, and structured thinking.
+Maintain academic integrity. Always remain supportive, practical, calming, and non-shaming. 
+${customGuidance ? `\nAdditional researcher directives:\n${customGuidance}` : ''}`;
+
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.5-flash',
+      contents: contents,
+      config: {
+        systemInstruction,
+      }
+    });
+
+    res.json({ text: response.text });
+  } catch (error: any) {
+    console.error('Error in /api/gemini/chat:', error);
+    res.status(500).json({ error: error.message || 'Failed to chat with AI companion' });
+  }
+});
+
 
 // ----------------- VITE MIDDLEWARE SETUP -----------------
 
 async function startServer() {
+  // Map .png calls to high fidelity vector SVG logos with proper Content-Type
+  app.get('/assets/logo_transparent.png', (req, res) => {
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.sendFile(path.join(process.cwd(), 'assets/logo_transparent.svg'));
+  });
+
+  app.get('/assets/logo_cream.png', (req, res) => {
+    res.setHeader('Content-Type', 'image/svg+xml');
+    res.sendFile(path.join(process.cwd(), 'assets/logo_cream.svg'));
+  });
+
+  // Serve assets folder statically
+  app.use('/assets', express.static(path.join(process.cwd(), 'assets')));
+
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({
       server: { middlewareMode: true },

@@ -173,7 +173,7 @@ export default function CitationEngine({ papers, onVerifyMetadata }: CitationEng
             ))}
 
             {missingMetadataPapers.length === 0 && (
-              <div className="text-center py-8 text-emerald-600 font-sans text-xs italic flex flex-col items-center gap-1">
+              <div className="text-left py-8 text-emerald-600 font-sans text-xs italic flex flex-col items-start gap-1">
                 <CheckCircle className="w-5 h-5 text-emerald-600" />
                 100% of references verified!
               </div>

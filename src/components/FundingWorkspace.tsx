@@ -281,7 +281,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
 
         </div>
       ) : (
-        <div className="text-center py-24 font-sans text-stone-400 text-xs">
+        <div className="text-left py-24 font-sans text-stone-400 text-xs">
           Select or initialize an active Research Journey to unlock the funding applications panel.
         </div>
       )}

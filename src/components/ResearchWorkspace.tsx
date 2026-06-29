@@ -245,7 +245,7 @@ export default function ResearchWorkspace({
 
   if (!activeJourney) {
     return (
-      <div className="text-center py-24 font-sans text-stone-400 text-xs">
+      <div className="text-left py-24 font-sans text-stone-400 text-xs">
         No active journey boards found. Click "Add New Journey" above to initialize your board.
       </div>
     );
@@ -472,7 +472,7 @@ export default function ResearchWorkspace({
                 );
               })()
             ) : (
-              <div className="bg-white border border-stone-200 rounded-lg p-12 text-center text-stone-400 font-sans text-xs">
+              <div className="bg-white border border-stone-200 rounded-lg p-12 text-left text-stone-400 font-sans text-xs">
                 Select a chapter outline to write or review drafting progress.
               </div>
             )}
@@ -522,7 +522,7 @@ export default function ResearchWorkspace({
             ))}
 
             {activeJourney.tasks.length === 0 && (
-              <p className="font-sans text-xs text-stone-400 italic text-center py-6">No tasks mapped on your journey yet.</p>
+              <p className="font-sans text-xs text-stone-400 italic text-left py-6">No tasks mapped on your journey yet.</p>
             )}
           </div>
 

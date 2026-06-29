@@ -147,7 +147,7 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
           {/* Results/Summary column */}
           <div className="lg:col-span-2 space-y-6">
             {loadingSummary ? (
-              <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-center flex flex-col items-center justify-center space-y-3">
+              <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-left flex flex-col items-start justify-start space-y-3">
                 <div className="w-6 h-6 border-2 border-amber-900 border-t-transparent rounded-full animate-spin"></div>
                 <p className="font-sans text-xs text-stone-500 italic">Gemini is parsing research methods, mapping participants, and assessing evidence strength...</p>
               </div>
@@ -249,7 +249,7 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
                 </div>
               </div>
             ) : (
-              <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-center text-stone-400 dark:text-stone-500 font-sans text-xs">
+              <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-left text-stone-400 dark:text-stone-500 font-sans text-xs">
                 Select a reference from the library pane on the left, then click "Generate Structured Summary" to deploy our meta-analytical model.
               </div>
             )}
@@ -300,7 +300,7 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
           {/* Result view column */}
           <div className="lg:col-span-2 space-y-6">
             {loadingSynthesis ? (
-              <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-center flex flex-col items-center justify-center space-y-3">
+              <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-left flex flex-col items-start justify-start space-y-3">
                 <div className="w-6 h-6 border-2 border-amber-900 border-t-transparent rounded-full animate-spin"></div>
                 <p className="font-sans text-xs text-stone-500 italic">Synthesizing multiple literature perspectives, isolating thematic convergences, mapping debates...</p>
               </div>
@@ -350,7 +350,7 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
                 </div>
               </div>
             ) : (
-              <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-center text-stone-400 dark:text-stone-500 font-sans text-xs">
+              <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-left text-stone-400 dark:text-stone-500 font-sans text-xs">
                 Select multiple papers in the synthesis console on the left, then click "Synthesize Relationships" to inspect multi-perspective thematic agreements and divisions.
               </div>
             )}
