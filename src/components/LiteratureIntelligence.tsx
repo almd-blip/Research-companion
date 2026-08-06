@@ -6,6 +6,7 @@
 import { useState } from 'react';
 import { Paper } from '../types';
 import { Sparkles, Brain, CheckCircle, ShieldAlert, Star, Layers, Shuffle } from 'lucide-react';
+import { postWithAiRouting } from '../lib/localAiService';
 
 interface LiteratureIntelligenceProps {
   papers: Paper[];
@@ -29,15 +30,11 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
     setLoadingSummary(true);
 
     try {
-      const res = await fetch('/api/gemini/summarize', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title: selectedPaper.title,
-          authors: selectedPaper.authors,
-          abstract: selectedPaper.abstract || '',
-          notes: selectedPaper.notes || '',
-        }),
+      const res = await postWithAiRouting('/api/gemini/summarize', {
+        title: selectedPaper.title,
+        authors: selectedPaper.authors,
+        abstract: selectedPaper.abstract || '',
+        notes: selectedPaper.notes || '',
       });
 
       if (res.ok) {
@@ -67,11 +64,7 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
 
     try {
       const papersToSynthesize = papers.filter((p) => selectedPaperIdsForSynthesis.includes(p.id));
-      const res = await fetch('/api/gemini/connect-literature', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ papers: papersToSynthesize }),
-      });
+      const res = await postWithAiRouting('/api/gemini/connect-literature', { papers: papersToSynthesize });
 
       if (res.ok) {
         const data = await res.json();

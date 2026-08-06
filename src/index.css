@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700;800;900&family=JetBrains+Mono:wght@300;400;500&family=Playfair+Display:ital,wght@0,400;0,500;1,400&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700;800;900&family=Atkinson+Hyperlegible:wght@400;700&family=Lexend:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap');
 @import "tailwindcss";
 
 @variant dark (&:where(.dark, .dark *));
@@ -6,11 +6,48 @@
 @theme {
   --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
   --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
-  --font-serif: "Playfair Display", Georgia, Cambria, serif;
+  --font-serif: "Outfit", ui-sans-serif, system-ui, sans-serif;
+
+  --color-teal-brand: #1D9E75;
+  --color-burgundy-brand: #912A4A;
+  --color-indigo-brand: #1B0A3B;
+  --color-amber-brand: #C68A2B;
+  --color-light-brand: #FAF8F5;
+}
+
+:root {
+  --brand-teal: #1D9E75;
+  --brand-burgundy: #912A4A;
+  --brand-indigo: #1B0A3B;
+  --brand-amber: #C68A2B;
+  --brand-light: #FAF8F5;
 }
 
 body {
   font-family: var(--font-sans);
+  text-align: left;
+  background-color: #FAF8F5;
+  color: #1B0A3B;
+}
+
+/* Global Typography & Accessibility Directives */
+*, *::before, *::after {
+  text-transform: none !important;
+  font-style: normal !important;
+}
+
+p, h1, h2, h3, h4, h5, h6, span, div, label, input, button, select, textarea, th, td, a, li {
+  text-align: left !important;
+}
+
+/* Dyslexia-Friendly Accessibility Font Alternative */
+.font-dyslexic,
+.font-dyslexic *,
+body.font-dyslexic,
+body.font-dyslexic * {
+  font-family: 'Atkinson Hyperlegible', 'Lexend', 'Outfit', sans-serif !important;
+  letter-spacing: 0.02em;
+  word-spacing: 0.05em;
 }
 
 /* Custom fade animation for seamless module transitions */

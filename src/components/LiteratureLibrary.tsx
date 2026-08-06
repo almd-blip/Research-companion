@@ -5,7 +5,42 @@
 
 import React, { useState } from 'react';
 import { Paper, Collection, Annotation } from '../types';
-import { Search, Tag, AlertTriangle, CheckCircle2, ShieldAlert, Sparkles, FileText, Plus, Trash } from 'lucide-react';
+import { Search, Tag, AlertTriangle, CheckCircle2, ShieldAlert, Sparkles, FileText, Plus, Trash, Database, Clipboard, Check, Quote, BookOpen } from 'lucide-react';
+import DataIngestionModule from './DataIngestionModule';
+
+export type CommonCitationStyle = 'Harvard' | 'APA' | 'MLA' | 'Chicago' | 'IEEE';
+
+export const formatPaperPreview = (paper: Paper, style: CommonCitationStyle): string => {
+  const authors = paper.authors || 'Unknown Author';
+  const year = paper.year || 'n.d.';
+  const title = paper.title || 'Untitled';
+  const journal = paper.journal && paper.journal !== 'Unspecified' ? paper.journal : '';
+  const doi = paper.doi ? paper.doi.replace(/^https?:\/\/doi\.org\//i, '') : '';
+
+  switch (style) {
+    case 'Harvard': {
+      const parts = authors.split(',').map(a => a.trim());
+      const authorFormatted = parts.length > 2 ? `${parts[0]} et al.` : parts.length === 2 ? `${parts[0]} and ${parts[1]}` : parts[0];
+      return `${authorFormatted} ${year}, '${title}', ${journal ? `${journal}, ` : ''}${doi ? `Available from: doi:${doi}` : ''}`.trim();
+    }
+    case 'APA': {
+      const parts = authors.split(',').map(a => a.trim());
+      const authorFormatted = parts.length > 2 ? `${parts[0]} et al.` : parts.length === 2 ? `${parts[0]} & ${parts[1]}` : parts[0];
+      return `${authorFormatted} (${year}). ${title}. ${journal ? `${journal}. ` : ''}${doi ? `https://doi.org/${doi}` : ''}`.trim();
+    }
+    case 'MLA': {
+      return `${authors}. "${title}." ${journal ? `${journal}, ` : ''}${year}.${doi ? ` doi:${doi}.` : ''}`.trim();
+    }
+    case 'Chicago': {
+      return `${authors}. ${year}. "${title}." ${journal ? `${journal}. ` : ''}${doi ? `https://doi.org/${doi}` : ''}`.trim();
+    }
+    case 'IEEE': {
+      return `[1] ${authors}, "${title}," ${journal ? `${journal}, ` : ''}${year}.${doi ? ` doi: ${doi}.` : ''}`.trim();
+    }
+    default:
+      return `${authors} (${year}). ${title}.`;
+  }
+};
 
 interface LiteratureLibraryProps {
   papers: Paper[];
@@ -26,6 +61,13 @@ export default function LiteratureLibrary({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCollection, setSelectedCollection] = useState<string>('all');
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
+
+  // Citation Style state for formatted paper previews
+  const [citationStyle, setCitationStyle] = useState<CommonCitationStyle>('Harvard');
+  const [copiedCitation, setCopiedCitation] = useState(false);
+
+  // Data Ingestion Module toggle
+  const [showIngestionModule, setShowIngestionModule] = useState(false);
 
   // New paper modal/form states
   const [isAdding, setIsAdding] = useState(false);
@@ -176,7 +218,25 @@ export default function LiteratureLibrary({
             />
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex gap-2 flex-wrap sm:flex-nowrap">
+            <label htmlFor="citation-style-global-select" className="sr-only">Citation Preview Style</label>
+            <div className="flex items-center gap-1.5 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded px-2 py-1">
+              <Quote className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400 shrink-0" />
+              <select
+                id="citation-style-global-select"
+                value={citationStyle}
+                onChange={(e) => setCitationStyle(e.target.value as CommonCitationStyle)}
+                className="font-sans text-xs bg-transparent text-stone-800 dark:text-stone-200 focus:outline-none cursor-pointer font-medium"
+                title="Select citation format style for paper previews"
+              >
+                <option value="Harvard">Harvard Style</option>
+                <option value="APA">APA 7th Edition</option>
+                <option value="MLA">MLA 9th Edition</option>
+                <option value="Chicago">Chicago Author-Date</option>
+                <option value="IEEE">IEEE Format</option>
+              </select>
+            </div>
+
             <label htmlFor="collection-filter" className="sr-only">Filter by Collection</label>
             <select
               id="collection-filter"
@@ -191,13 +251,47 @@ export default function LiteratureLibrary({
             </select>
 
             <button
-              onClick={() => setIsAdding(!isAdding)}
+              onClick={() => {
+                setShowIngestionModule(!showIngestionModule);
+                setIsAdding(false);
+              }}
+              className={`font-sans text-xs px-3 py-2 rounded transition-all flex items-center gap-1.5 cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
+                showIngestionModule
+                  ? 'bg-amber-900 text-white border-amber-900 dark:bg-amber-800'
+                  : 'bg-stone-100 dark:bg-stone-900 text-stone-800 dark:text-stone-200 border-stone-200 dark:border-stone-800 hover:bg-stone-200 dark:hover:bg-stone-800'
+              }`}
+              title="Import local JSON or text data dumps for local RAG datasets"
+            >
+              <Database className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
+              Ingest Data Dump (RAG)
+            </button>
+
+            <button
+              onClick={() => {
+                setIsAdding(!isAdding);
+                setShowIngestionModule(false);
+              }}
               className="font-sans text-xs bg-amber-900/10 dark:bg-amber-900/30 text-amber-900 dark:text-amber-300 border border-amber-900/20 px-3 py-2 rounded hover:bg-amber-900/20 transition-all flex items-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950"
             >
               <Plus className="w-4 h-4" /> Add Document
             </button>
           </div>
         </div>
+
+        {/* Data Ingestion Module if active */}
+        {showIngestionModule && (
+          <div className="animate-fadeIn mb-4">
+            <DataIngestionModule
+              existingPapers={papers}
+              collections={collections}
+              onIngestPapers={(newPapers) => {
+                newPapers.forEach((paper) => onAddPaper(paper));
+                setShowIngestionModule(false);
+              }}
+              onClose={() => setShowIngestionModule(false)}
+            />
+          </div>
+        )}
 
         {/* Paper Adding Form if active */}
         {isAdding && (
@@ -326,6 +420,12 @@ export default function LiteratureLibrary({
                       </span>
                     )}
                   </div>
+
+                  {/* Formatted Citation Snippet */}
+                  <p className="font-serif text-[10px] text-amber-900/90 dark:text-amber-300/80 italic line-clamp-1 pt-1.5 border-t border-stone-100 dark:border-stone-900 mt-1">
+                    <span className="font-mono text-[9px] uppercase font-bold not-italic text-stone-400 mr-1">[{citationStyle} Preview]:</span>
+                    {formatPaperPreview(p, citationStyle)}
+                  </p>
                 </div>
 
                 <div className="flex flex-col items-end gap-2">
@@ -392,6 +492,81 @@ export default function LiteratureLibrary({
               <p className="font-sans text-xs text-stone-600 dark:text-stone-400">
                 {selectedPaper.authors}
               </p>
+            </div>
+
+            {/* Formatted Citation Preview Card with Dropdown */}
+            <div className="p-3.5 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg space-y-3 shadow-2xs">
+              <div className="flex items-center justify-between border-b border-stone-150 dark:border-stone-850 pb-2">
+                <label htmlFor="inspector-citation-style-select" className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+                  <Quote className="w-4 h-4 text-amber-800 dark:text-amber-500" /> Formatted Citation Preview
+                </label>
+
+                {/* Dropdown to switch between common citation styles */}
+                <select
+                  id="inspector-citation-style-select"
+                  value={citationStyle}
+                  onChange={(e) => setCitationStyle(e.target.value as CommonCitationStyle)}
+                  className="font-sans text-xs font-medium py-1 px-2 border border-stone-300 dark:border-stone-700 rounded bg-stone-50 dark:bg-stone-900 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-1 focus:ring-amber-500 cursor-pointer"
+                >
+                  <option value="Harvard">Harvard Reference</option>
+                  <option value="APA">APA 7th Edition</option>
+                  <option value="MLA">MLA 9th Edition</option>
+                  <option value="Chicago">Chicago Author-Date</option>
+                  <option value="IEEE">IEEE Format</option>
+                </select>
+              </div>
+
+              {/* Quick Style Selector Buttons */}
+              <div className="flex items-center gap-1 flex-wrap text-[10px] font-sans">
+                <span className="text-stone-400 text-[9px] uppercase font-mono mr-0.5">Quick Style:</span>
+                {(['Harvard', 'APA', 'MLA', 'Chicago', 'IEEE'] as CommonCitationStyle[]).map((st) => (
+                  <button
+                    key={st}
+                    type="button"
+                    onClick={() => setCitationStyle(st)}
+                    className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors cursor-pointer ${
+                      citationStyle === st
+                        ? 'bg-amber-900 text-white dark:bg-amber-800 font-bold'
+                        : 'bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-800'
+                    }`}
+                  >
+                    {st}
+                  </button>
+                ))}
+              </div>
+
+              {/* Live Formatted Citation Box */}
+              <div className="p-3 bg-amber-50/40 dark:bg-stone-900/60 border border-amber-900/10 dark:border-stone-800 rounded text-xs font-serif text-stone-800 dark:text-stone-200 leading-relaxed italic select-all">
+                {formatPaperPreview(selectedPaper, citationStyle)}
+              </div>
+
+              {/* Actions Footer */}
+              <div className="flex items-center justify-between text-[11px] pt-0.5">
+                <span className="font-mono text-[10px] text-stone-400">
+                  Style: <strong className="text-stone-800 dark:text-stone-200">{citationStyle}</strong>
+                </span>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    const text = formatPaperPreview(selectedPaper, citationStyle);
+                    navigator.clipboard.writeText(text);
+                    setCopiedCitation(true);
+                    setTimeout(() => setCopiedCitation(false), 2000);
+                  }}
+                  className="px-2.5 py-1 bg-amber-900 text-white hover:bg-amber-800 dark:bg-amber-800 dark:hover:bg-amber-700 rounded font-sans font-medium text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+                >
+                  {copiedCitation ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-300" /> Copied to Clipboard
+                    </>
+                  ) : (
+                    <>
+                      <Clipboard className="w-3.5 h-3.5" /> Copy Citation
+                    </>
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Metadata check block */}

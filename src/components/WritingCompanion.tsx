@@ -5,7 +5,9 @@
 
 import React, { useState } from 'react';
 import { Paper } from '../types';
-import { Sparkles, Library, HelpCircle, RefreshCw, AlertTriangle, BookOpen, MessageSquare, List } from 'lucide-react';
+import { Sparkles, Library, HelpCircle, RefreshCw, AlertTriangle, BookOpen, MessageSquare, List, ShieldCheck } from 'lucide-react';
+import ResearchIntegrityBanner from './ResearchIntegrityBanner';
+import { postWithAiRouting } from '../lib/localAiService';
 
 interface WritingCompanionProps {
   papers: Paper[];
@@ -40,13 +42,9 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
         structuredSummary: p.structuredSummary,
       }));
 
-      const res = await fetch('/api/gemini/analyze-draft', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          draftText: draftContent,
-          papersInLibrary: libraryContext,
-        }),
+      const res = await postWithAiRouting('/api/gemini/analyze-draft', {
+        draftText: draftContent,
+        papersInLibrary: libraryContext,
       });
 
       if (res.ok) {
@@ -61,8 +59,11 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 h-full" id="writing-companion-module">
-      {/* LEFT COLUMN: Distraction-free draft editor */}
+    <div className="flex flex-col gap-4 h-full" id="writing-companion-module">
+      <ResearchIntegrityBanner />
+      
+      <div className="flex flex-col lg:flex-row gap-6 flex-1">
+        {/* LEFT COLUMN: Distraction-free draft editor */}
       <div className="flex-1 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 flex flex-col justify-between">
         <div className="space-y-4 flex-1 flex flex-col">
           <div className="flex justify-between items-center pb-3 border-b border-stone-150">
@@ -239,6 +240,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
         )}
       </div>
 
+      </div>
     </div>
   );
 }

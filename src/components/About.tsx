@@ -96,6 +96,16 @@ export default function About() {
                 We never tracking or cache your writing drafts. Your feedback forms, projects, and personal parameters remain in your browser. Any AI interaction via Gemini is proxy-routed securely with zero persistent server-side caching or model training on your workspace.
               </p>
             </div>
+
+            {/* Research Integrity Boundary */}
+            <div className="bg-amber-50/30 dark:bg-stone-900/40 border border-amber-900/15 dark:border-stone-800 p-6 rounded-lg space-y-3 md:col-span-2">
+              <h3 className="text-sm font-semibold text-amber-950 dark:text-amber-300 flex items-center gap-2">
+                <Shield className="w-4 h-4 text-amber-800 dark:text-amber-400" /> Research Integrity Boundary
+              </h3>
+              <p className="text-stone-700 dark:text-stone-300 text-xs leading-relaxed">
+                The Research Companion will <strong>never write, generate, or produce complete academic papers, articles, books, reports, or research outputs on your behalf</strong>. The purpose of the AI is to support the research process, not replace the researcher. The AI acts as a research assistant, critical thinking partner, and analytical tool — helping you organize materials, identify themes, map literature, evaluate evidence, structure notes, and check logic — while you remain solely responsible for forming arguments, interpreting evidence, drawing conclusions, and writing original work.
+              </p>
+            </div>
           </div>
 
           {/* Call-to-action to read technical specification paper */}

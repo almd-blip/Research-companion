@@ -87,7 +87,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
                   transition={{ type: "spring", stiffness: 350, damping: 25 }}
                 >
                   <span className="border-b border-transparent group-hover:border-sky-400 pb-0.5 transition-all">
-                    Show me around
+                    Explore
                   </span>
                 </motion.button>
 

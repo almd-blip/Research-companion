@@ -12,11 +12,13 @@ import ResearchHome from './components/ResearchHome';
 import LiteratureLibrary from './components/LiteratureLibrary';
 import KnowledgeGraph from './components/KnowledgeGraph';
 import LiteratureIntelligence from './components/LiteratureIntelligence';
+import ResearchIntelligenceLayer from './components/ResearchIntelligenceLayer';
 import ResearchWorkspace from './components/ResearchWorkspace';
 import WritingCompanion from './components/WritingCompanion';
 import CitationEngine from './components/CitationEngine';
 import ResearchWellbeing from './components/ResearchWellbeing';
 import FundingWorkspace from './components/FundingWorkspace';
+import CreativePublishingWorkspace from './components/CreativePublishingWorkspace';
 import Settings from './components/Settings';
 import About from './components/About';
 import FeedbackPanel from './components/FeedbackPanel';
@@ -37,14 +39,34 @@ import {
   FileText,
   Award,
   Eye,
-  Clock
+  Clock,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react';
 
 export default function App() {
   const [showLanding, setShowLanding] = useState<boolean>(true);
   const [activeTab, setActiveTab] = useState<string>('dashboard');
-  const [researchSubTab, setResearchSubTab] = useState<string>('references');
+  const [researchSubTab, setResearchSubTab] = useState<string>('projects');
   const [referenceSubMode, setReferenceSubMode] = useState<'library' | 'verifier'>('library');
+
+  // Sidebar parent section collapse/expand state
+  const [openSections, setOpenSections] = useState<Record<string, boolean>>({
+    pause: true,
+    explore: true,
+    ready: true,
+  });
+
+  const toggleSection = (section: string) => {
+    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  const handleNavigate = (tab: string, subTab?: string) => {
+    setActiveTab(tab);
+    if (subTab) {
+      setResearchSubTab(subTab);
+    }
+  };
 
   // Accessibility parameters driven dynamically
   const [fontScale, setFontScale] = useState(() => localStorage.getItem('scholar_font_scale') || 'm');
@@ -124,6 +146,16 @@ export default function App() {
 
   const handleAddJourney = (added: ResearchJourney) => {
     setJourneys((prev) => [...prev, added]);
+  };
+
+  const handleDeleteJourney = (id: string) => {
+    setJourneys((prev) => {
+      const next = prev.filter((j) => j.id !== id);
+      if (activeJourneyId === id) {
+        setActiveJourneyId(next[0]?.id || '');
+      }
+      return next;
+    });
   };
 
   const handleResetAllData = () => {
@@ -230,122 +262,308 @@ export default function App() {
           }}
         />
       )}
-      {/* Sidebar - simplified according to redesign principles */}
-      <aside className="w-full md:w-60 bg-stone-900 text-stone-200 border-r border-stone-850 flex flex-col justify-between p-5 shrink-0 z-10 shadow-md">
-        <div className="space-y-6">
+      {/* Sidebar - Structured by 3 Parent Choices and Submenus */}
+      <aside className="w-full md:w-64 bg-stone-900 text-stone-200 border-r border-stone-850 flex flex-col justify-between p-4 shrink-0 z-10 shadow-md max-h-screen overflow-y-auto">
+        <div className="space-y-5">
           {/* Logo / Header */}
-          <div className="pb-2">
+          <div className="pb-1 px-1">
             <img 
               src={theme === 'light' ? '/assets/logo_cream.png' : '/assets/logo_transparent.png'} 
               alt="Second Thought Publishing Logo" 
-              className="h-10 md:h-12 w-auto object-contain max-w-[180px]"
+              className="h-10 md:h-11 w-auto object-contain max-w-[170px]"
               referrerPolicy="no-referrer"
             />
           </div>
 
-          {/* Core Simplified Menu */}
-          <nav className="space-y-1" role="tablist" aria-label="Calm Companion Menu">
-            <button
-              role="tab"
-              aria-selected={activeTab === 'about'}
-              onClick={() => setActiveTab('about')}
-              className={`w-full text-left px-3 py-2.5 rounded-lg text-xs font-sans flex items-center gap-2.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 ${
-                activeTab === 'about' ? 'bg-stone-800 text-white font-semibold border-l-2 border-amber-500' : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
-              }`}
-            >
-              <Sparkles className="w-4 h-4 shrink-0 text-amber-400" /> About
-            </button>
+          {/* Structured Parent Navigation Menu */}
+          <nav className="space-y-4" role="tablist" aria-label="Calm Companion Menu">
+            
+            {/* 1. PAUSE AND BREATHE (Parent 1) */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between group">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleNavigate('wellbeing');
+                    setOpenSections((prev) => ({ ...prev, pause: true }));
+                  }}
+                  className={`flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-colors cursor-pointer ${
+                    activeTab === 'wellbeing' || activeTab === 'focus'
+                      ? 'text-amber-400 bg-amber-950/40'
+                      : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800/40'
+                  }`}
+                >
+                  <Heart className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                  <span>Pause and Breathe</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => toggleSection('pause')}
+                  className="p-1 text-stone-500 hover:text-stone-300 rounded cursor-pointer"
+                  title="Toggle submenu"
+                >
+                  {openSections.pause ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                </button>
+              </div>
 
-            <button
-              role="tab"
-              aria-selected={activeTab === 'accessibility'}
-              onClick={() => setActiveTab('accessibility')}
-              className={`w-full text-left px-3 py-2.5 rounded-lg text-xs font-sans flex items-center gap-2.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 ${
-                activeTab === 'accessibility' ? 'bg-stone-800 text-white font-semibold border-l-2 border-amber-500' : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
-              }`}
-            >
-              <Eye className="w-4 h-4 shrink-0 text-sky-400" /> Accessibility
-            </button>
+              {openSections.pause && (
+                <div className="pl-4 space-y-0.5 border-l border-stone-800 ml-3.5">
+                  <button
+                    role="tab"
+                    aria-selected={activeTab === 'wellbeing'}
+                    onClick={() => handleNavigate('wellbeing')}
+                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center gap-2 transition-all cursor-pointer ${
+                      activeTab === 'wellbeing'
+                        ? 'bg-stone-800 text-white font-semibold border-l-2 border-amber-500'
+                        : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
+                    }`}
+                  >
+                    <Heart className="w-3.5 h-3.5 shrink-0 text-rose-400" /> Wellbeing
+                  </button>
+                  <button
+                    role="tab"
+                    aria-selected={activeTab === 'focus'}
+                    onClick={() => handleNavigate('focus')}
+                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center gap-2 transition-all cursor-pointer ${
+                      activeTab === 'focus'
+                        ? 'bg-stone-800 text-white font-semibold border-l-2 border-amber-500'
+                        : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
+                    }`}
+                  >
+                    <Clock className="w-3.5 h-3.5 shrink-0 text-emerald-400" /> Focus Space
+                  </button>
+                </div>
+              )}
+            </div>
 
-            <button
-              role="tab"
-              aria-selected={activeTab === 'dashboard'}
-              onClick={() => setActiveTab('dashboard')}
-              className={`w-full text-left px-3 py-2.5 rounded-lg text-xs font-sans flex items-center gap-2.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 ${
-                activeTab === 'dashboard' ? 'bg-stone-800 text-white font-semibold border-l-2 border-amber-500' : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
-              }`}
-            >
-              <Compass className="w-4 h-4 shrink-0 text-amber-500" /> Home
-            </button>
+            {/* 2. EXPLORE (Parent 2) */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between group">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleNavigate('about');
+                    setOpenSections((prev) => ({ ...prev, explore: true }));
+                  }}
+                  className={`flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-colors cursor-pointer ${
+                    activeTab === 'about' || activeTab === 'accessibility'
+                      ? 'text-sky-400 bg-sky-950/40'
+                      : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800/40'
+                  }`}
+                >
+                  <Sparkles className="w-3.5 h-3.5 text-sky-400 shrink-0" />
+                  <span>Explore</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => toggleSection('explore')}
+                  className="p-1 text-stone-500 hover:text-stone-300 rounded cursor-pointer"
+                  title="Toggle submenu"
+                >
+                  {openSections.explore ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                </button>
+              </div>
 
-            <button
-              role="tab"
-              aria-selected={activeTab === 'research'}
-              onClick={() => setActiveTab('research')}
-              className={`w-full text-left px-3 py-2.5 rounded-lg text-xs font-sans flex items-center gap-2.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 ${
-                activeTab === 'research' ? 'bg-stone-800 text-white font-semibold border-l-2 border-amber-500' : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
-              }`}
-            >
-              <BookOpen className="w-4 h-4 shrink-0 text-indigo-400" /> Research
-            </button>
+              {openSections.explore && (
+                <div className="pl-4 space-y-0.5 border-l border-stone-800 ml-3.5">
+                  <button
+                    role="tab"
+                    aria-selected={activeTab === 'about'}
+                    onClick={() => handleNavigate('about')}
+                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center gap-2 transition-all cursor-pointer ${
+                      activeTab === 'about'
+                        ? 'bg-stone-800 text-white font-semibold border-l-2 border-sky-400'
+                        : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
+                    }`}
+                  >
+                    <Sparkles className="w-3.5 h-3.5 shrink-0 text-sky-400" /> About
+                  </button>
+                  <button
+                    role="tab"
+                    aria-selected={activeTab === 'accessibility'}
+                    onClick={() => handleNavigate('accessibility')}
+                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center gap-2 transition-all cursor-pointer ${
+                      activeTab === 'accessibility'
+                        ? 'bg-stone-800 text-white font-semibold border-l-2 border-sky-400'
+                        : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
+                    }`}
+                  >
+                    <Eye className="w-3.5 h-3.5 shrink-0 text-sky-400" /> Accessibility
+                  </button>
+                </div>
+              )}
+            </div>
 
-            <button
-              role="tab"
-              aria-selected={activeTab === 'wellbeing'}
-              onClick={() => setActiveTab('wellbeing')}
-              className={`w-full text-left px-3 py-2.5 rounded-lg text-xs font-sans flex items-center gap-2.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 ${
-                activeTab === 'wellbeing' ? 'bg-stone-800 text-white font-semibold border-l-2 border-amber-500' : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
-              }`}
-            >
-              <Heart className="w-4 h-4 shrink-0 text-rose-400" /> Wellbeing
-            </button>
+            {/* 3. I'M READY (Parent 3) */}
+            <div className="space-y-1">
+              <div className="flex items-center justify-between group">
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleNavigate('dashboard');
+                    setOpenSections((prev) => ({ ...prev, ready: true }));
+                  }}
+                  className={`flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-colors cursor-pointer ${
+                    activeTab === 'dashboard' || activeTab === 'research' || activeTab === 'ai_assistant'
+                      ? 'text-emerald-400 bg-emerald-950/40'
+                      : 'text-stone-400 hover:text-stone-200 hover:bg-stone-800/40'
+                  }`}
+                >
+                  <Compass className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+                  <span>I'm Ready</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => toggleSection('ready')}
+                  className="p-1 text-stone-500 hover:text-stone-300 rounded cursor-pointer"
+                  title="Toggle submenu"
+                >
+                  {openSections.ready ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                </button>
+              </div>
 
-            <button
-              role="tab"
-              aria-selected={activeTab === 'focus'}
-              onClick={() => setActiveTab('focus')}
-              className={`w-full text-left px-3 py-2.5 rounded-lg text-xs font-sans flex items-center gap-2.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 ${
-                activeTab === 'focus' ? 'bg-stone-800 text-white font-semibold border-l-2 border-amber-500' : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
-              }`}
-            >
-              <Clock className="w-4 h-4 shrink-0 text-emerald-400" /> Focus
-            </button>
+              {openSections.ready && (
+                <div className="pl-4 space-y-0.5 border-l border-stone-800 ml-3.5">
+                  
+                  {/* Primary Landing View: Your Projects */}
+                  <button
+                    role="tab"
+                    aria-selected={activeTab === 'dashboard'}
+                    onClick={() => handleNavigate('dashboard')}
+                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center gap-2 transition-all cursor-pointer ${
+                      activeTab === 'dashboard'
+                        ? 'bg-stone-800 text-white font-semibold border-l-2 border-emerald-400'
+                        : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
+                    }`}
+                  >
+                    <Compass className="w-3.5 h-3.5 shrink-0 text-emerald-400" /> Your Projects
+                  </button>
 
-            <button
-              role="tab"
-              aria-selected={activeTab === 'ai_assistant'}
-              onClick={() => setActiveTab('ai_assistant')}
-              className={`w-full text-left px-3 py-2.5 rounded-lg text-xs font-sans flex items-center gap-2.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 ${
-                activeTab === 'ai_assistant' ? 'bg-stone-800 text-white font-semibold border-l-2 border-amber-500' : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
-              }`}
-            >
-              <Sparkles className="w-4 h-4 shrink-0 text-amber-500" /> AI assistant
-            </button>
+                  {/* Document Analytical, Referencing & Data Tools Submenu */}
+                  <div className="pt-2 pb-1">
+                    <span className="text-[10px] font-mono text-stone-500 uppercase tracking-widest block px-2">
+                      Analytical & Document Tools
+                    </span>
+                  </div>
 
-            <button
-              role="tab"
-              aria-selected={activeTab === 'feedback'}
-              onClick={() => setActiveTab('feedback')}
-              className={`w-full text-left px-3 py-2.5 rounded-lg text-xs font-sans flex items-center gap-2.5 transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 ${
-                activeTab === 'feedback' ? 'bg-stone-800 text-white font-semibold border-l-2 border-amber-500' : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
-              }`}
-            >
-              <MessageSquare className="w-4 h-4 shrink-0 text-cyan-400" /> Feedback
-            </button>
+                  <button
+                    role="tab"
+                    aria-selected={activeTab === 'research' && researchSubTab === 'references'}
+                    onClick={() => handleNavigate('research', 'references')}
+                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center gap-2 transition-all cursor-pointer ${
+                      activeTab === 'research' && researchSubTab === 'references'
+                        ? 'bg-stone-800 text-white font-semibold border-l-2 border-indigo-400'
+                        : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
+                    }`}
+                  >
+                    <BookOpen className="w-3.5 h-3.5 shrink-0 text-indigo-400" /> Reference Manager
+                  </button>
+
+                  <button
+                    role="tab"
+                    aria-selected={activeTab === 'research' && researchSubTab === 'literature'}
+                    onClick={() => handleNavigate('research', 'literature')}
+                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center gap-2 transition-all cursor-pointer ${
+                      activeTab === 'research' && researchSubTab === 'literature'
+                        ? 'bg-stone-800 text-white font-semibold border-l-2 border-indigo-400'
+                        : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
+                    }`}
+                  >
+                    <Library className="w-3.5 h-3.5 shrink-0 text-indigo-400" /> Literature Intelligence
+                  </button>
+
+                  <button
+                    role="tab"
+                    aria-selected={activeTab === 'research' && researchSubTab === 'analysis'}
+                    onClick={() => handleNavigate('research', 'analysis')}
+                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center gap-2 transition-all cursor-pointer ${
+                      activeTab === 'research' && researchSubTab === 'analysis'
+                        ? 'bg-stone-800 text-white font-semibold border-l-2 border-indigo-400'
+                        : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
+                    }`}
+                  >
+                    <Network className="w-3.5 h-3.5 shrink-0 text-indigo-400" /> Knowledge Graph
+                  </button>
+
+                  <button
+                    role="tab"
+                    aria-selected={activeTab === 'research' && researchSubTab === 'writing'}
+                    onClick={() => handleNavigate('research', 'writing')}
+                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center gap-2 transition-all cursor-pointer ${
+                      activeTab === 'research' && researchSubTab === 'writing'
+                        ? 'bg-stone-800 text-white font-semibold border-l-2 border-indigo-400'
+                        : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
+                    }`}
+                  >
+                    <FileText className="w-3.5 h-3.5 shrink-0 text-indigo-400" /> Writing Companion
+                  </button>
+
+                  <button
+                    role="tab"
+                    aria-selected={activeTab === 'research' && researchSubTab === 'publishing'}
+                    onClick={() => handleNavigate('research', 'publishing')}
+                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center gap-2 transition-all cursor-pointer ${
+                      activeTab === 'research' && researchSubTab === 'publishing'
+                        ? 'bg-stone-800 text-white font-semibold border-l-2 border-indigo-400'
+                        : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
+                    }`}
+                  >
+                    <CheckSquare className="w-3.5 h-3.5 shrink-0 text-amber-400" /> Creative & Publishing
+                  </button>
+
+                  <button
+                    role="tab"
+                    aria-selected={activeTab === 'research' && researchSubTab === 'funding'}
+                    onClick={() => handleNavigate('research', 'funding')}
+                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center gap-2 transition-all cursor-pointer ${
+                      activeTab === 'research' && researchSubTab === 'funding'
+                        ? 'bg-stone-800 text-white font-semibold border-l-2 border-indigo-400'
+                        : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
+                    }`}
+                  >
+                    <Award className="w-3.5 h-3.5 shrink-0 text-indigo-400" /> Funding Bid Workspace
+                  </button>
+
+                  <button
+                    role="tab"
+                    aria-selected={activeTab === 'ai_assistant'}
+                    onClick={() => handleNavigate('ai_assistant')}
+                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center gap-2 transition-all cursor-pointer ${
+                      activeTab === 'ai_assistant'
+                        ? 'bg-stone-800 text-white font-semibold border-l-2 border-amber-400'
+                        : 'text-stone-400 hover:bg-stone-800/40 hover:text-stone-200'
+                    }`}
+                  >
+                    <Sparkles className="w-3.5 h-3.5 shrink-0 text-amber-400" /> AI Assistant
+                  </button>
+                </div>
+              )}
+            </div>
+
           </nav>
         </div>
 
-        {/* Footer Settings */}
-        <div className="pt-6 border-t border-stone-800 mt-6 text-left">
+        {/* Footer Utilities */}
+        <div className="pt-3 border-t border-stone-800 mt-3 space-y-1 text-left">
+          <button
+            role="tab"
+            aria-selected={activeTab === 'feedback'}
+            onClick={() => handleNavigate('feedback')}
+            className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center gap-2 transition-all cursor-pointer ${
+              activeTab === 'feedback' ? 'bg-stone-800 text-white font-semibold' : 'text-stone-400 hover:bg-stone-800/40'
+            }`}
+          >
+            <MessageSquare className="w-3.5 h-3.5 shrink-0 text-cyan-400" /> Feedback
+          </button>
           <button
             role="tab"
             aria-selected={activeTab === 'settings'}
-            onClick={() => setActiveTab('settings')}
-            className={`w-full text-left px-3 py-2 rounded-lg text-xs font-sans flex items-center gap-2.5 transition-all cursor-pointer focus-visible:outline-none ${
+            onClick={() => handleNavigate('settings')}
+            className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center gap-2 transition-all cursor-pointer ${
               activeTab === 'settings' ? 'bg-stone-800 text-white font-semibold' : 'text-stone-400 hover:bg-stone-800/40'
             }`}
           >
-            <SettingsIcon className="w-4 h-4 shrink-0" /> Settings
+            <SettingsIcon className="w-3.5 h-3.5 shrink-0" /> Settings
           </button>
         </div>
       </aside>
@@ -354,173 +572,37 @@ export default function App() {
       <main className="flex-grow p-4 md:p-8 overflow-y-auto max-h-screen">
         <div className="max-w-7xl mx-auto h-full">
           
-          {/* HOME PANEL */}
-          {activeTab === 'dashboard' && (
-            <ResearchHome
-              papers={papers}
-              journeys={journeys}
-              onSelectJourney={handleSelectJourneyFromHome}
-              onSetTab={setActiveTab}
-              onAddMoodCheckIn={handleAddMoodCheckIn}
-              moodCheckIns={moodCheckIns}
-            />
-          )}
-
-          {/* RESEARCH HUB WORKSPACE */}
-          {activeTab === 'research' && (
-            <div className="space-y-6 animate-fadeIn">
-              
-              {/* Horizontal Secondary Sub-navigation - extremely clean */}
-              <div className="border-b border-stone-200 dark:border-stone-800 pb-1.5 flex flex-wrap gap-2 md:gap-5" role="tablist" aria-label="Research utilities">
-                <button
-                  role="tab"
-                  aria-selected={researchSubTab === 'references'}
-                  onClick={() => setResearchSubTab('references')}
-                  className={`font-sans text-xs pb-2 border-b-2 font-medium transition-all cursor-pointer ${
-                    researchSubTab === 'references' ? 'border-amber-950 dark:border-amber-500 text-amber-950 dark:text-amber-400 font-bold' : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-300'
-                  }`}
-                >
-                  Reference Manager
-                </button>
-                <button
-                  role="tab"
-                  aria-selected={researchSubTab === 'literature'}
-                  onClick={() => setResearchSubTab('literature')}
-                  className={`font-sans text-xs pb-2 border-b-2 font-medium transition-all cursor-pointer ${
-                    researchSubTab === 'literature' ? 'border-amber-950 dark:border-amber-500 text-amber-950 dark:text-amber-400 font-bold' : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-300'
-                  }`}
-                >
-                  Literature Insights
-                </button>
-                <button
-                  role="tab"
-                  aria-selected={researchSubTab === 'analysis'}
-                  onClick={() => setResearchSubTab('analysis')}
-                  className={`font-sans text-xs pb-2 border-b-2 font-medium transition-all cursor-pointer ${
-                    researchSubTab === 'analysis' ? 'border-amber-950 dark:border-amber-500 text-amber-950 dark:text-amber-400 font-bold' : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-300'
-                  }`}
-                >
-                  Analysis (Knowledge Graph)
-                </button>
-                <button
-                  role="tab"
-                  aria-selected={researchSubTab === 'projects'}
-                  onClick={() => setResearchSubTab('projects')}
-                  className={`font-sans text-xs pb-2 border-b-2 font-medium transition-all cursor-pointer ${
-                    researchSubTab === 'projects' ? 'border-amber-950 dark:border-amber-500 text-amber-950 dark:text-amber-400 font-bold' : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-300'
-                  }`}
-                >
-                  Research Projects
-                </button>
-                <button
-                  role="tab"
-                  aria-selected={researchSubTab === 'writing'}
-                  onClick={() => setResearchSubTab('writing')}
-                  className={`font-sans text-xs pb-2 border-b-2 font-medium transition-all cursor-pointer ${
-                    researchSubTab === 'writing' ? 'border-amber-950 dark:border-amber-500 text-amber-950 dark:text-amber-400 font-bold' : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-300'
-                  }`}
-                >
-                  Writing Companion
-                </button>
-                <button
-                  role="tab"
-                  aria-selected={researchSubTab === 'funding'}
-                  onClick={() => setResearchSubTab('funding')}
-                  className={`font-sans text-xs pb-2 border-b-2 font-medium transition-all cursor-pointer ${
-                    researchSubTab === 'funding' ? 'border-amber-950 dark:border-amber-500 text-amber-950 dark:text-amber-400 font-bold' : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-300'
-                  }`}
-                >
-                  Funding Bid Workspace
-                </button>
-              </div>
-
-              {/* Sub-tab view rendering */}
-              <div className="mt-4">
-                {researchSubTab === 'references' && (
-                  <div className="space-y-4">
-                    {/* Inner references switcher */}
-                    <div className="flex gap-2 border-b border-stone-100 dark:border-stone-900 pb-2">
-                      <button
-                        onClick={() => setReferenceSubMode('library')}
-                        className={`text-xs px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                          referenceSubMode === 'library'
-                            ? 'bg-amber-950 text-white dark:bg-stone-800 font-medium'
-                            : 'text-stone-500 hover:text-stone-700 dark:hover:text-stone-300'
-                        }`}
-                      >
-                        References Library
-                      </button>
-                      <button
-                        onClick={() => setReferenceSubMode('verifier')}
-                        className={`text-xs px-3 py-1.5 rounded-lg transition-colors cursor-pointer ${
-                          referenceSubMode === 'verifier'
-                            ? 'bg-amber-950 text-white dark:bg-stone-800 font-medium'
-                            : 'text-stone-500 hover:text-stone-700 dark:hover:text-stone-300'
-                        }`}
-                      >
-                        References Verifier
-                      </button>
-                    </div>
-
-                    <div className="animate-fadeIn">
-                      {referenceSubMode === 'library' ? (
-                        <LiteratureLibrary
-                          papers={papers}
-                          collections={collections}
-                          onUpdatePaper={handleUpdatePaper}
-                          onAddPaper={handleAddPaper}
-                          onDeletePaper={handleDeletePaper}
-                        />
-                      ) : (
-                        <CitationEngine
-                          papers={papers}
-                          onVerifyMetadata={handleVerifyMetadataBridge}
-                        />
-                      )}
-                    </div>
-                  </div>
-                )}
-
-                {researchSubTab === 'literature' && (
-                  <LiteratureIntelligence
-                    papers={papers}
-                    onUpdatePaper={handleUpdatePaper}
-                  />
-                )}
-
-                {researchSubTab === 'analysis' && (
-                  <KnowledgeGraph
-                    papers={papers}
-                    journeys={journeys}
-                  />
-                )}
-
-                {researchSubTab === 'projects' && (
-                  <ResearchWorkspace
-                    journeys={journeys}
-                    papers={papers}
-                    onUpdateJourney={handleUpdateJourney}
-                    onAddJourney={handleAddJourney}
-                    activeJourneyId={activeJourneyId}
-                    onSetActiveJourneyId={setActiveJourneyId}
-                  />
-                )}
-
-                {researchSubTab === 'writing' && (
-                  <WritingCompanion
-                    papers={papers}
-                  />
-                )}
-
-                {researchSubTab === 'funding' && (
-                  <FundingWorkspace
-                    journeys={journeys}
-                    papers={papers}
-                    onUpdateJourney={handleUpdateJourney}
-                  />
-                )}
-              </div>
-
+          {/* RESEARCH WORKSPACE & HOME */}
+          {(activeTab === 'dashboard' || activeTab === 'research') && (
+            <div className="animate-fadeIn">
+              <ResearchWorkspace
+                journeys={journeys}
+                papers={papers}
+                collections={collections}
+                onUpdateJourney={handleUpdateJourney}
+                onAddJourney={handleAddJourney}
+                onDeleteJourney={handleDeleteJourney}
+                activeJourneyId={activeJourneyId}
+                onSetActiveJourneyId={setActiveJourneyId}
+                onUpdatePaper={handleUpdatePaper}
+                onAddPaper={handleAddPaper}
+                onDeletePaper={handleDeletePaper}
+                initialActiveTool={
+                  researchSubTab === 'references'
+                    ? 'references'
+                    : researchSubTab === 'literature'
+                    ? 'lit_intelligence'
+                    : researchSubTab === 'analysis'
+                    ? 'knowledge_graph'
+                    : researchSubTab === 'writing'
+                    ? 'repetition_spotter'
+                    : researchSubTab === 'publishing'
+                    ? 'journal_requirements'
+                    : researchSubTab === 'funding'
+                    ? 'export_workspace'
+                    : undefined
+                }
+              />
             </div>
           )}
 

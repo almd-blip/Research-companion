@@ -4,7 +4,8 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Database, Download, Trash, Shield, Settings2, Sliders, Sparkles, Eye, Bell, CheckCircle } from 'lucide-react';
+import { Database, Download, Trash, Shield, Settings2, Sliders, Sparkles, Eye, Bell, CheckCircle, Cpu } from 'lucide-react';
+import LocalAIRuntimeManager from './LocalAIRuntimeManager';
 
 interface SettingsProps {
   onResetAllData: () => void;
@@ -288,37 +289,27 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
             {/* Typography Sizing & Styles */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <label className="font-sans text-[10px] text-stone-600 dark:text-stone-400 font-bold block">Reading font style</label>
+                <label className="font-sans text-[10px] text-stone-600 dark:text-stone-400 font-bold block text-left">Reading font style</label>
                 <div className="flex flex-wrap gap-2">
                   <button
                     onClick={() => setFontStyle('sans')}
-                    className={`flex-1 min-w-[110px] py-2 px-3 rounded border font-sans text-xs cursor-pointer text-center transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 ${
+                    className={`flex-1 min-w-[140px] py-2 px-3 rounded border font-sans text-xs cursor-pointer text-left transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 ${
                       fontStyle === 'sans'
                         ? 'bg-amber-900/10 dark:bg-amber-500/10 border-amber-900 dark:border-amber-500 text-amber-950 dark:text-amber-400 font-bold shadow-xs'
                         : 'bg-stone-50 dark:bg-stone-900/40 border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-normal hover:bg-stone-100 dark:hover:bg-stone-800/60'
                     }`}
                   >
-                    Sans (Outfit)
-                  </button>
-                  <button
-                    onClick={() => setFontStyle('serif')}
-                    className={`flex-1 min-w-[110px] py-2 px-3 rounded border font-sans text-xs cursor-pointer text-center transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 ${
-                      fontStyle === 'serif'
-                        ? 'bg-amber-900/10 dark:bg-amber-500/10 border-amber-900 dark:border-amber-500 text-amber-950 dark:text-amber-400 font-bold shadow-xs'
-                        : 'bg-stone-50 dark:bg-stone-900/40 border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-normal hover:bg-stone-100 dark:hover:bg-stone-800/60'
-                    }`}
-                  >
-                    Serif (Georgia)
+                    Outfit (Default)
                   </button>
                   <button
                     onClick={() => setFontStyle('dyslexic')}
-                    className={`flex-1 min-w-[110px] py-2 px-3 rounded border font-sans text-xs cursor-pointer text-center transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 ${
+                    className={`flex-1 min-w-[140px] py-2 px-3 rounded border font-sans text-xs cursor-pointer text-left transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 ${
                       fontStyle === 'dyslexic'
                         ? 'bg-amber-900/10 dark:bg-amber-500/10 border-amber-900 dark:border-amber-500 text-amber-950 dark:text-amber-400 font-bold shadow-xs'
                         : 'bg-stone-50 dark:bg-stone-900/40 border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-normal hover:bg-stone-100 dark:hover:bg-stone-800/60'
                     }`}
                   >
-                    OpenDyslexic
+                    Atkinson Hyperlegible (Dyslexia friendly)
                   </button>
                 </div>
               </div>
@@ -352,66 +343,70 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
         </div>
       )}
 
-      {/* TAB 3: AI OPTIONS */}
+      {/* TAB 3: AI OPTIONS & LOCAL RUNTIME LAYER */}
       {activeTab === 'ai' && (
-        <form onSubmit={handleSaveAIOptions} className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-4 shadow-xs animate-fadeIn">
-          <h3 className="font-sans font-semibold text-stone-950 dark:text-stone-100 text-xs flex items-center gap-2 border-b border-stone-100 dark:border-stone-850 pb-2">
-            <Sparkles className="w-4 h-4 text-amber-800" aria-hidden="true" /> AI scholarly parameters
-          </h3>
+        <div className="space-y-6 animate-fadeIn">
+          {/* Local AI Offline Runtime Manager */}
+          <LocalAIRuntimeManager
+            onConfigSaved={() => triggerToast('AI infrastructure settings saved.')}
+          />
 
-          <div className="p-3 bg-amber-50/15 dark:bg-stone-900/20 border border-amber-950/10 dark:border-stone-800 rounded-lg text-xs leading-relaxed text-stone-700 dark:text-stone-300 text-left">
-            Research Companion leverages server-side **Gemini 3.5 Flash** for secure metadata checking, theme-building, and advice formulation. All operations use strict negative constraints, ensuring AI assists you with structure rather than fabricating claims.
-          </div>
+          {/* Scholar Persona & Guidance Options */}
+          <form onSubmit={handleSaveAIOptions} className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-4 shadow-xs">
+            <h3 className="font-sans font-semibold text-stone-950 dark:text-stone-100 text-xs flex items-center gap-2 border-b border-stone-100 dark:border-stone-850 pb-2">
+              <Sparkles className="w-4 h-4 text-amber-800" aria-hidden="true" /> Companion Guidance & Grounding
+            </h3>
 
-          <div className="space-y-4">
-            <div className="space-y-1.5">
-              <span className="font-sans text-[10px] text-stone-600 dark:text-stone-400 font-bold block text-left">Evidentiary grounding level</span>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setGroundingLevel('strict')}
-                  className={`flex-1 py-2 px-4 rounded border text-xs cursor-pointer text-center transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 ${
-                    groundingLevel === 'strict'
-                      ? 'bg-amber-900/10 dark:bg-amber-500/10 border-amber-900 dark:border-amber-500 text-amber-950 dark:text-amber-400 font-bold shadow-xs'
-                      : 'bg-stone-50 dark:bg-stone-900/40 border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-normal hover:bg-stone-100 dark:hover:bg-stone-800/60'
-                  }`}
-                >
-                  Strict (only user library)
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setGroundingLevel('balanced')}
-                  className={`flex-1 py-2 px-4 rounded border text-xs cursor-pointer text-center transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 ${
-                    groundingLevel === 'balanced'
-                      ? 'bg-amber-900/10 dark:bg-amber-500/10 border-amber-900 dark:border-amber-500 text-amber-950 dark:text-amber-400 font-bold shadow-xs'
-                      : 'bg-stone-50 dark:bg-stone-900/40 border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-normal hover:bg-stone-100 dark:hover:bg-stone-800/60'
-                  }`}
-                >
-                  Balanced (general academic grounding)
-                </button>
+            <div className="space-y-4">
+              <div className="space-y-1.5">
+                <span className="font-sans text-[10px] text-stone-600 dark:text-stone-400 font-bold block text-left">Evidentiary grounding level</span>
+                <div className="flex gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setGroundingLevel('strict')}
+                    className={`flex-1 py-2 px-4 rounded border text-xs cursor-pointer text-center transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 ${
+                      groundingLevel === 'strict'
+                        ? 'bg-amber-900/10 dark:bg-amber-500/10 border-amber-900 dark:border-amber-500 text-amber-950 dark:text-amber-400 font-bold shadow-xs'
+                        : 'bg-stone-50 dark:bg-stone-900/40 border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-normal hover:bg-stone-100 dark:hover:bg-stone-800/60'
+                    }`}
+                  >
+                    Strict (only user library)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setGroundingLevel('balanced')}
+                    className={`flex-1 py-2 px-4 rounded border text-xs cursor-pointer text-center transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 ${
+                      groundingLevel === 'balanced'
+                        ? 'bg-amber-900/10 dark:bg-amber-500/10 border-amber-900 dark:border-amber-500 text-amber-950 dark:text-amber-400 font-bold shadow-xs'
+                        : 'bg-stone-50 dark:bg-stone-900/40 border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-normal hover:bg-stone-100 dark:hover:bg-stone-800/60'
+                    }`}
+                  >
+                    Balanced (general academic grounding)
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-1">
+                <label htmlFor="custom-instructions" className="font-sans text-[10px] text-stone-600 dark:text-stone-400 font-bold block text-left">Custom companion instructions</label>
+                <textarea
+                  id="custom-instructions"
+                  value={customPromptGuidance}
+                  onChange={(e) => setCustomPromptGuidance(e.target.value)}
+                  placeholder="Instruct the companion to speak in a certain way, prioritize certain methods, or match your cognitive preferences..."
+                  rows={3}
+                  className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-white rounded focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-left placeholder-stone-400 dark:placeholder-white"
+                />
               </div>
             </div>
 
-            <div className="space-y-1">
-              <label htmlFor="custom-instructions" className="font-sans text-[10px] text-stone-600 dark:text-stone-400 font-bold block text-left">Custom companion instructions</label>
-              <textarea
-                id="custom-instructions"
-                value={customPromptGuidance}
-                onChange={(e) => setCustomPromptGuidance(e.target.value)}
-                placeholder="Instruct the companion to speak in a certain way, prioritize certain methods, or match your cognitive preferences..."
-                rows={3}
-                className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-white rounded focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-left placeholder-stone-400 dark:placeholder-white"
-              />
-            </div>
-          </div>
-
-          <button
-            type="submit"
-            className="font-sans text-xs bg-amber-950 dark:bg-amber-900 hover:bg-amber-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 text-white px-4 py-2 rounded transition-colors cursor-pointer text-center justify-center w-full sm:w-auto"
-          >
-            Save AI parameters
-          </button>
-        </form>
+            <button
+              type="submit"
+              className="font-sans text-xs bg-amber-950 dark:bg-amber-900 hover:bg-amber-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 text-white px-4 py-2 rounded transition-colors cursor-pointer text-center justify-center w-full sm:w-auto"
+            >
+              Save guidance parameters
+            </button>
+          </form>
+        </div>
       )}
 
       {/* TAB 4: NOTIFICATIONS */}

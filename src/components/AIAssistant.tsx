@@ -5,6 +5,8 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, Send, Bot, User, RefreshCw, HelpCircle, AlertCircle } from 'lucide-react';
+import ResearchIntegrityBanner from './ResearchIntegrityBanner';
+import { postWithAiRouting } from '../lib/localAiService';
 
 interface ChatMessage {
   id: string;
@@ -73,14 +75,10 @@ export default function AIAssistant() {
         text: m.text
       }));
 
-      const response = await fetch('/api/gemini/chat', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: textToSend,
-          history: historyPayload,
-          customGuidance
-        })
+      const response = await postWithAiRouting('/api/gemini/chat', {
+        message: textToSend,
+        history: historyPayload,
+        customGuidance
       });
 
       if (response.ok) {
@@ -123,7 +121,7 @@ export default function AIAssistant() {
     <div className="max-w-4xl mx-auto flex flex-col h-[calc(100vh-120px)] font-sans" id="ai-assistant-module">
       
       {/* Header Panel */}
-      <div className="border-b border-stone-200 dark:border-stone-800 pb-4 mb-4 flex justify-between items-center shrink-0">
+      <div className="border-b border-stone-200 dark:border-stone-800 pb-4 mb-3 flex justify-between items-center shrink-0">
         <div className="text-left">
           <h1 className="font-sans font-medium text-2xl tracking-tight text-stone-900 dark:text-stone-100 flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-amber-500 animate-pulse" /> AI Assistant
@@ -140,6 +138,10 @@ export default function AIAssistant() {
         >
           Clear History
         </button>
+      </div>
+
+      <div className="mb-3">
+        <ResearchIntegrityBanner compact />
       </div>
 
       {/* Main chat log */}

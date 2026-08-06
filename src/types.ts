@@ -130,3 +130,99 @@ export interface GraphLink {
   target: string;
   relation: string;
 }
+
+export interface EvidenceMap {
+  researchQuestion: string;
+  supportingLiterature: { paperTitle: string; paperId?: string; keyPoints: string; strength: string }[];
+  opposingLiterature: { paperTitle: string; paperId?: string; keyPoints: string; limitation: string }[];
+  methodologicalStrengths: string[];
+  methodologicalLimitations: string[];
+  areasOfConsensus: string[];
+  areasOfDisagreement: string[];
+  evidenceGaps: string[];
+}
+
+export interface ResearchQuestionAnalysis {
+  originalTopic: string;
+  refinedQuestions: {
+    questionText: string;
+    whyItMatters: string;
+    gapAddressed: string;
+    isAnswerable: boolean;
+  }[];
+  overlookedContextsOrVariables: string[];
+  suggestedAlternativePerspectives: string[];
+}
+
+export interface PatternAndDataAnalysis {
+  summary: string;
+  recurringThemes: string[];
+  unexpectedConnections: string[];
+  contradictions: string[];
+  trendsOverTime: string[];
+  variableRelationships: { varA: string; varB: string; relationshipType: string; description: string }[];
+  underexploredAreas: string[];
+  chartData?: { label: string; value: number; category?: string }[];
+}
+
+export interface CriticalPartnerFeedback {
+  interpretationChecked: string;
+  underpinningAssumptions: string[];
+  unstatedPremises: string[];
+  sampleOrContextLimitations: string[];
+  counterArgumentsToConsider: string[];
+  constructiveReframing: string;
+  secondThoughtSteps: {
+    notice: string;
+    pause: string;
+    question: string;
+    listen: string;
+    reconsider: string;
+    choose: string;
+  };
+}
+
+export interface LiteratureSynthesisResult {
+  agreements: string;
+  disagreements: string;
+  majorThemes: {
+    name: string;
+    description: string;
+    linkedPapers: string[];
+    keyConcepts: string[];
+  }[];
+  coreConcepts: {
+    concept: string;
+    definition: string;
+    usageInLiterature: string;
+    linkedThemes: string[];
+  }[];
+  underlyingTheories: {
+    theoryName: string;
+    corePremise: string;
+    keyProponents: string;
+    applicationContext: string;
+  }[];
+  methodologiesUsed: {
+    methodologyName: string;
+    type: 'Qualitative' | 'Quantitative' | 'Mixed' | 'Theoretical';
+    description: string;
+    strengths: string;
+    limitations: string;
+  }[];
+  mappedRelationships: {
+    source: string;
+    target: string;
+    relationshipType: 'supports' | 'challenges' | 'extends' | 'applies' | 'contrasts';
+    explanation: string;
+  }[];
+  schoolsOfThought: {
+    schoolName: string;
+    coreTenet: string;
+    keyAuthors: string;
+    distinguishingAssumptions: string;
+  }[];
+  establishedFindings: string[];
+  emergingDebates: string[];
+  unresolvedQuestions: string[];
+}
