@@ -456,7 +456,7 @@ export default function DataIngestionModule({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-stone-100 dark:border-stone-800 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <Database className="w-5 h-5 text-amber-800 dark:text-amber-500" />
+            <Database className="w-5 h-5 text-[#912A4A] dark:text-rose-400" />
             <h2 className="font-sans font-semibold text-stone-900 dark:text-stone-100 text-base">
               Local Data Ingestion Module (RAG Pipeline)
             </h2>
@@ -488,7 +488,7 @@ export default function DataIngestionModule({
             onClick={() => setActiveTab('upload')}
             className={`font-sans text-xs px-3 py-1.5 rounded-md font-medium transition-all flex items-center gap-1.5 cursor-pointer flex-1 sm:flex-none justify-center ${
               activeTab === 'upload'
-                ? 'bg-white dark:bg-stone-800 text-amber-900 dark:text-amber-300 shadow-xs'
+                ? 'bg-white dark:bg-stone-800 text-[#912A4A] dark:text-rose-300 shadow-xs'
                 : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
             }`}
           >
@@ -498,7 +498,7 @@ export default function DataIngestionModule({
             onClick={() => setActiveTab('paste')}
             className={`font-sans text-xs px-3 py-1.5 rounded-md font-medium transition-all flex items-center gap-1.5 cursor-pointer flex-1 sm:flex-none justify-center ${
               activeTab === 'paste'
-                ? 'bg-white dark:bg-stone-800 text-amber-900 dark:text-amber-300 shadow-xs'
+                ? 'bg-white dark:bg-stone-800 text-[#912A4A] dark:text-rose-300 shadow-xs'
                 : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
             }`}
           >
@@ -508,7 +508,7 @@ export default function DataIngestionModule({
             onClick={() => setActiveTab('samples')}
             className={`font-sans text-xs px-3 py-1.5 rounded-md font-medium transition-all flex items-center gap-1.5 cursor-pointer flex-1 sm:flex-none justify-center ${
               activeTab === 'samples'
-                ? 'bg-white dark:bg-stone-800 text-amber-900 dark:text-amber-300 shadow-xs'
+                ? 'bg-white dark:bg-stone-800 text-[#912A4A] dark:text-rose-300 shadow-xs'
                 : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
             }`}
           >
@@ -518,7 +518,7 @@ export default function DataIngestionModule({
 
         <button
           onClick={handleDownloadSampleTemplate}
-          className="font-sans text-[11px] text-amber-800 dark:text-amber-400 hover:underline flex items-center gap-1 px-2 py-1 cursor-pointer"
+          className="font-sans text-[11px] text-[#912A4A] dark:text-rose-400 hover:underline flex items-center gap-1 px-2 py-1 cursor-pointer"
         >
           <Download className="w-3 h-3" /> Download JSON Template
         </button>
@@ -529,7 +529,7 @@ export default function DataIngestionModule({
         <div className="space-y-4">
           <div
             onClick={() => fileInputRef.current?.click()}
-            className="border-2 border-dashed border-stone-300 dark:border-stone-700 hover:border-amber-600 dark:hover:border-amber-500 bg-stone-50/50 dark:bg-stone-900/40 rounded-lg p-8 text-center cursor-pointer transition-all space-y-3 group"
+            className="border-2 border-dashed border-stone-300 dark:border-stone-700 hover:border-[#912A4A] dark:hover:border-rose-400 bg-stone-50/50 dark:bg-stone-900/40 rounded-lg p-8 text-center cursor-pointer transition-all space-y-3 group"
           >
             <input
               type="file"
@@ -538,7 +538,7 @@ export default function DataIngestionModule({
               accept=".json,.txt,.md,.bib,.bibtex,.csv,.tsv"
               className="hidden"
             />
-            <div className="w-12 h-12 mx-auto rounded-full bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-400 flex items-center justify-center group-hover:scale-105 transition-transform">
+            <div className="w-12 h-12 mx-auto rounded-full bg-[#912A4A]/10 dark:bg-[#912A4A]/30 text-[#912A4A] dark:text-rose-300 flex items-center justify-center group-hover:scale-105 transition-transform">
               <Upload className="w-6 h-6" />
             </div>
             <div>
@@ -570,7 +570,7 @@ export default function DataIngestionModule({
             value={rawText}
             onChange={(e) => setRawText(e.target.value)}
             placeholder={`Paste raw JSON data dump or text sections here...\n\nExample JSON:\n[\n  {\n    "title": "Quantum Computing Applications in Chemistry",\n    "authors": "Dr. Alice Vance",\n    "year": 2026,\n    "doi": "10.1016/sample.2026.001",\n    "abstract": "Analysis of quantum algorithms for ground state calculations...",\n    "tags": ["quantum", "chemistry"]\n  }\n]`}
-            className="w-full h-44 font-mono text-xs p-3 bg-stone-950 text-amber-200/90 border border-stone-800 rounded-lg focus:outline-none focus:ring-1 focus:ring-amber-500 leading-relaxed"
+            className="w-full h-44 font-mono text-xs p-3 bg-stone-950 text-rose-200/90 border border-stone-800 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#912A4A] leading-relaxed"
           />
 
           <div className="flex justify-end gap-2">
@@ -586,7 +586,7 @@ export default function DataIngestionModule({
             <button
               onClick={() => parseRawContent(rawText)}
               disabled={!rawText.trim() || isProcessing}
-              className="font-sans text-xs bg-amber-800 hover:bg-amber-900 text-white px-4 py-1.5 rounded font-medium flex items-center gap-1.5 disabled:opacity-50 cursor-pointer shadow-xs transition-all"
+              className="font-sans text-xs bg-[#912A4A] hover:bg-[#78223d] text-white px-4 py-1.5 rounded font-medium flex items-center gap-1.5 disabled:opacity-50 cursor-pointer shadow-xs transition-all"
             >
               {isProcessing ? (
                 <span className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></span>
@@ -610,11 +610,11 @@ export default function DataIngestionModule({
             {SAMPLE_DUMPS.map((sample, idx) => (
               <div
                 key={idx}
-                className="p-4 border border-stone-200 dark:border-stone-800 bg-stone-50/30 dark:bg-stone-900/30 rounded-lg space-y-3 hover:border-amber-700/40 transition-all flex flex-col justify-between"
+                className="p-4 border border-stone-200 dark:border-stone-800 bg-stone-50/30 dark:bg-stone-900/30 rounded-lg space-y-3 hover:border-[#912A4A]/40 transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between gap-2">
-                    <span className="text-[10px] font-sans px-2 py-0.5 bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-300 rounded font-medium">
+                    <span className="text-[10px] font-sans px-2 py-0.5 bg-[#912A4A]/10 dark:bg-[#912A4A]/30 text-[#912A4A] dark:text-rose-300 rounded font-medium">
                       {sample.category}
                     </span>
                     <span className="font-sans text-[11px] text-stone-400">
@@ -631,7 +631,7 @@ export default function DataIngestionModule({
 
                 <button
                   onClick={() => handleLoadSample(sample.data)}
-                  className="w-full font-sans text-xs bg-stone-900 dark:bg-stone-800 hover:bg-amber-900 text-white py-1.5 rounded font-medium flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                  className="w-full font-sans text-xs bg-stone-900 dark:bg-stone-800 hover:bg-[#912A4A] text-white py-1.5 rounded font-medium flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
                 >
                   <ArrowRight className="w-3.5 h-3.5" /> Load Dataset Sample
                 </button>
@@ -647,13 +647,13 @@ export default function DataIngestionModule({
           className={`p-3.5 rounded-lg border text-xs font-sans flex items-start gap-2.5 ${
             ingestStatus.includes('Successfully')
               ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-200'
-              : 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-200'
+              : 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-900 dark:text-rose-200'
           }`}
         >
           {ingestStatus.includes('Successfully') ? (
             <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
           ) : (
-            <AlertCircle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
+            <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
           )}
           <div className="flex-1 leading-relaxed">{ingestStatus}</div>
         </div>
@@ -666,7 +666,7 @@ export default function DataIngestionModule({
           {/* Target Settings & Ingestion Target Controls */}
           <div className="bg-stone-50 dark:bg-stone-900 p-4 rounded-lg border border-stone-200/80 dark:border-stone-800 space-y-3">
             <h3 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-              <Layers className="w-4 h-4 text-amber-800 dark:text-amber-500" /> Ingestion Parameters & Collection Target
+              <Layers className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Ingestion Parameters & Collection Target
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -714,7 +714,7 @@ export default function DataIngestionModule({
               </span>
               <button
                 onClick={() => toggleSelectAll(true)}
-                className="text-amber-800 dark:text-amber-400 hover:underline text-[11px]"
+                className="text-[#912A4A] dark:text-rose-400 hover:underline text-[11px]"
               >
                 Select All
               </button>
@@ -728,8 +728,8 @@ export default function DataIngestionModule({
             </div>
 
             <div className="flex items-center gap-3 text-[11px] text-stone-500 dark:text-stone-400">
-              <span>Selected: <strong className="text-amber-900 dark:text-amber-300">{selectedCount}</strong></span>
-              <span>Estimated RAG Chunks: <strong className="text-amber-900 dark:text-amber-300">~{totalChunksEstimate}</strong></span>
+              <span>Selected: <strong className="text-[#912A4A] dark:text-rose-300">{selectedCount}</strong></span>
+              <span>Estimated RAG Chunks: <strong className="text-[#912A4A] dark:text-rose-300">~{totalChunksEstimate}</strong></span>
             </div>
           </div>
 
@@ -750,7 +750,7 @@ export default function DataIngestionModule({
                   <tr
                     key={item.id}
                     className={`hover:bg-stone-50 dark:hover:bg-stone-900/50 transition-colors ${
-                      item.selected ? 'bg-amber-50/10 dark:bg-amber-950/10' : 'opacity-60'
+                      item.selected ? 'bg-[#912A4A]/10 dark:bg-[#912A4A]/20' : 'opacity-60'
                     }`}
                   >
                     <td className="p-2.5 text-center">
@@ -758,7 +758,7 @@ export default function DataIngestionModule({
                         type="checkbox"
                         checked={item.selected}
                         onChange={() => toggleSelectItem(item.id)}
-                        className="rounded border-stone-300 text-amber-800 focus:ring-amber-500 cursor-pointer"
+                        className="rounded border-stone-300 text-[#912A4A] focus:ring-[#912A4A] cursor-pointer"
                       />
                     </td>
                     <td className="p-2.5">
@@ -777,7 +777,7 @@ export default function DataIngestionModule({
                               item.completenessScore > 75
                                 ? 'bg-emerald-600'
                                 : item.completenessScore > 45
-                                ? 'bg-amber-600'
+                                ? 'bg-[#1D9E75]'
                                 : 'bg-rose-600'
                             }`}
                             style={{ width: `${item.completenessScore}%` }}
@@ -793,7 +793,7 @@ export default function DataIngestionModule({
                     </td>
                     <td className="p-2.5 text-right">
                       {item.isDuplicate ? (
-                        <span className="text-[10px] font-medium px-2 py-0.5 bg-amber-100 dark:bg-amber-950/60 text-amber-900 dark:text-amber-300 rounded">
+                        <span className="text-[10px] font-medium px-2 py-0.5 bg-[#912A4A]/10 dark:bg-[#912A4A]/30 text-[#912A4A] dark:text-rose-300 rounded">
                           Duplicate Title
                         </span>
                       ) : (
@@ -824,7 +824,7 @@ export default function DataIngestionModule({
               <button
                 onClick={handleExecuteIngest}
                 disabled={selectedCount === 0}
-                className="font-sans text-xs bg-amber-800 hover:bg-amber-900 dark:bg-amber-700 dark:hover:bg-amber-600 text-white px-5 py-2 rounded-md font-semibold flex items-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer transition-all"
+                className="font-sans text-xs bg-[#912A4A] hover:bg-[#78223d] text-white px-5 py-2 rounded-md font-semibold flex items-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer transition-all"
               >
                 <Database className="w-4 h-4" /> Ingest {selectedCount} Record(s) to RAG Library
               </button>

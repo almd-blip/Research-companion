@@ -30,7 +30,7 @@ export default function KnowledgeGraph({ papers, journeys }: KnowledgeGraphProps
         id: j.id,
         label: j.title,
         type: 'journey',
-        color: '#D97706', // amber-600
+        color: '#912A4A', // burgundy
       });
 
       // Links to papers
@@ -229,14 +229,14 @@ export default function KnowledgeGraph({ papers, journeys }: KnowledgeGraphProps
 
   return (
     <div className="flex flex-col lg:flex-row gap-6 h-full" id="knowledge-graph-module">
-      <div className="flex-1 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 rounded-lg overflow-hidden flex flex-col">
-        <div className="p-4 border-b border-amber-900/10 dark:border-stone-800 bg-amber-50/40 dark:bg-stone-900/60 flex justify-between items-center">
+      <div className="flex-1 bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 rounded-lg overflow-hidden flex flex-col">
+        <div className="p-4 border-b border-stone-200 dark:border-stone-800 bg-stone-50/80 dark:bg-stone-900/60 flex justify-between items-center">
           <div>
             <h3 className="font-sans font-medium text-stone-900 dark:text-stone-100">Interconnected Knowledge Graph</h3>
             <p className="font-sans text-xs text-stone-500">Drag nodes to explore, scroll to zoom. Visualization of journeys, literature, and concepts.</p>
           </div>
           <div className="flex gap-2 text-xs">
-            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-amber-600 inline-block"></span>Journey</span>
+            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#912A4A] inline-block"></span>Journey</span>
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block"></span>Paper</span>
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-blue-600 inline-block"></span>Concept</span>
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-violet-600 inline-block"></span>Theme</span>
@@ -248,14 +248,14 @@ export default function KnowledgeGraph({ papers, journeys }: KnowledgeGraphProps
       </div>
 
       {/* Selected Node Inspector Sidebar */}
-      <div className="w-full lg:w-80 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 rounded-lg p-5 flex flex-col justify-between">
+      <div className="w-full lg:w-80 bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 rounded-lg p-5 flex flex-col justify-between">
         <div>
-          <h4 className="font-sans font-medium text-xs text-amber-800 dark:text-amber-400 tracking-wide mb-3">Node inspector</h4>
+          <h4 className="font-sans font-medium text-xs text-[#912A4A] dark:text-rose-400 tracking-wide mb-3">Node inspector</h4>
           {selectedNode ? (
             <div className="space-y-4">
               <div>
                 <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-mono mb-2 capitalize ${
-                  selectedNode.type === 'journey' ? 'bg-amber-100 text-amber-800' :
+                  selectedNode.type === 'journey' ? 'bg-[#912A4A]/10 text-[#912A4A]' :
                   selectedNode.type === 'paper' ? 'bg-emerald-100 text-emerald-800' :
                   selectedNode.type === 'concept' ? 'bg-blue-100 text-blue-800' : 'bg-violet-100 text-violet-800'
                 }`}>
@@ -279,7 +279,7 @@ export default function KnowledgeGraph({ papers, journeys }: KnowledgeGraphProps
                     <button
                       key={linked.id}
                       onClick={() => setSelectedNode(linked)}
-                      className="w-full text-left p-2 rounded border border-stone-100 dark:border-stone-800 bg-white dark:bg-stone-950 hover:bg-amber-50/30 dark:hover:bg-stone-900 font-sans text-xs flex items-center justify-between"
+                      className="w-full text-left p-2 rounded border border-stone-100 dark:border-stone-800 bg-white dark:bg-stone-950 hover:bg-stone-50 dark:hover:bg-stone-900 font-sans text-xs flex items-center justify-between"
                     >
                       <span className="truncate text-stone-700 dark:text-stone-300 pr-2">{linked.label}</span>
                       <span className="text-[9px] font-mono text-stone-400 dark:text-stone-500 capitalize">{linked.type}</span>
@@ -299,7 +299,7 @@ export default function KnowledgeGraph({ papers, journeys }: KnowledgeGraphProps
         </div>
 
         {selectedNode && (
-          <div className="pt-4 border-t border-amber-900/10 dark:border-stone-800 mt-4 text-left">
+          <div className="pt-4 border-t border-stone-200 dark:border-stone-800 mt-4 text-left">
             <p className="font-sans text-[10px] text-stone-400">
               Double click on nodes to reposition or zoom to recalibrate perspective.
             </p>

@@ -53,6 +53,7 @@ import WritingCompanion from './WritingCompanion';
 import CreativePublishingWorkspace from './CreativePublishingWorkspace';
 import DataIngestionModule from './DataIngestionModule';
 import CitationEngine from './CitationEngine';
+import ResearchTimeline from './ResearchTimeline';
 
 interface ResearchWorkspaceProps {
   journeys: ResearchJourney[];
@@ -372,6 +373,7 @@ export default function ResearchWorkspace({
       { id: 'consistency', label: 'Consistency Checker', category: 'writing', icon: <CheckSquare className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />, description: 'Uniform terminology and citation tag formatting' },
     ],
     publishing: [
+      { id: 'research_timeline', label: 'Timeline Visualizer', category: 'publishing', icon: <Calendar className="w-4 h-4 text-[#912A4A]" />, description: 'Interactive horizontal timeline for milestones and upcoming deadlines' },
       { id: 'reference_manager', label: 'Reference Manager', category: 'publishing', icon: <Quote className="w-4 h-4 text-amber-600 dark:text-amber-400" />, description: 'Switch between Harvard, APA, MLA, Chicago, and IEEE' },
       { id: 'journal_requirements', label: 'Journal Requirements', category: 'publishing', icon: <BookOpen className="w-4 h-4 text-blue-600 dark:text-blue-400" />, description: 'Check target journal word counts and citation rules' },
       { id: 'submission_checklist', label: 'Submission Checklist', category: 'publishing', icon: <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />, description: 'Publisher pre-flight checklist and ethical declarations' },
@@ -505,13 +507,13 @@ export default function ResearchWorkspace({
               title="Switch Active Research Project"
             >
               {journeys.map((j) => (
-                <option key={j.id} value={j.id} className="font-sans text-sm text-[#1B0A3B] bg-[#FAF8F5] dark:bg-stone-900">
+                <option key={j.id} value={j.id} className="font-sans text-sm text-[#1B0A3B] bg-stone-50 dark:bg-stone-900">
                   {j.title}
                 </option>
               ))}
             </select>
 
-            <span className="font-mono text-[10px] bg-[#FAF8F5] border border-[#C68A2B]/30 dark:bg-stone-850 text-[#912A4A] dark:text-stone-300 px-2.5 py-0.5 rounded capitalize font-medium">
+            <span className="font-mono text-[10px] bg-[#912A4A]/10 border border-[#912A4A]/30 dark:bg-stone-850 text-[#912A4A] dark:text-rose-300 px-2.5 py-0.5 rounded capitalize font-medium">
               {activeJourney.type.replace('_', ' ')}
             </span>
           </div>
@@ -541,11 +543,11 @@ export default function ResearchWorkspace({
               className={`px-3.5 py-1.5 rounded-md font-sans text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer ${
                 isStudioOpen
                   ? 'bg-[#1B0A3B] text-white dark:bg-stone-800'
-                  : 'bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-[#1B0A3B] dark:text-stone-300 hover:bg-[#FAF8F5]'
+                  : 'bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-[#1B0A3B] dark:text-stone-300 hover:bg-stone-100'
               }`}
               title={isStudioOpen ? 'Collapse Studio Panel' : 'Expand Studio Panel'}
             >
-              {isStudioOpen ? <PanelRightClose className="w-3.5 h-3.5 text-[#C68A2B]" /> : <PanelRightOpen className="w-3.5 h-3.5 text-stone-500" />}
+              {isStudioOpen ? <PanelRightClose className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400" /> : <PanelRightOpen className="w-3.5 h-3.5 text-stone-500" />}
               <span>Studio Tools</span>
             </button>
           </div>
@@ -560,7 +562,7 @@ export default function ResearchWorkspace({
           <form onSubmit={handleCreateProject} className="max-w-xl w-full bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-6 rounded-xl space-y-4 shadow-xl">
             <div className="flex justify-between items-center border-b border-stone-150 dark:border-stone-850 pb-3">
               <h2 className="font-serif font-bold text-lg text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                <Sparkles className="w-4 h-4 text-amber-800 dark:text-amber-400" /> Create New Research Project
+                <Sparkles className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Create New Research Project
               </h2>
               <button
                 type="button"
@@ -675,7 +677,7 @@ export default function ResearchWorkspace({
           
           {/* SUBTLE THINKING PROMPT */}
           <div className="text-left pt-1 pb-0.5 border-b border-stone-100 dark:border-stone-900 flex justify-between items-center">
-            <h3 className="font-serif italic text-base md:text-lg text-amber-900/90 dark:text-amber-300/90 font-medium tracking-wide">
+            <h3 className="font-serif italic text-base md:text-lg text-[#912A4A] dark:text-rose-300 font-medium tracking-wide">
               What will you discover today?
             </h3>
 
@@ -686,7 +688,7 @@ export default function ResearchWorkspace({
               className="font-sans text-[11px] text-stone-500 dark:text-stone-400 hover:text-stone-800 dark:hover:text-stone-200 flex items-center gap-1 px-2 py-1 rounded bg-stone-100 dark:bg-stone-900 transition-colors cursor-pointer"
               title="Toggle Distraction-Free Writing Mode"
             >
-              {isFocusMode ? <Minimize2 className="w-3.5 h-3.5 text-amber-700" /> : <Maximize2 className="w-3.5 h-3.5" />}
+              {isFocusMode ? <Minimize2 className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400" /> : <Maximize2 className="w-3.5 h-3.5" />}
               <span>{isFocusMode ? 'Exit Focus' : 'Focus Mode'}</span>
             </button>
           </div>
@@ -698,7 +700,7 @@ export default function ResearchWorkspace({
                 onClick={() => setCanvasMode('draft')}
                 className={`px-3 py-1.5 rounded-md font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
                   canvasMode === 'draft'
-                    ? 'bg-amber-950 text-white dark:bg-stone-800'
+                    ? 'bg-[#912A4A] text-white dark:bg-[#912A4A]'
                     : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
                 }`}
               >
@@ -709,7 +711,7 @@ export default function ResearchWorkspace({
                 onClick={() => setCanvasMode('notes')}
                 className={`px-3 py-1.5 rounded-md font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
                   canvasMode === 'notes'
-                    ? 'bg-amber-950 text-white dark:bg-stone-800'
+                    ? 'bg-[#912A4A] text-white dark:bg-[#912A4A]'
                     : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
                 }`}
               >
@@ -720,7 +722,7 @@ export default function ResearchWorkspace({
                 onClick={() => setCanvasMode('documents')}
                 className={`px-3 py-1.5 rounded-md font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
                   canvasMode === 'documents'
-                    ? 'bg-amber-950 text-white dark:bg-stone-800'
+                    ? 'bg-[#912A4A] text-white dark:bg-[#912A4A]'
                     : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
                 }`}
               >
@@ -731,7 +733,7 @@ export default function ResearchWorkspace({
                 onClick={() => setCanvasMode('timeline')}
                 className={`px-3 py-1.5 rounded-md font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
                   canvasMode === 'timeline'
-                    ? 'bg-amber-950 text-white dark:bg-stone-800'
+                    ? 'bg-[#912A4A] text-white dark:bg-[#912A4A]'
                     : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
                 }`}
               >
@@ -753,7 +755,7 @@ export default function ResearchWorkspace({
               {/* Chapter Selector & Status */}
               <div className="flex items-center justify-between bg-stone-50 dark:bg-stone-900/60 p-2.5 rounded-lg border border-stone-200/60 dark:border-stone-800/60 flex-wrap gap-2">
                 <div className="flex items-center gap-2">
-                  <span className="font-mono text-[10px] text-amber-800 dark:text-amber-400 uppercase font-bold">Chapter:</span>
+                  <span className="font-mono text-[10px] text-[#912A4A] dark:text-rose-400 uppercase font-bold">Chapter:</span>
                   <select
                     value={activeChapter?.id || ''}
                     onChange={(e) => setSelectedChapterId(e.target.value)}
@@ -801,7 +803,7 @@ export default function ResearchWorkspace({
               </div>
 
               {/* Main Off-White Focused Writing Canvas Container */}
-              <div className="relative p-6 md:p-8 bg-[#FAF8F5] dark:bg-stone-900/70 rounded-xl border border-stone-200/90 dark:border-stone-800 shadow-xs focus-within:border-[#1D9E75]/50 focus-within:ring-2 focus-within:ring-[#1D9E75]/20 dark:focus-within:ring-stone-700/40 transition-all duration-200 space-y-4">
+              <div className="relative p-6 md:p-8 bg-white dark:bg-stone-900/70 rounded-xl border border-stone-200/90 dark:border-stone-800 shadow-xs focus-within:border-[#1D9E75]/50 focus-within:ring-2 focus-within:ring-[#1D9E75]/20 dark:focus-within:ring-stone-700/40 transition-all duration-200 space-y-4">
                 
                 {/* Momentary Saved Status Indicator */}
                 <div className={`absolute top-3 right-4 z-20 flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1B0A3B]/90 dark:bg-stone-100/90 text-white dark:text-stone-900 text-[10px] font-mono tracking-wide shadow-sm backdrop-blur-xs transition-all duration-300 pointer-events-none ${
@@ -813,9 +815,9 @@ export default function ResearchWorkspace({
                 
                 {/* Floating Context-Aware Selection Toolbar */}
                 {selectedText && (
-                  <div className="sticky top-2 z-30 mb-3 p-2 bg-[#1B0A3B]/95 dark:bg-stone-950 text-white rounded-lg shadow-xl backdrop-blur-md border border-[#C68A2B]/40 flex flex-wrap items-center justify-between gap-2 animate-fadeIn transition-all">
+                  <div className="sticky top-2 z-30 mb-3 p-2 bg-[#1B0A3B]/95 dark:bg-stone-950 text-white rounded-lg shadow-xl backdrop-blur-md border border-[#912A4A]/40 flex flex-wrap items-center justify-between gap-2 animate-fadeIn transition-all">
                     <div className="flex items-center gap-2 px-1.5 overflow-hidden max-w-xs sm:max-w-md">
-                      <Sparkles className="w-3.5 h-3.5 text-[#C68A2B] shrink-0" />
+                      <Sparkles className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400 shrink-0" />
                       <span className="font-sans text-xs text-stone-200 truncate">
                         "{selectedText.length > 28 ? selectedText.slice(0, 28) + '…' : selectedText}"
                       </span>
@@ -875,10 +877,10 @@ export default function ResearchWorkspace({
                           setActiveToolId('theme_extraction');
                           setIsStudioOpen(true);
                         }}
-                        className="px-2.5 py-1 bg-[#25104f] hover:bg-[#321768] text-stone-100 rounded text-[11px] font-sans font-medium flex items-center gap-1 transition-colors cursor-pointer border border-[#C68A2B]/40"
+                        className="px-2.5 py-1 bg-[#25104f] hover:bg-[#321768] text-stone-100 rounded text-[11px] font-sans font-medium flex items-center gap-1 transition-colors cursor-pointer border border-indigo-500/40"
                         title="Analyse themes in selection"
                       >
-                        <Layers className="w-3 h-3 text-[#C68A2B]" />
+                        <Layers className="w-3 h-3 text-indigo-400" />
                         <span>Analyse Themes</span>
                       </button>
 
@@ -903,10 +905,10 @@ export default function ResearchWorkspace({
                           setActiveToolId('export_workspace');
                           setIsStudioOpen(true);
                         }}
-                        className="px-2.5 py-1 bg-[#25104f] hover:bg-[#321768] text-stone-100 rounded text-[11px] font-sans font-medium flex items-center gap-1 transition-colors cursor-pointer border border-[#C68A2B]/40"
+                        className="px-2.5 py-1 bg-[#25104f] hover:bg-[#321768] text-stone-100 rounded text-[11px] font-sans font-medium flex items-center gap-1 transition-colors cursor-pointer border border-indigo-500/40"
                         title="Export selection or chapter"
                       >
-                        <Download className="w-3 h-3 text-[#C68A2B]" />
+                        <Download className="w-3 h-3 text-indigo-400" />
                         <span>Export</span>
                       </button>
 
@@ -953,7 +955,7 @@ export default function ResearchWorkspace({
                     }
                   }}
                   placeholder="Begin writing your manuscript or research notes here... Select any text to reveal quick research actions."
-                  className="w-full font-sans text-base md:text-lg text-stone-900 dark:text-stone-100 bg-transparent resize-y min-h-[440px] focus:outline-none leading-relaxed tracking-normal placeholder:text-stone-400/80 placeholder:font-sans text-left selection:bg-amber-200/60 dark:selection:bg-amber-950/80 transition-colors"
+                  className="w-full font-sans text-base md:text-lg text-stone-900 dark:text-stone-100 bg-transparent resize-y min-h-[440px] focus:outline-none leading-relaxed tracking-normal placeholder:text-stone-400/80 placeholder:font-sans text-left selection:bg-rose-200/60 dark:selection:bg-rose-950/80 transition-colors"
                 />
 
                 {/* Contextual Tools Toolbar */}
@@ -968,7 +970,7 @@ export default function ResearchWorkspace({
                         setIsStudioOpen(true);
                         runRepetitionSpotter();
                       }}
-                      className="px-2.5 py-1 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-amber-700 text-stone-700 dark:text-stone-300 rounded text-[11px] font-sans font-medium flex items-center gap-1 transition-colors cursor-pointer"
+                      className="px-2.5 py-1 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-[#912A4A] dark:hover:border-rose-400 text-stone-700 dark:text-stone-300 rounded text-[11px] font-sans font-medium flex items-center gap-1 transition-colors cursor-pointer"
                     >
                       <Repeat className="w-3 h-3 text-rose-600" /> Check repetition
                     </button>
@@ -980,7 +982,7 @@ export default function ResearchWorkspace({
                         setActiveToolId('supporting_evidence');
                         setIsStudioOpen(true);
                       }}
-                      className="px-2.5 py-1 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-amber-700 text-stone-700 dark:text-stone-300 rounded text-[11px] font-sans font-medium flex items-center gap-1 transition-colors cursor-pointer"
+                      className="px-2.5 py-1 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-[#912A4A] dark:hover:border-rose-400 text-stone-700 dark:text-stone-300 rounded text-[11px] font-sans font-medium flex items-center gap-1 transition-colors cursor-pointer"
                     >
                       <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Supporting literature
                     </button>
@@ -992,7 +994,7 @@ export default function ResearchWorkspace({
                         setActiveToolId('opposing_evidence');
                         setIsStudioOpen(true);
                       }}
-                      className="px-2.5 py-1 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-amber-700 text-stone-700 dark:text-stone-300 rounded text-[11px] font-sans font-medium flex items-center gap-1 transition-colors cursor-pointer"
+                      className="px-2.5 py-1 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-[#912A4A] dark:hover:border-rose-400 text-stone-700 dark:text-stone-300 rounded text-[11px] font-sans font-medium flex items-center gap-1 transition-colors cursor-pointer"
                     >
                       <AlertCircle className="w-3 h-3 text-rose-600" /> Opposing evidence
                     </button>
@@ -1004,7 +1006,7 @@ export default function ResearchWorkspace({
                         setActiveToolId('theme_extraction');
                         setIsStudioOpen(true);
                       }}
-                      className="px-2.5 py-1 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-amber-700 text-stone-700 dark:text-stone-300 rounded text-[11px] font-sans font-medium flex items-center gap-1 transition-colors cursor-pointer"
+                      className="px-2.5 py-1 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-[#912A4A] dark:hover:border-rose-400 text-stone-700 dark:text-stone-300 rounded text-[11px] font-sans font-medium flex items-center gap-1 transition-colors cursor-pointer"
                     >
                       <Layers className="w-3 h-3 text-orange-600" /> Analyse themes
                     </button>
@@ -1016,7 +1018,7 @@ export default function ResearchWorkspace({
                         setActiveToolId('accessibility');
                         setIsStudioOpen(true);
                       }}
-                      className="px-2.5 py-1 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-amber-700 text-stone-700 dark:text-stone-300 rounded text-[11px] font-sans font-medium flex items-center gap-1 transition-colors cursor-pointer"
+                      className="px-2.5 py-1 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-[#912A4A] dark:hover:border-rose-400 text-stone-700 dark:text-stone-300 rounded text-[11px] font-sans font-medium flex items-center gap-1 transition-colors cursor-pointer"
                     >
                       <ShieldCheck className="w-3 h-3 text-emerald-600" /> Accessibility
                     </button>
@@ -1028,7 +1030,7 @@ export default function ResearchWorkspace({
                         setActiveToolId('export_workspace');
                         setIsStudioOpen(true);
                       }}
-                      className="px-2.5 py-1 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-amber-700 text-stone-700 dark:text-stone-300 rounded text-[11px] font-sans font-medium flex items-center gap-1 transition-colors cursor-pointer"
+                      className="px-2.5 py-1 bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:border-[#912A4A] dark:hover:border-rose-400 text-stone-700 dark:text-stone-300 rounded text-[11px] font-sans font-medium flex items-center gap-1 transition-colors cursor-pointer"
                     >
                       <Download className="w-3 h-3 text-indigo-600" /> Export
                     </button>
@@ -1046,13 +1048,13 @@ export default function ResearchWorkspace({
           {canvasMode === 'notes' && (
             <div className="space-y-6 pt-2">
               <div className="space-y-3">
-                <h4 className="font-sans font-bold text-xs text-amber-900 dark:text-amber-400 flex items-center gap-1.5 text-left">
+                <h4 className="font-sans font-bold text-xs text-[#912A4A] dark:text-rose-400 flex items-center gap-1.5 text-left">
                   <HelpCircle className="w-4 h-4" /> Active Research Questions
                 </h4>
                 <div className="space-y-2">
                   {activeJourney.questions.map((q, idx) => (
                     <div key={idx} className="py-2 px-1 border-b border-stone-100 dark:border-stone-900 text-xs font-sans text-stone-800 dark:text-stone-200 flex gap-2.5 text-left">
-                      <span className="font-mono text-[10px] text-amber-800 dark:text-amber-300 font-bold shrink-0">
+                      <span className="font-mono text-[10px] text-[#912A4A] dark:text-rose-400 font-bold shrink-0">
                         Q{idx + 1}.
                       </span>
                       <span>{q}</span>
@@ -1101,13 +1103,13 @@ export default function ResearchWorkspace({
           {canvasMode === 'documents' && (
             <div className="p-4 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg space-y-4">
               <div className="flex justify-between items-center">
-                <h4 className="font-sans font-bold text-xs uppercase text-amber-900 dark:text-amber-400 flex items-center gap-1.5">
+                <h4 className="font-sans font-bold text-xs uppercase text-[#912A4A] dark:text-rose-400 flex items-center gap-1.5">
                   <LinkIcon className="w-4 h-4" /> Associated Literature References
                 </h4>
                 <button
                   type="button"
                   onClick={() => setShowIngestionModal(true)}
-                  className="px-2.5 py-1 bg-amber-900 text-white rounded text-xs font-sans font-medium flex items-center gap-1 cursor-pointer"
+                  className="px-2.5 py-1 bg-[#912A4A] hover:bg-[#78223d] text-white rounded text-xs font-sans font-medium flex items-center gap-1 cursor-pointer"
                 >
                   <Upload className="w-3.5 h-3.5" /> Import New Source
                 </button>
@@ -1132,10 +1134,18 @@ export default function ResearchWorkspace({
           )}
 
           {/* CANVAS MODE 4: MILESTONES & TASKS */}
+          {/* CANVAS MODE 4: MILESTONES & TIMELINE */}
           {canvasMode === 'timeline' && (
-            <div className="space-y-4">
-              {/* Task Checklist */}
-              <div className="p-4 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg space-y-3">
+            <div className="space-y-6">
+              <ResearchTimeline
+                journeys={journeys}
+                activeJourneyId={activeJourney.id}
+                onSetActiveJourneyId={onSetActiveJourneyId}
+                onUpdateJourney={onUpdateJourney}
+              />
+
+              {/* Deliverables & Tasks Section */}
+              <div className="p-4 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl space-y-3 text-left">
                 <div className="flex justify-between items-center">
                   <h4 className="font-sans font-bold text-xs uppercase text-emerald-800 dark:text-emerald-400 flex items-center gap-1.5">
                     <CheckSquare className="w-4 h-4" /> Deliverables & Tasks
@@ -1177,24 +1187,6 @@ export default function ResearchWorkspace({
                   </button>
                 </form>
               </div>
-
-              {/* Timeline Milestones */}
-              <div className="p-4 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg space-y-3">
-                <h4 className="font-sans font-bold text-xs uppercase text-blue-800 dark:text-blue-400 flex items-center gap-1.5">
-                  <Calendar className="w-4 h-4" /> Timeline Milestones
-                </h4>
-                <div className="space-y-2">
-                  {activeJourney.timeline.map((event) => (
-                    <div key={event.id} className="p-2.5 bg-stone-50 dark:bg-stone-900 rounded border border-stone-200/50 dark:border-stone-800 text-xs space-y-1">
-                      <div className="flex items-center gap-2 font-semibold text-stone-900 dark:text-stone-100">
-                        <span className="font-mono text-[10px] text-amber-800">{event.date}</span>
-                        <span>{event.title}</span>
-                      </div>
-                      {event.description && <p className="text-[11px] text-stone-500">{event.description}</p>}
-                    </div>
-                  ))}
-                </div>
-              </div>
             </div>
           )}
 
@@ -1209,7 +1201,7 @@ export default function ResearchWorkspace({
             {/* Panel Header */}
             <div className="flex items-center justify-between border-b border-stone-150 dark:border-stone-850 pb-2">
               <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 text-amber-800 dark:text-amber-400" />
+                <Layers className="w-4 h-4 text-[#912A4A] dark:text-rose-400" />
                 <h3 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100">
                   Studio Panel
                 </h3>
@@ -1237,7 +1229,7 @@ export default function ResearchWorkspace({
                   }}
                   className={`px-2.5 py-1 rounded capitalize font-medium transition-colors whitespace-nowrap cursor-pointer ${
                     activeStudioGroup === grp
-                      ? 'bg-amber-950 text-white dark:bg-amber-800 font-bold'
+                      ? 'bg-[#912A4A] text-white dark:bg-[#912A4A] font-bold'
                       : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
                   }`}
                 >
@@ -1259,13 +1251,13 @@ export default function ResearchWorkspace({
                       key={tool.id}
                       type="button"
                       onClick={() => setActiveToolId(tool.id)}
-                      className="w-full text-left p-2.5 rounded-lg border border-stone-200/80 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/50 hover:bg-amber-50/50 dark:hover:bg-stone-800/80 transition-colors cursor-pointer group flex items-start gap-2.5"
+                      className="w-full text-left p-2.5 rounded-lg border border-stone-200/80 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/50 hover:bg-stone-100/70 dark:hover:bg-stone-800/80 transition-colors cursor-pointer group flex items-start gap-2.5"
                     >
                       <div className="mt-0.5 p-1 bg-white dark:bg-stone-800 rounded border border-stone-200/60 dark:border-stone-700 shrink-0">
                         {tool.icon}
                       </div>
                       <div className="flex-grow">
-                        <div className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 group-hover:text-amber-950 dark:group-hover:text-amber-300 flex items-center justify-between">
+                        <div className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300 flex items-center justify-between">
                           <span>{tool.label}</span>
                           <ChevronRight className="w-3.5 h-3.5 text-stone-400 group-hover:translate-x-0.5 transition-transform" />
                         </div>
@@ -1298,7 +1290,7 @@ export default function ResearchWorkspace({
 
                 {/* 1. RESEARCH TOOLS */}
                 {activeToolId === 'upload_docs' && (
-                  <div className="p-3 bg-amber-50/30 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 rounded-lg space-y-3">
+                  <div className="p-3 bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 rounded-lg space-y-3">
                     <h4 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
                       <Upload className="w-4 h-4 text-emerald-600" /> Ingest & Upload Literature
                     </h4>
@@ -1356,9 +1348,9 @@ export default function ResearchWorkspace({
 
                 {/* 2. ANALYSIS TOOLS */}
                 {(['pattern_finder', 'theme_extraction', 'supporting_evidence', 'opposing_evidence', 'gap_analysis', 'critical_questions'].includes(activeToolId)) && (
-                  <div className="p-3 bg-amber-50/20 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 rounded-lg space-y-3">
+                  <div className="p-3 bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 rounded-lg space-y-3">
                     <h4 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 capitalize flex items-center gap-1.5">
-                      <Sparkles className="w-4 h-4 text-amber-700 dark:text-amber-400" />
+                      <Sparkles className="w-4 h-4 text-[#912A4A] dark:text-rose-400" />
                       {activeToolId.replace('_', ' ')}
                     </h4>
                     <p className="font-sans text-xs text-stone-600 dark:text-stone-400">
@@ -1434,7 +1426,7 @@ export default function ResearchWorkspace({
 
                     {activeToolId === 'visualisations' && (
                       <div className="p-3 bg-stone-50 dark:bg-stone-800 rounded text-center text-xs text-stone-500">
-                        <PieChart className="w-8 h-8 text-amber-800 dark:text-amber-400 mx-auto mb-2" />
+                        <PieChart className="w-8 h-8 text-[#912A4A] dark:text-rose-400 mx-auto mb-2" />
                         <p className="font-medium">Evidence Density Distribution</p>
                         <p className="text-[10px] text-stone-400 mt-1">65% Empirical Evidence, 25% Conceptual, 10% Policy Briefs</p>
                       </div>
@@ -1496,7 +1488,7 @@ export default function ResearchWorkspace({
                   <div className="p-3 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg space-y-3">
                     <div className="flex justify-between items-center">
                       <h4 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                        <FileCode className="w-4 h-4 text-amber-600" /> Unfinished Sentences Spotter
+                        <FileCode className="w-4 h-4 text-rose-600" /> Unfinished Sentences Spotter
                       </h4>
                       <button
                         type="button"
@@ -1510,7 +1502,7 @@ export default function ResearchWorkspace({
                     <div className="space-y-1 text-xs font-sans">
                       {unfinishedSentences.length > 0 ? (
                         unfinishedSentences.map((u, idx) => (
-                          <div key={idx} className="p-2 bg-amber-50/50 dark:bg-stone-800 rounded border border-amber-200/50 text-stone-800 dark:text-stone-200">
+                          <div key={idx} className="p-2 bg-rose-50/50 dark:bg-stone-800 rounded border border-rose-200/50 text-stone-800 dark:text-stone-200">
                             {u}
                           </div>
                         ))
@@ -1558,6 +1550,17 @@ export default function ResearchWorkspace({
                 )}
 
                 {/* 5. PUBLISHING TOOLS */}
+                {activeToolId === 'research_timeline' && (
+                  <div className="max-h-[550px] overflow-y-auto">
+                    <ResearchTimeline
+                      journeys={journeys}
+                      activeJourneyId={activeJourney.id}
+                      onSetActiveJourneyId={onSetActiveJourneyId}
+                      onUpdateJourney={onUpdateJourney}
+                    />
+                  </div>
+                )}
+
                 {activeToolId === 'reference_manager' && (
                   <div className="max-h-[500px] overflow-y-auto">
                     <CitationEngine
@@ -1610,7 +1613,7 @@ export default function ResearchWorkspace({
                           a.download = `${activeJourney.title.toLowerCase().replace(/\s+/g, '_')}_manuscript.md`;
                           a.click();
                         }}
-                        className="px-3 py-2 bg-amber-950 text-white dark:bg-amber-800 rounded font-medium flex items-center justify-center gap-1 cursor-pointer"
+                        className="px-3 py-2 bg-[#912A4A] text-white dark:bg-[#912A4A] hover:bg-[#78223d] rounded font-medium flex items-center justify-center gap-1 cursor-pointer"
                       >
                         <Download className="w-3.5 h-3.5" /> Markdown (.md)
                       </button>
@@ -1648,7 +1651,7 @@ export default function ResearchWorkspace({
           <div className="max-w-xl w-full bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-6 rounded-xl space-y-4 shadow-xl">
             <div className="flex justify-between items-center border-b border-stone-150 dark:border-stone-850 pb-2">
               <h3 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                <Upload className="w-4 h-4 text-amber-800" /> Upload Source Document
+                <Upload className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Upload Source Document
               </h3>
               <button
                 type="button"

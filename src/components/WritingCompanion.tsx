@@ -75,7 +75,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
             <button
               onClick={handleAnalyzeDraft}
               disabled={loadingAnalysis || !draftContent}
-              className="font-sans text-xs bg-amber-950 text-white px-3.5 py-2 rounded hover:bg-amber-900 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950"
+              className="font-sans text-xs bg-[#912A4A] text-white px-3.5 py-2 rounded hover:bg-[#78223d] transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#912A4A] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950"
             >
               {loadingAnalysis ? (
                 <RefreshCw className="w-3.5 h-3.5 animate-spin" />
@@ -91,7 +91,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
             id="draft-companion-textarea"
             value={draftContent}
             onChange={handleTextChange}
-            className="flex-1 w-full font-serif font-light text-stone-800 dark:text-stone-200 text-sm p-4 bg-amber-50/5 dark:bg-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 resize-none min-h-[350px] leading-relaxed"
+            className="flex-1 w-full font-serif font-light text-stone-800 dark:text-stone-200 text-sm p-4 bg-stone-50/50 dark:bg-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-[#912A4A] focus:ring-offset-2 dark:focus:ring-offset-stone-950 resize-none min-h-[350px] leading-relaxed"
             placeholder="Outline your thoughts, connect concepts, and type drafts here... When ready, click 'Cross-Reference Library' on the top right to verify claims against your academic database."
           />
         </div>
@@ -103,15 +103,15 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
       </div>
 
       {/* RIGHT COLUMN: AI Scholar Inspector Panel */}
-      <div className="w-full lg:w-96 bg-amber-50/15 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 rounded-lg p-5 flex flex-col">
-        <div className="flex items-center gap-2 mb-4 border-b border-amber-900/10 pb-3">
-          <Library className="w-4 h-4 text-amber-800 dark:text-amber-400" />
-          <h3 className="font-sans font-medium text-xs text-amber-800 dark:text-amber-400 tracking-wide">AI Scholar Claim-Checker</h3>
+      <div className="w-full lg:w-96 bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 rounded-lg p-5 flex flex-col">
+        <div className="flex items-center gap-2 mb-4 border-b border-stone-200 dark:border-stone-800 pb-3">
+          <Library className="w-4 h-4 text-[#912A4A] dark:text-rose-400" />
+          <h3 className="font-sans font-medium text-xs text-[#912A4A] dark:text-rose-400 tracking-wide">AI Scholar Claim-Checker</h3>
         </div>
 
         {loadingAnalysis ? (
           <div className="flex-1 flex flex-col items-start justify-start py-16 space-y-3">
-            <div className="w-5 h-5 border-2 border-amber-900 border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-5 h-5 border-2 border-[#912A4A] border-t-transparent rounded-full animate-spin"></div>
             <p className="font-sans text-xs text-stone-500 italic text-left px-4">Scanning your library, checking local findings, tracking evidence lines...</p>
           </div>
         ) : analysisResult ? (
@@ -121,7 +121,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
               <button
                 onClick={() => setActiveAnalysisTab('unsupported')}
                 className={`py-1 rounded text-left cursor-pointer ${
-                  activeAnalysisTab === 'unsupported' ? 'bg-amber-900/10 text-amber-900 font-semibold' : 'text-stone-400'
+                  activeAnalysisTab === 'unsupported' ? 'bg-[#912A4A]/10 text-[#912A4A] font-semibold' : 'text-stone-400'
                 }`}
                 title="Unsupported claims in draft"
               >
@@ -130,7 +130,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
               <button
                 onClick={() => setActiveAnalysisTab('supported')}
                 className={`py-1 rounded text-left cursor-pointer ${
-                  activeAnalysisTab === 'supported' ? 'bg-amber-900/10 text-amber-900 font-semibold' : 'text-stone-400'
+                  activeAnalysisTab === 'supported' ? 'bg-[#912A4A]/10 text-[#912A4A] font-semibold' : 'text-stone-400'
                 }`}
                 title="Claims supported by library"
               >
@@ -139,7 +139,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
               <button
                 onClick={() => setActiveAnalysisTab('contradictions')}
                 className={`py-1 rounded text-left cursor-pointer ${
-                  activeAnalysisTab === 'contradictions' ? 'bg-amber-900/10 text-amber-900 font-semibold' : 'text-stone-400'
+                  activeAnalysisTab === 'contradictions' ? 'bg-[#912A4A]/10 text-[#912A4A] font-semibold' : 'text-stone-400'
                 }`}
                 title="Contradictions in library"
               >
@@ -148,7 +148,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
               <button
                 onClick={() => setActiveAnalysisTab('suggestions')}
                 className={`py-1 rounded text-left cursor-pointer ${
-                  activeAnalysisTab === 'suggestions' ? 'bg-amber-900/10 text-amber-900 font-semibold' : 'text-stone-400'
+                  activeAnalysisTab === 'suggestions' ? 'bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 font-semibold' : 'text-stone-400'
                 }`}
                 title="Argument outline suggestions"
               >
@@ -199,12 +199,12 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
               {activeAnalysisTab === 'contradictions' && (
                 <div className="space-y-3">
                   {analysisResult.contradictoryEvidence?.map((item: any, idx: number) => (
-                    <div key={idx} className="p-3.5 bg-amber-50/50 dark:bg-amber-950/10 border border-amber-150 dark:border-amber-900/40 rounded-lg space-y-1.5 text-xs">
-                      <div className="flex items-center gap-1.5 text-amber-700 dark:text-amber-400 font-semibold text-[10px]">
+                    <div key={idx} className="p-3.5 bg-[#912A4A]/5 dark:bg-[#912A4A]/10 border border-[#912A4A]/20 dark:border-[#912A4A]/40 rounded-lg space-y-1.5 text-xs">
+                      <div className="flex items-center gap-1.5 text-[#912A4A] dark:text-rose-400 font-semibold text-[10px]">
                         <MessageSquare className="w-3.5 h-3.5" /> Relational Contradiction
                       </div>
                       <p className="italic text-stone-700 dark:text-stone-300">"{item.draftClaim}"</p>
-                      <p className="text-stone-600 dark:text-stone-400 text-[11px]"><strong className="text-amber-800 dark:text-amber-400">Contradictory Source:</strong> {item.paperTitle}</p>
+                      <p className="text-stone-600 dark:text-stone-400 text-[11px]"><strong className="text-[#912A4A] dark:text-rose-400">Contradictory Source:</strong> {item.paperTitle}</p>
                       <p className="text-stone-500 text-[11px]"><strong className="text-stone-700 dark:text-stone-300">Details:</strong> {item.conflictDetails}</p>
                     </div>
                   ))}
@@ -218,7 +218,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
               {activeAnalysisTab === 'suggestions' && (
                 <div className="bg-white dark:bg-stone-950 p-4 border border-stone-200 rounded-lg space-y-3 text-xs">
                   <h4 className="font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-1.5 mb-2">
-                    <List className="w-4 h-4 text-amber-800" /> Structure Recommendations
+                    <List className="w-4 h-4 text-[#912A4A]" /> Structure Recommendations
                   </h4>
                   <ul className="space-y-2">
                     {analysisResult.outlineSuggestions?.map((item: string, idx: number) => (

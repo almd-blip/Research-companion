@@ -71,11 +71,11 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
               <div className="mt-8 flex flex-col items-start gap-5 pl-0.5">
                 <motion.button
                   onClick={() => onNavigate('wellbeing')}
-                  className="group text-white hover:text-amber-400 transition-colors duration-300 flex items-center cursor-pointer text-xl md:text-2xl font-bold py-1 text-left focus:outline-none focus:ring-1 focus:ring-amber-500 rounded"
+                  className="group text-white hover:text-rose-300 transition-colors duration-300 flex items-center cursor-pointer text-xl md:text-2xl font-bold py-1 text-left focus:outline-none focus:ring-1 focus:ring-[#912A4A] rounded"
                   whileHover={{ x: 8 }}
                   transition={{ type: "spring", stiffness: 350, damping: 25 }}
                 >
-                  <span className="border-b border-transparent group-hover:border-amber-400 pb-0.5 transition-all">
+                  <span className="border-b border-transparent group-hover:border-rose-300 pb-0.5 transition-all">
                     Pause and breathe
                   </span>
                 </motion.button>

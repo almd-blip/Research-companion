@@ -343,14 +343,14 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
 
       {/* Accessible Dynamic Banner */}
       {notification && (
-        <div className="bg-amber-900/10 dark:bg-amber-900/30 border border-amber-900/20 p-4 rounded-lg flex justify-between items-center animate-fadeIn" role="alert">
+        <div className="bg-[#912A4A]/10 dark:bg-[#912A4A]/30 border border-[#912A4A]/20 p-4 rounded-lg flex justify-between items-center animate-fadeIn" role="alert">
           <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-amber-800 dark:text-amber-400 shrink-0" />
-            <p className="font-sans text-xs text-amber-900 dark:text-amber-200 font-medium">{notification}</p>
+            <Sparkles className="w-4 h-4 text-[#912A4A] dark:text-rose-400 shrink-0" />
+            <p className="font-sans text-xs text-[#912A4A] dark:text-rose-200 font-medium">{notification}</p>
           </div>
           <button
             onClick={() => setNotification(null)}
-            className="text-xs text-amber-900 dark:text-amber-300 hover:underline px-2 py-1 font-semibold cursor-pointer"
+            className="text-xs text-[#912A4A] dark:text-rose-300 hover:underline px-2 py-1 font-semibold cursor-pointer"
           >
             Dismiss
           </button>
@@ -366,7 +366,7 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
               aria-selected={activeWellbeingTab === 'self_care'}
               onClick={() => setActiveWellbeingTab('self_care')}
               className={`font-sans text-xs pb-2 border-b-2 font-medium cursor-pointer transition-all ${
-                activeWellbeingTab === 'self_care' ? 'border-amber-900 dark:border-amber-500 text-amber-900 dark:text-amber-400 font-bold' : 'border-transparent text-stone-500 hover:text-stone-700 dark:hover:text-stone-300'
+                activeWellbeingTab === 'self_care' ? 'border-[#912A4A] dark:border-rose-400 text-[#912A4A] dark:text-rose-400 font-bold' : 'border-transparent text-stone-500 hover:text-stone-700 dark:hover:text-stone-300'
               }`}
             >
               Sustaining yourself guides
@@ -376,7 +376,7 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
               aria-selected={activeWellbeingTab === 'wins'}
               onClick={() => setActiveWellbeingTab('wins')}
               className={`font-sans text-xs pb-2 border-b-2 font-medium cursor-pointer transition-all ${
-                activeWellbeingTab === 'wins' ? 'border-amber-900 dark:border-amber-500 text-amber-900 dark:text-amber-400 font-bold' : 'border-transparent text-stone-500 hover:text-stone-700 dark:hover:text-stone-300'
+                activeWellbeingTab === 'wins' ? 'border-[#912A4A] dark:border-rose-400 text-[#912A4A] dark:text-rose-400 font-bold' : 'border-transparent text-stone-500 hover:text-stone-700 dark:hover:text-stone-300'
               }`}
             >
               Reflective wins & progress
@@ -386,7 +386,7 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
               aria-selected={activeWellbeingTab === 'reflections'}
               onClick={() => setActiveWellbeingTab('reflections')}
               className={`font-sans text-xs pb-2 border-b-2 font-medium cursor-pointer transition-all ${
-                activeWellbeingTab === 'reflections' ? 'border-amber-900 dark:border-amber-500 text-amber-900 dark:text-amber-400 font-bold' : 'border-transparent text-stone-500 hover:text-stone-700 dark:hover:text-stone-300'
+                activeWellbeingTab === 'reflections' ? 'border-[#912A4A] dark:border-rose-400 text-[#912A4A] dark:text-rose-400 font-bold' : 'border-transparent text-stone-500 hover:text-stone-700 dark:hover:text-stone-300'
               }`}
             >
               Gentle encouragements
@@ -400,9 +400,9 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fadeIn">
           
           {/* Pomodoro Timer */}
-          <div className="bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-8 rounded-lg flex flex-col items-start justify-start space-y-6">
+          <div className="bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 p-8 rounded-lg flex flex-col items-start justify-start space-y-6">
             <div className="text-left">
-              <span className="font-sans text-[10px] font-mono text-amber-800 dark:text-amber-500 font-semibold">
+              <span className="font-sans text-[10px] font-mono text-[#912A4A] dark:text-rose-400 font-semibold">
                 {isBreak ? 'Gentle decompression interval' : 'Quiet study interval'}
               </span>
               <h2 className="font-mono text-5xl font-light text-stone-900 dark:text-stone-100 tracking-tight mt-2">
@@ -414,7 +414,7 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
               <button
                 onClick={() => setTimerRunning(!timerRunning)}
                 aria-label={timerRunning ? "Pause focus timer" : "Start focus timer"}
-                className="w-12 h-12 rounded-full bg-amber-950 dark:bg-amber-900 text-white flex items-center justify-center hover:bg-amber-900 dark:hover:bg-amber-850 transition-colors shadow-sm cursor-pointer"
+                className="w-12 h-12 rounded-full bg-[#912A4A] hover:bg-[#78223d] text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer"
               >
                 {timerRunning ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 pl-0.5" />}
               </button>
@@ -436,7 +436,7 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
           <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-6 rounded-lg flex flex-col justify-between shadow-xs">
             <div className="space-y-4">
               <h3 className="font-sans font-semibold text-stone-900 dark:text-stone-100 text-sm flex items-center gap-1.5">
-                <Volume2 className="w-4 h-4 text-amber-800" /> Procedural Soundscapes
+                <Volume2 className="w-4 h-4 text-[#912A4A]" /> Procedural Soundscapes
               </h3>
               <p className="font-sans text-xs text-stone-500 leading-relaxed">
                 Procedurally synthesized rain and breeze textures. These are generated inside your browser using raw mathematical waves to establish acoustic calm.
@@ -449,7 +449,7 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
                     onClick={() => toggleSoundscape(sound.id)}
                     className={`w-full text-left p-3 rounded-lg border font-sans text-xs flex justify-between items-center transition-all cursor-pointer ${
                       activeSoundscape === sound.id
-                        ? 'bg-amber-900/10 border-amber-900/30 text-amber-950 dark:text-amber-300 font-semibold'
+                        ? 'bg-[#912A4A]/10 border-[#912A4A]/30 text-[#912A4A] dark:text-rose-300 font-semibold'
                         : 'bg-stone-50/50 dark:bg-stone-900/30 border-stone-150 dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:border-stone-250 dark:hover:border-stone-700'
                     }`}
                   >
@@ -485,7 +485,7 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
                 onClick={() => setActiveTopicId(topic.id)}
                 className={`w-full text-left p-3 rounded-md font-sans text-xs flex items-center gap-2.5 transition-colors cursor-pointer ${
                   activeTopicId === topic.id
-                    ? 'bg-white dark:bg-stone-950 border border-amber-900/15 dark:border-stone-700 text-stone-950 dark:text-stone-100 font-medium shadow-xs'
+                    ? 'bg-white dark:bg-stone-950 border border-[#912A4A]/20 dark:border-stone-700 text-stone-950 dark:text-stone-100 font-medium shadow-xs'
                     : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-300'
                 }`}
               >
@@ -498,7 +498,7 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
           {/* Details column */}
           <div className="lg:col-span-2 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-6 shadow-xs">
             <div>
-              <span className="text-[10px] font-mono text-amber-800 dark:text-amber-500 font-semibold">Academic support strategy</span>
+              <span className="text-[10px] font-mono text-[#912A4A] dark:text-rose-400 font-semibold">Academic support strategy</span>
               <h2 className="text-lg font-semibold text-stone-950 dark:text-stone-100 mt-1 flex items-center gap-2">
                 <span>{activeTopic.emoji}</span> {activeTopic.title}
               </h2>
@@ -521,8 +521,8 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
               </ul>
             </div>
 
-            <div className="p-4 bg-amber-50/15 border border-amber-900/10 rounded-lg space-y-1.5 animate-fadeIn">
-              <h4 className="text-xs font-semibold text-amber-800 dark:text-amber-400 flex items-center gap-1.5">
+            <div className="p-4 bg-[#912A4A]/5 border border-[#912A4A]/15 rounded-lg space-y-1.5 animate-fadeIn">
+              <h4 className="text-xs font-semibold text-[#912A4A] dark:text-rose-400 flex items-center gap-1.5">
                 <Sparkles className="w-3.5 h-3.5" /> Support Reflection Prompt:
               </h4>
               <p className="text-xs italic text-stone-600 dark:text-stone-400 leading-relaxed">
@@ -539,7 +539,7 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
         <div className="max-w-3xl mx-auto bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-6 shadow-xs animate-fadeIn">
           <div>
             <h3 className="font-sans font-semibold text-stone-950 dark:text-stone-100 text-sm flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-amber-800 dark:text-amber-400" /> Celebrate Today's Progress
+              <Sparkles className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Celebrate Today's Progress
             </h3>
             <p className="font-sans text-xs text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
               Research contains almost no instant feedback loops. Track small micro-wins (e.g., correcting one citation, reading a page, typing 50 messy words) to foster momentum and remember that any positive action is a complete victory.
@@ -577,12 +577,12 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
               placeholder="Record a small focus accomplishment (e.g., read an abstract, opened the app)..."
               value={newWin}
               onChange={(e) => setNewWin(e.target.value)}
-              className="flex-grow font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 rounded focus:outline-none focus:ring-1 focus:ring-amber-500"
+              className="flex-grow font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 rounded focus:outline-none focus:ring-1 focus:ring-[#912A4A]"
               required
             />
             <button
               type="submit"
-              className="font-sans text-xs bg-amber-950 dark:bg-amber-900 hover:bg-amber-900 text-white px-4 py-2 rounded shadow-sm transition-colors cursor-pointer shrink-0"
+              className="font-sans text-xs bg-[#912A4A] hover:bg-[#78223d] text-white px-4 py-2 rounded shadow-sm transition-colors cursor-pointer shrink-0"
             >
               Log Win
             </button>
@@ -592,13 +592,13 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
 
       {/* TAB 4: GENTLE ENCOURAGEMENTS */}
       {activeWellbeingTab === 'reflections' && (
-        <div className="max-w-2xl bg-amber-50/10 dark:bg-stone-900/30 border border-amber-900/10 dark:border-stone-800 rounded-lg p-8 text-left space-y-6 shadow-xs animate-fadeIn">
+        <div className="max-w-2xl bg-stone-50 dark:bg-stone-900/30 border border-stone-200 dark:border-stone-800 rounded-lg p-8 text-left space-y-6 shadow-xs animate-fadeIn">
           <div className="flex justify-start">
             <Heart className="w-8 h-8 text-rose-500 animate-pulse" />
           </div>
           
           <div className="space-y-4">
-            <span className="text-[9px] font-mono font-semibold text-amber-800 dark:text-amber-500">
+            <span className="text-[9px] font-mono font-semibold text-[#912A4A] dark:text-rose-400">
               Gentle companion dialogue
             </span>
             <p className="text-base text-stone-800 dark:text-stone-100 italic leading-relaxed max-w-lg">
@@ -606,7 +606,7 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
             </p>
           </div>
 
-          <div className="pt-4 border-t border-amber-900/5 dark:border-stone-850/50 flex justify-start">
+          <div className="pt-4 border-t border-stone-100 dark:border-stone-850/50 flex justify-start">
             <button
               onClick={handleRefreshEncouragement}
               className="text-xs text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 flex items-center gap-1 cursor-pointer transition-colors"

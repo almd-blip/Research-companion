@@ -33,9 +33,9 @@ export default function PlatformSpecificationView() {
     <div className="flex flex-col lg:flex-row gap-8 h-full" id="specification-workspace-module">
       
       {/* Dynamic index navigation outline */}
-      <div className="w-full lg:w-72 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-5 rounded-lg h-fit space-y-4">
-        <h4 className="font-sans font-medium text-xs text-amber-800 tracking-wide flex items-center gap-1.5 border-b border-amber-900/10 pb-2">
-          <Compass className="w-4 h-4 text-amber-800" /> Platform Specification index
+      <div className="w-full lg:w-72 bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 p-5 rounded-lg h-fit space-y-4">
+        <h4 className="font-sans font-medium text-xs text-[#912A4A] dark:text-rose-400 tracking-wide flex items-center gap-1.5 border-b border-stone-200 dark:border-stone-800 pb-2">
+          <Compass className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Platform Specification index
         </h4>
         
         <div className="space-y-1 max-h-[350px] overflow-y-auto pr-1">
@@ -45,8 +45,8 @@ export default function PlatformSpecificationView() {
               onClick={() => handleScrollToSection(sec.id)}
               className={`w-full text-left p-2.5 rounded font-sans text-xs transition-colors flex items-center gap-1.5 cursor-pointer ${
                 activeSection === sec.id
-                  ? 'bg-amber-950 text-white font-medium'
-                  : 'text-stone-600 hover:bg-stone-100/60'
+                  ? 'bg-[#912A4A] text-white font-medium'
+                  : 'text-stone-600 dark:text-stone-300 hover:bg-stone-100/60 dark:hover:bg-stone-800/60'
               }`}
             >
               <span className="truncate">{sec.title}</span>
@@ -108,7 +108,7 @@ export default function PlatformSpecificationView() {
 
         {/* Article header */}
         <div className="text-left space-y-3 pb-6 border-b border-stone-150/80 max-w-2xl">
-          <span className="font-sans text-[10px] capitalize font-mono tracking-wide text-amber-800 font-semibold flex items-center gap-1 justify-start">
+          <span className="font-sans text-[10px] capitalize font-mono tracking-wide text-[#912A4A] dark:text-rose-400 font-semibold flex items-center gap-1 justify-start">
             <BookOpen className="w-4 h-4" /> Academic Specification Paper
           </span>
           <h1 className="font-sans font-bold tracking-tight text-xl md:text-2xl text-stone-950 leading-tight">

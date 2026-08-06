@@ -114,7 +114,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-stone-200 dark:border-stone-800 pb-3">
         <div>
           <h2 className="font-sans font-medium text-stone-900 dark:text-stone-100 text-lg flex items-center gap-2">
-            <Award className="w-5 h-5 text-amber-800" /> Academic Funding Workspace
+            <Award className="w-5 h-5 text-[#912A4A]" /> Academic Funding Workspace
           </h2>
           <p className="font-sans text-xs text-stone-500 mt-0.5">Integrate literature directly with grant preparations, impact statements, and funder benchmarks.</p>
         </div>
@@ -142,7 +142,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
             {/* Funder profile */}
             <div className="bg-white dark:bg-stone-950 border border-stone-200 rounded-lg p-5 space-y-4">
               <h3 className="font-sans font-semibold text-stone-950 text-sm flex items-center gap-1.5 border-b border-stone-100 pb-2">
-                <FileText className="w-4 h-4 text-amber-800" /> Funder Specifics
+                <FileText className="w-4 h-4 text-[#912A4A]" /> Funder Specifics
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -184,7 +184,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
                 <div className="space-y-1.5 max-h-[150px] overflow-y-auto pr-1">
                   {activeJourney.fundingDetails?.priorityCriteria.map((crit, idx) => (
                     <div key={idx} className="p-2.5 bg-stone-50 dark:bg-stone-900 border border-stone-200/50 rounded flex gap-2.5 items-start text-xs font-sans text-stone-650 leading-relaxed">
-                      <span className="font-mono text-[9px] bg-amber-100 text-amber-800 w-4 h-4 flex items-center justify-center rounded-full shrink-0 mt-0.5">{idx + 1}</span>
+                      <span className="font-mono text-[9px] bg-[#912A4A]/10 text-[#912A4A] w-4 h-4 flex items-center justify-center rounded-full shrink-0 mt-0.5">{idx + 1}</span>
                       <span>{crit}</span>
                     </div>
                   ))}
@@ -216,7 +216,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
             {/* Impact Statement sandbox */}
             <div className="bg-white border border-stone-200 rounded-lg p-5 space-y-3">
               <h3 className="font-sans font-semibold text-stone-950 text-sm flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-amber-800" /> Societal Impact and Outreach Statement
+                <Sparkles className="w-4 h-4 text-[#912A4A]" /> Societal Impact and Outreach Statement
               </h3>
               <p className="font-sans text-xs text-stone-500">
                 Funder evaluations weigh structural, societal, or industrial outreach heavily. Map out your dissemination plans.
@@ -225,7 +225,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
               <textarea
                 value={activeJourney.fundingDetails?.impactStatement || ''}
                 onChange={(e) => handleUpdateImpact(e.target.value)}
-                className="w-full font-sans text-xs p-3 border border-stone-200 rounded bg-amber-50/5 text-stone-800 h-36 focus:outline-none"
+                className="w-full font-sans text-xs p-3 border border-stone-200 rounded bg-stone-50/50 text-stone-800 h-36 focus:outline-none"
                 placeholder="Draft the pathway to impact, describing how this research translates beyond academia to policy, industry, or marginalized communities..."
               />
             </div>
@@ -233,9 +233,9 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
           </div>
 
           {/* SIDEBAR: Reusable Snippets & Capability Profile */}
-          <div className="lg:col-span-1 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-5 rounded-lg space-y-4 h-fit">
-            <h4 className="font-sans font-medium text-xs text-amber-800 tracking-wide flex items-center gap-1.5">
-              <Layers className="w-4 h-4 text-amber-800" /> Reusable Bio & Capability Profile
+          <div className="lg:col-span-1 bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 p-5 rounded-lg space-y-4 h-fit">
+            <h4 className="font-sans font-medium text-xs text-[#912A4A] dark:text-rose-400 tracking-wide flex items-center gap-1.5">
+              <Layers className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Reusable Bio & Capability Profile
             </h4>
             <p className="font-sans text-[11px] text-stone-500">
               Store reusable academic descriptions (bios, research methodology standards) to quickly paste across grant bids.
@@ -262,7 +262,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
               )}
             </div>
 
-            <form onSubmit={handleAddSnippet} className="space-y-2 border-t border-amber-900/10 pt-3">
+            <form onSubmit={handleAddSnippet} className="space-y-2 border-t border-stone-200 pt-3">
               <textarea
                 placeholder="Write a reusable statement (e.g. lab capabilities, researcher bios)..."
                 value={newSnippet}
@@ -272,7 +272,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
               />
               <button
                 type="submit"
-                className="w-full font-sans text-xs bg-amber-950 text-white py-1.5 rounded hover:bg-amber-900 transition-colors"
+                className="w-full font-sans text-xs bg-[#912A4A] text-white py-1.5 rounded hover:bg-[#78223d] transition-colors"
               >
                 Save Snippet
               </button>

@@ -25,8 +25,8 @@ export default function About() {
       {!showSpec ? (
         <div className="space-y-8 animate-fadeIn">
           {/* Main Statement */}
-          <div className="bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 rounded-lg p-6 md:p-8 space-y-4">
-            <h2 className="text-xl font-medium text-amber-900 dark:text-amber-400">Our Core Philosophy</h2>
+          <div className="bg-[#912A4A]/5 dark:bg-stone-900/40 border border-[#912A4A]/15 dark:border-stone-800 rounded-lg p-6 md:p-8 space-y-4">
+            <h2 className="text-xl font-medium text-[#912A4A] dark:text-rose-400">Our Core Philosophy</h2>
             <p className="text-stone-700 dark:text-stone-300 text-sm leading-relaxed">
               Research is often treated as a series of cold milestones—milestones that demand continuous output, high speeds, and rigid linear metrics. But research is actually a human endeavor. It is non-linear, filled with ambiguity, self-doubt, breakthroughs, and fatigue.
             </p>
@@ -40,7 +40,7 @@ export default function About() {
             {/* Purpose */}
             <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-6 rounded-lg space-y-3">
               <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                <Compass className="w-4 h-4 text-amber-800" /> Purpose
+                <Compass className="w-4 h-4 text-[#912A4A]" /> Purpose
               </h3>
               <p className="text-stone-600 dark:text-stone-400 text-xs leading-relaxed">
                 Whether you are writing a simple essay, a PhD dissertation, a journal paper, a funding proposal, or policy reports—we aim to shield your bandwidth. This companion exists to reduce cognitive load and provide supportive, non-judgmental guidance so you can find flow without overwhelm.
@@ -50,7 +50,7 @@ export default function About() {
             {/* How it Works */}
             <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-6 rounded-lg space-y-3">
               <h3 className="text-sm font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                <Info className="w-4 h-4 text-amber-800" /> How It Works
+                <Info className="w-4 h-4 text-[#912A4A]" /> How It Works
               </h3>
               <p className="text-stone-600 dark:text-stone-400 text-xs leading-relaxed">
                 By indicating your project type and your emotional arrival state, the companion adjusts its interface focus, prompts, and micro-guidance. It organizes your papers, assists with citation metadata corrections via Gemini, maps concept connections dynamically, and tracks small wins securely on your device.
@@ -98,9 +98,9 @@ export default function About() {
             </div>
 
             {/* Research Integrity Boundary */}
-            <div className="bg-amber-50/30 dark:bg-stone-900/40 border border-amber-900/15 dark:border-stone-800 p-6 rounded-lg space-y-3 md:col-span-2">
-              <h3 className="text-sm font-semibold text-amber-950 dark:text-amber-300 flex items-center gap-2">
-                <Shield className="w-4 h-4 text-amber-800 dark:text-amber-400" /> Research Integrity Boundary
+            <div className="bg-[#912A4A]/5 dark:bg-stone-900/40 border border-[#912A4A]/15 dark:border-stone-800 p-6 rounded-lg space-y-3 md:col-span-2">
+              <h3 className="text-sm font-semibold text-[#912A4A] dark:text-rose-400 flex items-center gap-2">
+                <Shield className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Research Integrity Boundary
               </h3>
               <p className="text-stone-700 dark:text-stone-300 text-xs leading-relaxed">
                 The Research Companion will <strong>never write, generate, or produce complete academic papers, articles, books, reports, or research outputs on your behalf</strong>. The purpose of the AI is to support the research process, not replace the researcher. The AI acts as a research assistant, critical thinking partner, and analytical tool — helping you organize materials, identify themes, map literature, evaluate evidence, structure notes, and check logic — while you remain solely responsible for forming arguments, interpreting evidence, drawing conclusions, and writing original work.

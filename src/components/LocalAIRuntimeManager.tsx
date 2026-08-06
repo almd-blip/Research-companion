@@ -198,14 +198,14 @@ export default function LocalAIRuntimeManager({
           <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-4 space-y-4 shadow-2xs">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-150 dark:border-stone-850 pb-2.5">
               <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                <Server className="w-4 h-4 text-amber-800" /> Endpoint Connection & Ping
+                <Server className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Endpoint Connection & Ping
               </h4>
 
               {/* Live Status Badge */}
               <div className="flex items-center gap-2">
                 {isTesting ? (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-300">
-                    <RefreshCw className="w-3 h-3 animate-spin text-amber-800" /> Pinging local server...
+                    <RefreshCw className="w-3 h-3 animate-spin text-[#912A4A]" /> Pinging local server...
                   </span>
                 ) : health.status === 'connected' ? (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-800">
@@ -238,7 +238,7 @@ export default function LocalAIRuntimeManager({
                   value={config.baseUrl}
                   onChange={(e) => setConfig((prev) => ({ ...prev, baseUrl: e.target.value }))}
                   placeholder="e.g. http://localhost:11434"
-                  className="w-full font-mono text-xs p-2 border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full font-mono text-xs p-2 border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded focus:outline-none focus:ring-2 focus:ring-[#912A4A]"
                 />
               </div>
 
@@ -251,7 +251,7 @@ export default function LocalAIRuntimeManager({
                   value={config.apiKey || ''}
                   onChange={(e) => setConfig((prev) => ({ ...prev, apiKey: e.target.value }))}
                   placeholder="Leave empty for standard Ollama / LM Studio"
-                  className="w-full font-mono text-xs p-2 border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  className="w-full font-mono text-xs p-2 border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded focus:outline-none focus:ring-2 focus:ring-[#912A4A]"
                 />
               </div>
             </div>
@@ -277,7 +277,7 @@ export default function LocalAIRuntimeManager({
                       onClick={() => handleModelSelect(m)}
                       className={`text-[10px] font-mono px-2 py-0.5 rounded border transition-colors cursor-pointer ${
                         config.model === m
-                          ? 'bg-amber-900 text-white border-amber-900 font-bold'
+                          ? 'bg-[#912A4A] text-white border-[#912A4A] font-bold'
                           : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-700 hover:border-stone-400'
                       }`}
                     >
@@ -292,7 +292,7 @@ export default function LocalAIRuntimeManager({
           {/* Open-Weight Models Catalog */}
           <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-4 space-y-3 shadow-2xs">
             <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5 border-b border-stone-150 dark:border-stone-850 pb-2">
-              <Zap className="w-4 h-4 text-amber-800" /> Open-Weight Model Profiles
+              <Zap className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Open-Weight Model Profiles
             </h4>
 
             <p className="text-[11px] text-stone-500 leading-snug">

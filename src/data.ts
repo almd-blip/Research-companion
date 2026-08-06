@@ -7,7 +7,7 @@ import { Paper, ResearchJourney, Collection, SoundScape } from './types';
 
 export const INITIAL_COLLECTIONS: Collection[] = [
   { id: 'col-1', name: 'Critical AI & Society', description: 'Papers examining sociotechnical aspects of AI systems', color: 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200' },
-  { id: 'col-2', name: 'Methodology & Design', description: 'HCI and qualitative methods in software development', color: 'bg-amber-100 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border-amber-200' },
+  { id: 'col-2', name: 'Methodology & Design', description: 'HCI and qualitative methods in software development', color: 'bg-[#912A4A]/10 dark:bg-[#912A4A]/30 text-[#912A4A] dark:text-rose-300 border-[#912A4A]/30' },
   { id: 'col-3', name: 'Academic Mental Health', description: 'Literature on sustainable scholarship and wellbeing', color: 'bg-rose-100 dark:bg-rose-950/40 text-rose-800 dark:text-rose-300 border-rose-200' }
 ];
 

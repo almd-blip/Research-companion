@@ -258,7 +258,7 @@ export default function ResearchHome({
       {/* 2. ARRIVING STATE: How are you arriving today? */}
       <section className="space-y-4">
         <h2 className="font-sans font-medium text-stone-950 dark:text-stone-100 text-lg flex items-center gap-2 border-b border-stone-100 dark:border-stone-850 pb-2.5">
-          <HelpCircle className="w-5 h-5 text-amber-800 dark:text-amber-500" /> How are you arriving today?
+          <HelpCircle className="w-5 h-5 text-[#912A4A] dark:text-rose-400" /> How are you arriving today?
         </h2>
         <p className="font-sans text-xs text-stone-500 leading-relaxed">
           Select your current physical or emotional state. We offer gentle, non-shaming strategies to fit your level of energy.
@@ -269,9 +269,9 @@ export default function ResearchHome({
             <button
               key={m.value}
               onClick={() => handleMoodSelect(m.value)}
-              className={`p-3 rounded-lg text-left border font-sans transition-all flex items-center justify-between gap-3 cursor-pointer shrink-0 snap-start focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-amber-500 h-12 min-w-[150px] md:min-w-[170px] ${
+              className={`p-3 rounded-lg text-left border font-sans transition-all flex items-center justify-between gap-3 cursor-pointer shrink-0 snap-start focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#912A4A] h-12 min-w-[150px] md:min-w-[170px] ${
                 latestMood?.state === m.value
-                  ? 'bg-amber-900/10 border-amber-900/35 dark:border-amber-800/80 text-amber-900 dark:text-amber-300 shadow-xs'
+                  ? 'bg-[#912A4A]/10 border-[#912A4A]/35 dark:border-rose-800/80 text-[#912A4A] dark:text-rose-300 shadow-xs'
                   : 'bg-white dark:bg-stone-950 border-stone-200 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-750'
               }`}
             >
@@ -291,21 +291,21 @@ export default function ResearchHome({
 
         {/* Companion reflection dialogue box nested immediately after check-in */}
         {(loadingAdvisor || advisorMessage) && (
-          <div className="bg-amber-50/10 dark:bg-stone-900/20 border border-amber-900/10 dark:border-stone-850 p-6 rounded-xl relative overflow-hidden animate-fadeIn mt-4 text-left">
+          <div className="bg-[#912A4A]/5 dark:bg-stone-900/20 border border-[#912A4A]/15 dark:border-stone-850 p-6 rounded-xl relative overflow-hidden animate-fadeIn mt-4 text-left">
             <div className="absolute top-0 right-0 p-4 opacity-5">
-              <Sparkles className="w-24 h-24 text-amber-900" />
+              <Sparkles className="w-24 h-24 text-[#912A4A]" />
             </div>
 
             {loadingAdvisor ? (
               <div className="flex flex-col items-center justify-center py-6 space-y-2">
-                <div className="w-5 h-5 border-2 border-amber-900 border-t-transparent dark:border-amber-500 dark:border-t-transparent rounded-full animate-spin"></div>
+                <div className="w-5 h-5 border-2 border-[#912A4A] border-t-transparent dark:border-rose-400 dark:border-t-transparent rounded-full animate-spin"></div>
                 <p className="font-sans text-xs text-stone-500 italic">Thinking softly, organizing compassionate check-in steps...</p>
               </div>
             ) : (
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-amber-800 dark:text-amber-400" />
-                  <h3 className="font-sans font-semibold text-xs text-amber-800 dark:text-amber-400">Your companion's gentle reflection</h3>
+                  <Sparkles className="w-4 h-4 text-[#912A4A] dark:text-rose-400" />
+                  <h3 className="font-sans font-semibold text-xs text-[#912A4A] dark:text-rose-400">Your companion's gentle reflection</h3>
                 </div>
 
                 <div className="max-w-4xl">
@@ -314,7 +314,7 @@ export default function ResearchHome({
                   </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-amber-900/5 dark:border-stone-800/40">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-[#912A4A]/10 dark:border-stone-800/40">
                   <div>
                     <h4 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 mb-2.5 flex items-center gap-1.5">
                       <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-500" /> Suggested micro-steps:
@@ -349,7 +349,7 @@ export default function ResearchHome({
       {/* 3. QUESTION: What are you working on today? */}
       <section className="space-y-5">
         <h2 className="text-lg font-medium text-stone-950 dark:text-stone-100 flex items-center gap-2 border-b border-stone-100 dark:border-stone-850 pb-2.5">
-          <BookOpen className="w-5 h-5 text-amber-800 dark:text-amber-500" /> What are you working on?
+          <BookOpen className="w-5 h-5 text-[#912A4A] dark:text-rose-400" /> What are you working on?
         </h2>
         
         <p className="text-stone-500 text-xs leading-normal">
@@ -361,9 +361,9 @@ export default function ResearchHome({
             <button
               key={p.id}
               onClick={() => handleSelectProjectType(p.id)}
-              className={`p-3 rounded-lg border text-left font-sans transition-all flex flex-col justify-between items-start cursor-pointer group shrink-0 snap-start h-20 min-w-[130px] md:min-w-[150px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950 ${
+              className={`p-3 rounded-lg border text-left font-sans transition-all flex flex-col justify-between items-start cursor-pointer group shrink-0 snap-start h-20 min-w-[130px] md:min-w-[150px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#912A4A] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950 ${
                 projectType === p.id
-                  ? 'bg-amber-50/40 dark:bg-amber-950/20 border-amber-900/40 dark:border-amber-500/50 shadow-sm'
+                  ? 'bg-[#912A4A]/10 dark:bg-[#912A4A]/20 border-[#912A4A]/40 dark:border-rose-400/50 shadow-sm'
                   : 'bg-white dark:bg-stone-950 border-stone-200 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-700'
               }`}
             >
@@ -377,9 +377,9 @@ export default function ResearchHome({
           {/* "+ Add Custom" button in the scroll row */}
           <button
             onClick={() => setIsAddingCustom(!isAddingCustom)}
-            className={`p-3 rounded-lg border border-dashed text-left font-sans transition-all flex flex-col justify-between items-start cursor-pointer group shrink-0 snap-start h-20 min-w-[130px] md:min-w-[150px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
+            className={`p-3 rounded-lg border border-dashed text-left font-sans transition-all flex flex-col justify-between items-start cursor-pointer group shrink-0 snap-start h-20 min-w-[130px] md:min-w-[150px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#912A4A] ${
               isAddingCustom
-                ? 'bg-amber-50/10 border-amber-800/40 text-amber-800 dark:text-amber-400'
+                ? 'bg-[#912A4A]/10 border-[#912A4A]/40 text-[#912A4A] dark:text-rose-400'
                 : 'border-stone-300 dark:border-stone-850 bg-white dark:bg-stone-950 text-stone-500 hover:border-stone-400 hover:text-stone-700 dark:hover:text-stone-300'
             }`}
           >
@@ -403,7 +403,7 @@ export default function ResearchHome({
                     placeholder="🎓"
                     value={newEmoji}
                     onChange={(e) => setNewEmoji(e.target.value)}
-                    className="w-full text-center p-1.5 text-xs bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded focus:outline-none focus:ring-1 focus:ring-amber-500 text-stone-800 dark:text-stone-100"
+                    className="w-full text-center p-1.5 text-xs bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded focus:outline-none focus:ring-1 focus:ring-[#912A4A] text-stone-800 dark:text-stone-100"
                     maxLength={4}
                   />
                 </div>
@@ -414,7 +414,7 @@ export default function ResearchHome({
                     placeholder="e.g., Book Chapter, Lab Report"
                     value={newLabel}
                     onChange={(e) => setNewLabel(e.target.value)}
-                    className="w-full p-1.5 text-xs bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded focus:outline-none focus:ring-1 focus:ring-amber-500 text-stone-800 dark:text-stone-100"
+                    className="w-full p-1.5 text-xs bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded focus:outline-none focus:ring-1 focus:ring-[#912A4A] text-stone-800 dark:text-stone-100"
                     required
                   />
                 </div>
@@ -425,7 +425,7 @@ export default function ResearchHome({
                   placeholder="e.g., A chapter requires patient drafting. Focus on one subsection at a time."
                   value={newTip}
                   onChange={(e) => setNewTip(e.target.value)}
-                  className="w-full p-1.5 text-xs bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded focus:outline-none focus:ring-1 focus:ring-amber-500 h-16 resize-none text-stone-800 dark:text-stone-100"
+                  className="w-full p-1.5 text-xs bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded focus:outline-none focus:ring-1 focus:ring-[#912A4A] h-16 resize-none text-stone-800 dark:text-stone-100"
                 />
               </div>
               <div className="flex justify-end gap-2 text-[11px]">
@@ -438,7 +438,7 @@ export default function ResearchHome({
                 </button>
                 <button
                   type="submit"
-                  className="px-3 py-1 bg-amber-800 text-white rounded hover:bg-amber-700 font-medium"
+                  className="px-3 py-1 bg-[#912A4A] text-white rounded hover:bg-[#78223d] font-medium"
                 >
                   Add Project
                 </button>
@@ -448,8 +448,8 @@ export default function ResearchHome({
         )}
 
         {activeProjectInfo && (
-          <div className="p-4 bg-amber-50/15 dark:bg-stone-900/30 border border-amber-950/10 dark:border-stone-800 rounded-lg flex items-start gap-3 text-xs animate-fadeIn text-left">
-            <Sparkles className="w-4 h-4 text-amber-800 dark:text-amber-400 shrink-0 mt-0.5" />
+          <div className="p-4 bg-[#912A4A]/5 dark:bg-stone-900/30 border border-[#912A4A]/15 dark:border-stone-800 rounded-lg flex items-start gap-3 text-xs animate-fadeIn text-left">
+            <Sparkles className="w-4 h-4 text-[#912A4A] dark:text-rose-400 shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold text-stone-800 dark:text-stone-200">
                 Supporting your {activeProjectInfo.label} journey:
@@ -468,7 +468,7 @@ export default function ResearchHome({
             {journeys.map((j) => (
               <div
                 key={j.id}
-                className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-5 rounded-lg flex flex-col justify-between hover:border-amber-900/20 dark:hover:border-stone-700 transition-all shadow-xs text-left"
+                className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-5 rounded-lg flex flex-col justify-between hover:border-[#912A4A]/30 dark:hover:border-stone-700 transition-all shadow-xs text-left"
               >
                 <div>
                   <div className="flex justify-between items-start gap-2 mb-2">
@@ -489,7 +489,7 @@ export default function ResearchHome({
                       onSelectJourney(j.id);
                       onSetTab('research');
                     }}
-                    className="font-sans text-xs text-amber-800 dark:text-amber-400 hover:underline flex items-center cursor-pointer font-semibold"
+                    className="font-sans text-xs text-[#912A4A] dark:text-rose-400 hover:underline flex items-center cursor-pointer font-semibold"
                   >
                     Enter Project <ChevronRight className="w-3.5 h-3.5 inline ml-0.5" />
                   </button>
@@ -503,7 +503,7 @@ export default function ResearchHome({
       {/* 4. TODAY'S FOCUS: One small achievable task */}
       <section className="space-y-4">
         <h2 className="font-sans font-medium text-stone-950 dark:text-stone-100 text-lg flex items-center gap-2 border-b border-stone-100 dark:border-stone-850 pb-2.5">
-          <Clock className="w-5 h-5 text-amber-800 dark:text-amber-500" /> Choose today's focus
+          <Clock className="w-5 h-5 text-[#912A4A] dark:text-rose-400" /> Choose today's focus
         </h2>
         
         <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-6 rounded-lg flex flex-col justify-between shadow-sm text-left">
@@ -535,7 +535,7 @@ export default function ResearchHome({
                       <button
                         key={preset}
                         onClick={() => handleSaveFocus(preset)}
-                        className="font-sans text-xs border border-stone-200 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/50 hover:bg-amber-50/30 hover:border-amber-900/10 text-stone-600 dark:text-stone-300 px-3 py-1.5 rounded-full transition-all cursor-pointer text-left"
+                        className="font-sans text-xs border border-stone-200 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/50 hover:bg-[#912A4A]/10 hover:border-[#912A4A]/20 text-stone-600 dark:text-stone-300 px-3 py-1.5 rounded-full transition-all cursor-pointer text-left"
                       >
                         {preset}
                       </button>
@@ -567,7 +567,7 @@ export default function ResearchHome({
                     placeholder="e.g. Draft 3 sentences of introduction..."
                     value={customFocus}
                     onChange={(e) => setCustomFocus(e.target.value)}
-                    className="flex-1 font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded-lg bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                    className="flex-1 font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded-lg bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-1 focus:ring-[#912A4A] focus:border-[#912A4A]"
                     required
                   />
                   <button

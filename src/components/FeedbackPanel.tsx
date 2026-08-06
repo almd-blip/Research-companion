@@ -110,7 +110,7 @@ _Generated locally via Research Companion feedback engine._`;
         {/* Header */}
         <div className="p-4 border-b border-stone-200 dark:border-stone-850 flex justify-between items-center bg-stone-50 dark:bg-stone-900/40">
           <div className="flex items-center gap-2 text-stone-900 dark:text-stone-100">
-            <MessageSquare className="w-4 h-4 text-amber-800 dark:text-amber-500" />
+            <MessageSquare className="w-4 h-4 text-[#912A4A] dark:text-rose-400" />
             <h2 className="text-xs font-bold">Feedback companion workspace</h2>
           </div>
           <button
@@ -182,7 +182,7 @@ _Generated locally via Research Companion feedback engine._`;
                 value={whatHappened}
                 onChange={(e) => setWhatHappened(e.target.value)}
                 rows={3}
-                className="w-full text-xs p-2.5 border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 rounded focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full text-xs p-2.5 border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 rounded focus:outline-none focus:ring-1 focus:ring-[#912A4A]"
                 required
               />
             </div>
@@ -196,13 +196,13 @@ _Generated locally via Research Companion feedback engine._`;
                 value={whatExpected}
                 onChange={(e) => setWhatExpected(e.target.value)}
                 rows={2}
-                className="w-full text-xs p-2.5 border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 rounded focus:outline-none focus:ring-1 focus:ring-amber-500"
+                className="w-full text-xs p-2.5 border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 rounded focus:outline-none focus:ring-1 focus:ring-[#912A4A]"
               />
             </div>
 
             <button
               type="submit"
-              className="w-full bg-amber-950 hover:bg-amber-900 text-white py-2.5 rounded font-sans text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
+              className="w-full bg-[#912A4A] hover:bg-[#78223d] text-white py-2.5 rounded font-sans text-xs transition-colors flex items-center justify-center gap-1.5 shadow-sm cursor-pointer"
             >
               <Save className="w-4 h-4" /> Save Feedback Locally
             </button>
@@ -229,7 +229,7 @@ _Generated locally via Research Companion feedback engine._`;
                     <div className="flex items-center gap-1.5">
                       <span className="font-semibold text-stone-800 dark:text-stone-200 capitalize text-[11px]">{log.category}</span>
                       <span className={`px-1.5 py-0.5 rounded text-[9px] font-mono ${
-                        log.priority === 'High' ? 'bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-400' : log.priority === 'Medium' ? 'bg-amber-50 text-amber-700 dark:bg-amber-950/20 dark:text-amber-400' : 'bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-400'
+                        log.priority === 'High' ? 'bg-red-50 text-red-700 dark:bg-red-950/20 dark:text-red-400' : log.priority === 'Medium' ? 'bg-[#912A4A]/10 text-[#912A4A] dark:bg-[#912A4A]/20 dark:text-rose-300' : 'bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-400'
                       }`}>
                         {log.priority}
                       </span>
