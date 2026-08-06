@@ -3,6 +3,40 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+export type ActiveTab = string;
+
+export interface AccessibilitySettings {
+  reducedMotion: boolean;
+  contrast?: 'normal' | 'standard' | 'high' | 'warm';
+  colorPreference?: 'default' | 'grayscale' | 'amber' | 'cream' | 'slate';
+  fontSize?: 'normal' | 'standard' | 'large' | 'extra-large' | 'xlarge';
+  displayMode?: 'light' | 'dark' | 'high-contrast' | 'low-vision';
+  dyslexiaFont?: boolean;
+  letterSpacing?: 'standard' | 'wide' | 'extra-wide';
+  lineHeight?: 'standard' | 'double' | 'spacious';
+  readingWidth?: 'narrow' | 'standard' | 'wide' | 'full';
+  enhancedFocus?: boolean;
+  soundEnabled?: boolean;
+  interfaceDensity?: 'spacious' | 'compact';
+  activeModules?: string[];
+}
+
+export const DEFAULT_ACCESSIBILITY_SETTINGS: AccessibilitySettings = {
+  reducedMotion: false,
+  contrast: 'standard',
+  colorPreference: 'default',
+  fontSize: 'standard',
+  displayMode: 'light',
+  dyslexiaFont: false,
+  letterSpacing: 'standard',
+  lineHeight: 'standard',
+  readingWidth: 'standard',
+  enhancedFocus: false,
+  soundEnabled: true,
+  interfaceDensity: 'spacious',
+  activeModules: [],
+};
+
 export interface Paper {
   id: string;
   title: string;

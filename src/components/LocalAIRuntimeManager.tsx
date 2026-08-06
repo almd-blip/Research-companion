@@ -102,13 +102,13 @@ export default function LocalAIRuntimeManager({
             </div>
             <div>
               <h3 className="font-semibold text-stone-900 dark:text-stone-100 text-xs flex items-center gap-2">
-                <span>AI Infrastructure & Local Runtime Layer</span>
+                <span>AI Model & Local Runtime</span>
                 <span className="text-[10px] bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-300 px-2 py-0.5 rounded font-mono font-bold uppercase">
                   Replaceable Engine
                 </span>
               </h3>
               <p className="text-[11px] text-stone-500 leading-snug mt-0.5">
-                Run open-weight models locally via Ollama, LM Studio, GPT4All, or AnythingLLM RAG without relying on cloud APIs.
+                Run open-source models locally on your computer without sending data to cloud servers.
               </p>
             </div>
           </div>
@@ -135,7 +135,7 @@ export default function LocalAIRuntimeManager({
                   : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
               }`}
             >
-              <Lock className="w-3.5 h-3.5 text-amber-400" /> Offline Local Runtime
+              <Lock className="w-3.5 h-3.5 text-amber-400" /> Offline Local AI
             </button>
           </div>
         </div>
@@ -143,9 +143,9 @@ export default function LocalAIRuntimeManager({
         {/* Core Independent Value Layer Guarantee */}
         <div className="p-3 bg-amber-50/40 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 rounded-md text-[11px] text-stone-700 dark:text-stone-300 leading-relaxed space-y-1">
           <strong className="text-amber-950 dark:text-amber-300 font-semibold block">
-            Independent Second Thought Architecture:
+            Offline & Local AI:
           </strong>
-          The Research Companion treats local AI runtimes as <em>replaceable infrastructure</em>. The core Second Thought value layer — including <strong>methodology support, evidence mapping, pattern identification, critical thinking prompts, privacy architecture, and user-controlled knowledge management</strong> — remains 100% active regardless of which model or provider powers it.
+          The Research Companion works with either cloud or local AI. Your tools, notes, evidence maps, and privacy settings remain fully active regardless of which AI model you choose.
         </div>
       </div>
 
@@ -155,7 +155,7 @@ export default function LocalAIRuntimeManager({
           {/* Provider Selection Cards */}
           <div className="space-y-2">
             <label className="font-sans text-[11px] text-stone-700 dark:text-stone-300 font-bold block">
-              Select Local AI Runtime Engine
+              Select local AI provider
             </label>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
               {(Object.keys(PROVIDER_PRESETS) as Array<keyof typeof PROVIDER_PRESETS>).map((provKey) => {
@@ -198,14 +198,14 @@ export default function LocalAIRuntimeManager({
           <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-4 space-y-4 shadow-2xs">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-150 dark:border-stone-850 pb-2.5">
               <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                <Server className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Endpoint Connection & Ping
+                <Server className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Connection Status
               </h4>
 
               {/* Live Status Badge */}
               <div className="flex items-center gap-2">
                 {isTesting ? (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-300">
-                    <RefreshCw className="w-3 h-3 animate-spin text-[#912A4A]" /> Pinging local server...
+                    <RefreshCw className="w-3 h-3 animate-spin text-[#912A4A]" /> Testing connection...
                   </span>
                 ) : health.status === 'connected' ? (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-800">
@@ -213,7 +213,7 @@ export default function LocalAIRuntimeManager({
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-300 font-bold border border-red-200 dark:border-red-800">
-                    <AlertCircle className="w-3 h-3 text-red-600" /> Local Endpoint Offline
+                    <AlertCircle className="w-3 h-3 text-red-600" /> Local server offline
                   </span>
                 )}
 
@@ -222,7 +222,7 @@ export default function LocalAIRuntimeManager({
                   onClick={() => runHealthCheck(config)}
                   className="px-2.5 py-1 text-[11px] font-sans font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 rounded border border-stone-200 dark:border-stone-800 transition-colors cursor-pointer"
                 >
-                  Ping Again
+                  Test connection again
                 </button>
               </div>
             </div>
@@ -231,7 +231,7 @@ export default function LocalAIRuntimeManager({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
               <div className="space-y-1">
                 <label className="font-sans text-[10px] text-stone-600 dark:text-stone-400 font-bold block">
-                  Local Runtime Base URL
+                  Server URL
                 </label>
                 <input
                   type="text"
@@ -244,13 +244,13 @@ export default function LocalAIRuntimeManager({
 
               <div className="space-y-1">
                 <label className="font-sans text-[10px] text-stone-600 dark:text-stone-400 font-bold block">
-                  Local API Key (Optional)
+                  API key (optional)
                 </label>
                 <input
                   type="password"
                   value={config.apiKey || ''}
                   onChange={(e) => setConfig((prev) => ({ ...prev, apiKey: e.target.value }))}
-                  placeholder="Leave empty for standard Ollama / LM Studio"
+                  placeholder="Leave blank if not required"
                   className="w-full font-mono text-xs p-2 border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900 text-stone-900 dark:text-stone-100 rounded focus:outline-none focus:ring-2 focus:ring-[#912A4A]"
                 />
               </div>
@@ -267,7 +267,7 @@ export default function LocalAIRuntimeManager({
             {health.detectedModels.length > 0 && (
               <div className="space-y-1.5 pt-2 border-t border-stone-150 dark:border-stone-850">
                 <span className="text-[10px] font-bold text-stone-600 dark:text-stone-400 block">
-                  Detected Models Loaded on Local Runtime ({health.detectedModels.length}):
+                  Available local models ({health.detectedModels.length}):
                 </span>
                 <div className="flex flex-wrap gap-1.5">
                   {health.detectedModels.map((m) => (
@@ -292,11 +292,11 @@ export default function LocalAIRuntimeManager({
           {/* Open-Weight Models Catalog */}
           <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-4 space-y-3 shadow-2xs">
             <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5 border-b border-stone-150 dark:border-stone-850 pb-2">
-              <Zap className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Open-Weight Model Profiles
+              <Zap className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Model choices
             </h4>
 
             <p className="text-[11px] text-stone-500 leading-snug">
-              Select or type the target open-weight model tag running on your local engine:
+              Select or enter the model name running on your local server:
             </p>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -330,13 +330,13 @@ export default function LocalAIRuntimeManager({
 
             <div className="pt-2 space-y-1">
               <label className="font-sans text-[10px] text-stone-600 dark:text-stone-400 font-bold block">
-                Active Model Identifier String
+                Active model name
               </label>
               <input
                 type="text"
                 value={config.model}
                 onChange={(e) => setConfig((prev) => ({ ...prev, model: e.target.value }))}
-                placeholder="e.g. gpt-oss:latest, llama3.2:latest, qwen2.5-coder:14b"
+                placeholder="e.g. llama3.2, qwen2.5, mistral"
                 className="w-full font-mono text-xs p-2 border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
               />
             </div>
@@ -345,17 +345,17 @@ export default function LocalAIRuntimeManager({
           {/* Privacy & Governance Toggles */}
           <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-4 space-y-3 text-xs shadow-2xs">
             <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5 border-b border-stone-150 dark:border-stone-850 pb-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" /> Local Privacy & Fallback Policy
+              <ShieldCheck className="w-4 h-4 text-emerald-600" /> Privacy & fallback options
             </h4>
 
             <div className="space-y-3">
               <div className="flex items-center justify-between p-2.5 bg-stone-50 dark:bg-stone-900/40 rounded border border-stone-200 dark:border-stone-800">
                 <div>
                   <span className="font-semibold text-stone-800 dark:text-stone-200 block text-xs">
-                    Strict Offline Mode
+                    Strict offline mode
                   </span>
                   <span className="text-[10px] text-stone-500 block">
-                    Never issue cloud API calls if local runtime is unreachable. Block all outgoing requests.
+                    Block all web calls if your local server is unreachable.
                   </span>
                 </div>
                 <input
@@ -369,10 +369,10 @@ export default function LocalAIRuntimeManager({
               <div className="flex items-center justify-between p-2.5 bg-stone-50 dark:bg-stone-900/40 rounded border border-stone-200 dark:border-stone-800">
                 <div>
                   <span className="font-semibold text-stone-800 dark:text-stone-200 block text-xs">
-                    Auto-Fallback to Cloud Gemini
+                    Fall back to cloud AI
                   </span>
                   <span className="text-[10px] text-stone-500 block">
-                    If your local machine runs out of VRAM or local daemon crashes, temporarily fall back to Gemini.
+                    Use cloud Gemini temporarily if your local server is unavailable.
                   </span>
                 </div>
                 <input
@@ -391,12 +391,12 @@ export default function LocalAIRuntimeManager({
               type="submit"
               className="font-sans text-xs bg-amber-900 hover:bg-amber-800 text-white font-medium px-5 py-2.5 rounded transition-colors cursor-pointer shadow-xs"
             >
-              Save Local AI Infrastructure Configuration
+              Save local AI settings
             </button>
 
             {saveSuccess && (
               <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
-                <CheckCircle2 className="w-4 h-4" /> Configuration stored to local offline cache.
+                <CheckCircle2 className="w-4 h-4" /> Local AI settings saved.
               </span>
             )}
           </div>

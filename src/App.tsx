@@ -4,7 +4,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Paper, ResearchJourney, Collection, MoodCheckIn } from './types';
+import { Paper, ResearchJourney, Collection, MoodCheckIn, AccessibilitySettings, DEFAULT_ACCESSIBILITY_SETTINGS } from './types';
 import { INITIAL_PAPERS, INITIAL_JOURNEYS, INITIAL_COLLECTIONS } from './data';
 
 // Import sub-modules
@@ -69,6 +69,20 @@ export default function App() {
   };
 
   // Accessibility parameters driven dynamically
+  const [accessibilitySettings, setAccessibilitySettings] = useState<AccessibilitySettings>(() => {
+    const cached = localStorage.getItem('scholar_accessibility_settings');
+    if (cached) {
+      try { return JSON.parse(cached); } catch {}
+    }
+    return DEFAULT_ACCESSIBILITY_SETTINGS;
+  });
+
+  const handleAccessibilityChange = (newSettings: AccessibilitySettings) => {
+    setAccessibilitySettings(newSettings);
+    localStorage.setItem('scholar_accessibility_settings', JSON.stringify(newSettings));
+    window.dispatchEvent(new Event('accessibility_settings_updated'));
+  };
+
   const [fontScale, setFontScale] = useState(() => localStorage.getItem('scholar_font_scale') || 'm');
   const [fontStyle, setFontStyle] = useState(() => localStorage.getItem('scholar_font_style') || 'sans');
   const [highContrast, setHighContrast] = useState(() => localStorage.getItem('scholar_high_contrast') === 'true');
@@ -127,6 +141,15 @@ export default function App() {
   useEffect(() => {
     triggerRootThemeSync(theme, highContrast);
   }, [theme, highContrast]);
+
+  useEffect(() => {
+    const isDyslexic = Boolean(accessibilitySettings?.dyslexiaFont || fontStyle === 'dyslexic');
+    if (isDyslexic) {
+      document.body.classList.add('font-dyslexic');
+    } else {
+      document.body.classList.remove('font-dyslexic');
+    }
+  }, [accessibilitySettings?.dyslexiaFont, fontStyle]);
 
   const handleUpdatePaper = (updated: Paper) => {
     setPapers((prev) => prev.map((p) => (p.id === updated.id ? updated : p)));
@@ -267,12 +290,19 @@ export default function App() {
         <div className="space-y-5">
           {/* Logo / Header */}
           <div className="pb-1 px-1">
-            <img 
-              src={theme === 'light' ? '/assets/logo_cream.png' : '/assets/logo_transparent.png'} 
-              alt="Second Thought Publishing Logo" 
-              className="h-10 md:h-11 w-auto object-contain max-w-[170px]"
-              referrerPolicy="no-referrer"
-            />
+            <button
+              type="button"
+              onClick={() => setShowLanding(true)}
+              className="cursor-pointer focus:outline-none focus:ring-1 focus:ring-[#912A4A] rounded p-1 transition-opacity hover:opacity-80 text-left block"
+              title="Return to Arrival Screen"
+            >
+              <img 
+                src={theme === 'light' ? '/assets/logo_cream.png' : '/assets/logo_transparent.png'} 
+                alt="Second Thought Publishing Logo" 
+                className="h-10 md:h-11 w-auto object-contain max-w-[170px]"
+                referrerPolicy="no-referrer"
+              />
+            </button>
           </div>
 
           {/* Structured Parent Navigation Menu */}
@@ -425,7 +455,7 @@ export default function App() {
               {openSections.ready && (
                 <div className="pl-4 space-y-0.5 border-l border-stone-300 dark:border-[#351a67] ml-3.5">
                   
-                  {/* Primary Landing View: Your Projects */}
+                  {/* Primary Landing View: Projects */}
                   <button
                     role="tab"
                     aria-selected={activeTab === 'dashboard'}
@@ -436,106 +466,108 @@ export default function App() {
                         : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
                     }`}
                   >
-                    Your Projects
+                    Projects
                   </button>
 
                   {/* Document Analytical, Referencing & Data Tools Submenu */}
-                  <div className="pt-2 pb-1">
-                    <span className="text-[10px] font-mono text-stone-500 dark:text-rose-200/70 uppercase tracking-widest block px-2">
-                      Analytical & Document Tools
+                  <div className="pt-2.5 pb-1">
+                    <span className="text-[11.5px] font-sans font-semibold text-stone-800 dark:text-stone-200 block px-2">
+                      Research & Writing Tools
                     </span>
                   </div>
 
-                  <button
-                    role="tab"
-                    aria-selected={activeTab === 'research' && researchSubTab === 'references'}
-                    onClick={() => handleNavigate('research', 'references')}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
-                      activeTab === 'research' && researchSubTab === 'references'
-                        ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
-                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
-                    }`}
-                  >
-                    Reference Manager
-                  </button>
+                  <div className="pl-1.5 space-y-0.5">
+                    <button
+                      role="tab"
+                      aria-selected={activeTab === 'research' && researchSubTab === 'references'}
+                      onClick={() => handleNavigate('research', 'references')}
+                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
+                        activeTab === 'research' && researchSubTab === 'references'
+                          ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
+                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
+                      }`}
+                    >
+                      References
+                    </button>
 
-                  <button
-                    role="tab"
-                    aria-selected={activeTab === 'research' && researchSubTab === 'literature'}
-                    onClick={() => handleNavigate('research', 'literature')}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
-                      activeTab === 'research' && researchSubTab === 'literature'
-                        ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
-                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
-                    }`}
-                  >
-                    Literature Intelligence
-                  </button>
+                    <button
+                      role="tab"
+                      aria-selected={activeTab === 'research' && researchSubTab === 'literature'}
+                      onClick={() => handleNavigate('research', 'literature')}
+                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
+                        activeTab === 'research' && researchSubTab === 'literature'
+                          ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
+                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
+                      }`}
+                    >
+                      Paper Summaries
+                    </button>
 
-                  <button
-                    role="tab"
-                    aria-selected={activeTab === 'research' && researchSubTab === 'analysis'}
-                    onClick={() => handleNavigate('research', 'analysis')}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
-                      activeTab === 'research' && researchSubTab === 'analysis'
-                        ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
-                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
-                    }`}
-                  >
-                    Knowledge Graph
-                  </button>
+                    <button
+                      role="tab"
+                      aria-selected={activeTab === 'research' && researchSubTab === 'analysis'}
+                      onClick={() => handleNavigate('research', 'analysis')}
+                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
+                        activeTab === 'research' && researchSubTab === 'analysis'
+                          ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
+                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
+                      }`}
+                    >
+                      Concept Map
+                    </button>
 
-                  <button
-                    role="tab"
-                    aria-selected={activeTab === 'research' && researchSubTab === 'writing'}
-                    onClick={() => handleNavigate('research', 'writing')}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
-                      activeTab === 'research' && researchSubTab === 'writing'
-                        ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
-                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
-                    }`}
-                  >
-                    Writing Companion
-                  </button>
+                    <button
+                      role="tab"
+                      aria-selected={activeTab === 'research' && researchSubTab === 'writing'}
+                      onClick={() => handleNavigate('research', 'writing')}
+                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
+                        activeTab === 'research' && researchSubTab === 'writing'
+                          ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
+                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
+                      }`}
+                    >
+                      Writing Assistant
+                    </button>
 
-                  <button
-                    role="tab"
-                    aria-selected={activeTab === 'research' && researchSubTab === 'publishing'}
-                    onClick={() => handleNavigate('research', 'publishing')}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
-                      activeTab === 'research' && researchSubTab === 'publishing'
-                        ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
-                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
-                    }`}
-                  >
-                    Creative & Publishing
-                  </button>
+                    <button
+                      role="tab"
+                      aria-selected={activeTab === 'research' && researchSubTab === 'publishing'}
+                      onClick={() => handleNavigate('research', 'publishing')}
+                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
+                        activeTab === 'research' && researchSubTab === 'publishing'
+                          ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
+                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
+                      }`}
+                    >
+                      Publishing & Export
+                    </button>
 
-                  <button
-                    role="tab"
-                    aria-selected={activeTab === 'research' && researchSubTab === 'funding'}
-                    onClick={() => handleNavigate('research', 'funding')}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
-                      activeTab === 'research' && researchSubTab === 'funding'
-                        ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
-                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
-                    }`}
-                  >
-                    Funding Bid Workspace
-                  </button>
+                    <button
+                      role="tab"
+                      aria-selected={activeTab === 'research' && researchSubTab === 'funding'}
+                      onClick={() => handleNavigate('research', 'funding')}
+                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
+                        activeTab === 'research' && researchSubTab === 'funding'
+                          ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
+                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
+                      }`}
+                    >
+                      Grants & Proposals
+                    </button>
 
-                  <button
-                    role="tab"
-                    aria-selected={activeTab === 'ai_assistant'}
-                    onClick={() => handleNavigate('ai_assistant')}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
-                      activeTab === 'ai_assistant'
-                        ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
-                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
-                    }`}
-                  >
-                    AI Assistant
-                  </button>
+                    <button
+                      role="tab"
+                      aria-selected={activeTab === 'ai_assistant'}
+                      onClick={() => handleNavigate('ai_assistant')}
+                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
+                        activeTab === 'ai_assistant'
+                          ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
+                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
+                      }`}
+                    >
+                      Ask AI
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
@@ -630,6 +662,8 @@ export default function App() {
             <Settings
               onResetAllData={handleResetAllData}
               defaultTab="appearance"
+              accessibilitySettings={accessibilitySettings}
+              onAccessibilitySettingsChange={handleAccessibilityChange}
             />
           )}
 
@@ -647,6 +681,8 @@ export default function App() {
           {activeTab === 'settings' && (
             <Settings
               onResetAllData={handleResetAllData}
+              accessibilitySettings={accessibilitySettings}
+              onAccessibilitySettingsChange={handleAccessibilityChange}
             />
           )}
 

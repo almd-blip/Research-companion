@@ -6,13 +6,22 @@
 import React, { useState, useEffect } from 'react';
 import { Database, Download, Trash, Shield, Settings2, Sliders, Sparkles, Eye, Bell, CheckCircle, Cpu } from 'lucide-react';
 import LocalAIRuntimeManager from './LocalAIRuntimeManager';
+import AccessibilityPanel from './AccessibilityPanel';
+import { AccessibilitySettings, DEFAULT_ACCESSIBILITY_SETTINGS } from '../types';
 
 interface SettingsProps {
   onResetAllData: () => void;
   defaultTab?: 'profile' | 'appearance' | 'backup' | 'ai' | 'notifications';
+  accessibilitySettings?: AccessibilitySettings;
+  onAccessibilitySettingsChange?: (settings: AccessibilitySettings) => void;
 }
 
-export default function Settings({ onResetAllData, defaultTab }: SettingsProps) {
+export default function Settings({ 
+  onResetAllData, 
+  defaultTab,
+  accessibilitySettings,
+  onAccessibilitySettingsChange
+}: SettingsProps) {
   const [activeTab, setActiveTab] = useState<'profile' | 'appearance' | 'backup' | 'ai' | 'notifications'>(
     defaultTab || 'profile'
   );
@@ -29,10 +38,26 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
   const [fieldOfStudy, setFieldOfStudy] = useState(() => localStorage.getItem('scholar_field') || 'HCI & Neurosymbolic AI');
 
   // Accessibility & Appearance
-  const [theme, setTheme] = useState(() => localStorage.getItem('scholar_theme') || 'light');
-  const [fontScale, setFontScale] = useState(() => localStorage.getItem('scholar_font_scale') || 'm');
-  const [fontStyle, setFontStyle] = useState(() => localStorage.getItem('scholar_font_style') || 'sans');
-  const [highContrast, setHighContrast] = useState(() => localStorage.getItem('scholar_high_contrast') === 'true');
+  const [localAccSettings, setLocalAccSettings] = useState<AccessibilitySettings>(() => {
+    const cached = localStorage.getItem('scholar_accessibility_settings');
+    if (cached) {
+      try { return JSON.parse(cached); } catch {}
+    }
+    return DEFAULT_ACCESSIBILITY_SETTINGS;
+  });
+
+  const effectiveAccSettings = accessibilitySettings || localAccSettings;
+
+  const handleAccChange = (newSettings: AccessibilitySettings) => {
+    if (onAccessibilitySettingsChange) {
+      onAccessibilitySettingsChange(newSettings);
+    } else {
+      setLocalAccSettings(newSettings);
+      localStorage.setItem('scholar_accessibility_settings', JSON.stringify(newSettings));
+      window.dispatchEvent(new Event('accessibility_settings_updated'));
+    }
+    triggerToast('Accessibility settings updated.');
+  };
 
   // AI Options
   const [groundingLevel, setGroundingLevel] = useState('strict');
@@ -54,43 +79,13 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
     localStorage.setItem('wellbeing_advisor_name', scholarName);
     localStorage.setItem('scholar_affiliation', affiliation);
     localStorage.setItem('scholar_field', fieldOfStudy);
-    triggerToast('Identity profile saved to your local offline cache.');
+    triggerToast('Profile updated.');
   };
-
-  // Reactively apply and persist appearance configuration
-  useEffect(() => {
-    localStorage.setItem('scholar_theme', theme);
-    localStorage.setItem('scholar_font_scale', fontScale);
-    localStorage.setItem('scholar_font_style', fontStyle);
-    localStorage.setItem('scholar_high_contrast', String(highContrast));
-    
-    // Apply contrast and dark class dynamically
-    const root = document.getElementById('scholar-companion-root');
-    if (root) {
-      if (theme === 'dark') {
-        document.documentElement.classList.add('dark');
-      } else {
-        document.documentElement.classList.remove('dark');
-      }
-      document.documentElement.classList.remove('light-black');
-      
-      if (highContrast) {
-        document.documentElement.classList.add('high-contrast');
-        root.classList.add('high-contrast');
-      } else {
-        document.documentElement.classList.remove('high-contrast');
-        root.classList.remove('high-contrast');
-      }
-    }
-
-    // Trigger update event for font changes
-    window.dispatchEvent(new Event('accessibility_settings_updated'));
-  }, [theme, fontScale, fontStyle, highContrast]);
 
   const handleSaveAIOptions = (e: React.FormEvent) => {
     e.preventDefault();
     localStorage.setItem('scholar_custom_guidance', customPromptGuidance);
-    triggerToast('AI assistance parameters configured.');
+    triggerToast('AI settings saved.');
   };
 
   const handleExportData = () => {
@@ -100,7 +95,7 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
       smallWins: localStorage.getItem('wellbeing_small_wins') || '',
       draftText: localStorage.getItem('draft_companion_text') || '',
       scholarProjectType: localStorage.getItem('scholar_project_type') || '',
-      accessibility: { theme, fontScale, fontStyle, highContrast },
+      accessibility: effectiveAccSettings,
       feedbackLogs: localStorage.getItem('scholar_feedback_logs') || '[]'
     };
 
@@ -112,7 +107,7 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    triggerToast('System backup downloaded successfully.');
+    triggerToast('Backup downloaded successfully.');
   };
 
   return (
@@ -137,7 +132,7 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
               activeTab === 'profile' ? 'border-amber-900 dark:border-amber-500 text-amber-900 dark:text-amber-400 font-bold' : 'border-transparent text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
             }`}
           >
-            Profile identity
+            Profile
           </button>
           <button
             role="tab"
@@ -157,7 +152,7 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
               activeTab === 'ai' ? 'border-amber-900 dark:border-amber-500 text-amber-900 dark:text-amber-400 font-bold' : 'border-transparent text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
             }`}
           >
-            AI options
+            AI settings
           </button>
           <button
             role="tab"
@@ -177,7 +172,7 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
               activeTab === 'backup' ? 'border-amber-900 dark:border-amber-500 text-amber-900 dark:text-amber-400 font-bold' : 'border-transparent text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
             }`}
           >
-            Backup & diagnostics
+            Backup & data
           </button>
         </div>
       </div>
@@ -186,7 +181,7 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
       {activeTab === 'profile' && (
         <form onSubmit={handleSaveProfile} className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-4 shadow-xs animate-fadeIn">
           <h3 className="font-sans font-semibold text-stone-950 dark:text-stone-100 text-xs flex items-center gap-2 border-b border-stone-100 dark:border-stone-850 pb-2">
-            <Settings2 className="w-4 h-4 text-amber-800" aria-hidden="true" /> Identity profile
+            <Settings2 className="w-4 h-4 text-amber-800" aria-hidden="true" /> Profile settings
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -203,7 +198,7 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
             </div>
 
             <div className="space-y-1">
-              <label htmlFor="scholar-affiliation" className="font-sans text-[10px] text-stone-600 dark:text-stone-400 font-bold block">Affiliation</label>
+              <label htmlFor="scholar-affiliation" className="font-sans text-[10px] text-stone-600 dark:text-stone-400 font-bold block">Organization or university</label>
               <input
                 id="scholar-affiliation"
                 type="text"
@@ -215,7 +210,7 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
           </div>
 
           <div className="space-y-1">
-            <label htmlFor="scholar-field" className="font-sans text-[10px] text-stone-600 dark:text-stone-400 font-bold block">Field of inquiry</label>
+            <label htmlFor="scholar-field" className="font-sans text-[10px] text-stone-600 dark:text-stone-400 font-bold block">Field of study</label>
             <input
               id="scholar-field"
               type="text"
@@ -229,117 +224,19 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
             type="submit"
             className="font-sans text-xs bg-amber-950 dark:bg-amber-900 hover:bg-amber-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 text-white px-4 py-2 rounded transition-colors cursor-pointer shadow-xs text-center justify-center w-full sm:w-auto"
           >
-            Update profile
+            Save profile
           </button>
         </form>
       )}
 
       {/* TAB 2: APPEARANCE & ACCESSIBILITY */}
       {activeTab === 'appearance' && (
-        <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-6 shadow-xs animate-fadeIn">
-          <h3 className="font-sans font-semibold text-stone-950 dark:text-stone-100 text-xs flex items-center gap-2 border-b border-stone-100 dark:border-stone-850 pb-2">
-            <Eye className="w-4 h-4 text-amber-800" aria-hidden="true" /> Appearance & accessibility
-          </h3>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Theme & Contrast */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="font-sans text-[10px] text-stone-600 dark:text-stone-400 font-bold block">Theme preference</label>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => setTheme('light')}
-                    className={`flex-1 min-w-[90px] py-2 px-3 rounded border font-sans text-xs cursor-pointer text-center transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 ${
-                      theme === 'light' || theme === 'light-black'
-                        ? 'bg-amber-900/10 dark:bg-amber-500/10 border-amber-900 dark:border-amber-500 text-amber-950 dark:text-amber-400 font-bold shadow-xs'
-                        : 'bg-stone-50 dark:bg-stone-900/40 border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-normal hover:bg-stone-100 dark:hover:bg-stone-800/60'
-                    }`}
-                  >
-                    Light theme
-                  </button>
-                  <button
-                    onClick={() => setTheme('dark')}
-                    className={`flex-1 min-w-[90px] py-2 px-3 rounded border font-sans text-xs cursor-pointer text-center transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 ${
-                      theme === 'dark'
-                        ? 'bg-amber-500/10 dark:bg-amber-500/10 border-amber-500 dark:border-amber-500 text-amber-950 dark:text-amber-400 font-bold shadow-xs'
-                        : 'bg-stone-50 dark:bg-stone-900/40 border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-normal hover:bg-stone-100 dark:hover:bg-stone-800/60'
-                    }`}
-                  >
-                    Dark theme
-                  </button>
-                </div>
-              </div>
-
-              {/* High Contrast */}
-              <div className="flex justify-between items-center p-3 bg-stone-50 dark:bg-stone-900/30 border border-stone-200 dark:border-stone-800 rounded-lg">
-                <label htmlFor="high-contrast-toggle" className="cursor-pointer select-none flex-grow">
-                  <span className="text-xs font-semibold text-stone-800 dark:text-stone-200 block text-left">High contrast mode</span>
-                  <span className="text-[10px] text-stone-500 dark:text-stone-400 block text-left">Increase visual borders and text depth.</span>
-                </label>
-                <input
-                  id="high-contrast-toggle"
-                  type="checkbox"
-                  checked={highContrast}
-                  onChange={(e) => setHighContrast(e.target.checked)}
-                  className="w-4 h-4 accent-amber-950 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
-                />
-              </div>
-            </div>
-
-            {/* Typography Sizing & Styles */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <label className="font-sans text-[10px] text-stone-600 dark:text-stone-400 font-bold block text-left">Reading font style</label>
-                <div className="flex flex-wrap gap-2">
-                  <button
-                    onClick={() => setFontStyle('sans')}
-                    className={`flex-1 min-w-[140px] py-2 px-3 rounded border font-sans text-xs cursor-pointer text-left transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 ${
-                      fontStyle === 'sans'
-                        ? 'bg-amber-900/10 dark:bg-amber-500/10 border-amber-900 dark:border-amber-500 text-amber-950 dark:text-amber-400 font-bold shadow-xs'
-                        : 'bg-stone-50 dark:bg-stone-900/40 border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-normal hover:bg-stone-100 dark:hover:bg-stone-800/60'
-                    }`}
-                  >
-                    Outfit (Default)
-                  </button>
-                  <button
-                    onClick={() => setFontStyle('dyslexic')}
-                    className={`flex-1 min-w-[140px] py-2 px-3 rounded border font-sans text-xs cursor-pointer text-left transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 ${
-                      fontStyle === 'dyslexic'
-                        ? 'bg-amber-900/10 dark:bg-amber-500/10 border-amber-900 dark:border-amber-500 text-amber-950 dark:text-amber-400 font-bold shadow-xs'
-                        : 'bg-stone-50 dark:bg-stone-900/40 border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-normal hover:bg-stone-100 dark:hover:bg-stone-800/60'
-                    }`}
-                  >
-                    Atkinson Hyperlegible (Dyslexia friendly)
-                  </button>
-                </div>
-              </div>
-
-              {/* Font scale */}
-              <div className="space-y-2">
-                <label className="font-sans text-[10px] text-stone-600 dark:text-stone-400 font-bold block">Text line sizing</label>
-                <div className="flex flex-wrap gap-2">
-                  {['s', 'm', 'l', 'xl'].map((scale) => (
-                    <button
-                      key={scale}
-                      onClick={() => setFontScale(scale)}
-                      className={`flex-1 min-w-[70px] py-1.5 px-2.5 rounded border text-xs font-mono capitalize cursor-pointer text-center transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 ${
-                        fontScale === scale
-                          ? 'bg-amber-900/10 dark:bg-amber-500/10 border-amber-900 dark:border-amber-500 text-amber-950 dark:text-amber-400 font-bold shadow-xs'
-                          : 'bg-stone-50 dark:bg-stone-900/40 border-stone-200 dark:border-stone-800 text-stone-400 dark:text-stone-500 font-normal hover:bg-stone-100 dark:hover:bg-stone-800/60'
-                      }`}
-                    >
-                      {scale === 's' ? 'Small' : scale === 'm' ? 'Medium' : scale === 'l' ? 'Large' : 'Extra'}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="pt-2 flex items-center gap-2 text-[11px] text-stone-500 dark:text-stone-400">
-            <CheckCircle className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-500 shrink-0" aria-hidden="true" />
-            <span>Appearance and accessibility modifications are applied in real time and stored to your offline cache automatically.</span>
-          </div>
+        <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl p-6 shadow-xs animate-fadeIn text-left">
+          <AccessibilityPanel
+            settings={effectiveAccSettings}
+            onChange={handleAccChange}
+            appModules={['Research Workspace', 'Literature Intelligence', 'Knowledge Graph', 'Writing Companion', 'Wellbeing']}
+          />
         </div>
       )}
 
@@ -348,18 +245,18 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
         <div className="space-y-6 animate-fadeIn">
           {/* Local AI Offline Runtime Manager */}
           <LocalAIRuntimeManager
-            onConfigSaved={() => triggerToast('AI infrastructure settings saved.')}
+            onConfigSaved={() => triggerToast('AI settings saved.')}
           />
 
           {/* Scholar Persona & Guidance Options */}
           <form onSubmit={handleSaveAIOptions} className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-4 shadow-xs">
             <h3 className="font-sans font-semibold text-stone-950 dark:text-stone-100 text-xs flex items-center gap-2 border-b border-stone-100 dark:border-stone-850 pb-2">
-              <Sparkles className="w-4 h-4 text-amber-800" aria-hidden="true" /> Companion Guidance & Grounding
+              <Sparkles className="w-4 h-4 text-amber-800" aria-hidden="true" /> AI Companion Guidance
             </h3>
 
             <div className="space-y-4">
               <div className="space-y-1.5">
-                <span className="font-sans text-[10px] text-stone-600 dark:text-stone-400 font-bold block text-left">Evidentiary grounding level</span>
+                <span className="font-sans text-[10px] text-stone-600 dark:text-stone-400 font-bold block text-left">Information sources</span>
                 <div className="flex gap-2">
                   <button
                     type="button"
@@ -370,7 +267,7 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
                         : 'bg-stone-50 dark:bg-stone-900/40 border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-normal hover:bg-stone-100 dark:hover:bg-stone-800/60'
                     }`}
                   >
-                    Strict (only user library)
+                    Strict (only my library)
                   </button>
                   <button
                     type="button"
@@ -381,18 +278,18 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
                         : 'bg-stone-50 dark:bg-stone-900/40 border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-normal hover:bg-stone-100 dark:hover:bg-stone-800/60'
                     }`}
                   >
-                    Balanced (general academic grounding)
+                    Balanced (include general academic sources)
                   </button>
                 </div>
               </div>
 
               <div className="space-y-1">
-                <label htmlFor="custom-instructions" className="font-sans text-[10px] text-stone-600 dark:text-stone-400 font-bold block text-left">Custom companion instructions</label>
+                <label htmlFor="custom-instructions" className="font-sans text-[10px] text-stone-600 dark:text-stone-400 font-bold block text-left">Custom instructions</label>
                 <textarea
                   id="custom-instructions"
                   value={customPromptGuidance}
                   onChange={(e) => setCustomPromptGuidance(e.target.value)}
-                  placeholder="Instruct the companion to speak in a certain way, prioritize certain methods, or match your cognitive preferences..."
+                  placeholder="Give instructions on how the companion should write, answer, or assist you..."
                   rows={3}
                   className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-white rounded focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-transparent text-left placeholder-stone-400 dark:placeholder-white"
                 />
@@ -403,7 +300,7 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
               type="submit"
               className="font-sans text-xs bg-amber-950 dark:bg-amber-900 hover:bg-amber-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 text-white px-4 py-2 rounded transition-colors cursor-pointer text-center justify-center w-full sm:w-auto"
             >
-              Save guidance parameters
+              Save AI settings
             </button>
           </form>
         </div>
@@ -413,7 +310,7 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
       {activeTab === 'notifications' && (
         <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-6 shadow-xs animate-fadeIn text-left">
           <h3 className="font-sans font-semibold text-stone-950 dark:text-stone-100 text-xs flex items-center gap-2 border-b border-stone-100 dark:border-stone-850 pb-2 text-left">
-            <Bell className="w-4 h-4 text-amber-800" aria-hidden="true" /> Notifications & sound controls
+            <Bell className="w-4 h-4 text-amber-800" aria-hidden="true" /> Notifications & sounds
           </h3>
 
           <div className="space-y-4">
@@ -421,7 +318,7 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
             <div className="flex justify-between items-center p-3.5 bg-stone-50 dark:bg-stone-900/30 border border-stone-200 dark:border-stone-800 rounded-lg text-left">
               <label htmlFor="break-reminders-toggle" className="cursor-pointer select-none flex-grow text-left">
                 <span className="text-xs font-semibold text-stone-800 dark:text-stone-200 block text-left">Break reminders</span>
-                <span className="text-[10px] text-stone-500 dark:text-stone-400 block text-left">Trigger gentle in-app notification banners when the Pomodoro focus timer finishes.</span>
+                <span className="text-[10px] text-stone-500 dark:text-stone-400 block text-left">Show a friendly message when your focus timer ends.</span>
               </label>
               <input
                 id="break-reminders-toggle"
@@ -435,8 +332,8 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
             {/* Encouragements */}
             <div className="flex justify-between items-center p-3.5 bg-stone-50 dark:bg-stone-900/30 border border-stone-200 dark:border-stone-800 rounded-lg text-left">
               <label htmlFor="encouragements-toggle" className="cursor-pointer select-none flex-grow text-left">
-                <span className="text-xs font-semibold text-stone-800 dark:text-stone-200 block text-left">Gentle daily encouragements</span>
-                <span className="text-[10px] text-stone-500 dark:text-stone-400 block text-left">Enable comforting check-in dialogs based on your arrival emotion states.</span>
+                <span className="text-xs font-semibold text-stone-800 dark:text-stone-200 block text-left">Daily encouragements</span>
+                <span className="text-[10px] text-stone-500 dark:text-stone-400 block text-left">Show daily check-ins based on how you are feeling.</span>
               </label>
               <input
                 id="encouragements-toggle"
@@ -449,10 +346,10 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
           </div>
 
           <button
-            onClick={() => triggerToast('Notification system preferences stored.')}
+            onClick={() => triggerToast('Notification settings saved.')}
             className="font-sans text-xs bg-amber-950 dark:bg-amber-900 hover:bg-amber-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 text-white px-4 py-2 rounded transition-colors cursor-pointer text-center justify-center w-full sm:w-auto"
           >
-            Save notification preferences
+            Save notification settings
           </button>
         </div>
       )}
@@ -461,14 +358,14 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
       {activeTab === 'backup' && (
         <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-6 shadow-xs animate-fadeIn text-left">
           <h3 className="font-sans font-semibold text-stone-950 dark:text-stone-100 text-xs flex items-center gap-2 border-b border-stone-100 dark:border-stone-850 pb-2 text-left">
-            <Database className="w-4 h-4 text-amber-800" aria-hidden="true" /> Offline local cache
+            <Database className="w-4 h-4 text-amber-800" aria-hidden="true" /> Data storage
           </h3>
 
           <div className="space-y-4">
             <div className="flex justify-between items-center text-xs font-sans text-left">
               <div className="text-left">
-                <p className="font-semibold text-stone-850 dark:text-stone-200 text-left">Local device database size</p>
-                <p className="text-stone-500 dark:text-stone-400 text-[11px] mt-0.5 text-left">Your draft text, wins journal, feedback records, and references are stored strictly on-device.</p>
+                <p className="font-semibold text-stone-850 dark:text-stone-200 text-left">Storage used on this device</p>
+                <p className="text-stone-500 dark:text-stone-400 text-[11px] mt-0.5 text-left">Your notes, journal entries, feedback, and saved items stay on your device.</p>
               </div>
               <span className="font-mono text-xs bg-stone-100 dark:bg-stone-900 px-2.5 py-1 border border-stone-200 dark:border-stone-800 rounded text-stone-600 dark:text-stone-400">
                 {Math.round(JSON.stringify(localStorage).length / 1024)} KB used
@@ -481,19 +378,19 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
                 onClick={handleExportData}
                 className="font-sans text-xs border border-stone-250 dark:border-stone-800 bg-white dark:bg-stone-950 py-2.5 px-4 rounded flex justify-center items-center gap-1.5 hover:bg-stone-50 dark:hover:bg-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 transition-colors cursor-pointer text-center font-medium text-stone-700 dark:text-stone-300"
               >
-                <Download className="w-4 h-4 text-stone-500" aria-hidden="true" /> Export system backup (.rcp)
+                <Download className="w-4 h-4 text-stone-500" aria-hidden="true" /> Download backup file (.rcp)
               </button>
               
               <button
                 type="button"
                 onClick={() => {
-                  if (confirm('Permanently reset your local companion database back to original defaults? This cannot be reversed.')) {
+                  if (confirm('Are you sure you want to delete all saved data on this device? This cannot be undone.')) {
                     onResetAllData();
                   }
                 }}
                 className="font-sans text-xs border border-red-200 text-red-700 py-2.5 px-4 rounded flex justify-center items-center gap-1.5 hover:bg-red-50/50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 transition-colors cursor-pointer text-center font-medium"
               >
-                <Trash className="w-4 h-4 text-red-500" aria-hidden="true" /> Reset system cache
+                <Trash className="w-4 h-4 text-red-500" aria-hidden="true" /> Delete all local data
               </button>
             </div>
           </div>
@@ -501,9 +398,9 @@ export default function Settings({ onResetAllData, defaultTab }: SettingsProps) 
           <div className="bg-stone-50 dark:bg-stone-900/30 p-5 rounded-lg border border-stone-200 dark:border-stone-800 text-xs font-sans text-stone-600 dark:text-stone-400 space-y-2 flex items-start gap-3 text-left">
             <Shield className="w-5 h-5 text-amber-850 shrink-0 mt-0.5" aria-hidden="true" />
             <div className="text-left">
-              <p className="font-semibold text-stone-800 dark:text-stone-200 text-left">Absolute offline privacy guarantee</p>
+              <p className="font-semibold text-stone-800 dark:text-stone-200 text-left">Privacy & offline storage</p>
               <p className="leading-relaxed mt-0.5 text-left">
-                Research Companion does not use persistent server-side storage or cookie profiling trackers. All operations are safe and localized on your browser node.
+                Research Companion keeps your data private on your own device. We do not store your data on external servers or track your activity.
               </p>
             </div>
           </div>

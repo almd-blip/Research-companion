@@ -1,12 +1,12 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700;800;900&family=Atkinson+Hyperlegible:wght@400;700&family=Lexend:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
-  --font-serif: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Outfit", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 
   --color-teal-brand: #1D9E75;
   --color-burgundy-brand: #912A4A;
@@ -40,12 +40,12 @@ p, h1, h2, h3, h4, h5, h6, span, div, label, input, button, select, textarea, th
   text-align: left !important;
 }
 
-/* Dyslexia-Friendly Accessibility Font Alternative */
+/* Dyslexia-Friendly Accessibility Font Alternative: Helvetica */
 .font-dyslexic,
 .font-dyslexic *,
 body.font-dyslexic,
 body.font-dyslexic * {
-  font-family: 'Atkinson Hyperlegible', 'Lexend', 'Outfit', sans-serif !important;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
   letter-spacing: 0.02em;
   word-spacing: 0.05em;
 }
