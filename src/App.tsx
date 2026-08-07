@@ -381,7 +381,7 @@ export default function App() {
                       : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a]'
                   }`}
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400 shrink-0" />
+                  <Compass className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400 shrink-0" />
                   <span>Explore</span>
                 </button>
                 <button
@@ -439,7 +439,7 @@ export default function App() {
                       : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a]'
                   }`}
                 >
-                  <Compass className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400 shrink-0" />
+                  <Sparkles className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400 shrink-0" />
                   <span>I'm Ready</span>
                 </button>
                 <button

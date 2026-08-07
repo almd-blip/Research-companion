@@ -92,6 +92,9 @@ export default function ChoiceScreen({
   const [line12Bottom, setLine12Bottom] = React.useState<number | null>(null);
   const [titleOffset, setTitleOffset] = React.useState<number>(0);
   const [enterOffsets, setEnterOffsets] = React.useState<Record<string, number>>({});
+  const [iconYOffsets, setIconYOffsets] = React.useState<Record<string, number>>({});
+  const iconYOffsetsRef = React.useRef(iconYOffsets);
+  iconYOffsetsRef.current = iconYOffsets;
 
   React.useLayoutEffect(() => {
     const updateLayoutPositions = () => {
@@ -178,6 +181,31 @@ export default function ChoiceScreen({
           const v2 = getVerticalBounds(card2);
 
           const exploreIconTop = v1 ? v1.iconTop : (v0 ? v0.iconTop : (v2 ? v2.iconTop : null));
+
+          if (v1 && v1.iconTop !== null && window.innerWidth >= 768) {
+            const exploreTop = v1.iconTop;
+            const newIconOffsets: Record<string, number> = { about: 0 };
+
+            if (v0 && v0.iconTop !== null) {
+              const raw0Top = v0.iconTop - (iconYOffsetsRef.current['wellbeing'] || 0);
+              newIconOffsets['wellbeing'] = exploreTop - raw0Top;
+            }
+            if (v2 && v2.iconTop !== null) {
+              const raw2Top = v2.iconTop - (iconYOffsetsRef.current['workspace'] || 0);
+              newIconOffsets['workspace'] = exploreTop - raw2Top;
+            }
+
+            setIconYOffsets((prev) => {
+              let changed = false;
+              for (const key of Object.keys(newIconOffsets)) {
+                if (Math.abs((prev[key] || 0) - newIconOffsets[key]) > 0.5) {
+                  changed = true;
+                  break;
+                }
+              }
+              return changed ? { ...prev, ...newIconOffsets } : prev;
+            });
+          }
 
           if (b0 && b1) {
             const mid01 = (b0.right + b1.left) / 2;
@@ -396,8 +424,14 @@ export default function ChoiceScreen({
                         </p>
                       </div>
 
-                      <div className="flex items-center justify-between pt-8 mt-auto w-full shrink-0" id={`choice-card-bot-${choice.id}`}>
-                        <ChoiceIcon className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-all" id={`choice-card-icon-${choice.id}`} />
+                      <div
+                        className="flex items-center justify-between pt-8 mt-auto w-full shrink-0"
+                        id={`choice-card-bot-${choice.id}`}
+                        style={{
+                          transform: iconYOffsets[choice.id] ? `translateY(${iconYOffsets[choice.id]}px)` : undefined
+                        }}
+                      >
+                        <ChoiceIcon className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-all shrink-0" id={`choice-card-icon-${choice.id}`} />
                         <span
                           className="text-xs font-semibold text-[#912A4A] opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0"
                           id={`choice-card-go-${choice.id}`}
