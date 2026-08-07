@@ -3,9 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { ResearchJourney, Paper, MoodCheckIn } from '../types';
-import { HelpCircle, Sparkles, AlertCircle, CheckCircle, Clock, BookOpen, ChevronRight } from 'lucide-react';
 
 interface ResearchHomeProps {
   journeys: ResearchJourney[];
@@ -211,7 +210,7 @@ export default function ResearchHome({
       },
       anxious: {
         mentoringResponse: "Anxiety is your nervous system trying to protect you. Acknowledge its presence. You are safe here, and your value is completely separate from your research.",
-        actionSteps: ["Inhale for 4 seconds, exhale for 6", "Select an incredibly simple task, like organizing two author names", "Check the self-care reflection list in the Wellbeing center"],
+        actionSteps: ["Inhale for 4 seconds, exhale for 6", "Select an incredibly simple task, like organizing two author names", "Check the self-care reflection list in the Wellbeing Centre"],
         reflectionPrompt: "Can you release your shoulders, relax your jaw, and give yourself grace for the next hour?"
       }
     };
@@ -258,7 +257,7 @@ export default function ResearchHome({
       {/* 2. ARRIVING STATE: How are you arriving today? */}
       <section className="space-y-4">
         <h2 className="font-sans font-medium text-stone-950 dark:text-stone-100 text-lg flex items-center gap-2 border-b border-stone-100 dark:border-stone-850 pb-2.5">
-          <HelpCircle className="w-5 h-5 text-[#912A4A] dark:text-rose-400" /> How are you arriving today?
+          How are you arriving today?
         </h2>
         <p className="font-sans text-xs text-stone-500 leading-relaxed">
           Select your current physical or emotional state. We offer gentle, non-shaming strategies to fit your level of energy.
@@ -292,10 +291,6 @@ export default function ResearchHome({
         {/* Companion reflection dialogue box nested immediately after check-in */}
         {(loadingAdvisor || advisorMessage) && (
           <div className="bg-[#912A4A]/5 dark:bg-stone-900/20 border border-[#912A4A]/15 dark:border-stone-850 p-6 rounded-xl relative overflow-hidden animate-fadeIn mt-4 text-left">
-            <div className="absolute top-0 right-0 p-4 opacity-5">
-              <Sparkles className="w-24 h-24 text-[#912A4A]" />
-            </div>
-
             {loadingAdvisor ? (
               <div className="flex flex-col items-center justify-center py-6 space-y-2">
                 <div className="w-5 h-5 border-2 border-[#912A4A] border-t-transparent dark:border-rose-400 dark:border-t-transparent rounded-full animate-spin"></div>
@@ -304,7 +299,6 @@ export default function ResearchHome({
             ) : (
               <div className="space-y-4">
                 <div className="flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-[#912A4A] dark:text-rose-400" />
                   <h3 className="font-sans font-semibold text-xs text-[#912A4A] dark:text-rose-400">Your companion's gentle reflection</h3>
                 </div>
 
@@ -317,7 +311,7 @@ export default function ResearchHome({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-[#912A4A]/10 dark:border-stone-800/40">
                   <div>
                     <h4 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 mb-2.5 flex items-center gap-1.5">
-                      <CheckCircle className="w-4 h-4 text-emerald-600 dark:text-emerald-500" /> Suggested micro-steps:
+                      Suggested micro-steps:
                     </h4>
                     <ul className="space-y-2">
                       {advisorMessage.actionSteps?.map((step: string, index: number) => (
@@ -331,7 +325,7 @@ export default function ResearchHome({
 
                   <div>
                     <h4 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 mb-2.5 flex items-center gap-1.5">
-                      <AlertCircle className="w-4 h-4 text-blue-600 dark:text-blue-500" /> Reflective prompt to sit with:
+                      Reflective prompt to sit with:
                     </h4>
                     <div className="p-3 bg-white dark:bg-stone-950 border border-stone-150 dark:border-stone-850 rounded-lg">
                       <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed italic font-light">
@@ -349,7 +343,7 @@ export default function ResearchHome({
       {/* 3. QUESTION: What are you working on today? */}
       <section className="space-y-5">
         <h2 className="text-lg font-medium text-stone-950 dark:text-stone-100 flex items-center gap-2 border-b border-stone-100 dark:border-stone-850 pb-2.5">
-          <BookOpen className="w-5 h-5 text-[#912A4A] dark:text-rose-400" /> What are you working on?
+          What are you working on?
         </h2>
         
         <p className="text-stone-500 text-xs leading-normal">
@@ -449,7 +443,6 @@ export default function ResearchHome({
 
         {activeProjectInfo && (
           <div className="p-4 bg-[#912A4A]/5 dark:bg-stone-900/30 border border-[#912A4A]/15 dark:border-stone-800 rounded-lg flex items-start gap-3 text-xs animate-fadeIn text-left">
-            <Sparkles className="w-4 h-4 text-[#912A4A] dark:text-rose-400 shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold text-stone-800 dark:text-stone-200">
                 Supporting your {activeProjectInfo.label} journey:
@@ -491,7 +484,7 @@ export default function ResearchHome({
                     }}
                     className="font-sans text-xs text-[#912A4A] dark:text-rose-400 hover:underline flex items-center cursor-pointer font-semibold"
                   >
-                    Enter Project <ChevronRight className="w-3.5 h-3.5 inline ml-0.5" />
+                    Enter Project →
                   </button>
                 </div>
               </div>
@@ -503,7 +496,7 @@ export default function ResearchHome({
       {/* 4. TODAY'S FOCUS: One small achievable task */}
       <section className="space-y-4">
         <h2 className="font-sans font-medium text-stone-950 dark:text-stone-100 text-lg flex items-center gap-2 border-b border-stone-100 dark:border-stone-850 pb-2.5">
-          <Clock className="w-5 h-5 text-[#912A4A] dark:text-rose-400" /> Choose today's focus
+          Choose today's focus
         </h2>
         
         <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-6 rounded-lg flex flex-col justify-between shadow-sm text-left">

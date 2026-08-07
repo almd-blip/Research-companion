@@ -5,22 +5,6 @@
 
 import React, { useState } from 'react';
 import { ResearchJourney, TimelineEvent } from '../types';
-import {
-  Calendar,
-  Clock,
-  Flag,
-  Sparkles,
-  FileText,
-  Users,
-  Plus,
-  X,
-  ChevronLeft,
-  ChevronRight,
-  AlertCircle,
-  CheckCircle2,
-  Tag,
-  Filter,
-} from 'lucide-react';
 
 interface ResearchTimelineProps {
   journeys: ResearchJourney[];
@@ -145,15 +129,15 @@ export default function ResearchTimeline({
   const getTypeIcon = (type: TimelineEvent['type']) => {
     switch (type) {
       case 'submission':
-        return <Flag className="w-4 h-4 text-[#912A4A]" />;
+        return ;
       case 'milestone':
-        return <Sparkles className="w-4 h-4 text-[#1D9E75]" />;
+        return ;
       case 'draft':
-        return <FileText className="w-4 h-4 text-[#912A4A]" />;
+        return ;
       case 'meeting':
-        return <Users className="w-4 h-4 text-[#1B0A3B]" />;
+        return ;
       default:
-        return <Calendar className="w-4 h-4 text-stone-600" />;
+        return ;
     }
   };
 
@@ -179,7 +163,7 @@ export default function ResearchTimeline({
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
             <div className="flex items-center gap-2 font-mono text-[11px] text-[#912A4A] dark:text-rose-400 tracking-wider uppercase font-semibold">
-              <Calendar className="w-3.5 h-3.5 shrink-0" />
+              
               <span>Research Project Milestones & Timeline</span>
             </div>
             <h2 className="font-sans font-bold text-xl text-[#1B0A3B] dark:text-stone-100 mt-1">
@@ -210,7 +194,7 @@ export default function ResearchTimeline({
               onClick={() => setIsAddingEvent(!isAddingEvent)}
               className="px-3 py-1.5 bg-[#1D9E75] text-white hover:bg-[#168562] rounded-md text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
             >
-              {isAddingEvent ? <X className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+              {isAddingEvent ? null : null}
               <span>{isAddingEvent ? 'Close Form' : 'Add Milestone'}</span>
             </button>
           </div>
@@ -220,7 +204,7 @@ export default function ResearchTimeline({
         {currentJourney.targetDeadline && (
           <div className="p-3 rounded-lg bg-white dark:bg-stone-850 border border-stone-200/70 dark:border-stone-750 flex items-center justify-between gap-3 text-xs">
             <div className="flex items-center gap-2 text-[#1B0A3B] dark:text-stone-200 font-medium">
-              <Clock className="w-4 h-4 text-[#912A4A]" />
+              
               <span>Project Target Submission Deadline:</span>
               <span className="font-mono font-bold text-[#912A4A]">{currentJourney.targetDeadline}</span>
             </div>
@@ -255,14 +239,14 @@ export default function ResearchTimeline({
         >
           <div className="flex items-center justify-between border-b border-stone-100 dark:border-stone-800 pb-2">
             <h3 className="font-sans font-bold text-sm text-[#1B0A3B] dark:text-stone-100 flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Add Research Milestone or Deadline
+               Add Research Milestone or Deadline
             </h3>
             <button
               type="button"
               onClick={() => setIsAddingEvent(false)}
               className="text-stone-400 hover:text-stone-600 p-1 cursor-pointer"
             >
-              <X className="w-4 h-4" />
+              
             </button>
           </div>
 
@@ -347,7 +331,7 @@ export default function ResearchTimeline({
         <div className="p-4 bg-white dark:bg-stone-900 rounded-xl border border-stone-200/90 dark:border-stone-800 space-y-3 shadow-2xs">
           <div className="flex items-center justify-between">
             <h3 className="font-sans font-bold text-xs uppercase tracking-wider text-[#912A4A] flex items-center gap-1.5">
-              <AlertCircle className="w-4 h-4 text-[#912A4A]" /> Upcoming Imminent Deadlines
+               Upcoming Imminent Deadlines
             </h3>
             <span className="font-mono text-[10px] text-stone-400">
               {upcomingDeadlines.length} pending milestone{upcomingDeadlines.length > 1 ? 's' : ''}
@@ -373,7 +357,7 @@ export default function ResearchTimeline({
                   {item.title}
                 </h4>
                 <div className="flex items-center gap-1 font-mono text-[10px] text-stone-500">
-                  <Calendar className="w-3 h-3 text-stone-400" />
+                  
                   <span>{item.date}</span>
                 </div>
               </div>
@@ -387,7 +371,7 @@ export default function ResearchTimeline({
         {/* Visualizer Filters & Controls */}
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-150 dark:border-stone-850 pb-3">
           <div className="flex items-center gap-2">
-            <Filter className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400" />
+            
             <span className="font-sans text-xs font-semibold text-[#1B0A3B] dark:text-stone-200">
               Timeline Filter:
             </span>
@@ -521,7 +505,7 @@ export default function ResearchTimeline({
               onClick={() => setSelectedEvent(null)}
               className="text-stone-400 hover:text-stone-600 p-1 cursor-pointer"
             >
-              <X className="w-4 h-4" />
+              
             </button>
           </div>
 

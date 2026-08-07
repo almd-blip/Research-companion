@@ -35,8 +35,8 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
   };
 
   return (
-    <div className={`fixed inset-0 z-50 flex items-center justify-center transition-colors duration-300 ${themeClasses} select-none font-sans overflow-y-auto`}>
-      <div className="w-full relative z-10">
+    <div className={`fixed inset-0 z-50 transition-colors duration-300 ${themeClasses} select-none font-sans overflow-y-auto`}>
+      <div className="w-full min-h-full relative z-10 flex flex-col">
         <AnimatePresence mode="wait">
           {stage === 'welcome' ? (
             <motion.div
@@ -48,6 +48,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
             >
               <ArrivalScreen
                 onContinue={() => setStage('choice')}
+                onSkip={() => onNavigate('dashboard')}
                 settings={accessibilitySettings}
                 onSettingsChange={setAccessibilitySettings}
                 appModules={['Research Workspace', 'Literature Intelligence', 'Knowledge Graph', 'Writing Companion', 'Wellbeing']}

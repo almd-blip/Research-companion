@@ -5,7 +5,7 @@
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Wind, Compass, Sparkles, EyeOff, Sliders, RotateCcw } from 'lucide-react';
+import { Wind, Compass, Sparkles } from 'lucide-react';
 import { ActiveTab, AccessibilitySettings, DEFAULT_ACCESSIBILITY_SETTINGS } from '../types';
 import { useCmsText } from '../cms/CmsContentProvider';
 import { useThemeClasses } from '../hooks/useThemeClasses';
@@ -205,6 +205,8 @@ export default function ChoiceScreen({
               }
               return changed ? { ...prev, ...newIconOffsets } : prev;
             });
+          } else if (window.innerWidth < 768) {
+            setIconYOffsets((prev) => (Object.keys(prev).length > 0 ? {} : prev));
           }
 
           if (b0 && b1) {
@@ -306,25 +308,25 @@ export default function ChoiceScreen({
       id: 'wellbeing' as ActiveTab,
       title: 'Pause & Breathe',
       description: 'Grounding and wellbeing tools to help keep focus.',
-      icon: Wind
+      icon: Wind,
     },
     {
       id: 'about' as ActiveTab,
       title: 'Explore',
       description: 'Find out how it works and what you can do in this space.',
-      icon: Compass
+      icon: Compass,
     },
     {
       id: 'workspace' as ActiveTab,
       title: 'I’m ready',
       description: 'Access your workspace and tools to get started.',
-      icon: Sparkles
+      icon: Sparkles,
     }
   ];
 
   return (
     <div
-      className={`min-h-screen flex flex-col p-10 md:p-20 transition-colors duration-300 ${themeClasses} select-none`}
+      className={`min-h-screen flex flex-col px-6 pb-10 pt-24 md:p-20 transition-colors duration-300 ${themeClasses} select-none relative`}
       id="choice-screen"
     >
       {/* Brand wordmark — small, calm, top-left */}
@@ -332,13 +334,13 @@ export default function ChoiceScreen({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: reducedMotion ? 0 : 1.5, ease: 'easeInOut', delay: reducedMotion ? 0 : 0.5 }}
-        className="text-left shrink-0"
+        className="absolute top-6 left-6 md:top-8 md:left-20 text-left shrink-0 z-10"
         id="choice-logo"
       >
         <BrandLogo settings={settings} className="w-28 md:w-32" />
       </motion.div>
 
-      <div className="flex-1 flex items-center justify-center">
+      <div className="flex-1 flex flex-col justify-start md:justify-center items-center py-4 md:py-0">
         <div className="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-center" id="choice-grid">
           <div className={`space-y-16 text-left transition-all duration-300 ${showSettings ? 'lg:col-span-6' : 'lg:col-span-12'}`} id="choice-content">
             <motion.div
@@ -355,7 +357,6 @@ export default function ChoiceScreen({
                     className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full text-[10px] font-semibold tracking-wide border border-current/20 bg-current/[0.06] text-current select-none shrink-0"
                     title="Reduced motion is active. Screen transitions are disabled for your accessibility preference."
                   >
-                    <EyeOff className="w-3 h-3 text-[#1D9E75] shrink-0" />
                     <span>Reduced Motion</span>
                   </span>
                 </div>
@@ -394,7 +395,6 @@ export default function ChoiceScreen({
                 />
               )}
               {choices.map((choice, index) => {
-                const ChoiceIcon = choice.icon;
                 return (
                   <React.Fragment key={choice.id}>
                     {index > 0 && (
@@ -425,13 +425,12 @@ export default function ChoiceScreen({
                       </div>
 
                       <div
-                        className="flex items-center justify-between pt-8 mt-auto w-full shrink-0"
+                        className="flex items-center justify-end pt-8 mt-auto w-full shrink-0 gap-2"
                         id={`choice-card-bot-${choice.id}`}
                         style={{
                           transform: iconYOffsets[choice.id] ? `translateY(${iconYOffsets[choice.id]}px)` : undefined
                         }}
                       >
-                        <ChoiceIcon className="w-5 h-5 opacity-60 group-hover:opacity-100 transition-all shrink-0" id={`choice-card-icon-${choice.id}`} />
                         <span
                           className="text-xs font-semibold text-[#912A4A] opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0"
                           id={`choice-card-go-${choice.id}`}
@@ -441,6 +440,12 @@ export default function ChoiceScreen({
                         >
                           {cmsText('choice.enter', 'Enter')}
                         </span>
+                        {choice.icon && (
+                          <choice.icon
+                            id={`choice-card-icon-${choice.id}`}
+                            className="w-5 h-5 text-[#912A4A] dark:text-rose-400 opacity-80 group-hover:opacity-100 transition-opacity"
+                          />
+                        )}
                       </div>
                     </motion.button>
                   </React.Fragment>
@@ -461,7 +466,6 @@ export default function ChoiceScreen({
                   onClick={onResetToArrival}
                   className="pl-0 py-2 text-base md:text-lg font-normal text-[#912A4A] opacity-80 hover:opacity-100 transition-all cursor-pointer flex items-center gap-2 group"
                 >
-                  <RotateCcw className="w-4 h-4 shrink-0 text-[#912A4A] opacity-80 transform group-hover:-rotate-45 transition-transform" />
                   <span>{cmsText('choice.backToArrival', 'Back to Arrival')}</span>
                 </button>
               )}
@@ -476,7 +480,6 @@ export default function ChoiceScreen({
                       : 'opacity-80 hover:opacity-100'
                   }`}
                 >
-                  <Sliders className="w-4 h-4 shrink-0 text-[#912A4A] opacity-80" />
                   <span>{cmsText('choice.accessibility', 'Accessibility Settings')}</span>
                 </button>
               </div>

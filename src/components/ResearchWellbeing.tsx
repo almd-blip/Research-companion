@@ -4,8 +4,11 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
 import { SOUNDSCAPES } from '../data';
-import { Clock, Play, Pause, RotateCcw, Volume2, VolumeX, Sparkles, BookOpen, AlertCircle, Heart, CheckCircle2, RefreshCw } from 'lucide-react';
+import ResearchWellbeingInsights from './ResearchWellbeingInsights';
+import BreatheExercise from './BreatheExercise';
+import ReflectiveWins from './ReflectiveWins';
 
 interface SelfCareTopic {
   id: string;
@@ -17,19 +20,50 @@ interface SelfCareTopic {
   reflectionPrompt: string;
 }
 
-export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbeing' } = {}) {
-  const [activeWellbeingTab, setActiveWellbeingTab] = useState<'focus' | 'self_care' | 'wins' | 'reflections'>(
-    mode === 'wellbeing' ? 'self_care' : 'focus'
+export default function ResearchWellbeing({ mode, onExitFocus }: { mode?: 'focus' | 'wellbeing'; onExitFocus?: () => void } = {}) {
+  // Wellbeing Library child destinations: 'home' | 'insights' | 'guides' | 'breathe' | 'wins'
+  const [activeChildDestination, setActiveChildDestination] = useState<'home' | 'insights' | 'guides' | 'breathe' | 'wins'>(
+    'home'
   );
-  const [activeTopicId, setActiveTopicId] = useState<string>('overwhelm');
 
-  // Pomodoro states
+  // Progressive disclosure states for self-care topics
+  const [openTopics, setOpenTopics] = useState<Record<string, boolean>>({
+    self_care_principles: true,
+    overwhelm: false,
+    imposter_feelings: false,
+    writing_avoidance: false,
+    confidence: false,
+  });
+
+  const toggleTopic = (id: string) => {
+    setOpenTopics((prev) => ({ ...prev, [id]: !prev[id] }));
+  };
+
+  const setAllTopicsOpen = (open: boolean) => {
+    setOpenTopics({
+      self_care_principles: open,
+      overwhelm: open,
+      imposter_feelings: open,
+      writing_avoidance: open,
+      confidence: open,
+    });
+  };
+
+  // Focus timer states & contextual encouragement
   const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [timerRunning, setTimerRunning] = useState(false);
   const [isBreak, setIsBreak] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
 
-  // Procedural Web Audio States
+  // Focus session counter for contextual encouragement
+  const [completedSessions, setCompletedSessions] = useState<number>(() => {
+    const cached = localStorage.getItem('scholar_focus_completed_sessions');
+    return cached ? parseInt(cached, 10) : 0;
+  });
+
+  const [showGentleEncouragement, setShowGentleEncouragement] = useState<boolean>(false);
+
+  // Procedural Web Audio states
   const [activeSoundscape, setActiveSoundscape] = useState<string | null>(null);
   const audioContextRef = useRef<AudioContext | null>(null);
   const noiseSourceRef = useRef<AudioBufferSourceNode | null>(null);
@@ -37,53 +71,10 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
   const lfoRef = useRef<OscillatorNode | null>(null);
   const gainRef = useRef<GainNode | null>(null);
 
-  // Small wins log - with a listener to sync with homepage
-  const [smallWins, setSmallWins] = useState<string[]>(() => {
-    return JSON.parse(localStorage.getItem('wellbeing_small_wins') || '["Completed literature outline of section 1.2", "Corrected DOI and metadata of two foundational papers"]');
-  });
-  const [newWin, setNewWin] = useState('');
-
-  // Daily random encouraging reminder generator
-  const [encouragement, setEncouragement] = useState<string>('');
-
-  const encouragements = [
-    "You do not have to write a perfect paper today. You just have to write a terrible first draft.",
-    "Rest is not an earned luxury. It is a biological necessity for intellectual synthesis.",
-    "Every experienced researcher has felt completely lost at some point. You are in excellent company.",
-    "The scope of your project is allowed to change. Narrowing your focus is a sign of high scholarly maturity.",
-    "Your value as a human being is entirely independent of your research progress or publication metrics.",
-    "A page of bullet points is fully drafted. Give yourself permission to make a mess.",
-    "Celebrate the tiny victories. Finding a missing citation is real research progress."
-  ];
-
-  useEffect(() => {
-    // Pick random encouragement
-    const random = encouragements[Math.floor(Math.random() * encouragements.length)];
-    setEncouragement(random);
-
-    const handleSyncWins = () => {
-      setSmallWins(JSON.parse(localStorage.getItem('wellbeing_small_wins') || '[]'));
-    };
-
-    window.addEventListener('small_wins_updated', handleSyncWins);
-    return () => {
-      window.removeEventListener('small_wins_updated', handleSyncWins);
-    };
-  }, []);
-
-  const handleRefreshEncouragement = () => {
-    const currentIdx = encouragements.indexOf(encouragement);
-    let nextIdx = Math.floor(Math.random() * encouragements.length);
-    while (nextIdx === currentIdx && encouragements.length > 1) {
-      nextIdx = Math.floor(Math.random() * encouragements.length);
-    }
-    setEncouragement(encouragements[nextIdx]);
-  };
-
   const selfCareTopics: SelfCareTopic[] = [
     {
       id: 'self_care_principles',
-      title: 'Research Self-Care',
+      title: 'Research self-care',
       emoji: '🕯️',
       description: 'Foundational principles of sustaining yourself in academic spaces.',
       quote: 'Scholarship is a journey of endurance, not a temporary sprint. If you burn out, your ideas cannot reach the world.',
@@ -98,7 +89,7 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
     },
     {
       id: 'overwhelm',
-      title: 'Overwhelm & Density',
+      title: 'Overwhelm & density',
       emoji: '🌊',
       description: 'Navigating information overload and excessive lists of tasks.',
       quote: 'Overwhelm happens when cognitive demands exceed current working memory limits. It is a design constraint, not a personal flaw.',
@@ -113,7 +104,7 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
     },
     {
       id: 'imposter_feelings',
-      title: 'Imposter Feelings',
+      title: 'Imposter feelings',
       emoji: '💭',
       description: 'Coping with self-doubt and the constant fear of being exposed.',
       quote: 'The imposter phenomenon is the psychological tax of working among dedicated minds. It is a base-rate error, not an accurate evaluation.',
@@ -128,7 +119,7 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
     },
     {
       id: 'writing_avoidance',
-      title: 'Writing Avoidance',
+      title: 'Writing avoidance',
       emoji: '🫣',
       description: 'Understanding why you are dodging the draft page and how to break the cycle.',
       quote: 'Avoidance is almost always the nervous system protecting you from the vulnerability of failing your own standards.',
@@ -143,7 +134,7 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
     },
     {
       id: 'confidence',
-      title: 'Sustaining Confidence',
+      title: 'Sustaining confidence',
       emoji: '🌱',
       description: 'Nurturing confidence during prolonged periods without feedback loops.',
       quote: 'Research contains massive feedback delays. You must learn to validate your own momentum internally.',
@@ -168,17 +159,26 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
     } else if (timeLeft === 0) {
       setTimerRunning(false);
       if (!isBreak) {
-        setNotification("Focus session resolved. Please take an offline screen-free break.");
+        const nextSessions = completedSessions + 1;
+        setCompletedSessions(nextSessions);
+        localStorage.setItem('scholar_focus_completed_sessions', nextSessions.toString());
+
+        if (nextSessions % 2 === 0) {
+          setShowGentleEncouragement(true);
+        } else {
+          setNotification('Focus session resolved. Please take an offline screen-free break.');
+        }
+
         setIsBreak(true);
-        setTimeLeft(5 * 60); // 5 minute break
+        setTimeLeft(5 * 60);
       } else {
-        setNotification("Break interval completed. Ready to anchor focus?");
+        setNotification('Break interval completed. Ready to anchor focus?');
         setIsBreak(false);
         setTimeLeft(25 * 60);
       }
     }
     return () => clearInterval(interval);
-  }, [timerRunning, timeLeft, isBreak]);
+  }, [timerRunning, timeLeft, isBreak, completedSessions]);
 
   // Clean up audio on unmount
   useEffect(() => {
@@ -199,7 +199,7 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
     setTimeLeft(25 * 60);
   };
 
-  // ----------------- PROCEDURAL AUDIO SYNTHESIZER -----------------
+  // Procedural audio synthesizer
   const startProceduralAudio = (type: 'rain' | 'breeze') => {
     stopProceduralAudio();
 
@@ -248,7 +248,7 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
 
         lfo.connect(lfoGain);
         lfoGain.connect(filter.frequency);
-        
+
         whiteNoise.connect(filter);
         filter.connect(mainGain);
         mainGain.connect(ctx.destination);
@@ -307,312 +307,441 @@ export default function ResearchWellbeing({ mode }: { mode?: 'focus' | 'wellbein
     }
   };
 
-  const handleAddWin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newWin) return;
-    const updated = [newWin, ...smallWins];
-    setSmallWins(updated);
-    localStorage.setItem('wellbeing_small_wins', JSON.stringify(updated));
-    setNewWin('');
-    window.dispatchEvent(new Event('small_wins_updated'));
-  };
-
-  const handleDeleteWin = (index: number) => {
-    const updated = smallWins.filter((_, idx) => idx !== index);
-    setSmallWins(updated);
-    localStorage.setItem('wellbeing_small_wins', JSON.stringify(updated));
-    window.dispatchEvent(new Event('small_wins_updated'));
-  };
-
-  const activeTopic = selfCareTopics.find(t => t.id === activeTopicId) || selfCareTopics[0];
-
   return (
-    <div className="space-y-6 max-w-5xl mx-auto font-sans" id="research-wellbeing-module">
+    <div className="max-w-3xl mx-auto space-y-6 font-sans px-2 sm:px-4" id="research-wellbeing-module">
       
-      {/* Page Header */}
-      <div className="border-b border-stone-200 dark:border-stone-800 pb-5 text-left">
-        <h1 className="font-sans font-medium tracking-tight text-3xl text-stone-900 dark:text-stone-100">
-          {mode === 'focus' ? 'Calm focus deck' : 'Research wellbeing center'}
-        </h1>
-        <p className="font-sans text-stone-500 text-sm mt-1.5 leading-relaxed">
-          {mode === 'focus' 
-            ? 'Work gently without alerts, badges, or noise. Pair your writing blocks with procedurally generated audio soundscapes.'
-            : 'Sustaining your mental and emotional wellness is an active requirement of rigorous scholarship. This is not meditation; it is research self-preservation.'}
-        </p>
+      {/* Header */}
+      <div className="pb-4" id="wellbeing-header-container">
+        <div className="space-y-1.5 text-left" id="wellbeing-header-text">
+          {mode === 'focus' && (
+            <div className="pb-1">
+              <button
+                type="button"
+                onClick={onExitFocus}
+                className="font-sans text-xs px-3 py-1.5 rounded-md border border-stone-300 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-200 transition-colors flex items-center gap-2 cursor-pointer font-semibold inline-flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d9e75]"
+                id="wellbeing-exit-focus-mode-btn"
+                title="Exit focus space"
+              >
+                <span>Exit focus</span>
+              </button>
+            </div>
+          )}
+          <h1 className="font-sans font-medium tracking-tight text-2xl sm:text-3xl text-stone-900 dark:text-stone-100 flex items-center gap-3" id="wellbeing-page-title">
+            {mode === 'focus' ? 'Calm focus space' : 'Wellbeing centre'}
+          </h1>
+          <p className="font-sans text-stone-500 dark:text-stone-400 text-xs sm:text-sm leading-relaxed" id="wellbeing-page-subtitle">
+            {mode === 'focus'
+              ? 'Work gently without alerts, badges, or noise. Pair your writing blocks with procedurally generated audio soundscapes.'
+              : 'Sustaining your mental and emotional wellness is an active requirement of rigorous scholarship. This is not meditation; it is research self-preservation.'}
+          </p>
+          {mode !== 'focus' && (
+            <div className="flex items-center gap-1.5 pt-1.5 text-xs font-sans text-stone-400 dark:text-stone-500" id="wellbeing-reading-indicator">
+              <span>Academic self-care, focus tools & reflective support</span>
+            </div>
+          )}
+        </div>
       </div>
 
-      {/* Accessible Dynamic Banner */}
+      {/* Contextual Banner */}
       {notification && (
-        <div className="bg-[#912A4A]/10 dark:bg-[#912A4A]/30 border border-[#912A4A]/20 p-4 rounded-lg flex justify-between items-center animate-fadeIn" role="alert">
-          <div className="flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-[#912A4A] dark:text-rose-400 shrink-0" />
-            <p className="font-sans text-xs text-[#912A4A] dark:text-rose-200 font-medium">{notification}</p>
-          </div>
+        <div className="bg-[#1d9e75]/10 dark:bg-[#1d9e75]/25 border border-[#1d9e75]/30 p-4 rounded-md flex justify-between items-center animate-fadeIn text-left" role="alert">
+          <p className="font-sans text-xs text-[#1d9e75] dark:text-[#28c093] font-medium">{notification}</p>
           <button
+            type="button"
             onClick={() => setNotification(null)}
-            className="text-xs text-[#912A4A] dark:text-rose-300 hover:underline px-2 py-1 font-semibold cursor-pointer"
+            className="text-xs text-[#1d9e75] dark:text-[#28c093] hover:underline px-2 py-1 font-semibold cursor-pointer"
           >
             Dismiss
           </button>
         </div>
       )}
 
-      {/* Primary Wellbeing Navigation */}
+      {/* Contextual Gentle Encouragement Callout (After ~2 focus sessions) */}
+      <AnimatePresence>
+        {showGentleEncouragement && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="p-5 bg-stone-50 dark:bg-stone-900/60 border border-[#1d9e75]/40 rounded-lg space-y-3 text-left animate-fadeIn"
+            role="dialog"
+            aria-label="Gentle encouragement"
+          >
+            <div className="flex items-center gap-2 text-xs font-semibold text-[#1d9e75] dark:text-[#28c093]">
+              <span>Gentle encouragement</span>
+            </div>
+            <p className="font-sans text-xs sm:text-sm text-stone-800 dark:text-stone-200 leading-relaxed">
+              You have completed two focus sessions. Sustained attention is a valuable practice, and taking a deliberate rest is essential for research recovery. Consider stepping away or taking a gentle breathing pause. Progress does not require perfection.
+            </p>
+            <div className="flex flex-wrap items-center gap-3 pt-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setShowGentleEncouragement(false);
+                  setActiveChildDestination('breathe');
+                }}
+                className="px-3.5 py-1.5 rounded-md bg-[#1d9e75] hover:bg-[#168260] dark:bg-[#28c093] dark:hover:bg-[#1e9a75] text-white dark:text-stone-950 text-xs font-sans font-semibold transition-colors cursor-pointer"
+              >
+                Pause, breathe and be present
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowGentleEncouragement(false)}
+                className="px-3 py-1.5 rounded-md border border-stone-300 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs font-sans font-medium transition-colors cursor-pointer"
+              >
+                Continue gently
+              </button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* WELLBEING CENTRE -> 3 CARDS IN ROWS OF 2 SEPARATED BY BURGUNDY VERTICAL DIVIDER */}
       {mode !== 'focus' && (
-        <div className="border-b border-stone-200 dark:border-stone-800 flex justify-between items-center pb-2 text-left">
-          <div className="flex gap-4" role="tablist" aria-label="Wellbeing sections">
-            <button
-              role="tab"
-              aria-selected={activeWellbeingTab === 'self_care'}
-              onClick={() => setActiveWellbeingTab('self_care')}
-              className={`font-sans text-xs pb-2 border-b-2 font-medium cursor-pointer transition-all ${
-                activeWellbeingTab === 'self_care' ? 'border-[#912A4A] dark:border-rose-400 text-[#912A4A] dark:text-rose-400 font-bold' : 'border-transparent text-stone-500 hover:text-stone-700 dark:hover:text-stone-300'
-              }`}
-            >
-              Sustaining yourself guides
-            </button>
-            <button
-              role="tab"
-              aria-selected={activeWellbeingTab === 'wins'}
-              onClick={() => setActiveWellbeingTab('wins')}
-              className={`font-sans text-xs pb-2 border-b-2 font-medium cursor-pointer transition-all ${
-                activeWellbeingTab === 'wins' ? 'border-[#912A4A] dark:border-rose-400 text-[#912A4A] dark:text-rose-400 font-bold' : 'border-transparent text-stone-500 hover:text-stone-700 dark:hover:text-stone-300'
-              }`}
-            >
-              Reflective wins & progress
-            </button>
-            <button
-              role="tab"
-              aria-selected={activeWellbeingTab === 'reflections'}
-              onClick={() => setActiveWellbeingTab('reflections')}
-              className={`font-sans text-xs pb-2 border-b-2 font-medium cursor-pointer transition-all ${
-                activeWellbeingTab === 'reflections' ? 'border-[#912A4A] dark:border-rose-400 text-[#912A4A] dark:text-rose-400 font-bold' : 'border-transparent text-stone-500 hover:text-stone-700 dark:hover:text-stone-300'
-              }`}
-            >
-              Gentle encouragements
-            </button>
-          </div>
-        </div>
-      )}
+        <div className="space-y-6">
+          {/* HOME VIEW: ONLY 3 CARDS IN ROWS OF 2 SEPARATED BY BURGUNDY VERTICAL DIVIDERS */}
+          {activeChildDestination === 'home' && (
+            <div className="space-y-8 max-w-5xl mx-auto py-6 animate-fadeIn" id="wellbeing-home-cards">
+              {/* Row 1: Card 1 (Pause, Breathe & Be Present) & Card 2 (Sustaining Yourself Guides) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 relative items-stretch">
+                {/* Vertical Burgundy Divider between Col 1 and Col 2 */}
+                <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-2 bottom-2 w-[2px] bg-[#912A4A] pointer-events-none" />
 
-      {/* TAB 1: CALM FOCUS DECK */}
-      {activeWellbeingTab === 'focus' && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 animate-fadeIn">
-          
-          {/* Pomodoro Timer */}
-          <div className="bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 p-8 rounded-lg flex flex-col items-start justify-start space-y-6">
-            <div className="text-left">
-              <span className="font-sans text-[10px] font-mono text-[#912A4A] dark:text-rose-400 font-semibold">
-                {isBreak ? 'Gentle decompression interval' : 'Quiet study interval'}
-              </span>
-              <h2 className="font-mono text-5xl font-light text-stone-900 dark:text-stone-100 tracking-tight mt-2">
-                {formatTime(timeLeft)}
-              </h2>
-            </div>
-
-            <div className="flex gap-4">
-              <button
-                onClick={() => setTimerRunning(!timerRunning)}
-                aria-label={timerRunning ? "Pause focus timer" : "Start focus timer"}
-                className="w-12 h-12 rounded-full bg-[#912A4A] hover:bg-[#78223d] text-white flex items-center justify-center transition-colors shadow-sm cursor-pointer"
-              >
-                {timerRunning ? <Pause className="w-5 h-5" /> : <Play className="w-5 h-5 pl-0.5" />}
-              </button>
-              <button
-                onClick={handlePomodoroReset}
-                aria-label="Reset focus timer"
-                className="w-12 h-12 rounded-full border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 flex items-center justify-center hover:bg-stone-50 dark:hover:bg-stone-900 transition-colors cursor-pointer"
-              >
-                <RotateCcw className="w-5 h-5" />
-              </button>
-            </div>
-
-            <p className="font-sans text-[11px] text-stone-500 italic max-w-xs text-left leading-relaxed">
-              "No streaks. No alerts. Work gently until the timer resolves. If you feel tired, close the app and rest."
-            </p>
-          </div>
-
-          {/* Soundscapes */}
-          <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-6 rounded-lg flex flex-col justify-between shadow-xs">
-            <div className="space-y-4">
-              <h3 className="font-sans font-semibold text-stone-900 dark:text-stone-100 text-sm flex items-center gap-1.5">
-                <Volume2 className="w-4 h-4 text-[#912A4A]" /> Procedural Soundscapes
-              </h3>
-              <p className="font-sans text-xs text-stone-500 leading-relaxed">
-                Procedurally synthesized rain and breeze textures. These are generated inside your browser using raw mathematical waves to establish acoustic calm.
-              </p>
-
-              <div className="space-y-2">
-                {SOUNDSCAPES.map((sound) => (
-                  <button
-                    key={sound.id}
-                    onClick={() => toggleSoundscape(sound.id)}
-                    className={`w-full text-left p-3 rounded-lg border font-sans text-xs flex justify-between items-center transition-all cursor-pointer ${
-                      activeSoundscape === sound.id
-                        ? 'bg-[#912A4A]/10 border-[#912A4A]/30 text-[#912A4A] dark:text-rose-300 font-semibold'
-                        : 'bg-stone-50/50 dark:bg-stone-900/30 border-stone-150 dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:border-stone-250 dark:hover:border-stone-700'
-                    }`}
-                  >
-                    <span>{sound.name}</span>
-                    <span className="font-mono text-[9px] bg-stone-100 dark:bg-stone-900 px-2 py-0.5 rounded text-stone-400">
-                      {activeSoundscape === sound.id ? 'synthesizing' : sound.type}
-                    </span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {activeSoundscape && (
-              <div className="pt-4 border-t border-stone-100 dark:border-stone-850 mt-4 text-[10px] font-sans text-stone-400 flex items-center justify-center gap-1">
-                <VolumeX className="w-3.5 h-3.5" /> Toggle active soundscape to silence synthesizer.
-              </div>
-            )}
-          </div>
-
-        </div>
-      )}
-
-      {/* TAB 2: SUSTAINING YOURSELF GUIDES */}
-      {activeWellbeingTab === 'self_care' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 animate-fadeIn">
-          
-          {/* Menu of topics */}
-          <div className="lg:col-span-1 bg-stone-50/50 dark:bg-stone-900/30 border border-stone-200 dark:border-stone-800 p-4 rounded-lg space-y-2 h-fit">
-            <h4 className="text-[10px] font-bold text-stone-400 block mb-2 font-sans">Sustaining topics</h4>
-            {selfCareTopics.map((topic) => (
-              <button
-                key={topic.id}
-                onClick={() => setActiveTopicId(topic.id)}
-                className={`w-full text-left p-3 rounded-md font-sans text-xs flex items-center gap-2.5 transition-colors cursor-pointer ${
-                  activeTopicId === topic.id
-                    ? 'bg-white dark:bg-stone-950 border border-[#912A4A]/20 dark:border-stone-700 text-stone-950 dark:text-stone-100 font-medium shadow-xs'
-                    : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-300'
-                }`}
-              >
-                <span className="text-sm">{topic.emoji}</span>
-                <span>{topic.title}</span>
-              </button>
-            ))}
-          </div>
-
-          {/* Details column */}
-          <div className="lg:col-span-2 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-6 shadow-xs">
-            <div>
-              <span className="text-[10px] font-mono text-[#912A4A] dark:text-rose-400 font-semibold">Academic support strategy</span>
-              <h2 className="text-lg font-semibold text-stone-950 dark:text-stone-100 mt-1 flex items-center gap-2">
-                <span>{activeTopic.emoji}</span> {activeTopic.title}
-              </h2>
-              <p className="text-stone-500 text-xs mt-0.5 leading-relaxed">{activeTopic.description}</p>
-            </div>
-
-            <div className="p-4 bg-stone-50 dark:bg-stone-900/30 border border-stone-150 dark:border-stone-800 rounded-lg text-xs italic text-stone-600 dark:text-stone-400 leading-relaxed">
-              "{activeTopic.quote}"
-            </div>
-
-            <div className="space-y-3.5 pt-4 border-t border-stone-100 dark:border-stone-850">
-              <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100">Gentle actionable steps:</h4>
-              <ul className="space-y-2.5">
-                {activeTopic.tips.map((tip, idx) => (
-                  <li key={idx} className="text-xs text-stone-600 dark:text-stone-400 flex items-start gap-2.5 leading-relaxed">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-500 shrink-0 mt-0.5" />
-                    <span>{tip}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="p-4 bg-[#912A4A]/5 border border-[#912A4A]/15 rounded-lg space-y-1.5 animate-fadeIn">
-              <h4 className="text-xs font-semibold text-[#912A4A] dark:text-rose-400 flex items-center gap-1.5">
-                <Sparkles className="w-3.5 h-3.5" /> Support Reflection Prompt:
-              </h4>
-              <p className="text-xs italic text-stone-600 dark:text-stone-400 leading-relaxed">
-                "{activeTopic.reflectionPrompt}"
-              </p>
-            </div>
-          </div>
-
-        </div>
-      )}
-
-      {/* TAB 3: CELEBRATE TODAY'S PROGRESS */}
-      {activeWellbeingTab === 'wins' && (
-        <div className="max-w-3xl mx-auto bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-6 shadow-xs animate-fadeIn">
-          <div>
-            <h3 className="font-sans font-semibold text-stone-950 dark:text-stone-100 text-sm flex items-center gap-1.5">
-              <Sparkles className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Celebrate Today's Progress
-            </h3>
-            <p className="font-sans text-xs text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
-              Research contains almost no instant feedback loops. Track small micro-wins (e.g., correcting one citation, reading a page, typing 50 messy words) to foster momentum and remember that any positive action is a complete victory.
-            </p>
-          </div>
-
-          <div className="space-y-2 max-h-[300px] overflow-y-auto pr-1">
-            {smallWins.map((win, idx) => (
-              <div key={idx} className="p-3 bg-emerald-50/10 dark:bg-emerald-950/15 border border-emerald-100/60 dark:border-emerald-900/40 rounded-lg flex justify-between items-center text-xs animate-fadeIn">
-                <div className="flex items-center gap-2.5">
-                  <span className="w-2 h-2 rounded-full bg-emerald-600 dark:bg-emerald-500 shrink-0"></span>
-                  <span className="text-stone-800 dark:text-stone-200 leading-relaxed">{win}</span>
-                </div>
+                {/* Card 1: Pause, Breathe & Be Present */}
                 <button
-                  onClick={() => handleDeleteWin(idx)}
-                  className="text-stone-400 hover:text-red-500 text-[10px] font-mono px-1 rounded transition-colors cursor-pointer"
+                  type="button"
+                  onClick={() => setActiveChildDestination('breathe')}
+                  className="group flex flex-col justify-between text-left pl-0 pr-4 md:pl-0 md:pr-6 py-4 md:py-6 rounded-lg transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#912A4A]/50 bg-transparent border-0 hover:bg-stone-500/5 min-h-[200px]"
+                  id="wellbeing-card-breathe"
                 >
-                  Clear
+                  <div className="space-y-3">
+                    <h2 className="text-lg sm:text-xl font-medium tracking-tight text-stone-900 dark:text-stone-100 group-hover:underline flex items-center gap-2">
+                      Pause, Breathe & Be Present
+                    </h2>
+                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
+                      Experiential breathing exercises, rhythmic pacing, and grounding focus practices to anchor presence during research.
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-end pt-8 mt-auto w-full gap-2">
+                    <span className="text-xs font-semibold text-[#912A4A] opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                      Enter
+                    </span>
+                  </div>
+                </button>
+
+                {/* Card 2: Sustaining Yourself Guides */}
+                <button
+                  type="button"
+                  onClick={() => setActiveChildDestination('guides')}
+                  className="group flex flex-col justify-between text-left pl-4 pr-0 md:pl-6 md:pr-0 py-4 md:py-6 rounded-lg transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#912A4A]/50 bg-transparent border-0 hover:bg-stone-500/5 min-h-[200px]"
+                  id="wellbeing-card-guides"
+                >
+                  <div className="space-y-3">
+                    <h2 className="text-lg sm:text-xl font-medium tracking-tight text-stone-900 dark:text-stone-100 group-hover:underline flex items-center gap-2">
+                      Sustaining Yourself Guides
+                    </h2>
+                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
+                      Practical guidance for sustaining cognitive energy, managing research density, and navigating academic overwhelm.
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-end pt-8 mt-auto w-full gap-2">
+                    <span className="text-xs font-semibold text-[#912A4A] opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                      Enter
+                    </span>
+                  </div>
                 </button>
               </div>
-            ))}
 
-            {smallWins.length === 0 && (
-              <div className="text-left py-8 text-stone-400 text-xs italic">
-                No micro-wins logged yet today. Remember: simply checking in today is a win. Record it below!
+              {/* Row 2: Card 3 (Wellbeing Research Insights) */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 relative items-stretch">
+                {/* Vertical Burgundy Divider between Col 1 and Col 2 */}
+                <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-2 bottom-2 w-[2px] bg-[#912A4A] pointer-events-none" />
+
+                {/* Card 3: Wellbeing Research Insights */}
+                <button
+                  type="button"
+                  onClick={() => setActiveChildDestination('insights')}
+                  className="group flex flex-col justify-between text-left pl-0 pr-4 md:pl-0 md:pr-6 py-4 md:py-6 rounded-lg transition-all cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#912A4A]/50 bg-transparent border-0 hover:bg-stone-500/5 min-h-[200px]"
+                  id="wellbeing-card-insights"
+                >
+                  <div className="space-y-3">
+                    <h2 className="text-lg sm:text-xl font-medium tracking-tight text-stone-900 dark:text-stone-100 group-hover:underline flex items-center gap-2">
+                      Wellbeing Research Insights
+                    </h2>
+                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
+                      Evidence-based literature syntheses and academic research on wellbeing, cognitive fatigue, and research endurance.
+                    </p>
+                  </div>
+                  <div className="flex items-center justify-end pt-8 mt-auto w-full gap-2">
+                    <span className="text-xs font-semibold text-[#912A4A] opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                      Enter
+                    </span>
+                  </div>
+                </button>
+
+                {/* Empty Col 2 for balance in row 2 grid */}
+                <div className="hidden md:block" />
               </div>
-            )}
-          </div>
+            </div>
+          )}
 
-          <form onSubmit={handleAddWin} className="flex gap-2 pt-4 border-t border-stone-100 dark:border-stone-850">
-            <label htmlFor="micro-win-input" className="sr-only">Record a micro win</label>
-            <input
-              id="micro-win-input"
-              type="text"
-              placeholder="Record a small focus accomplishment (e.g., read an abstract, opened the app)..."
-              value={newWin}
-              onChange={(e) => setNewWin(e.target.value)}
-              className="flex-grow font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 rounded focus:outline-none focus:ring-1 focus:ring-[#912A4A]"
-              required
-            />
-            <button
-              type="submit"
-              className="font-sans text-xs bg-[#912A4A] hover:bg-[#78223d] text-white px-4 py-2 rounded shadow-sm transition-colors cursor-pointer shrink-0"
-            >
-              Log Win
-            </button>
-          </form>
+          {/* DETAIL VIEWS HEADER: Back button & Breadcrumb bar when inside a child view */}
+          {activeChildDestination !== 'home' && (
+            <div className="space-y-6">
+              <div className="flex flex-wrap items-center justify-between gap-4 pb-2">
+                <button
+                  type="button"
+                  onClick={() => setActiveChildDestination('home')}
+                  className="text-xs font-semibold text-[#912A4A] dark:text-rose-400 hover:underline flex items-center gap-1.5 cursor-pointer"
+                  id="wellbeing-back-to-home-btn"
+                >
+                  <span>Back to Wellbeing centre</span>
+                </button>
+
+                {/* Sub-destination tabs for quick switching between child cards */}
+                <div className="flex flex-wrap items-center gap-2 text-xs text-stone-600 dark:text-stone-400" role="tablist">
+                  <button
+                    role="tab"
+                    aria-selected={activeChildDestination === 'breathe'}
+                    onClick={() => setActiveChildDestination('breathe')}
+                    className={`hover:text-[#912A4A] transition-colors cursor-pointer font-medium py-1 px-2.5 rounded-md border ${
+                      activeChildDestination === 'breathe'
+                        ? 'bg-white dark:bg-stone-800 text-[#912A4A] dark:text-rose-400 font-semibold border-[#912A4A]/40 shadow-xs'
+                        : 'border-transparent'
+                    }`}
+                  >
+                    Pause, Breathe & Be Present
+                  </button>
+                  <span>•</span>
+                  <button
+                    role="tab"
+                    aria-selected={activeChildDestination === 'guides'}
+                    onClick={() => setActiveChildDestination('guides')}
+                    className={`hover:text-[#912A4A] transition-colors cursor-pointer font-medium py-1 px-2.5 rounded-md border ${
+                      activeChildDestination === 'guides'
+                        ? 'bg-white dark:bg-stone-800 text-[#912A4A] dark:text-rose-400 font-semibold border-[#912A4A]/40 shadow-xs'
+                        : 'border-transparent'
+                    }`}
+                  >
+                    Sustaining Yourself Guides
+                  </button>
+                  <span>•</span>
+                  <button
+                    role="tab"
+                    aria-selected={activeChildDestination === 'insights'}
+                    onClick={() => setActiveChildDestination('insights')}
+                    className={`hover:text-[#912A4A] transition-colors cursor-pointer font-medium py-1 px-2.5 rounded-md border ${
+                      activeChildDestination === 'insights'
+                        ? 'bg-white dark:bg-stone-800 text-[#912A4A] dark:text-rose-400 font-semibold border-[#912A4A]/40 shadow-xs'
+                        : 'border-transparent'
+                    }`}
+                  >
+                    Wellbeing Research Insights
+                  </button>
+                </div>
+              </div>
+
+              {/* CHILD DESTINATION 1: PAUSE, BREATHE & BE PRESENT */}
+              {activeChildDestination === 'breathe' && (
+                <div className="animate-fadeIn">
+                  <BreatheExercise />
+                </div>
+              )}
+
+              {/* CHILD DESTINATION 2: SUSTAINING YOURSELF GUIDES */}
+              {activeChildDestination === 'guides' && (
+                <div className="space-y-4 text-left animate-fadeIn" id="wellbeing-selfcare-list">
+                  <div className="flex items-center justify-between pb-2 text-xs text-stone-500">
+                    <span className="font-sans text-xs text-stone-600 dark:text-stone-400">
+                      Practical guidance for sustaining energy and momentum during research and creative practice.
+                    </span>
+                    <div className="flex items-center gap-3 shrink-0 ml-4">
+                      <button
+                        type="button"
+                        onClick={() => setAllTopicsOpen(true)}
+                        className="hover:text-[#1d9e75] dark:hover:text-[#28c093] transition-colors cursor-pointer underline underline-offset-2"
+                        id="wellbeing-expand-all-btn"
+                      >
+                        Expand all
+                      </button>
+                      <span>•</span>
+                      <button
+                        type="button"
+                        onClick={() => setAllTopicsOpen(false)}
+                        className="hover:text-[#1d9e75] dark:hover:text-[#28c093] transition-colors cursor-pointer underline underline-offset-2"
+                        id="wellbeing-collapse-all-btn"
+                      >
+                        Collapse all
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="space-y-0">
+                    {selfCareTopics.map((topic) => {
+                      const isOpen = openTopics[topic.id];
+                      return (
+                        <React.Fragment key={topic.id}>
+                          <div className="py-2 text-left" id={`wellbeing-item-${topic.id}`}>
+                            <button
+                              type="button"
+                              onClick={() => toggleTopic(topic.id)}
+                              aria-expanded={isOpen}
+                              aria-controls={`wellbeing-content-${topic.id}`}
+                              className="w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1d9e75] rounded-sm py-1 cursor-pointer group"
+                              id={`wellbeing-btn-${topic.id}`}
+                            >
+                              <div className="flex items-start justify-between gap-4">
+                                <h3 className="font-sans font-semibold text-base sm:text-lg tracking-tight text-stone-900 dark:text-stone-100 group-hover:text-[#1d9e75] dark:group-hover:text-[#28c093] transition-colors flex items-center gap-2">
+                                  <span>{topic.emoji}</span> {topic.title}
+                                </h3>
+                                <span
+                                  className="text-lg font-mono font-medium text-[#1d9e75] dark:text-[#28c093] shrink-0 leading-none select-none ml-2 pt-0.5"
+                                  aria-hidden="true"
+                                >
+                                  {isOpen ? '−' : '+'}
+                                </span>
+                              </div>
+
+                              <p className="mt-2 font-sans text-sm sm:text-base text-stone-700 dark:text-stone-300 font-normal leading-relaxed">
+                                {topic.description}
+                              </p>
+                            </button>
+
+                            <AnimatePresence initial={false}>
+                              {isOpen && (
+                                <motion.div
+                                  id={`wellbeing-content-${topic.id}`}
+                                  initial={{ opacity: 0, height: 0 }}
+                                  animate={{ opacity: 1, height: 'auto' }}
+                                  exit={{ opacity: 0, height: 0 }}
+                                  transition={{
+                                    height: { duration: 0.35, ease: [0.16, 1, 0.3, 1] },
+                                    opacity: { duration: 0.25, ease: 'easeInOut', delay: 0.05 }
+                                  }}
+                                  className="overflow-hidden space-y-4 pt-3 pb-2"
+                                >
+                                  <div className="p-4 bg-stone-50 dark:bg-stone-900/40 border border-stone-200/80 dark:border-stone-800 rounded-md text-xs sm:text-sm italic text-stone-700 dark:text-stone-300 leading-relaxed">
+                                    "{topic.quote}"
+                                  </div>
+
+                                  <div className="space-y-2 pt-1">
+                                    <h4 className="text-xs font-semibold tracking-wider text-stone-900 dark:text-stone-100 font-sans">
+                                      Gentle actionable steps:
+                                    </h4>
+                                    <ul className="space-y-2">
+                                      {topic.tips.map((tip, idx) => (
+                                        <li key={idx} className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 flex items-start gap-2.5 leading-relaxed">
+                                          <span className="text-[#1d9e75] dark:text-[#28c093] font-bold select-none">•</span>
+                                          <span>{tip}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+
+                                  <div className="p-4 bg-[#1d9e75]/5 dark:bg-[#1d9e75]/15 border border-[#1d9e75]/20 dark:border-[#1d9e75]/30 rounded-md space-y-1">
+                                    <h4 className="text-xs font-semibold text-[#1d9e75] dark:text-[#28c093] flex items-center gap-1.5 font-sans">
+                                      Support reflection prompt:
+                                    </h4>
+                                    <p className="text-xs sm:text-sm italic text-stone-700 dark:text-stone-300 leading-relaxed">
+                                      "{topic.reflectionPrompt}"
+                                    </p>
+                                  </div>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        </React.Fragment>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* CHILD DESTINATION 3: WELLBEING RESEARCH INSIGHTS */}
+              {activeChildDestination === 'insights' && (
+                <div className="animate-fadeIn">
+                  <ResearchWellbeingInsights />
+                </div>
+              )}
+            </div>
+          )}
         </div>
       )}
 
-      {/* TAB 4: GENTLE ENCOURAGEMENTS */}
-      {activeWellbeingTab === 'reflections' && (
-        <div className="max-w-2xl bg-stone-50 dark:bg-stone-900/30 border border-stone-200 dark:border-stone-800 rounded-lg p-8 text-left space-y-6 shadow-xs animate-fadeIn">
-          <div className="flex justify-start">
-            <Heart className="w-8 h-8 text-rose-500 animate-pulse" />
-          </div>
-          
-          <div className="space-y-4">
-            <span className="text-[9px] font-mono font-semibold text-[#912A4A] dark:text-rose-400">
-              Gentle companion dialogue
-            </span>
-            <p className="text-base text-stone-800 dark:text-stone-100 italic leading-relaxed max-w-lg">
-              "{encouragement}"
-            </p>
-          </div>
+      {/* FOCUS SPACE VIEW (Mode = 'focus') */}
+      {mode === 'focus' && (
+        <div className="space-y-8 text-left py-2" id="wellbeing-focus-section">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Pomodoro Timer */}
+            <div className="bg-stone-50 dark:bg-stone-900/40 border border-stone-200/80 dark:border-stone-800 p-6 rounded-md flex flex-col justify-between space-y-6">
+              <div className="space-y-2">
+                <span className="font-sans text-xs font-mono text-[#1d9e75] dark:text-[#28c093] font-semibold tracking-wider">
+                  {isBreak ? 'Gentle decompression interval' : 'Quiet study interval'}
+                </span>
+                <h2 className="font-mono text-5xl font-light text-stone-900 dark:text-stone-100 tracking-tight">
+                  {formatTime(timeLeft)}
+                </h2>
+              </div>
 
-          <div className="pt-4 border-t border-stone-100 dark:border-stone-850/50 flex justify-start">
-            <button
-              onClick={handleRefreshEncouragement}
-              className="text-xs text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 flex items-center gap-1 cursor-pointer transition-colors"
-            >
-              <RefreshCw className="w-3.5 h-3.5" /> Another gentle reminder
-            </button>
+              <div className="flex gap-3 pt-2">
+                <button
+                  type="button"
+                  onClick={() => setTimerRunning(!timerRunning)}
+                  className="px-5 py-2.5 rounded-md bg-[#1d9e75] hover:bg-[#168260] dark:bg-[#28c093] dark:hover:bg-[#1e9a75] text-white dark:text-stone-950 text-xs font-sans font-semibold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d9e75]"
+                >
+                  {timerRunning ? 'Pause' : 'Start interval'}
+                </button>
+                <button
+                  type="button"
+                  onClick={handlePomodoroReset}
+                  className="px-4 py-2.5 rounded-md border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 text-xs font-sans font-semibold hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d9e75]"
+                >
+                  Reset
+                </button>
+              </div>
+
+              <p className="font-sans text-xs text-stone-500 dark:text-stone-400 italic leading-relaxed pt-2">
+                "No streaks. No alerts. Work gently until the timer resolves. If you feel tired, close the app and rest."
+              </p>
+            </div>
+
+            {/* Soundscapes */}
+            <div className="bg-white dark:bg-stone-950 border border-stone-200/80 dark:border-stone-800 p-6 rounded-md flex flex-col justify-between space-y-4">
+              <div className="space-y-3">
+                <h3 className="font-sans font-semibold text-stone-900 dark:text-stone-100 text-sm">
+                  Procedural soundscapes
+                </h3>
+                <p className="font-sans text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
+                  Procedurally synthesized rain and breeze textures generated inside your browser using mathematical audio buffers.
+                </p>
+
+                <div className="space-y-2 pt-2">
+                  {SOUNDSCAPES.map((sound) => (
+                    <button
+                      key={sound.id}
+                      type="button"
+                      onClick={() => toggleSoundscape(sound.id)}
+                      className={`w-full text-left p-3 rounded-md border font-sans text-xs flex justify-between items-center transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d9e75] ${
+                        activeSoundscape === sound.id
+                          ? 'bg-[#1d9e75]/10 border-[#1d9e75]/30 text-[#1d9e75] dark:text-[#28c093] font-semibold'
+                          : 'bg-stone-50/50 dark:bg-stone-900/30 border-stone-200/80 dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+                      }`}
+                    >
+                      <span>{sound.name}</span>
+                      <span className="font-mono text-[10px] bg-stone-100 dark:bg-stone-900 px-2 py-0.5 rounded text-stone-500">
+                        {activeSoundscape === sound.id ? 'synthesizing' : sound.type}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {activeSoundscape && (
+                <div className="pt-3 text-[11px] font-sans text-stone-400 text-center">
+                  Click active soundscape to stop audio synthesizer.
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}

@@ -5,48 +5,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { ResearchJourney, Paper, Chapter, Task, TimelineEvent, Collection } from '../types';
-import {
-  HelpCircle,
-  FileText,
-  CheckSquare,
-  Calendar,
-  ChevronRight,
-  ChevronLeft,
-  ChevronDown,
-  Plus,
-  Check,
-  Link as LinkIcon,
-  Trash,
-  Square,
-  Sparkles,
-  Upload,
-  BookOpen,
-  Library,
-  Network,
-  Layers,
-  Search,
-  BarChart3,
-  Database,
-  PieChart,
-  Repeat,
-  AlertCircle,
-  Eye,
-  CheckCircle2,
-  Download,
-  Quote,
-  Maximize2,
-  Minimize2,
-  X,
-  FileUp,
-  Brain,
-  MessageSquare,
-  FileCode,
-  ShieldCheck,
-  Compass,
-  Mic,
-  RotateCcw,
-  Sparkle
-} from 'lucide-react';
+import { PrintModal } from './PrintModal';
 
 import LiteratureLibrary from './LiteratureLibrary';
 import KnowledgeGraph from './KnowledgeGraph';
@@ -56,6 +15,7 @@ import CreativePublishingWorkspace from './CreativePublishingWorkspace';
 import DataIngestionModule from './DataIngestionModule';
 import CitationEngine from './CitationEngine';
 import ResearchTimeline from './ResearchTimeline';
+import ReflectiveWins from './ReflectiveWins';
 
 interface ResearchWorkspaceProps {
   journeys: ResearchJourney[];
@@ -105,6 +65,9 @@ export default function ResearchWorkspace({
 
   // Distraction-free focus mode
   const [isFocusMode, setIsFocusMode] = useState(false);
+
+  // Print modal state
+  const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
 
   // Reflective Strip State ("Second Thought Signature")
   const [showReflectiveStrip, setShowReflectiveStrip] = useState(true);
@@ -334,7 +297,7 @@ export default function ResearchWorkspace({
     return (
       <div className="py-16 px-6 text-center font-sans max-w-lg mx-auto space-y-4">
         <div className="w-12 h-12 rounded-full bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 flex items-center justify-center mx-auto">
-          <Compass className="w-6 h-6" />
+          
         </div>
         <div className="space-y-1">
           <h3 className="font-serif font-bold text-lg text-stone-900 dark:text-stone-100">
@@ -349,7 +312,7 @@ export default function ResearchWorkspace({
           onClick={() => setIsAddingProject(true)}
           className="px-4 py-2 bg-[#912A4A] text-white hover:bg-[#78223d] rounded-md text-xs font-medium cursor-pointer transition-colors inline-flex items-center gap-2 shadow-xs"
         >
-          <Plus className="w-4 h-4" /> Create New Project
+           Create New Project
         </button>
 
         {isAddingProject && (
@@ -357,14 +320,14 @@ export default function ResearchWorkspace({
             <form onSubmit={handleCreateProject} className="max-w-xl w-full bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-6 rounded-xl space-y-4 shadow-xl text-left">
               <div className="flex justify-between items-center border-b border-stone-150 dark:border-stone-850 pb-3">
                 <h2 className="font-serif font-bold text-lg text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Create New Writing Project
+                   Create New Writing Project
                 </h2>
                 <button
                   type="button"
                   onClick={() => setIsAddingProject(false)}
                   className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1 cursor-pointer"
                 >
-                  <X className="w-4 h-4" />
+                  
                 </button>
               </div>
 
@@ -433,9 +396,19 @@ export default function ResearchWorkspace({
   // =========================================================================
   if (isFocusMode) {
     return (
-      <div className="fixed inset-0 z-50 bg-[#FAF8F5] dark:bg-stone-950 text-stone-900 dark:text-stone-100 flex flex-col p-6 md:p-12 overflow-y-auto animate-fadeIn">
+      <div className="fixed inset-0 z-50 bg-[#FAF8F5] dark:bg-stone-950 text-stone-900 dark:text-stone-100 flex flex-col p-6 md:p-12 overflow-y-auto animate-fadeIn" id="focus-mode-interface">
         {/* Focus Top Bar */}
         <div className="max-w-3xl w-full mx-auto flex items-center justify-between pb-6 border-b border-stone-200/60 dark:border-stone-850 shrink-0">
+          <button
+            type="button"
+            onClick={() => setIsFocusMode(false)}
+            className="font-sans text-xs px-3.5 py-2 rounded-md bg-[#912A4A] text-white hover:bg-[#78223d] transition-colors flex items-center gap-2 cursor-pointer font-semibold shadow-xs"
+            id="exit-focus-mode-btn"
+            title="Exit Focus Mode"
+          >
+            <span>Exit Focus</span>
+          </button>
+
           <div className="flex items-center gap-3">
             <span className="font-serif font-bold text-sm md:text-base text-stone-800 dark:text-stone-200">
               {activeJourney.title}
@@ -445,14 +418,6 @@ export default function ResearchWorkspace({
               {activeChapter?.title}
             </span>
           </div>
-
-          <button
-            type="button"
-            onClick={() => setIsFocusMode(false)}
-            className="font-sans text-xs px-3 py-1.5 rounded-md bg-stone-200/70 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-300 dark:hover:bg-stone-700 transition-colors flex items-center gap-1.5 cursor-pointer"
-          >
-            <Minimize2 className="w-3.5 h-3.5" /> Exit Focus
-          </button>
         </div>
 
         {/* Focus Writing Canvas */}
@@ -475,11 +440,151 @@ export default function ResearchWorkspace({
     );
   }
 
+  // Handler for printing project notes & manuscript
+  const handlePrintNotes = () => {
+    setIsPrintModalOpen(true);
+  };
+
+  const rawNotesText = [
+    `SECOND THOUGHT — PROJECT NOTES`,
+    `Title: ${activeJourney?.title || 'Project Notes'}`,
+    activeJourney?.description ? `Description: ${activeJourney.description}` : '',
+    `Section: ${activeChapter?.title || 'Draft Notes'}`,
+    `----------------------------------------`,
+    activeChapter?.content || 'No content drafted in this note yet.',
+    activeJourney?.questions && activeJourney.questions.length > 0 ? `\nCENTRAL INQUIRY QUESTIONS:\n` + activeJourney.questions.map((q, i) => `${i + 1}. ${q}`).join('\n') : '',
+    activeJourney?.tasks && activeJourney.tasks.length > 0 ? `\nACTION PLAN & TASKS:\n` + activeJourney.tasks.map(t => `${t.completed ? '[✓]' : '[ ]'} ${t.text}`).join('\n') : ''
+  ].filter(Boolean).join('\n\n');
+
   // =========================================================================
   // MAIN THREE-ZONE WRITING INTERFACE
   // =========================================================================
   return (
     <div className="space-y-6 font-sans text-stone-850 dark:text-stone-100 max-w-7xl mx-auto" id="second-thought-writing-studio">
+      
+      {/* Print Preview Modal */}
+      <PrintModal
+        isOpen={isPrintModalOpen}
+        onClose={() => setIsPrintModalOpen(false)}
+        title={activeJourney?.title || 'Project Notes'}
+        subtitle={activeJourney?.description}
+        rawTextToCopy={rawNotesText}
+      >
+        <div className="space-y-6">
+          <div className="space-y-2">
+            <div className="flex justify-between items-center border-b border-stone-200 pb-2">
+              <h2 className="text-lg font-serif font-bold text-stone-800">
+                {activeChapter?.title || 'Draft Notes'}
+              </h2>
+              <span className="text-xs font-mono text-stone-500 uppercase">
+                Status: {activeChapter?.status ? activeChapter.status.replace('_', ' ') : 'Drafting'}
+              </span>
+            </div>
+            
+            <div className="whitespace-pre-wrap font-sans text-sm text-stone-900 leading-relaxed pt-2">
+              {activeChapter?.content || 'No content drafted in this note yet.'}
+            </div>
+          </div>
+
+          {activeJourney?.questions && activeJourney.questions.length > 0 && (
+            <div className="pt-4 border-t border-stone-200">
+              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-stone-700 mb-2">
+                Central Inquiry Questions
+              </h3>
+              <ul className="list-disc pl-5 space-y-1 text-xs text-stone-700">
+                {activeJourney.questions.map((q, idx) => (
+                  <li key={idx}>{q}</li>
+                ))}
+              </ul>
+            </div>
+          )}
+
+          {activeJourney?.tasks && activeJourney.tasks.length > 0 && (
+            <div className="pt-4 border-t border-stone-200">
+              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-stone-700 mb-2">
+                Action Plan & Tasks
+              </h3>
+              <div className="grid grid-cols-2 gap-2 text-xs text-stone-700">
+                {activeJourney.tasks.map((task) => (
+                  <div key={task.id} className="flex items-center gap-2">
+                    <span className="font-mono">{task.completed ? '[✓]' : '[ ]'}</span>
+                    <span className={task.completed ? 'line-through text-stone-400' : ''}>{task.text}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      </PrintModal>
+
+      {/* ----------------------------------------------------------------- */}
+      {/* PRINT-ONLY DOCUMENT LAYOUT FOR PROJECT NOTES & MANUSCRIPT         */}
+      {/* ----------------------------------------------------------------- */}
+      <div className="hidden print:block space-y-6 text-stone-900 font-sans leading-relaxed" id="project-notes-print-view">
+        {/* Document Header */}
+        <div className="border-b-2 border-stone-900 pb-4">
+          <div className="flex justify-between items-start">
+            <div>
+              <span className="text-xs font-mono uppercase tracking-widest text-stone-500">Second Thought — Project Notes</span>
+              <h1 className="text-2xl font-serif font-bold text-stone-900 mt-1">{activeJourney?.title}</h1>
+              {activeJourney?.description && (
+                <p className="text-sm text-stone-600 italic mt-1">{activeJourney.description}</p>
+              )}
+            </div>
+            <div className="text-right text-xs font-mono text-stone-500">
+              <div>Type: {activeJourney?.type ? activeJourney.type.toUpperCase() : 'PROJECT'}</div>
+              <div>Date: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
+            </div>
+          </div>
+        </div>
+
+        {/* Selected Chapter Notes / Manuscript Content */}
+        <div className="space-y-3">
+          <div className="flex justify-between items-center border-b border-stone-300 pb-2">
+            <h2 className="text-lg font-serif font-bold text-stone-800">
+              {activeChapter?.title || 'Draft Notes'}
+            </h2>
+            <span className="text-xs font-mono text-stone-500 uppercase">
+              Status: {activeChapter?.status ? activeChapter.status.replace('_', ' ') : 'Drafting'}
+            </span>
+          </div>
+          
+          <div className="whitespace-pre-wrap font-sans text-sm text-stone-900 leading-relaxed pt-2">
+            {activeChapter?.content || 'No content drafted in this note yet.'}
+          </div>
+        </div>
+
+        {/* Central Inquiries / Questions */}
+        {activeJourney?.questions && activeJourney.questions.length > 0 && (
+          <div className="pt-6 border-t border-stone-300 page-break-inside-avoid">
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-stone-700 mb-2">
+              Central Inquiry Questions
+            </h3>
+            <ul className="list-disc pl-5 space-y-1 text-xs text-stone-700">
+              {activeJourney.questions.map((q, idx) => (
+                <li key={idx}>{q}</li>
+              ))}
+            </ul>
+          </div>
+        )}
+
+        {/* Action Plan & Tasks */}
+        {activeJourney?.tasks && activeJourney.tasks.length > 0 && (
+          <div className="pt-4 border-t border-stone-300 page-break-inside-avoid">
+            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-stone-700 mb-2">
+              Action Plan & Tasks
+            </h3>
+            <div className="grid grid-cols-2 gap-2 text-xs text-stone-700">
+              {activeJourney.tasks.map((task) => (
+                <div key={task.id} className="flex items-center gap-2">
+                  <span className="font-mono">{task.completed ? '[✓]' : '[ ]'}</span>
+                  <span className={task.completed ? 'line-through text-stone-500' : ''}>{task.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
       
       {/* ----------------------------------------------------------------- */}
       {/* ZONE 1: TOP NAVIGATION & CONTROLS BAR                            */}
@@ -514,7 +619,7 @@ export default function ResearchWorkspace({
             className="p-1 text-stone-400 hover:text-[#912A4A] dark:hover:text-rose-400 rounded transition-colors cursor-pointer"
             title="Create New Project"
           >
-            <Plus className="w-4 h-4" />
+            
           </button>
         </div>
 
@@ -531,7 +636,7 @@ export default function ResearchWorkspace({
                   className="font-serif font-semibold text-stone-900 dark:text-stone-100 hover:text-[#912A4A] dark:hover:text-rose-300 flex items-center gap-1 cursor-pointer text-sm"
                 >
                   <span>{activeChapter?.title || 'Chapter 1'}</span>
-                  <ChevronDown className="w-3.5 h-3.5 text-stone-400 group-hover:text-stone-700 dark:group-hover:text-stone-200 transition-colors" />
+                  
                 </button>
 
                 {/* Add Chapter button: revealed only on hover */}
@@ -541,7 +646,7 @@ export default function ResearchWorkspace({
                   className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 text-stone-400 hover:text-[#912A4A] dark:hover:text-rose-300 cursor-pointer text-[11px] flex items-center gap-0.5 ml-1"
                   title="Add Chapter"
                 >
-                  <Plus className="w-3 h-3" />
+                  
                   <span className="font-sans text-[10px]">Add</span>
                 </button>
               </div>
@@ -574,7 +679,7 @@ export default function ResearchWorkspace({
                       }`}
                     >
                       <span className="truncate">{ch.title}</span>
-                      {ch.id === activeChapter?.id && <Check className="w-3.5 h-3.5 shrink-0" />}
+                      {ch.id === activeChapter?.id }
                     </button>
                   ))}
                 </div>
@@ -589,7 +694,7 @@ export default function ResearchWorkspace({
                     className="flex-grow font-sans text-xs p-1.5 border border-stone-200 dark:border-stone-700 rounded bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100"
                   />
                   <button type="submit" className="px-2 py-1.5 bg-[#912A4A] text-white rounded text-xs cursor-pointer hover:bg-[#78223d] flex items-center gap-1 font-medium">
-                    <Plus className="w-3.5 h-3.5" /> Add
+                     Add
                   </button>
                 </form>
               </div>
@@ -645,8 +750,18 @@ export default function ResearchWorkspace({
             className="px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
             title="Enter Distraction-Free Focus Mode"
           >
-            <Maximize2 className="w-3.5 h-3.5" />
             <span>Focus Mode</span>
+          </button>
+
+          {/* Print Notes Button */}
+          <button
+            type="button"
+            onClick={handlePrintNotes}
+            className="px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer no-print"
+            title="Print Project Notes & Manuscript for Offline Reading"
+            id="print-project-notes-btn"
+          >
+            <span>Print Notes</span>
           </button>
         </div>
       </div>
@@ -677,12 +792,12 @@ export default function ResearchWorkspace({
           )}
 
           {/* Main Pristine Canvas Surface */}
-          <div className="relative p-6 md:p-10 bg-white dark:bg-stone-900/80 rounded-2xl border border-stone-200/80 dark:border-stone-800 shadow-xs transition-all duration-200 min-h-[58vh]">
+          <div className="relative p-3.5 sm:p-6 md:p-10 bg-white dark:bg-stone-900/80 rounded-2xl border border-stone-200/80 dark:border-stone-800 shadow-xs transition-all duration-200 min-h-[58vh]">
             
             {/* Save Status Pill */}
             {saveStatus === 'saved' && (
               <div className="absolute top-4 right-6 text-[10px] font-mono text-stone-400 tracking-wider uppercase flex items-center gap-1">
-                <Check className="w-3 h-3 text-emerald-600" /> Saved
+                 Saved
               </div>
             )}
 
@@ -728,13 +843,13 @@ export default function ResearchWorkspace({
                     onClick={() => handleTriggerContextTool('ai')}
                     className="px-2.5 py-1 bg-[#912A4A] hover:bg-[#78223d] text-white rounded text-[11px] font-sans font-bold flex items-center gap-1 transition-colors cursor-pointer"
                   >
-                    <Sparkles className="w-3 h-3 text-rose-300" /> Ask AI
+                     Ask AI
                   </button>
                   <button
                     onClick={() => setSelectedText('')}
                     className="p-1 text-stone-400 hover:text-white cursor-pointer"
                   >
-                    <X className="w-3.5 h-3.5" />
+                    
                   </button>
                 </div>
               </div>
@@ -821,7 +936,7 @@ export default function ResearchWorkspace({
                   className="p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer flex items-center gap-1 text-[11px]"
                   aria-label="Close drawer"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  
                 </button>
               </div>
 
@@ -865,7 +980,7 @@ export default function ResearchWorkspace({
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          {task.completed ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Square className="w-3.5 h-3.5 text-stone-400" />}
+                          {task.completed ? null : null}
                           <span className={task.completed ? 'line-through' : ''}>{task.text}</span>
                         </div>
                       </div>
@@ -938,7 +1053,7 @@ export default function ResearchWorkspace({
                 className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl text-left hover:border-[#912A4A] transition-all cursor-pointer space-y-2 group"
               >
                 <div className="p-2 bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 rounded-lg w-fit">
-                  <Upload className="w-5 h-5" />
+                  
                 </div>
                 <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300">
                   Upload Documents
@@ -953,7 +1068,7 @@ export default function ResearchWorkspace({
                 className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl text-left hover:border-[#912A4A] transition-all cursor-pointer space-y-2 group"
               >
                 <div className="p-2 bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 rounded-lg w-fit">
-                  <BookOpen className="w-5 h-5" />
+                  
                 </div>
                 <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300">
                   References
@@ -968,7 +1083,7 @@ export default function ResearchWorkspace({
                 className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl text-left hover:border-[#912A4A] transition-all cursor-pointer space-y-2 group"
               >
                 <div className="p-2 bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 rounded-lg w-fit">
-                  <Library className="w-5 h-5" />
+                  
                 </div>
                 <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300">
                   Paper Summaries
@@ -983,7 +1098,7 @@ export default function ResearchWorkspace({
                 className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl text-left hover:border-[#912A4A] transition-all cursor-pointer space-y-2 group"
               >
                 <div className="p-2 bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 rounded-lg w-fit">
-                  <Network className="w-5 h-5" />
+                  
                 </div>
                 <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300">
                   Concept Map
@@ -998,7 +1113,7 @@ export default function ResearchWorkspace({
                 className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl text-left hover:border-[#912A4A] transition-all cursor-pointer space-y-2 group"
               >
                 <div className="p-2 bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 rounded-lg w-fit">
-                  <Brain className="w-5 h-5" />
+                  
                 </div>
                 <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300">
                   Questions & Gaps
@@ -1013,7 +1128,7 @@ export default function ResearchWorkspace({
                 className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl text-left hover:border-[#912A4A] transition-all cursor-pointer space-y-2 group"
               >
                 <div className="p-2 bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 rounded-lg w-fit">
-                  <Sparkles className="w-5 h-5" />
+                  
                 </div>
                 <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300">
                   Writing Assistant
@@ -1118,7 +1233,7 @@ export default function ResearchWorkspace({
             {/* Questions Panel */}
             <div className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl space-y-3">
               <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                <HelpCircle className="w-4 h-4 text-[#912A4A]" /> Active Research Questions
+                 Active Research Questions
               </h4>
               <div className="space-y-2">
                 {activeJourney.questions.map((q, idx) => (
@@ -1145,7 +1260,7 @@ export default function ResearchWorkspace({
             {/* Tasks & Deliverables */}
             <div className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl space-y-3">
               <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                <CheckSquare className="w-4 h-4 text-emerald-600" /> Deliverables & Tasks
+                 Deliverables & Tasks
               </h4>
               <div className="space-y-2">
                 {activeJourney.tasks.map((task) => (
@@ -1157,7 +1272,7 @@ export default function ResearchWorkspace({
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      {task.completed ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Square className="w-3.5 h-3.5 text-stone-400" />}
+                      {task.completed ? null : null}
                       <span className={task.completed ? 'line-through' : ''}>{task.text}</span>
                     </div>
                   </div>
@@ -1177,6 +1292,9 @@ export default function ResearchWorkspace({
               </form>
             </div>
           </div>
+
+          {/* Reflective Wins & Progress */}
+          <ReflectiveWins />
 
           {/* Timeline View */}
           <ResearchTimeline
@@ -1202,7 +1320,7 @@ export default function ResearchWorkspace({
                 }}
                 className="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 cursor-pointer transition-colors"
               >
-                <Plus className="w-3.5 h-3.5 text-[#912A4A]" />
+                
                 <span>+ New Note</span>
               </button>
 
@@ -1213,7 +1331,7 @@ export default function ResearchWorkspace({
                 }}
                 className="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 cursor-pointer transition-colors"
               >
-                <Sparkles className="w-3.5 h-3.5 text-[#912A4A]" />
+                
                 <span>+ AI Assistant</span>
               </button>
 
@@ -1224,7 +1342,7 @@ export default function ResearchWorkspace({
                 }}
                 className="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 cursor-pointer transition-colors"
               >
-                <Brain className="w-3.5 h-3.5 text-[#912A4A]" />
+                
                 <span>+ Capture Thought</span>
               </button>
 
@@ -1235,7 +1353,7 @@ export default function ResearchWorkspace({
                 }}
                 className="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 cursor-pointer transition-colors"
               >
-                <Mic className="w-3.5 h-3.5 text-[#912A4A]" />
+                
                 <span>+ Voice</span>
               </button>
 
@@ -1246,7 +1364,7 @@ export default function ResearchWorkspace({
                 }}
                 className="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 cursor-pointer transition-colors border-t border-stone-100 dark:border-stone-800 pt-1.5"
               >
-                <RotateCcw className="w-3.5 h-3.5 text-[#912A4A]" />
+                
                 <span>+ Pause</span>
               </button>
             </div>
@@ -1280,7 +1398,7 @@ export default function ResearchWorkspace({
                 onClick={() => setFloatingActionModal(null)}
                 className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1 cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                
               </button>
             </div>
 
@@ -1357,7 +1475,7 @@ export default function ResearchWorkspace({
             {floatingActionModal === 'voice' && (
               <div className="py-6 text-center space-y-3 text-xs">
                 <div className="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-950 text-[#912A4A] flex items-center justify-center mx-auto animate-pulse">
-                  <Mic className="w-6 h-6" />
+                  
                 </div>
                 <p className="text-stone-600 dark:text-stone-300">Speak naturally to dictate your draft or capture ideas.</p>
                 <button
@@ -1372,7 +1490,7 @@ export default function ResearchWorkspace({
             {floatingActionModal === 'pause' && (
               <div className="py-8 text-center space-y-4 text-xs font-serif">
                 <div className="w-14 h-14 rounded-full bg-[#912A4A]/10 text-[#912A4A] flex items-center justify-center mx-auto animate-pulse">
-                  <RotateCcw className="w-6 h-6" />
+                  
                 </div>
                 <div className="space-y-1">
                   <h4 className="font-bold text-base text-stone-900 dark:text-stone-100">Pause & Reflect</h4>
@@ -1407,7 +1525,7 @@ export default function ResearchWorkspace({
                 onClick={() => setIsContextDrawerOpen(false)}
                 className="p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer"
               >
-                <X className="w-4 h-4" />
+                
               </button>
             </div>
 
@@ -1417,7 +1535,7 @@ export default function ResearchWorkspace({
 
             {isGeneratingContext ? (
               <div className="py-12 text-center text-xs text-stone-400 space-y-2">
-                <Sparkles className="w-5 h-5 text-[#912A4A] mx-auto animate-spin" />
+                
                 <p>Generating thoughtful synthesis...</p>
               </div>
             ) : (

@@ -5,7 +5,6 @@
 
 import { useState } from 'react';
 import { Paper } from '../types';
-import { Sparkles, Brain, CheckCircle, ShieldAlert, Star, Layers, Shuffle } from 'lucide-react';
 import { postWithAiRouting } from '../lib/localAiService';
 
 interface LiteratureIntelligenceProps {
@@ -130,7 +129,7 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
                   disabled={loadingSummary}
                   className="w-full font-sans text-xs bg-amber-900 text-white py-2.5 rounded hover:bg-amber-800 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
-                  <Sparkles className="w-4 h-4" />
+                  
                   {selectedPaper.structuredSummary ? 'Re-generate Intelligence' : 'Generate Structured Summary'}
                 </button>
               </div>
@@ -159,17 +158,8 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
                   {/* Evidence Strength Star Bar */}
                   <div className="text-right flex flex-col items-end shrink-0">
                     <span className="font-sans text-[9px] text-stone-400 tracking-wide mb-1">Evidence Strength</span>
-                    <div className="flex gap-0.5 text-amber-500">
-                      {Array.from({ length: 5 }).map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-3.5 h-3.5 ${
-                            i < (selectedPaper.structuredSummary?.evidenceStrength || 0)
-                              ? 'fill-current text-amber-500'
-                              : 'text-stone-200 dark:text-stone-800'
-                          }`}
-                        />
-                      ))}
+                    <div className="flex gap-0.5 text-amber-500 font-mono text-xs">
+                      ★★★★★
                     </div>
                   </div>
                 </div>
@@ -286,7 +276,7 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
               disabled={loadingSynthesis || selectedPaperIdsForSynthesis.length < 2}
               className="w-full font-sans text-xs bg-amber-900 text-white py-2.5 rounded hover:bg-amber-800 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
             >
-              <Brain className="w-4 h-4" /> Synthesize Relationships
+               Synthesize Relationships
             </button>
           </div>
 
@@ -307,7 +297,7 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
                 <div className="space-y-4">
                   <div className="space-y-1.5">
                     <h4 className="font-sans font-semibold text-xs text-emerald-800 dark:text-emerald-400 flex items-center gap-1">
-                      <CheckCircle className="w-4 h-4" /> Points of Academic Convergence
+                       Points of Academic Convergence
                     </h4>
                     <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
                       {synthesisResult.agreements}
@@ -316,7 +306,7 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
 
                   <div className="space-y-1.5 pt-4 border-t border-stone-100 dark:border-stone-900">
                     <h4 className="font-sans font-semibold text-xs text-amber-800 dark:text-amber-400 flex items-center gap-1">
-                      <Shuffle className="w-4 h-4" /> Divergences, Nuances & Methodological Debates
+                       Divergences, Nuances & Methodological Debates
                     </h4>
                     <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
                       {synthesisResult.disagreements}
@@ -327,7 +317,7 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
                   {synthesisResult.thematicClusters && (
                     <div className="space-y-3 pt-4 border-t border-stone-100 dark:border-stone-900">
                       <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                        <Layers className="w-4 h-4" /> Structured Thematic Clusters
+                         Structured Thematic Clusters
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {synthesisResult.thematicClusters.map((cluster: any, idx: number) => (

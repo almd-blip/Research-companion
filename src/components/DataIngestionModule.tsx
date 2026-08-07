@@ -5,27 +5,6 @@
 
 import React, { useState, useRef } from 'react';
 import { Paper, Collection } from '../types';
-import {
-  Database,
-  FileJson,
-  FileText,
-  Upload,
-  CheckCircle2,
-  AlertCircle,
-  Sparkles,
-  Download,
-  Layers,
-  Tag,
-  X,
-  FileCode,
-  ShieldCheck,
-  Check,
-  Copy,
-  Plus,
-  ArrowRight,
-  Filter,
-  FileSpreadsheet
-} from 'lucide-react';
 
 interface DataIngestionModuleProps {
   existingPapers: Paper[];
@@ -456,7 +435,7 @@ export default function DataIngestionModule({
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-stone-100 dark:border-stone-800 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <Database className="w-5 h-5 text-[#912A4A] dark:text-rose-400" />
+            
             <h2 className="font-sans font-semibold text-stone-900 dark:text-stone-100 text-base">
               Local Data Ingestion Module (RAG Pipeline)
             </h2>
@@ -468,14 +447,14 @@ export default function DataIngestionModule({
 
         <div className="flex items-center gap-2">
           <span className="inline-flex items-center gap-1 font-sans text-[11px] px-2.5 py-1 bg-emerald-50 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-800 rounded-full font-medium">
-            <ShieldCheck className="w-3.5 h-3.5" /> 100% On-Device Local Processing
+             100% On-Device Local Processing
           </span>
           {onClose && (
             <button
               onClick={onClose}
               className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1 cursor-pointer"
             >
-              <X className="w-5 h-5" />
+              
             </button>
           )}
         </div>
@@ -492,7 +471,7 @@ export default function DataIngestionModule({
                 : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
             }`}
           >
-            <Upload className="w-3.5 h-3.5" /> Upload Dump File
+             Upload Dump File
           </button>
           <button
             onClick={() => setActiveTab('paste')}
@@ -502,7 +481,7 @@ export default function DataIngestionModule({
                 : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
             }`}
           >
-            <FileCode className="w-3.5 h-3.5" /> Paste Raw JSON/Text
+             Paste Raw JSON/Text
           </button>
           <button
             onClick={() => setActiveTab('samples')}
@@ -512,7 +491,7 @@ export default function DataIngestionModule({
                 : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5" /> Sample RAG Datasets
+             Sample RAG Datasets
           </button>
         </div>
 
@@ -520,7 +499,7 @@ export default function DataIngestionModule({
           onClick={handleDownloadSampleTemplate}
           className="font-sans text-[11px] text-[#912A4A] dark:text-rose-400 hover:underline flex items-center gap-1 px-2 py-1 cursor-pointer"
         >
-          <Download className="w-3 h-3" /> Download JSON Template
+           Download JSON Template
         </button>
       </div>
 
@@ -539,7 +518,7 @@ export default function DataIngestionModule({
               className="hidden"
             />
             <div className="w-12 h-12 mx-auto rounded-full bg-[#912A4A]/10 dark:bg-[#912A4A]/30 text-[#912A4A] dark:text-rose-300 flex items-center justify-center group-hover:scale-105 transition-transform">
-              <Upload className="w-6 h-6" />
+              
             </div>
             <div>
               <p className="font-sans text-xs font-semibold text-stone-800 dark:text-stone-200">
@@ -590,9 +569,7 @@ export default function DataIngestionModule({
             >
               {isProcessing ? (
                 <span className="w-3 h-3 border border-white border-t-transparent rounded-full animate-spin"></span>
-              ) : (
-                <Sparkles className="w-3.5 h-3.5" />
-              )}
+              ) : null}
               Parse & Extract Records
             </button>
           </div>
@@ -633,7 +610,7 @@ export default function DataIngestionModule({
                   onClick={() => handleLoadSample(sample.data)}
                   className="w-full font-sans text-xs bg-stone-900 dark:bg-stone-800 hover:bg-[#912A4A] text-white py-1.5 rounded font-medium flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
                 >
-                  <ArrowRight className="w-3.5 h-3.5" /> Load Dataset Sample
+                   Load Dataset Sample
                 </button>
               </div>
             ))}
@@ -650,11 +627,7 @@ export default function DataIngestionModule({
               : 'bg-rose-50 dark:bg-rose-950/40 border-rose-200 dark:border-rose-800 text-rose-900 dark:text-rose-200'
           }`}
         >
-          {ingestStatus.includes('Successfully') ? (
-            <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
-          ) : (
-            <AlertCircle className="w-4 h-4 text-rose-600 dark:text-rose-400 shrink-0 mt-0.5" />
-          )}
+          {ingestStatus.includes('Successfully') ? null : null}
           <div className="flex-1 leading-relaxed">{ingestStatus}</div>
         </div>
       )}
@@ -666,7 +639,7 @@ export default function DataIngestionModule({
           {/* Target Settings & Ingestion Target Controls */}
           <div className="bg-stone-50 dark:bg-stone-900 p-4 rounded-lg border border-stone-200/80 dark:border-stone-800 space-y-3">
             <h3 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-              <Layers className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Ingestion Parameters & Collection Target
+               Ingestion Parameters & Collection Target
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -693,7 +666,7 @@ export default function DataIngestionModule({
                   Auto-Tag Ingested Items (comma separated):
                 </label>
                 <div className="relative">
-                  <Tag className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400" />
+                  
                   <input
                     type="text"
                     value={customTag}
@@ -826,7 +799,7 @@ export default function DataIngestionModule({
                 disabled={selectedCount === 0}
                 className="font-sans text-xs bg-[#912A4A] hover:bg-[#78223d] text-white px-5 py-2 rounded-md font-semibold flex items-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer transition-all"
               >
-                <Database className="w-4 h-4" /> Ingest {selectedCount} Record(s) to RAG Library
+                 Ingest {selectedCount} Record(s) to RAG Library
               </button>
             </div>
           </div>

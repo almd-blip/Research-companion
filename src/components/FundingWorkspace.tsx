@@ -5,7 +5,6 @@
 
 import React, { useState } from 'react';
 import { ResearchJourney, Paper } from '../types';
-import { FileText, Award, Layers, CheckSquare, Sparkles, Plus, Trash } from 'lucide-react';
 
 interface FundingWorkspaceProps {
   journeys: ResearchJourney[];
@@ -114,7 +113,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-stone-200 dark:border-stone-800 pb-3">
         <div>
           <h2 className="font-sans font-medium text-stone-900 dark:text-stone-100 text-lg flex items-center gap-2">
-            <Award className="w-5 h-5 text-[#912A4A]" /> Academic Funding Workspace
+             Academic Funding Workspace
           </h2>
           <p className="font-sans text-xs text-stone-500 mt-0.5">Integrate literature directly with grant preparations, impact statements, and funder benchmarks.</p>
         </div>
@@ -142,7 +141,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
             {/* Funder profile */}
             <div className="bg-white dark:bg-stone-950 border border-stone-200 rounded-lg p-5 space-y-4">
               <h3 className="font-sans font-semibold text-stone-950 text-sm flex items-center gap-1.5 border-b border-stone-100 pb-2">
-                <FileText className="w-4 h-4 text-[#912A4A]" /> Funder Specifics
+                 Funder Specifics
               </h3>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -178,7 +177,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
               {/* Priority checklist */}
               <div className="space-y-2">
                 <h4 className="font-sans font-semibold text-xs text-stone-800 flex items-center gap-1">
-                  <CheckSquare className="w-3.5 h-3.5 text-blue-600" /> Priority Compliance Benchmarks
+                   Priority Compliance Benchmarks
                 </h4>
                 
                 <div className="space-y-1.5 max-h-[150px] overflow-y-auto pr-1">
@@ -216,7 +215,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
             {/* Impact Statement sandbox */}
             <div className="bg-white border border-stone-200 rounded-lg p-5 space-y-3">
               <h3 className="font-sans font-semibold text-stone-950 text-sm flex items-center gap-1.5">
-                <Sparkles className="w-4 h-4 text-[#912A4A]" /> Societal Impact and Outreach Statement
+                 Societal Impact and Outreach Statement
               </h3>
               <p className="font-sans text-xs text-stone-500">
                 Funder evaluations weigh structural, societal, or industrial outreach heavily. Map out your dissemination plans.
@@ -235,7 +234,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
           {/* SIDEBAR: Reusable Snippets & Capability Profile */}
           <div className="lg:col-span-1 bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 p-5 rounded-lg space-y-4 h-fit">
             <h4 className="font-sans font-medium text-xs text-[#912A4A] dark:text-rose-400 tracking-wide flex items-center gap-1.5">
-              <Layers className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Reusable Bio & Capability Profile
+               Reusable Bio & Capability Profile
             </h4>
             <p className="font-sans text-[11px] text-stone-500">
               Store reusable academic descriptions (bios, research methodology standards) to quickly paste across grant bids.

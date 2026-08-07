@@ -5,21 +5,6 @@
 
 import { useState } from 'react';
 import { Paper, CitationStyle, Collection } from '../types';
-import {
-  Check,
-  Clipboard,
-  Library,
-  AlertTriangle,
-  CheckCircle,
-  Download,
-  FileCode,
-  Filter,
-  Search,
-  Code,
-  Eye,
-  X,
-  FileText
-} from 'lucide-react';
 
 interface CitationEngineProps {
   papers: Paper[];
@@ -209,7 +194,7 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-stone-100 dark:border-stone-800 pb-3">
             <div>
               <h3 className="font-sans font-semibold text-stone-900 dark:text-stone-100 text-sm flex items-center gap-1.5">
-                <Library className="w-4 h-4 text-amber-800 dark:text-amber-500" /> Academic Bibliography Generator
+                 Academic Bibliography Generator
               </h3>
               <p className="font-sans text-[11px] text-stone-400">Perfect formatting aligned to active style conventions.</p>
             </div>
@@ -255,7 +240,7 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
               
               {/* Search Bar */}
               <div className="relative flex-1">
-                <Search className="w-3.5 h-3.5 absolute left-2.5 top-1/2 -translate-y-1/2 text-stone-400" />
+                
                 <input
                   type="text"
                   value={searchTerm}
@@ -268,14 +253,14 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
                     onClick={() => setSearchTerm('')}
                     className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
                   >
-                    <X className="w-3 h-3" />
+                    
                   </button>
                 )}
               </div>
 
               {/* Status Filter */}
               <div className="flex items-center gap-2">
-                <Filter className="w-3.5 h-3.5 text-stone-400 shrink-0 hidden sm:block" />
+                
                 <select
                   value={statusFilter}
                   onChange={(e) => setStatusFilter(e.target.value)}
@@ -321,7 +306,7 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
                   className="font-sans text-xs px-2.5 py-1 bg-amber-900/10 hover:bg-amber-900/20 text-amber-900 dark:bg-amber-950/40 dark:hover:bg-amber-900/40 dark:text-amber-300 border border-amber-900/20 rounded flex items-center gap-1.5 transition-all disabled:opacity-50 cursor-pointer"
                   title="Preview raw BibTeX format for current filtered references"
                 >
-                  <FileCode className="w-3.5 h-3.5" /> Preview BibTeX
+                   Preview BibTeX
                 </button>
 
                 <button
@@ -330,7 +315,7 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
                   className="font-sans text-xs px-3 py-1 bg-amber-800 hover:bg-amber-900 dark:bg-amber-700 dark:hover:bg-amber-600 text-white rounded font-medium flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
                   title="Export filtered reference list as .bib file"
                 >
-                  <Download className="w-3.5 h-3.5" /> Export BibTeX (.bib)
+                   Export BibTeX (.bib)
                 </button>
               </div>
             </div>
@@ -380,7 +365,7 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
                       className="p-1 px-2 text-[10px] font-sans border border-stone-200 dark:border-stone-700 rounded text-stone-500 hover:text-amber-800 dark:hover:text-amber-400 hover:border-amber-700/30 transition-all cursor-pointer flex items-center gap-1"
                       title="View individual BibTeX entry"
                     >
-                      <Code className="w-3 h-3" /> BibTeX
+                       BibTeX
                     </button>
 
                     <button
@@ -388,11 +373,7 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
                       className="p-1.5 rounded text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-all cursor-pointer opacity-80"
                       title="Copy styled citation to Clipboard"
                     >
-                      {copiedId === p.id ? (
-                        <Check className="w-3.5 h-3.5 text-emerald-600" />
-                      ) : (
-                        <Clipboard className="w-3.5 h-3.5" />
-                      )}
+                      {copiedId === p.id ? null : null}
                     </button>
                   </div>
                 </div>
@@ -401,7 +382,7 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
 
             {filteredPapers.length === 0 && (
               <div className="py-12 text-center text-stone-400 font-sans text-xs space-y-2">
-                <FileText className="w-8 h-8 mx-auto text-stone-300 dark:text-stone-700" />
+                
                 <p>No references found matching your active filter criteria.</p>
                 <button
                   onClick={() => {
@@ -446,7 +427,7 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
             {missingMetadataPapers.map((p) => (
               <div key={p.id} className="p-2.5 bg-white dark:bg-stone-900 border border-stone-200/50 dark:border-stone-800 rounded text-xs space-y-2">
                 <div className="flex gap-1.5 items-start">
-                  <AlertTriangle className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                  
                   <div>
                     <h5 className="font-sans font-semibold text-stone-800 dark:text-stone-200 line-clamp-1 leading-tight">{p.title}</h5>
                     <p className="font-sans text-[10px] text-stone-400 mt-0.5">Missing: {p.missingFields.join(', ')}</p>
@@ -460,9 +441,7 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
                 >
                   {verifyingId === p.id ? (
                     <span className="w-2.5 h-2.5 border border-amber-900 dark:border-amber-400 border-t-transparent rounded-full animate-spin"></span>
-                  ) : (
-                    <CheckCircle className="w-3 h-3" />
-                  )}
+                  ) : null}
                   Auto DOI Lookup & Repair
                 </button>
               </div>
@@ -470,7 +449,7 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
 
             {missingMetadataPapers.length === 0 && (
               <div className="text-left py-8 text-emerald-600 dark:text-emerald-400 font-sans text-xs italic flex flex-col items-start gap-1">
-                <CheckCircle className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                
                 100% of references verified!
               </div>
             )}
@@ -484,7 +463,7 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
           <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg max-w-2xl w-full p-6 space-y-4 shadow-xl max-h-[85vh] flex flex-col">
             <div className="flex justify-between items-center border-b border-stone-100 dark:border-stone-800 pb-3">
               <div className="flex items-center gap-2">
-                <FileCode className="w-5 h-5 text-amber-800 dark:text-amber-400" />
+                
                 <div>
                   <h3 className="font-sans font-semibold text-stone-900 dark:text-stone-100 text-sm">
                     BibTeX Export Preview
@@ -498,7 +477,7 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
                 onClick={() => setShowBibTeXPreview(false)}
                 className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer p-1"
               >
-                <X className="w-5 h-5" />
+                
               </button>
             </div>
 
@@ -515,7 +494,7 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
                   onClick={() => handleCopyBibTeX(generateFullBibTeX(filteredPapers))}
                   className="font-sans text-xs px-3 py-1.5 border border-stone-300 dark:border-stone-700 rounded text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-1.5 cursor-pointer transition-all"
                 >
-                  {copiedBibTeX ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Clipboard className="w-3.5 h-3.5" />}
+                  {copiedBibTeX ? null : null}
                   {copiedBibTeX ? 'Copied BibTeX!' : 'Copy to Clipboard'}
                 </button>
                 <button
@@ -525,7 +504,7 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
                   }}
                   className="font-sans text-xs px-3.5 py-1.5 bg-amber-800 hover:bg-amber-900 dark:bg-amber-700 dark:hover:bg-amber-600 text-white rounded font-medium flex items-center gap-1.5 shadow-sm cursor-pointer transition-all"
                 >
-                  <Download className="w-3.5 h-3.5" /> Download .bib File
+                   Download .bib File
                 </button>
               </div>
             </div>
@@ -539,7 +518,7 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
           <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg max-w-lg w-full p-6 space-y-4 shadow-xl">
             <div className="flex justify-between items-center border-b border-stone-100 dark:border-stone-800 pb-3">
               <div className="flex items-center gap-2">
-                <Code className="w-4 h-4 text-amber-800 dark:text-amber-400" />
+                
                 <h3 className="font-sans font-semibold text-stone-900 dark:text-stone-100 text-sm">
                   BibTeX Entry
                 </h3>
@@ -548,7 +527,7 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
                 onClick={() => setActiveBibTeXPaper(null)}
                 className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer p-1"
               >
-                <X className="w-5 h-5" />
+                
               </button>
             </div>
 
@@ -568,7 +547,7 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
                 }}
                 className="font-sans text-xs px-3.5 py-1.5 bg-amber-800 hover:bg-amber-900 text-white rounded font-medium flex items-center gap-1.5 cursor-pointer"
               >
-                {copiedBibTeX ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Clipboard className="w-3.5 h-3.5" />}
+                {copiedBibTeX ? null : null}
                 {copiedBibTeX ? 'Copied!' : 'Copy BibTeX Entry'}
               </button>
             </div>

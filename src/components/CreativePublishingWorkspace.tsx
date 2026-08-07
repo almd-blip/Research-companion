@@ -4,64 +4,10 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { Paper } from '../types';
 import ResearchIntegrityBanner from './ResearchIntegrityBanner';
 import { postWithAiRouting } from '../lib/localAiService';
-import {
-  Feather,
-  BookOpen,
-  FileText,
-  FileCode,
-  Download,
-  Upload,
-  CheckCircle2,
-  AlertCircle,
-  HelpCircle,
-  Sparkles,
-  Layers,
-  ListOrdered,
-  Eye,
-  ShieldCheck,
-  RefreshCw,
-  Share2,
-  Globe,
-  Settings,
-  PenTool,
-  MessageSquare,
-  FileSpreadsheet,
-  FileCheck,
-  Terminal,
-  FileDown,
-  Printer,
-  ChevronRight,
-  FolderOpen,
-  CheckSquare,
-  Square,
-  Info,
-  Plus,
-  Trash2,
-  Copy,
-  Edit3,
-  Save,
-  FilePlus,
-  Search,
-  FileUp,
-  FileEdit,
-  Filter,
-  ArrowRight,
-  X,
-  ExternalLink,
-  FolderPlus,
-  Target,
-  Sliders,
-  BarChart3,
-  PanelRightClose,
-  PanelRightOpen,
-  Maximize2,
-  Minimize2,
-  Sidebar,
-  FileWarning
-} from 'lucide-react';
 
 const JOURNAL_PRESETS = [
   { id: 'short_comm', name: 'Short Communication / Letter', targetWords: 2500, label: '2,500w Cap' },
@@ -1352,6 +1298,27 @@ Open publishing preparation empowers scholars, open-access journals, and public 
   return (
     <div className="space-y-6 font-sans text-stone-900 dark:text-stone-100 text-left animate-fadeIn" id="creative-publishing-workspace">
       
+      {/* Zen Focus Mode Top Bar (Always visible when in Focus Mode) */}
+      {isZenFocusMode && (
+        <div className="bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg p-3.5 sm:p-4 flex items-center justify-between shadow-xs sticky top-0 z-30 mb-4">
+          <button
+            type="button"
+            onClick={() => setIsZenFocusMode(false)}
+            className="font-sans text-xs px-3.5 py-2 rounded-md bg-[#912A4A] text-white hover:bg-[#78223d] transition-colors flex items-center gap-2 cursor-pointer font-semibold shadow-xs shrink-0"
+            id="exit-zen-focus-mode-top-btn"
+            title="Exit Focus Mode"
+          >
+            <ArrowLeft className="w-4 h-4 text-white" />
+            <span>Exit Focus</span>
+          </button>
+          <div className="flex items-center gap-2">
+            <span className="font-serif font-bold text-xs sm:text-sm text-stone-800 dark:text-stone-200">
+              Zen Focus Space
+            </span>
+          </div>
+        </div>
+      )}
+
       {/* Human Authorship Core Integrity Commitment Banner */}
       {!isZenFocusMode && <ResearchIntegrityBanner />}
 
@@ -1361,7 +1328,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
               <div className="p-2.5 rounded-lg bg-amber-900/10 dark:bg-stone-800 text-amber-900 dark:text-amber-400">
-                <Feather className="w-6 h-6" />
+                
               </div>
               <div>
                 <h2 className="text-base font-serif font-bold text-stone-950 dark:text-stone-100 flex items-center gap-2">
@@ -1376,16 +1343,16 @@ Open publishing preparation empowers scholars, open-access journals, and public 
             {/* Format Badges & Open Source Tool Interoperability */}
             <div className="flex flex-wrap items-center gap-1.5 text-[10px] font-mono">
               <span className="bg-amber-100 dark:bg-stone-800 text-amber-900 dark:text-amber-300 px-2 py-1 rounded border border-amber-200 dark:border-stone-700 font-bold flex items-center gap-1">
-                <FileText className="w-3 h-3" /> LibreOffice Writer (.odt)
+                 LibreOffice Writer (.odt)
               </span>
               <span className="bg-emerald-100 dark:bg-emerald-950 text-emerald-900 dark:text-emerald-300 px-2 py-1 rounded border border-emerald-200 dark:border-emerald-800 font-bold flex items-center gap-1">
-                <FileCode className="w-3 h-3" /> Markdown & Zettelkasten
+                 Markdown & Zettelkasten
               </span>
               <span className="bg-sky-100 dark:bg-sky-950 text-sky-900 dark:text-sky-300 px-2 py-1 rounded border border-sky-200 dark:border-sky-800 font-bold flex items-center gap-1">
-                <BookOpen className="w-3 h-3" /> EPUB & Open Monograph
+                 EPUB & Open Monograph
               </span>
               <span className="bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 px-2 py-1 rounded border border-stone-200 dark:border-stone-700 flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-emerald-600" /> 100% Local Privacy
+                 100% Local Privacy
               </span>
             </div>
           </div>
@@ -1411,7 +1378,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
             }`}
           >
-            <PenTool className="w-3.5 h-3.5 text-amber-400" /> Manuscript Editor
+             Manuscript Editor
           </button>
           <button
             onClick={() => setActiveTab('documents')}
@@ -1421,7 +1388,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
             }`}
           >
-            <FolderOpen className="w-3.5 h-3.5 text-amber-400" /> Document Library & Importer ({importedDocs.length})
+             Document Library & Importer ({importedDocs.length})
           </button>
           <button
             onClick={() => setActiveTab('outline')}
@@ -1431,7 +1398,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
             }`}
           >
-            <ListOrdered className="w-3.5 h-3.5 text-indigo-400" /> Structure & Outline ({outline.length})
+             Structure & Outline ({outline.length})
           </button>
           <button
             onClick={() => setActiveTab('notes')}
@@ -1441,7 +1408,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
             }`}
           >
-            <Layers className="w-3.5 h-3.5 text-sky-400" /> Idea & Research Notes ({notes.length})
+             Idea & Research Notes ({notes.length})
           </button>
           <button
             onClick={() => setActiveTab('reflective')}
@@ -1451,7 +1418,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
             }`}
           >
-            <Sparkles className="w-3.5 h-3.5 text-amber-400" /> AI Reflective Review
+             AI Reflective Review
           </button>
           <button
             onClick={() => setActiveTab('checklist')}
@@ -1461,7 +1428,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
             }`}
           >
-            <FileCheck className="w-3.5 h-3.5 text-emerald-400" /> Submission Checklist
+             Submission Checklist
           </button>
           <button
             onClick={() => setActiveTab('export')}
@@ -1471,7 +1438,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
             }`}
           >
-            <Download className="w-3.5 h-3.5 text-amber-400" /> Export Open Formats
+             Export Open Formats
           </button>
         </div>
 
@@ -1480,15 +1447,16 @@ Open publishing preparation empowers scholars, open-access journals, and public 
           <button
             type="button"
             onClick={() => setIsZenFocusMode(!isZenFocusMode)}
-            className={`text-xs px-3 py-1.5 rounded border font-medium flex items-center gap-1.5 cursor-pointer transition-colors shadow-2xs ${
+            className={`text-xs px-3.5 py-2 rounded-md font-semibold flex items-center gap-2 cursor-pointer transition-colors shadow-xs ${
               isZenFocusMode
-                ? 'bg-indigo-900 text-white border-indigo-700'
-                : 'bg-stone-100 dark:bg-stone-850 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-800 hover:bg-stone-200'
+                ? 'bg-[#912A4A] text-white hover:bg-[#78223d]'
+                : 'bg-stone-100 dark:bg-stone-850 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-800 hover:bg-stone-200'
             }`}
-            title="Toggle distraction-free writing space dominated by white space"
+            title="Toggle distraction-free writing space"
+            id="exit-zen-focus-mode-btn"
           >
-            {isZenFocusMode ? <Minimize2 className="w-3.5 h-3.5 text-indigo-300" /> : <Maximize2 className="w-3.5 h-3.5 text-amber-600" />}
-            <span>{isZenFocusMode ? 'Exit Zen Space' : 'Zen Focus Space'}</span>
+            {isZenFocusMode && <ArrowLeft className="w-4 h-4 text-white" />}
+            <span>{isZenFocusMode ? 'Exit Focus' : 'Zen Focus Space'}</span>
           </button>
 
           <button
@@ -1501,7 +1469,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
             }`}
             title="Toggle Right-Hand Side Analytical Tools Menu"
           >
-            <BarChart3 className="w-3.5 h-3.5 text-amber-400" />
+            
             <span>{isAnalyticsMenuOpen ? 'Hide Right Tools Menu' : 'Analytical Tools Menu'}</span>
             <span className="text-[10px] bg-amber-900/40 text-amber-200 px-1.5 py-0.5 rounded font-mono font-normal">
               Flesch {stats.fleschEase}
@@ -1522,7 +1490,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
             disabled={isImporting}
             className="text-xs px-3 py-1.5 rounded border border-amber-900/30 bg-amber-900/10 hover:bg-amber-900/20 dark:bg-stone-800 dark:hover:bg-stone-700 text-amber-950 dark:text-amber-300 font-medium transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
           >
-            {isImporting ? <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-600" /> : <Upload className="w-3.5 h-3.5 text-amber-600" />}
+            {isImporting ? null : null}
             {isImporting ? 'Parsing...' : 'Import (.md, .docx, .odt)'}
           </button>
         </div>
@@ -1548,7 +1516,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <FileUp className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                  
                   <span>
                     <strong>Drag & Drop documents here</strong> (.md, .docx, .odt, .txt, .pdf) or import into Document Library.
                   </span>
@@ -1559,14 +1527,14 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                     onClick={() => fileInputRef.current?.click()}
                     className="px-2.5 py-1 rounded bg-stone-900 dark:bg-stone-800 text-white text-[11px] font-medium hover:bg-stone-800 cursor-pointer flex items-center gap-1 shadow-2xs"
                   >
-                    <Upload className="w-3 h-3 text-amber-400" /> Select File(s)
+                     Select File(s)
                   </button>
                   <button
                     type="button"
                     onClick={() => setActiveTab('documents')}
                     className="px-2.5 py-1 rounded border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-300 text-[11px] font-medium hover:bg-stone-100 cursor-pointer flex items-center gap-1"
                   >
-                    <FolderOpen className="w-3 h-3 text-amber-600" /> Library ({importedDocs.length})
+                     Library ({importedDocs.length})
                   </button>
                 </div>
               </div>
@@ -1606,7 +1574,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                       className="px-2.5 py-1 rounded bg-amber-950 text-white dark:bg-stone-800 text-xs font-medium hover:bg-amber-900 transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
                       title="Open Right Analytical Tools Menu"
                     >
-                      <PanelRightOpen className="w-3.5 h-3.5 text-amber-400" />
+                      
                       <span>Analytical Tools</span>
                       <span className="text-[10px] bg-amber-900/60 text-amber-300 px-1 rounded font-mono">Flesch {stats.fleschEase}</span>
                     </button>
@@ -1620,7 +1588,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                   {/* Left: Journal Requirement Preset Selection */}
                   <div className="flex items-center gap-2 flex-wrap">
                     <div className="flex items-center gap-1.5 text-xs font-semibold text-stone-800 dark:text-stone-200">
-                      <Target className="w-4 h-4 text-amber-600 shrink-0" />
+                      
                       <span className="font-serif font-bold">Journal Goal:</span>
                     </div>
 
@@ -1710,12 +1678,12 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                     }`}>
                       {isOverWordCeiling ? (
                         <>
-                          <AlertCircle className="w-3 h-3 text-rose-500 shrink-0" />
+                          
                           <span>+{Math.abs(wordDiff).toLocaleString()} words over ceiling</span>
                         </>
                       ) : (
                         <>
-                          <CheckCircle2 className="w-3 h-3 text-emerald-600 shrink-0" />
+                          
                           <span>{wordDiff.toLocaleString()} words remaining</span>
                         </>
                       )}
@@ -1751,7 +1719,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                       className="px-2 py-0.5 rounded bg-amber-900/10 hover:bg-amber-900/20 dark:bg-stone-800 dark:hover:bg-stone-700 text-amber-950 dark:text-amber-300 font-sans font-medium text-[10px] transition-colors cursor-pointer flex items-center gap-1 border border-amber-900/20 dark:border-stone-700 shadow-2xs"
                       title="Export readability score metrics & editorial issue summary report as text file"
                     >
-                      <Download className="w-3 h-3 text-amber-600" />
+                      
                       <span>Export Summary Report (.txt)</span>
                     </button>
                     <span className="text-[9px] text-stone-400 italic">
@@ -1804,7 +1772,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 <div className="flex items-center justify-between border-b border-stone-150 dark:border-stone-850 pb-2.5">
                   <div className="flex items-center gap-2">
                     <div className="p-1.5 rounded bg-amber-900/10 dark:bg-stone-800 text-amber-900 dark:text-amber-400">
-                      <BarChart3 className="w-4 h-4" />
+                      
                     </div>
                     <div>
                       <h3 className="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 leading-none">
@@ -1829,7 +1797,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                       className="p-1 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 rounded hover:bg-stone-100 dark:hover:bg-stone-900 cursor-pointer transition-colors"
                       title="Collapse Analytical Tools Menu (Dominate with space)"
                     >
-                      <PanelRightClose className="w-4 h-4" />
+                      
                     </button>
                   </div>
                 </div>
@@ -1891,7 +1859,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                   <div className="bg-gradient-to-r from-amber-900/10 via-amber-800/5 to-transparent dark:from-stone-900 dark:to-stone-900/80 border border-amber-900/20 dark:border-stone-800 rounded-lg p-3.5 space-y-2.5 shadow-2xs">
                     <div className="flex items-center justify-between">
                       <span className="text-xs font-serif font-bold text-amber-950 dark:text-amber-200 flex items-center gap-1.5">
-                        <FileText className="w-4 h-4 text-amber-600" /> Readability & Metrics
+                         Readability & Metrics
                       </span>
                       <span className="text-[10px] font-mono font-bold text-amber-900 dark:text-amber-400 bg-amber-100 dark:bg-stone-800 px-2 py-0.5 rounded">
                         {stats.fleschEase}/100 Ease
@@ -1912,7 +1880,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                       onClick={handleExportReadabilityReport}
                       className="w-full py-1.5 px-3 bg-stone-900 hover:bg-stone-800 dark:bg-stone-800 dark:hover:bg-stone-700 text-white text-xs font-medium rounded transition-all cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
                     >
-                      <Download className="w-3.5 h-3.5 text-amber-400" />
+                      
                       <span>Export Summary Report (.txt)</span>
                     </button>
                   </div>
@@ -1922,12 +1890,12 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 {(analyticsActiveTab === 'all' || analyticsActiveTab === 'terminology') && (
                   <div className="bg-stone-50/70 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 rounded-lg p-3.5 space-y-2.5 shadow-2xs">
                     <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5 border-b border-stone-150 dark:border-stone-850 pb-2">
-                      <FileCheck className="w-4 h-4 text-amber-800" /> Terminology Consistency
+                       Terminology Consistency
                     </h4>
 
                     {terminologyFindings.length === 0 ? (
                       <div className="p-2 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded text-emerald-800 dark:text-emerald-300 text-[11px] flex items-center gap-2">
-                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
+                        
                         No terminology conflicts detected.
                       </div>
                     ) : (
@@ -1952,7 +1920,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                   <div className="bg-stone-50/70 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 rounded-lg p-3.5 space-y-2.5 shadow-2xs">
                     <div className="flex items-center justify-between border-b border-stone-150 dark:border-stone-850 pb-2">
                       <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                        <AlertCircle className="w-4 h-4 text-rose-500" /> Syntax & Fragments
+                         Syntax & Fragments
                       </h4>
                       <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
                         unfinishedFindings.length === 0
@@ -1965,7 +1933,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
 
                     {unfinishedFindings.length === 0 ? (
                       <div className="p-2 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded text-emerald-800 dark:text-emerald-300 text-[11px] flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
+                        
                         All sentences have proper terminal syntax and closure.
                       </div>
                     ) : (
@@ -1990,7 +1958,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                   <div className="bg-stone-50/70 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 rounded-lg p-3.5 space-y-2.5 shadow-2xs">
                     <div className="flex items-center justify-between border-b border-stone-150 dark:border-stone-850 pb-2">
                       <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                        <RefreshCw className="w-4 h-4 text-amber-600" /> Idea & Phrase Repetition
+                         Idea & Phrase Repetition
                       </h4>
                       <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
                         repetitionStats.duplicates.length === 0 && repetitionStats.repeatedPhrases.length === 0
@@ -2003,7 +1971,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
 
                     {repetitionStats.duplicates.length === 0 && repetitionStats.repeatedPhrases.length === 0 ? (
                       <div className="p-2 bg-emerald-50 dark:bg-emerald-950/30 border border-emerald-200 dark:border-emerald-800 rounded text-emerald-800 dark:text-emerald-300 text-[11px] flex items-center gap-1.5">
-                        <CheckCircle2 className="w-3.5 h-3.5 shrink-0 text-emerald-600" />
+                        
                         No duplicate sentences or heavy phrase repetition found.
                       </div>
                     ) : (
@@ -2042,7 +2010,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                   <div className="bg-stone-50/70 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 rounded-lg p-3.5 space-y-3 shadow-2xs">
                     <div className="flex items-center justify-between border-b border-stone-150 dark:border-stone-850 pb-2">
                       <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                        <BookOpen className="w-4 h-4 text-indigo-500" /> Citation & Library Metadata Auditor
+                         Citation & Library Metadata Auditor
                       </h4>
                       <span className={`text-[10px] font-mono font-bold px-2 py-0.5 rounded ${
                         citationAuditResult.unmatchedCount === 0 && citationAuditResult.missingMetadataCount === 0
@@ -2148,7 +2116,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                                   onClick={() => handleAddCitationStubToLibrary(issue)}
                                   className="text-[10px] px-2 py-0.5 bg-amber-900 hover:bg-amber-800 text-white rounded font-medium cursor-pointer flex items-center gap-1"
                                 >
-                                  <Plus className="w-2.5 h-2.5" /> Create Stub in Library
+                                   Create Stub in Library
                                 </button>
                               )}
 
@@ -2158,7 +2126,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                                   onClick={() => handleFixManuscriptCitation(issue)}
                                   className="text-[10px] px-2 py-0.5 bg-indigo-900 hover:bg-indigo-800 text-white rounded font-medium cursor-pointer flex items-center gap-1"
                                 >
-                                  <CheckCircle2 className="w-2.5 h-2.5 text-amber-400" /> Standardize Year to {issue.matchedPaper.year}
+                                   Standardize Year to {issue.matchedPaper.year}
                                 </button>
                               )}
 
@@ -2168,7 +2136,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                                   onClick={() => handleCompleteLibraryMetadata(issue.matchedPaper!)}
                                   className="text-[10px] px-2 py-0.5 bg-emerald-900 hover:bg-emerald-800 text-white rounded font-medium cursor-pointer flex items-center gap-1"
                                 >
-                                  <CheckCircle2 className="w-2.5 h-2.5" /> Auto-verify Library Record
+                                   Auto-verify Library Record
                                 </button>
                               )}
 
@@ -2178,7 +2146,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                                   onClick={() => handleInsertCitationIntoDraft(issue.matchedPaper!)}
                                   className="text-[10px] px-2 py-0.5 bg-stone-900 dark:bg-stone-800 hover:bg-stone-800 text-white rounded font-medium cursor-pointer flex items-center gap-1"
                                 >
-                                  <Plus className="w-2.5 h-2.5 text-amber-400" /> Insert Citation
+                                   Insert Citation
                                 </button>
                               )}
                             </div>
@@ -2193,7 +2161,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                         onClick={handleSyncCitationChecklist}
                         className="text-[10px] px-2 py-1 bg-emerald-900 hover:bg-emerald-800 text-white rounded font-medium cursor-pointer flex items-center gap-1"
                       >
-                        <CheckSquare className="w-3 h-3 text-emerald-400" /> Sync Checklist Item #c6
+                         Sync Checklist Item #c6
                       </button>
 
                       <button
@@ -2201,7 +2169,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                         onClick={handleExportCitationAuditReport}
                         className="text-[10px] px-2 py-1 border border-stone-300 dark:border-stone-700 hover:bg-stone-200 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-200 rounded font-medium cursor-pointer flex items-center gap-1"
                       >
-                        <Download className="w-3 h-3" /> Export Audit (.txt)
+                         Export Audit (.txt)
                       </button>
                     </div>
                   </div>
@@ -2211,7 +2179,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 {(analyticsActiveTab === 'all' || analyticsActiveTab === 'critique') && (
                   <div className="bg-stone-50/70 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 rounded-lg p-3.5 space-y-2.5 shadow-2xs">
                     <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5 border-b border-stone-150 dark:border-stone-850 pb-2">
-                      <Eye className="w-4 h-4 text-indigo-500" /> Quick Logic Gap Detector
+                       Quick Logic Gap Detector
                     </h4>
 
                     <p className="text-[11px] text-stone-500 leading-snug">
@@ -2240,7 +2208,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                         disabled={isAnalyzingParagraph}
                         className="w-full text-xs bg-indigo-900 hover:bg-indigo-800 text-white font-medium py-1.5 rounded transition-colors cursor-pointer flex items-center justify-center gap-1 disabled:opacity-50"
                       >
-                        {isAnalyzingParagraph ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 text-amber-400" />}
+                        {isAnalyzingParagraph ? null : null}
                         {isAnalyzingParagraph ? 'Analyzing...' : 'Inspect Paragraph Logic'}
                       </button>
 
@@ -2252,7 +2220,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                         }}
                         className="w-full text-xs bg-stone-900 hover:bg-stone-800 dark:bg-stone-800 dark:hover:bg-stone-700 text-white font-medium py-1.5 rounded transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs mt-1"
                       >
-                        <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                        
                         <span>Launch Full AI Review</span>
                       </button>
                     </div>
@@ -2264,7 +2232,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                   <div className="bg-stone-50/70 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 rounded-lg p-3.5 space-y-2.5 shadow-2xs">
                     <div className="flex items-center justify-between border-b border-stone-150 dark:border-stone-850 pb-2">
                       <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                        <Layers className="w-4 h-4 text-sky-400" /> Quick Notes Dock
+                         Quick Notes Dock
                       </h4>
                       <button
                         type="button"
@@ -2297,7 +2265,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 className="p-2 text-amber-600 hover:bg-amber-50 dark:hover:bg-stone-800 rounded-lg transition-colors cursor-pointer group relative"
                 title="Expand Analytical Tools Menu"
               >
-                <PanelRightOpen className="w-5 h-5" />
+                
                 <span className="absolute right-full mr-2 top-1/2 -translate-y-1/2 hidden group-hover:block bg-stone-900 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap shadow-md">
                   Expand Tools Menu
                 </span>
@@ -2309,7 +2277,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 className="p-2 text-stone-600 dark:text-stone-400 hover:bg-amber-50 dark:hover:bg-stone-800 rounded-lg transition-colors cursor-pointer group relative"
                 title="Readability Score"
               >
-                <BarChart3 className="w-5 h-5 text-amber-600" />
+                
                 <span className="absolute right-full mr-2 top-1/2 -translate-y-1/2 hidden group-hover:block bg-stone-900 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap shadow-md">
                   Readability: {stats.fleschEase}/100
                 </span>
@@ -2321,7 +2289,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 className="p-2 text-stone-600 dark:text-stone-400 hover:bg-amber-50 dark:hover:bg-stone-800 rounded-lg transition-colors cursor-pointer group relative"
                 title="Terminology Consistency"
               >
-                <FileCheck className="w-5 h-5 text-amber-800" />
+                
                 <span className="absolute right-full mr-2 top-1/2 -translate-y-1/2 hidden group-hover:block bg-stone-900 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap shadow-md">
                   Terms ({terminologyFindings.length})
                 </span>
@@ -2333,7 +2301,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 className="p-2 text-stone-600 dark:text-stone-400 hover:bg-amber-50 dark:hover:bg-stone-800 rounded-lg transition-colors cursor-pointer group relative"
                 title="Syntax Fragments"
               >
-                <AlertCircle className="w-5 h-5 text-rose-500" />
+                
                 <span className="absolute right-full mr-2 top-1/2 -translate-y-1/2 hidden group-hover:block bg-stone-900 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap shadow-md">
                   Fragments ({unfinishedFindings.length})
                 </span>
@@ -2345,7 +2313,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 className="p-2 text-stone-600 dark:text-stone-400 hover:bg-amber-50 dark:hover:bg-stone-800 rounded-lg transition-colors cursor-pointer group relative"
                 title="Phrase Repetition"
               >
-                <RefreshCw className="w-5 h-5 text-amber-600" />
+                
                 <span className="absolute right-full mr-2 top-1/2 -translate-y-1/2 hidden group-hover:block bg-stone-900 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap shadow-md">
                   Repetition ({repetitionStats.duplicates.length + repetitionStats.repeatedPhrases.length})
                 </span>
@@ -2357,7 +2325,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 className="p-2 text-stone-600 dark:text-stone-400 hover:bg-amber-50 dark:hover:bg-stone-800 rounded-lg transition-colors cursor-pointer group relative"
                 title="AI Reflective Critique"
               >
-                <Sparkles className="w-5 h-5 text-indigo-400" />
+                
                 <span className="absolute right-full mr-2 top-1/2 -translate-y-1/2 hidden group-hover:block bg-stone-900 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap shadow-md">
                   AI Reflective Critique
                 </span>
@@ -2384,7 +2352,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
             }`}
           >
             <div className="w-12 h-12 mx-auto rounded-full bg-amber-900/10 dark:bg-stone-800 flex items-center justify-center text-amber-600">
-              <FileUp className="w-6 h-6" />
+              
             </div>
             <div>
               <h3 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100">
@@ -2406,7 +2374,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 }}
                 className="px-3 py-1 bg-stone-900 dark:bg-stone-800 hover:bg-stone-800 text-white text-xs font-medium rounded-lg flex items-center gap-1 cursor-pointer"
               >
-                <Plus className="w-3.5 h-3.5 text-amber-400" /> Create Blank Document
+                 Create Blank Document
               </button>
             </div>
           </div>
@@ -2415,7 +2383,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
           <div className="flex flex-wrap items-center justify-between gap-3 bg-white dark:bg-stone-950 p-4 border border-stone-200 dark:border-stone-800 rounded-lg shadow-2xs">
             <div className="flex items-center gap-2 flex-grow max-w-md">
               <div className="relative w-full">
-                <Search className="w-4 h-4 absolute left-3 top-2.5 text-stone-400" />
+                
                 <input
                   type="text"
                   value={docSearchQuery}
@@ -2458,7 +2426,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                   onClick={handleCreateNewBlankDoc}
                   className="text-[11px] text-amber-800 dark:text-amber-400 font-bold hover:underline flex items-center gap-1 cursor-pointer"
                 >
-                  <Plus className="w-3 h-3" /> New Doc
+                   New Doc
                 </button>
               </div>
 
@@ -2505,7 +2473,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                               }}
                               className="p-1 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 cursor-pointer"
                             >
-                              <Copy className="w-3 h-3" />
+                              
                             </button>
                             <button
                               type="button"
@@ -2516,7 +2484,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                               }}
                               className="p-1 text-stone-400 hover:text-rose-600 cursor-pointer"
                             >
-                              <Trash2 className="w-3 h-3" />
+                              
                             </button>
                           </div>
                         </div>
@@ -2541,7 +2509,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                             }}
                             className="text-[10px] px-2 py-0.5 rounded bg-stone-900 dark:bg-stone-800 hover:bg-stone-800 text-white font-medium cursor-pointer flex items-center gap-1"
                           >
-                            <ArrowRight className="w-2.5 h-2.5 text-amber-400" /> Load as Manuscript
+                             Load as Manuscript
                           </button>
                           <button
                             type="button"
@@ -2551,7 +2519,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                             }}
                             className="text-[10px] px-2 py-0.5 rounded border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 font-medium cursor-pointer flex items-center gap-1"
                           >
-                            <Plus className="w-2.5 h-2.5 text-indigo-500" /> Append
+                             Append
                           </button>
                         </div>
                       </div>
@@ -2569,7 +2537,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                   {/* Editor Top Control Bar */}
                   <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-200 dark:border-stone-800 pb-3">
                     <div className="flex items-center gap-2 flex-grow max-w-md">
-                      <FileEdit className="w-4 h-4 text-amber-600 flex-shrink-0" />
+                      
                       <input
                         type="text"
                         value={editingDocTitle}
@@ -2585,21 +2553,21 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                         onClick={handleSaveEditedDoc}
                         className="px-3 py-1.5 bg-amber-950 hover:bg-amber-900 text-white font-medium rounded text-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-2xs"
                       >
-                        <Save className="w-3.5 h-3.5 text-amber-400" /> Save Document
+                         Save Document
                       </button>
                       <button
                         type="button"
                         onClick={() => handleLoadDocAsDraft(selectedDoc)}
                         className="px-3 py-1.5 bg-stone-900 dark:bg-stone-800 hover:bg-stone-800 text-white font-medium rounded text-xs transition-colors flex items-center gap-1.5 cursor-pointer"
                       >
-                        <PenTool className="w-3.5 h-3.5 text-amber-400" /> Edit as Active Manuscript
+                         Edit as Active Manuscript
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDownloadDoc(selectedDoc, selectedDoc.fileType as DocumentFormat)}
                         className="px-2.5 py-1.5 border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 rounded text-xs font-medium cursor-pointer flex items-center gap-1"
                       >
-                        <Download className="w-3.5 h-3.5" /> Download
+                         Download
                       </button>
                     </div>
                   </div>
@@ -2653,7 +2621,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                         }}
                         className="text-[11px] px-2.5 py-1 rounded bg-amber-900/10 dark:bg-stone-800 hover:bg-amber-900/20 text-amber-950 dark:text-amber-300 font-medium cursor-pointer flex items-center gap-1"
                       >
-                        <Sparkles className="w-3 h-3 text-amber-500" /> Run AI Review on This Document
+                         Run AI Review on This Document
                       </button>
                     </div>
                   </div>
@@ -2661,7 +2629,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 </div>
               ) : (
                 <div className="p-12 text-center bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg text-stone-500 space-y-2">
-                  <FolderOpen className="w-8 h-8 mx-auto text-amber-600/60" />
+                  
                   <h3 className="font-serif font-bold text-sm text-stone-800 dark:text-stone-200">No Document Selected</h3>
                   <p className="text-xs">Select an imported document from the left library or import a new file.</p>
                 </div>
@@ -2678,7 +2646,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-150 dark:border-stone-850 pb-3">
             <div>
               <h3 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                <ListOrdered className="w-4 h-4 text-indigo-400" /> Manuscript Section & Chapter Architecture
+                 Manuscript Section & Chapter Architecture
               </h3>
               <p className="text-xs text-stone-500 mt-0.5">
                 Organize your monograph or article structure into logical sections prior to exporting to .odt or EPUB.
@@ -2775,7 +2743,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
           {/* Note Form */}
           <form onSubmit={handleAddNote} className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-5 space-y-4 shadow-xs h-fit">
             <h3 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-2 border-b border-stone-150 dark:border-stone-850 pb-2">
-              <Layers className="w-4 h-4 text-sky-400" /> Quick Zettelkasten Note
+               Quick Zettelkasten Note
             </h3>
 
             <div className="space-y-1">
@@ -2846,7 +2814,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
             <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-150 dark:border-stone-850 pb-3">
               <div>
                 <h3 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4 text-amber-500" /> Full Draft Reflective Critique & Reasoning Review
+                   Full Draft Reflective Critique & Reasoning Review
                 </h3>
                 <p className="text-xs text-stone-500 mt-0.5">
                   Generates constructive questions and logic checks across the entire manuscript without replacing your human prose.
@@ -2859,7 +2827,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 disabled={isReflecting}
                 className="text-xs bg-amber-900 hover:bg-amber-800 text-white font-medium px-4 py-2 rounded transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
               >
-                {isReflecting ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5" />}
+                {isReflecting ? null : null}
                 {isReflecting ? 'Analyzing Draft...' : 'Run Full Draft Review'}
               </button>
             </div>
@@ -2875,7 +2843,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 {/* Reflective Questions Card */}
                 <div className="p-4 bg-amber-50/60 dark:bg-stone-900/50 border border-amber-900/10 dark:border-stone-800 rounded-lg space-y-3">
                   <h4 className="font-serif font-bold text-xs text-amber-950 dark:text-amber-300 flex items-center gap-1.5">
-                    <HelpCircle className="w-4 h-4 text-amber-700" /> Reflective Probing Questions
+                     Reflective Probing Questions
                   </h4>
                   <ul className="space-y-2 text-xs text-stone-800 dark:text-stone-200 list-disc list-inside">
                     {reflectionResult.reflectiveQuestions?.map((q: string, idx: number) => (
@@ -2890,7 +2858,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                   {/* Reasoning Gaps */}
                   <div className="p-4 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg space-y-2">
                     <h4 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                      <AlertCircle className="w-4 h-4 text-amber-600" /> Reasoning Gaps & Assumptions
+                       Reasoning Gaps & Assumptions
                     </h4>
                     <ul className="space-y-1 text-xs text-stone-600 dark:text-stone-300 list-disc list-inside">
                       {reflectionResult.reasoningGaps?.map((g: string, idx: number) => (
@@ -2902,7 +2870,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                   {/* Terminology Inconsistencies */}
                   <div className="p-4 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg space-y-2">
                     <h4 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                      <FileCheck className="w-4 h-4 text-indigo-500" /> Terminology & Plain Language
+                       Terminology & Plain Language
                     </h4>
                     <ul className="space-y-1 text-xs text-stone-600 dark:text-stone-300 list-disc list-inside">
                       {reflectionResult.accessibilitySuggestions?.map((s: string, idx: number) => (
@@ -2929,7 +2897,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h3 className="font-serif font-bold text-xs text-stone-950 dark:text-stone-100 flex items-center gap-2">
-                  <Eye className="w-4 h-4 text-indigo-500" /> Paragraph-Level Logic Gap Detector
+                   Paragraph-Level Logic Gap Detector
                 </h3>
                 <p className="text-xs text-stone-500">
                   Choose a specific paragraph from your draft to test its internal coherence and evidential support.
@@ -2979,7 +2947,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                   disabled={isAnalyzingParagraph}
                   className="text-xs bg-indigo-900 hover:bg-indigo-800 text-white font-medium px-4 py-2 rounded transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
                 >
-                  {isAnalyzingParagraph ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Eye className="w-3.5 h-3.5" />}
+                  {isAnalyzingParagraph ? null : null}
                   {isAnalyzingParagraph ? 'Analyzing Logic Gaps...' : `Analyze Paragraph #${selectedParagraphIndex + 1}`}
                 </button>
               </div>
@@ -2990,7 +2958,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
               <div className="p-4 bg-amber-50/40 dark:bg-stone-900/60 border border-amber-200 dark:border-stone-800 rounded-lg space-y-4 animate-fadeIn">
                 <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-200 dark:border-stone-800 pb-2">
                   <h4 className="font-serif font-bold text-xs text-amber-950 dark:text-amber-300 flex items-center gap-1.5">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-600" /> Paragraph #{selectedParagraphIndex + 1} Logic Gap Report
+                     Paragraph #{selectedParagraphIndex + 1} Logic Gap Report
                   </h4>
 
                   <span className={`text-[10px] font-mono px-2 py-0.5 rounded font-bold ${
@@ -3016,7 +2984,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                   {/* Identified Logic Gaps */}
                   <div className="p-3 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-md space-y-1.5">
                     <h5 className="font-sans font-bold text-xs text-amber-900 dark:text-amber-300 flex items-center gap-1">
-                      <AlertCircle className="w-3.5 h-3.5 text-amber-600" /> Identified Logic Gaps / Leaps
+                       Identified Logic Gaps / Leaps
                     </h5>
                     <ul className="space-y-1 text-xs text-stone-700 dark:text-stone-300 list-disc list-inside">
                       {paragraphAnalysisResult.identifiedLogicGaps?.map((gap: string, i: number) => (
@@ -3028,7 +2996,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                   {/* Evidential Support Needs */}
                   <div className="p-3 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-md space-y-1.5">
                     <h5 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1">
-                      <BookOpen className="w-3.5 h-3.5 text-indigo-400" /> Evidential Support Needs
+                       Evidential Support Needs
                     </h5>
                     <ul className="space-y-1 text-xs text-stone-700 dark:text-stone-300 list-disc list-inside">
                       {paragraphAnalysisResult.evidentialSupportNeeds?.map((ev: string, i: number) => (
@@ -3041,7 +3009,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 {/* Reflective Questions specifically for this paragraph */}
                 <div className="p-3 bg-amber-100/50 dark:bg-stone-800/60 border border-amber-200 dark:border-stone-700 rounded-md space-y-2">
                   <h5 className="font-serif font-bold text-xs text-amber-950 dark:text-amber-300 flex items-center gap-1">
-                    <HelpCircle className="w-3.5 h-3.5 text-amber-700" /> Reflective Questions for Paragraph #{selectedParagraphIndex + 1}
+                     Reflective Questions for Paragraph #{selectedParagraphIndex + 1}
                   </h5>
                   <ul className="space-y-1 text-xs text-stone-800 dark:text-stone-200 list-disc list-inside">
                     {paragraphAnalysisResult.reflectiveQuestions?.map((q: string, i: number) => (
@@ -3074,7 +3042,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
             <div className="flex flex-wrap items-center justify-between gap-3">
               <div>
                 <h3 className="font-serif font-bold text-xs text-stone-950 dark:text-stone-100 flex items-center gap-2">
-                  <RefreshCw className="w-4 h-4 text-amber-600" /> Editorial Support & Writing Quality Hub
+                   Editorial Support & Writing Quality Hub
                 </h3>
                 <p className="text-xs text-stone-500">
                   Acts as a supportive editorial assistant to help you spot repetitions, incomplete thoughts, and clarity issues while preserving your unique human authorship.
@@ -3087,7 +3055,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 disabled={isSpottingRepetitions}
                 className="text-xs bg-amber-900 hover:bg-amber-800 text-white font-medium px-4 py-2 rounded transition-colors cursor-pointer flex items-center gap-1.5 disabled:opacity-50"
               >
-                {isSpottingRepetitions ? <RefreshCw className="w-3.5 h-3.5 animate-spin" /> : <Sparkles className="w-3.5 h-3.5 text-amber-400" />}
+                {isSpottingRepetitions ? null : null}
                 {isSpottingRepetitions ? 'Scanning Draft...' : 'Run Comprehensive Editorial Scan'}
               </button>
             </div>
@@ -3115,7 +3083,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                     : 'text-stone-600 dark:text-stone-400 hover:text-amber-800'
                 }`}
               >
-                <RefreshCw className="w-3 h-3 text-amber-600" /> Repetition Spotter
+                 Repetition Spotter
               </button>
 
               <button
@@ -3127,7 +3095,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                     : 'text-stone-600 dark:text-stone-400 hover:text-rose-800'
                 }`}
               >
-                <AlertCircle className="w-3 h-3 text-rose-500" /> Unfinished Sentences
+                 Unfinished Sentences
               </button>
 
               <button
@@ -3139,7 +3107,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                     : 'text-stone-600 dark:text-stone-400 hover:text-indigo-800'
                 }`}
               >
-                <Eye className="w-3 h-3 text-indigo-500" /> Unclear & Complex
+                 Unclear & Complex
               </button>
 
               <button
@@ -3151,7 +3119,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                     : 'text-stone-600 dark:text-stone-400 hover:text-emerald-800'
                 }`}
               >
-                <BookOpen className="w-3 h-3 text-emerald-600" /> Transitions & Flow
+                 Transitions & Flow
               </button>
 
               <button
@@ -3163,7 +3131,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                     : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'
                 }`}
               >
-                <FileCheck className="w-3 h-3 text-stone-500" /> Terms & Accessibility
+                 Terms & Accessibility
               </button>
             </div>
 
@@ -3172,7 +3140,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
               <div className="p-4 bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg space-y-5 animate-fadeIn">
                 {repetitionAnalysisResult.editorialSummaryNote && (
                   <div className="p-3.5 bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-900/50 rounded-md text-xs text-amber-950 dark:text-amber-300 leading-relaxed font-medium flex items-start gap-2">
-                    <Sparkles className="w-4 h-4 text-amber-600 shrink-0 mt-0.5" />
+                    
                     <div>
                       <strong className="block font-bold mb-0.5">Editorial Mentor Note:</strong>
                       {repetitionAnalysisResult.editorialSummaryNote}
@@ -3185,7 +3153,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                   <div className="space-y-4 border-b border-stone-200 dark:border-stone-800 pb-4">
                     <h4 className="font-serif font-bold text-xs text-amber-950 dark:text-amber-300 flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
-                        <RefreshCw className="w-4 h-4 text-amber-600" /> 1. Repetition Spotter (Words, Phrases & Undeveloped Concepts)
+                         1. Repetition Spotter (Words, Phrases & Undeveloped Concepts)
                       </span>
                       <span className="font-mono text-[10px] text-stone-500">
                         {(repetitionAnalysisResult.repeatedWordsAndPhrases?.length || 0) + (repetitionAnalysisResult.repeatedIdeasAndConcepts?.length || 0)} Instances
@@ -3230,7 +3198,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                                     onClick={() => toggleEditorialResolved(key)}
                                     className="text-[10px] text-stone-500 hover:text-stone-900 dark:hover:text-stone-200 flex items-center gap-1 cursor-pointer"
                                   >
-                                    <CheckSquare className={`w-3 h-3 ${isResolved ? 'text-emerald-600' : ''}`} />
+                                    
                                     {isResolved ? 'Marked Resolved' : 'Mark as Considered'}
                                   </button>
                                 </div>
@@ -3279,7 +3247,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                                     onClick={() => toggleEditorialResolved(key)}
                                     className="text-[10px] text-stone-500 hover:text-stone-900 dark:hover:text-stone-200 flex items-center gap-1 cursor-pointer"
                                   >
-                                    <CheckSquare className={`w-3 h-3 ${isResolved ? 'text-emerald-600' : ''}`} />
+                                    
                                     {isResolved ? 'Marked Resolved' : 'Mark as Considered'}
                                   </button>
                                 </div>
@@ -3297,7 +3265,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                   <div className="space-y-4 border-b border-stone-200 dark:border-stone-800 pb-4">
                     <h4 className="font-serif font-bold text-xs text-rose-950 dark:text-rose-300 flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
-                        <AlertCircle className="w-4 h-4 text-rose-500" /> 2. Unfinished Sentence Spotter (Fragments & Incomplete Thoughts)
+                         2. Unfinished Sentence Spotter (Fragments & Incomplete Thoughts)
                       </span>
                       <span className="font-mono text-[10px] text-stone-500">
                         {repetitionAnalysisResult.unfinishedSentencesAndFragments?.length || 0} Issues
@@ -3339,7 +3307,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                                   onClick={() => toggleEditorialResolved(key)}
                                   className="text-[10px] text-stone-500 hover:text-stone-900 dark:hover:text-stone-200 flex items-center gap-1 cursor-pointer"
                                 >
-                                  <CheckSquare className={`w-3 h-3 ${isResolved ? 'text-emerald-600' : ''}`} />
+                                  
                                   {isResolved ? 'Marked Resolved' : 'Mark as Considered'}
                                 </button>
                               </div>
@@ -3356,7 +3324,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                   <div className="space-y-4 border-b border-stone-200 dark:border-stone-800 pb-4">
                     <h4 className="font-serif font-bold text-xs text-indigo-950 dark:text-indigo-300 flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
-                        <Eye className="w-4 h-4 text-indigo-500" /> 3. Unclear & Overly Complex Sentences
+                         3. Unclear & Overly Complex Sentences
                       </span>
                       <span className="font-mono text-[10px] text-stone-500">
                         {repetitionAnalysisResult.unclearOrComplexSentences?.length || 0} Identified
@@ -3398,7 +3366,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                                   onClick={() => toggleEditorialResolved(key)}
                                   className="text-[10px] text-stone-500 hover:text-stone-900 dark:hover:text-stone-200 flex items-center gap-1 cursor-pointer"
                                 >
-                                  <CheckSquare className={`w-3 h-3 ${isResolved ? 'text-emerald-600' : ''}`} />
+                                  
                                   {isResolved ? 'Marked Resolved' : 'Mark as Considered'}
                                 </button>
                               </div>
@@ -3415,7 +3383,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                   <div className="space-y-4 border-b border-stone-200 dark:border-stone-800 pb-4">
                     <h4 className="font-serif font-bold text-xs text-emerald-950 dark:text-emerald-300 flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
-                        <BookOpen className="w-4 h-4 text-emerald-600" /> 4. Abrupt Transitions & Inter-Paragraph Flow
+                         4. Abrupt Transitions & Inter-Paragraph Flow
                       </span>
                       <span className="font-mono text-[10px] text-stone-500">
                         {repetitionAnalysisResult.abruptTransitions?.length || 0} Noted
@@ -3454,7 +3422,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                                   onClick={() => toggleEditorialResolved(key)}
                                   className="text-[10px] text-stone-500 hover:text-stone-900 dark:hover:text-stone-200 flex items-center gap-1 cursor-pointer"
                                 >
-                                  <CheckSquare className={`w-3 h-3 ${isResolved ? 'text-emerald-600' : ''}`} />
+                                  
                                   {isResolved ? 'Marked Resolved' : 'Mark as Considered'}
                                 </button>
                               </div>
@@ -3471,7 +3439,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                   <div className="space-y-4">
                     <h4 className="font-serif font-bold text-xs text-stone-950 dark:text-stone-100 flex items-center justify-between">
                       <span className="flex items-center gap-1.5">
-                        <FileCheck className="w-4 h-4 text-stone-500" /> 5. Inconsistent Terminology & Reader Accessibility
+                         5. Inconsistent Terminology & Reader Accessibility
                       </span>
                       <span className="font-mono text-[10px] text-stone-500">
                         {repetitionAnalysisResult.accessibilityAndTermConsistency?.length || 0} Suggestions
@@ -3510,7 +3478,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                                   onClick={() => toggleEditorialResolved(key)}
                                   className="text-[10px] text-stone-500 hover:text-stone-900 dark:hover:text-stone-200 flex items-center gap-1 cursor-pointer"
                                 >
-                                  <CheckSquare className={`w-3 h-3 ${isResolved ? 'text-emerald-600' : ''}`} />
+                                  
                                   {isResolved ? 'Marked Resolved' : 'Mark as Considered'}
                                 </button>
                               </div>
@@ -3533,7 +3501,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
           <div className="flex flex-wrap items-center justify-between gap-3 border-b border-stone-150 dark:border-stone-850 pb-3">
             <div>
               <h3 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                <FileCheck className="w-4 h-4 text-emerald-500" /> Publisher & Open Monograph Submission Checklist
+                 Publisher & Open Monograph Submission Checklist
               </h3>
               <p className="text-xs text-stone-500 mt-0.5">
                 Ensure compliance with open access journals, university presses, and digital publication standards.
@@ -3557,11 +3525,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 }`}
               >
                 <div className="flex items-center gap-3">
-                  {item.completed ? (
-                    <CheckSquare className="w-4 h-4 text-emerald-600 shrink-0" />
-                  ) : (
-                    <Square className="w-4 h-4 text-stone-400 shrink-0" />
-                  )}
+                  {item.completed ? null : null}
                   <span className={item.completed ? 'line-through text-stone-500' : 'font-medium'}>
                     {item.label}
                   </span>
@@ -3581,7 +3545,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
         <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-5 space-y-5 shadow-xs animate-fadeIn">
           <div className="border-b border-stone-150 dark:border-stone-850 pb-3">
             <h3 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-2">
-              <Download className="w-4 h-4 text-amber-500" /> Export Open & Accessible Formats
+               Export Open & Accessible Formats
             </h3>
             <p className="text-xs text-stone-500 mt-0.5">
               Export your manuscript cleanly into open standards without requiring paid office software subscriptions.
@@ -3594,7 +3558,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
             <div className="p-4 bg-stone-50 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 rounded-lg space-y-3 flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 text-amber-900 dark:text-amber-400 font-bold text-xs">
-                  <FileText className="w-4 h-4" /> OpenDocument Text (.odt)
+                   OpenDocument Text (.odt)
                 </div>
                 <p className="text-[11px] text-stone-500 mt-1 leading-snug">
                   Native ISO standard format for LibreOffice Writer and ONLYOFFICE. Fully open and subscription-free.
@@ -3605,7 +3569,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 onClick={() => handleExport('odt')}
                 className="w-full text-xs bg-amber-900 hover:bg-amber-800 text-white font-medium py-2 rounded transition-colors cursor-pointer flex items-center justify-center gap-1.5"
               >
-                <Download className="w-3.5 h-3.5" /> Export .odt File
+                 Export .odt File
               </button>
             </div>
 
@@ -3613,7 +3577,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
             <div className="p-4 bg-stone-50 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 rounded-lg space-y-3 flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-400 font-bold text-xs">
-                  <FileCode className="w-4 h-4" /> CommonMark Markdown (.md)
+                   CommonMark Markdown (.md)
                 </div>
                 <p className="text-[11px] text-stone-500 mt-1 leading-snug">
                   Compatible with Obsidian, Zettelkasten note systems, Pandoc, and static site generators.
@@ -3624,7 +3588,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 onClick={() => handleExport('md')}
                 className="w-full text-xs bg-emerald-800 hover:bg-emerald-700 text-white font-medium py-2 rounded transition-colors cursor-pointer flex items-center justify-center gap-1.5"
               >
-                <Download className="w-3.5 h-3.5" /> Export .md File
+                 Export .md File
               </button>
             </div>
 
@@ -3632,7 +3596,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
             <div className="p-4 bg-stone-50 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 rounded-lg space-y-3 flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 text-sky-800 dark:text-sky-400 font-bold text-xs">
-                  <BookOpen className="w-4 h-4" /> Digital Monograph EPUB (.epub)
+                   Digital Monograph EPUB (.epub)
                 </div>
                 <p className="text-[11px] text-stone-500 mt-1 leading-snug">
                   Accessible e-book standard for digital readers, mobile libraries, and open monograph repositories.
@@ -3643,7 +3607,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 onClick={() => handleExport('epub')}
                 className="w-full text-xs bg-sky-800 hover:bg-sky-700 text-white font-medium py-2 rounded transition-colors cursor-pointer flex items-center justify-center gap-1.5"
               >
-                <Download className="w-3.5 h-3.5" /> Export .epub Package
+                 Export .epub Package
               </button>
             </div>
 
@@ -3651,7 +3615,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
             <div className="p-4 bg-stone-50 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 rounded-lg space-y-3 flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 text-indigo-800 dark:text-indigo-400 font-bold text-xs">
-                  <FileSpreadsheet className="w-4 h-4" /> Word Compatible (.docx)
+                   Word Compatible (.docx)
                 </div>
                 <p className="text-[11px] text-stone-500 mt-1 leading-snug">
                   Clean XML structure compatible with external publisher requirements without needing paid Word.
@@ -3662,7 +3626,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 onClick={() => handleExport('docx')}
                 className="w-full text-xs bg-indigo-800 hover:bg-indigo-700 text-white font-medium py-2 rounded transition-colors cursor-pointer flex items-center justify-center gap-1.5"
               >
-                <Download className="w-3.5 h-3.5" /> Export .docx Structure
+                 Export .docx Structure
               </button>
             </div>
 
@@ -3670,7 +3634,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
             <div className="p-4 bg-amber-50/60 dark:bg-stone-900/60 border border-amber-200 dark:border-stone-800 rounded-lg space-y-3 flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 text-amber-900 dark:text-amber-300 font-bold text-xs font-serif">
-                  <FileText className="w-4 h-4 text-amber-600" /> Readability & Editorial Summary Report (.txt)
+                   Readability & Editorial Summary Report (.txt)
                 </div>
                 <p className="text-[11px] text-stone-600 dark:text-stone-400 mt-1 leading-snug">
                   Comprehensive audit report exporting Flesch-Kincaid readability metrics, word ceiling target stats, terminology conflicts, syntax fragments, and citation coverage.
@@ -3681,7 +3645,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 onClick={handleExportReadabilityReport}
                 className="w-full text-xs bg-amber-900 hover:bg-amber-800 dark:bg-amber-700 dark:hover:bg-amber-600 text-white font-medium py-2 rounded transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-2xs"
               >
-                <Download className="w-3.5 h-3.5" /> Export Summary Report (.txt)
+                 Export Summary Report (.txt)
               </button>
             </div>
 
@@ -3689,7 +3653,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
             <div className="p-4 bg-stone-50 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 rounded-lg space-y-3 flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 text-stone-800 dark:text-stone-200 font-bold text-xs">
-                  <Terminal className="w-4 h-4" /> Plain Text (.txt)
+                   Plain Text (.txt)
                 </div>
                 <p className="text-[11px] text-stone-500 mt-1 leading-snug">
                   Universal UTF-8 plain text file for maximum long-term archival stability.
@@ -3700,7 +3664,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 onClick={() => handleExport('txt')}
                 className="w-full text-xs bg-stone-800 hover:bg-stone-700 text-white font-medium py-2 rounded transition-colors cursor-pointer flex items-center justify-center gap-1.5"
               >
-                <Download className="w-3.5 h-3.5" /> Export .txt File
+                 Export .txt File
               </button>
             </div>
 
@@ -3708,7 +3672,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
             <div className="p-4 bg-stone-50 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 rounded-lg space-y-3 flex flex-col justify-between">
               <div>
                 <div className="flex items-center gap-2 text-rose-800 dark:text-rose-400 font-bold text-xs">
-                  <Printer className="w-4 h-4" /> Print / Save to PDF
+                   Print / Save to PDF
                 </div>
                 <p className="text-[11px] text-stone-500 mt-1 leading-snug">
                   Trigger print dialog formatted with academic margins, page breaks, and clean typography.
@@ -3719,7 +3683,7 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                 onClick={() => handleExport('pdf')}
                 className="w-full text-xs bg-rose-800 hover:bg-rose-700 text-white font-medium py-2 rounded transition-colors cursor-pointer flex items-center justify-center gap-1.5"
               >
-                <Printer className="w-3.5 h-3.5" /> Print / PDF Dialog
+                 Print / PDF Dialog
               </button>
             </div>
 

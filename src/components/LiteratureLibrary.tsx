@@ -5,7 +5,6 @@
 
 import React, { useState } from 'react';
 import { Paper, Collection, Annotation } from '../types';
-import { Search, Tag, AlertTriangle, CheckCircle2, ShieldAlert, Sparkles, FileText, Plus, Trash, Database, Clipboard, Check, Quote, BookOpen } from 'lucide-react';
 import DataIngestionModule from './DataIngestionModule';
 
 export type CommonCitationStyle = 'Harvard' | 'APA' | 'MLA' | 'Chicago' | 'IEEE';
@@ -206,7 +205,7 @@ export default function LiteratureLibrary({
         {/* Search & Actions Bar */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 text-stone-400 absolute left-3 top-3" />
+            
             <label htmlFor="library-search" className="sr-only">Search Literature Library</label>
             <input
               id="library-search"
@@ -221,7 +220,7 @@ export default function LiteratureLibrary({
           <div className="flex gap-2 flex-wrap sm:flex-nowrap">
             <label htmlFor="citation-style-global-select" className="sr-only">Citation Preview Style</label>
             <div className="flex items-center gap-1.5 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded px-2 py-1">
-              <Quote className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400 shrink-0" />
+              
               <select
                 id="citation-style-global-select"
                 value={citationStyle}
@@ -262,7 +261,7 @@ export default function LiteratureLibrary({
               }`}
               title="Import local JSON or text data dumps for local RAG datasets"
             >
-              <Database className="w-3.5 h-3.5 text-amber-700 dark:text-amber-400" />
+              
               Ingest Data Dump (RAG)
             </button>
 
@@ -273,7 +272,7 @@ export default function LiteratureLibrary({
               }}
               className="font-sans text-xs bg-amber-900/10 dark:bg-amber-900/30 text-amber-900 dark:text-amber-300 border border-amber-900/20 px-3 py-2 rounded hover:bg-amber-900/20 transition-all flex items-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950"
             >
-              <Plus className="w-4 h-4" /> Add Document
+               Add Document
             </button>
           </div>
         </div>
@@ -398,12 +397,12 @@ export default function LiteratureLibrary({
                     </h3>
                     {p.verificationStatus === 'missing_metadata' && (
                       <span className="flex items-center gap-0.5 text-[9px] bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400 px-1.5 py-0.5 rounded border border-red-200/50">
-                        <AlertTriangle className="w-2.5 h-2.5" /> Incomplete
+                         Incomplete
                       </span>
                     )}
                     {p.verificationStatus === 'verified' && (
                       <span className="flex items-center gap-0.5 text-[9px] bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-200/50">
-                        <CheckCircle2 className="w-2.5 h-2.5" /> Verified
+                         Verified
                       </span>
                     )}
                   </div>
@@ -444,9 +443,7 @@ export default function LiteratureLibrary({
                     >
                       {verifyingId === p.id ? (
                         <span className="w-2 h-2 border border-amber-900 border-t-transparent rounded-full animate-spin"></span>
-                      ) : (
-                        <Sparkles className="w-2.5 h-2.5" />
-                      )}
+                      ) : null}
                       Repair
                     </button>
                   )}
@@ -482,7 +479,7 @@ export default function LiteratureLibrary({
                   className="text-stone-400 hover:text-red-600 transition-colors cursor-pointer"
                   title="Remove Paper"
                 >
-                  <Trash className="w-4 h-4" />
+                  
                 </button>
               </div>
 
@@ -498,7 +495,7 @@ export default function LiteratureLibrary({
             <div className="p-3.5 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg space-y-3 shadow-2xs">
               <div className="flex items-center justify-between border-b border-stone-150 dark:border-stone-850 pb-2">
                 <label htmlFor="inspector-citation-style-select" className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                  <Quote className="w-4 h-4 text-amber-800 dark:text-amber-500" /> Formatted Citation Preview
+                   Formatted Citation Preview
                 </label>
 
                 {/* Dropdown to switch between common citation styles */}
@@ -558,11 +555,11 @@ export default function LiteratureLibrary({
                 >
                   {copiedCitation ? (
                     <>
-                      <Check className="w-3.5 h-3.5 text-emerald-300" /> Copied to Clipboard
+                       Copied to Clipboard
                     </>
                   ) : (
                     <>
-                      <Clipboard className="w-3.5 h-3.5" /> Copy Citation
+                       Copy Citation
                     </>
                   )}
                 </button>
@@ -592,7 +589,7 @@ export default function LiteratureLibrary({
               {selectedPaper.missingFields.length > 0 && (
                 <div className="pt-2 border-t border-stone-100 dark:border-stone-900">
                   <p className="text-[10px] font-sans text-amber-800 dark:text-amber-400 flex items-center gap-1">
-                    <ShieldAlert className="w-3.5 h-3.5" /> Missing fields for citation formatting:
+                     Missing fields for citation formatting:
                   </p>
                   <p className="text-[10px] font-mono text-stone-400 mt-1">
                     {selectedPaper.missingFields.join(', ')}

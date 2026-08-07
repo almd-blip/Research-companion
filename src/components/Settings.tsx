@@ -4,7 +4,6 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { Database, Download, Trash, Shield, Settings2, Sliders, Sparkles, Eye, Bell, CheckCircle, Cpu } from 'lucide-react';
 import LocalAIRuntimeManager from './LocalAIRuntimeManager';
 import AccessibilityPanel from './AccessibilityPanel';
 import { AccessibilitySettings, DEFAULT_ACCESSIBILITY_SETTINGS } from '../types';
@@ -116,7 +115,6 @@ export default function Settings({
       {/* Toast Notification */}
       {toast && (
         <div className="fixed bottom-5 right-5 bg-stone-900 text-stone-100 dark:bg-stone-100 dark:text-stone-900 px-4 py-3 rounded-lg shadow-lg flex items-center gap-2 text-xs z-50 animate-fadeIn border border-stone-250">
-          <CheckCircle className="w-4 h-4 text-emerald-500" />
           <span>{toast}</span>
         </div>
       )}
@@ -181,7 +179,7 @@ export default function Settings({
       {activeTab === 'profile' && (
         <form onSubmit={handleSaveProfile} className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-4 shadow-xs animate-fadeIn">
           <h3 className="font-sans font-semibold text-stone-950 dark:text-stone-100 text-xs flex items-center gap-2 border-b border-stone-100 dark:border-stone-850 pb-2">
-            <Settings2 className="w-4 h-4 text-amber-800" aria-hidden="true" /> Profile settings
+            Profile settings
           </h3>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -251,7 +249,7 @@ export default function Settings({
           {/* Scholar Persona & Guidance Options */}
           <form onSubmit={handleSaveAIOptions} className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-4 shadow-xs">
             <h3 className="font-sans font-semibold text-stone-950 dark:text-stone-100 text-xs flex items-center gap-2 border-b border-stone-100 dark:border-stone-850 pb-2">
-              <Sparkles className="w-4 h-4 text-amber-800" aria-hidden="true" /> AI Companion Guidance
+              AI Companion Guidance
             </h3>
 
             <div className="space-y-4">
@@ -310,7 +308,7 @@ export default function Settings({
       {activeTab === 'notifications' && (
         <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-6 shadow-xs animate-fadeIn text-left">
           <h3 className="font-sans font-semibold text-stone-950 dark:text-stone-100 text-xs flex items-center gap-2 border-b border-stone-100 dark:border-stone-850 pb-2 text-left">
-            <Bell className="w-4 h-4 text-amber-800" aria-hidden="true" /> Notifications & sounds
+            Notifications & sounds
           </h3>
 
           <div className="space-y-4">
@@ -358,7 +356,7 @@ export default function Settings({
       {activeTab === 'backup' && (
         <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-6 shadow-xs animate-fadeIn text-left">
           <h3 className="font-sans font-semibold text-stone-950 dark:text-stone-100 text-xs flex items-center gap-2 border-b border-stone-100 dark:border-stone-850 pb-2 text-left">
-            <Database className="w-4 h-4 text-amber-800" aria-hidden="true" /> Data storage
+            Data storage
           </h3>
 
           <div className="space-y-4">
@@ -378,7 +376,7 @@ export default function Settings({
                 onClick={handleExportData}
                 className="font-sans text-xs border border-stone-250 dark:border-stone-800 bg-white dark:bg-stone-950 py-2.5 px-4 rounded flex justify-center items-center gap-1.5 hover:bg-stone-50 dark:hover:bg-stone-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 transition-colors cursor-pointer text-center font-medium text-stone-700 dark:text-stone-300"
               >
-                <Download className="w-4 h-4 text-stone-500" aria-hidden="true" /> Download backup file (.rcp)
+                Download backup file (.rcp)
               </button>
               
               <button
@@ -390,13 +388,12 @@ export default function Settings({
                 }}
                 className="font-sans text-xs border border-red-200 text-red-700 py-2.5 px-4 rounded flex justify-center items-center gap-1.5 hover:bg-red-50/50 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 transition-colors cursor-pointer text-center font-medium"
               >
-                <Trash className="w-4 h-4 text-red-500" aria-hidden="true" /> Delete all local data
+                Delete all local data
               </button>
             </div>
           </div>
 
           <div className="bg-stone-50 dark:bg-stone-900/30 p-5 rounded-lg border border-stone-200 dark:border-stone-800 text-xs font-sans text-stone-600 dark:text-stone-400 space-y-2 flex items-start gap-3 text-left">
-            <Shield className="w-5 h-5 text-amber-850 shrink-0 mt-0.5" aria-hidden="true" />
             <div className="text-left">
               <p className="font-semibold text-stone-800 dark:text-stone-200 text-left">Privacy & offline storage</p>
               <p className="leading-relaxed mt-0.5 text-left">

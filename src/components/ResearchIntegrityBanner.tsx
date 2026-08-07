@@ -4,7 +4,6 @@
  */
 
 import React, { useState } from 'react';
-import { ShieldCheck, CheckCircle2, UserCheck, Sparkles, BookOpen, HelpCircle, X, Compass, FileText, AlertCircle } from 'lucide-react';
 
 interface ResearchIntegrityBannerProps {
   compact?: boolean;
@@ -24,9 +23,6 @@ export default function ResearchIntegrityBanner({
       {/* Banner / Badge */}
       <div className="bg-stone-50 dark:bg-stone-900/60 border border-stone-200/80 dark:border-stone-800 rounded-lg p-3 flex flex-wrap items-center justify-between gap-3 text-xs font-sans shadow-2xs">
         <div className="flex items-center gap-2.5 min-w-0">
-          <div className="p-1.5 rounded-md bg-amber-900/10 text-amber-900 dark:bg-stone-800 dark:text-amber-400 shrink-0">
-            <ShieldCheck className="w-4 h-4" />
-          </div>
           <div className="min-w-0">
             <p className="font-semibold text-stone-800 dark:text-stone-200 text-xs flex items-center gap-1.5">
               <span>Research Integrity Boundary Active</span>
@@ -57,24 +53,19 @@ export default function ResearchIntegrityBanner({
             
             {/* Header */}
             <div className="flex justify-between items-start border-b border-stone-150 dark:border-stone-900 pb-3">
-              <div className="flex items-center gap-3">
-                <div className="p-2 rounded-lg bg-amber-900 text-white dark:bg-amber-800">
-                  <ShieldCheck className="w-5 h-5" />
-                </div>
-                <div>
-                  <h3 className="font-sans font-bold text-base text-stone-900 dark:text-stone-100">
-                    Research Integrity Policy
-                  </h3>
-                  <p className="font-sans text-xs text-stone-500">
-                    The AI acts as an analytical partner — never as an author or ghostwriter.
-                  </p>
-                </div>
+              <div>
+                <h3 className="font-sans font-bold text-base text-stone-900 dark:text-stone-100">
+                  Research Integrity Policy
+                </h3>
+                <p className="font-sans text-xs text-stone-500">
+                  The AI acts as an analytical partner — never as an author or ghostwriter.
+                </p>
               </div>
               <button
                 onClick={() => setShowModal(false)}
                 className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1 rounded-lg text-xs"
               >
-                <X className="w-5 h-5" />
+                Close
               </button>
             </div>
 
@@ -92,7 +83,7 @@ export default function ResearchIntegrityBanner({
               {/* Permissible AI Assistance */}
               <div className="bg-stone-50/70 dark:bg-stone-900/40 border border-stone-200/80 dark:border-stone-800 p-4 rounded-lg space-y-2">
                 <h4 className="font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-1.5 text-xs">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-600" /> What the AI May Assist With
+                  What the AI May Assist With
                 </h4>
                 <ul className="space-y-1.5 text-[11px] text-stone-600 dark:text-stone-400">
                   <li className="flex items-start gap-1.5">
@@ -134,7 +125,7 @@ export default function ResearchIntegrityBanner({
               {/* User Responsibilities */}
               <div className="bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-4 rounded-lg space-y-2">
                 <h4 className="font-semibold text-stone-900 dark:text-stone-100 flex items-center gap-1.5 text-xs">
-                  <UserCheck className="w-4 h-4 text-amber-800 dark:text-amber-400" /> Researcher Responsibilities
+                  Researcher Responsibilities
                 </h4>
                 <ul className="space-y-1.5 text-[11px] text-stone-600 dark:text-stone-400">
                   <li className="flex items-start gap-1.5">
@@ -185,7 +176,7 @@ export default function ResearchIntegrityBanner({
                     }}
                     className="font-sans text-xs px-3 py-1.5 rounded bg-amber-900 text-white hover:bg-amber-800 transition-colors flex items-center gap-1"
                   >
-                    <Compass className="w-3.5 h-3.5" /> Research Plan Helper
+                    Research Plan Helper
                   </button>
                 )}
                 <button

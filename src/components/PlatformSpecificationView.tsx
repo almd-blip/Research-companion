@@ -5,7 +5,6 @@
 
 import { useState } from 'react';
 import { SYSTEM_SPECIFICATION } from '../data';
-import { BookOpen, Settings, ZoomIn, ZoomOut, Type, Compass } from 'lucide-react';
 
 export default function PlatformSpecificationView() {
   const [useSerif, setUseSerif] = useState(true);
@@ -35,7 +34,7 @@ export default function PlatformSpecificationView() {
       {/* Dynamic index navigation outline */}
       <div className="w-full lg:w-72 bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 p-5 rounded-lg h-fit space-y-4">
         <h4 className="font-sans font-medium text-xs text-[#912A4A] dark:text-rose-400 tracking-wide flex items-center gap-1.5 border-b border-stone-200 dark:border-stone-800 pb-2">
-          <Compass className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Platform Specification index
+          Platform Specification index
         </h4>
         
         <div className="space-y-1 max-h-[350px] overflow-y-auto pr-1">
@@ -61,7 +60,6 @@ export default function PlatformSpecificationView() {
         {/* Floating Accessibility Controls Panel */}
         <div className="sticky top-0 bg-stone-50 dark:bg-stone-900 border border-stone-200 p-3 rounded-lg flex flex-wrap gap-4 items-center justify-between text-xs font-sans shadow-sm z-10 mb-4">
           <div className="flex items-center gap-1.5">
-            <Settings className="w-4 h-4 text-stone-400" />
             <span className="font-semibold text-stone-700 dark:text-stone-300">Accessibility Reading Settings:</span>
           </div>
 
@@ -72,7 +70,6 @@ export default function PlatformSpecificationView() {
               className="flex items-center gap-1 px-2.5 py-1 bg-white dark:bg-stone-950 border rounded hover:bg-stone-50 transition-colors"
               title="Toggle Font Serif"
             >
-              <Type className="w-3.5 h-3.5 text-stone-500" />
               <span>{useSerif ? 'Serif Font' : 'Sans-Serif'}</span>
             </button>
 
@@ -109,7 +106,7 @@ export default function PlatformSpecificationView() {
         {/* Article header */}
         <div className="text-left space-y-3 pb-6 border-b border-stone-150/80 max-w-2xl">
           <span className="font-sans text-[10px] capitalize font-mono tracking-wide text-[#912A4A] dark:text-rose-400 font-semibold flex items-center gap-1 justify-start">
-            <BookOpen className="w-4 h-4" /> Academic Specification Paper
+            Academic Specification Paper
           </span>
           <h1 className="font-sans font-bold tracking-tight text-xl md:text-2xl text-stone-950 leading-tight">
             {SYSTEM_SPECIFICATION.title}

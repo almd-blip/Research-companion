@@ -5,10 +5,6 @@
 
 import React, { useState } from 'react';
 import { AccessibilitySettings, DEFAULT_ACCESSIBILITY_SETTINGS } from '../types';
-import { 
-  Check, Eye, Type, Sliders, Moon, Sun, RotateCcw, 
-  Volume2, VolumeX, Grid, Sparkles, BookOpen, Layers, Zap, Heart
-} from 'lucide-react';
 import { ICON_SEMANTIC, BRAND } from '../theme/tokens';
 
 interface AccessibilityPanelProps {
@@ -83,7 +79,7 @@ export default function AccessibilityPanel({
       <div className="border-b pb-4 border-current/10 flex items-start justify-between gap-4" id="acc-header-block">
         <div className="space-y-1" id="acc-header-titles">
           <div className="flex items-center gap-2">
-            <Heart className="w-4 h-4 shrink-0" style={{ color: "var(--action-color, #912A4A)" }} />
+            
             <h3 className="text-lg font-semibold tracking-tight" id="acc-title-main">
               Accessibility & Comfort Panel
             </h3>
@@ -107,7 +103,7 @@ export default function AccessibilityPanel({
       {/* SECTION 1: Text and Reading */}
       <section className="space-y-3" id="acc-sec-text-reading" aria-labelledby="acc-sec-text-title">
         <div className="flex items-center gap-2 text-xs font-semibold opacity-70" id="acc-sec-text-title">
-          <Type className="w-4 h-4 shrink-0" style={{ color: "var(--success-green, #1D9E75)" }} />
+          
           <span>1. Text and Reading</span>
         </div>
 
@@ -135,7 +131,7 @@ export default function AccessibilityPanel({
                 >
                   <div className="flex justify-between items-center w-full">
                     <span className="text-xs font-medium">{opt.label}</span>
-                    {isSelected && <Check className="w-3.5 h-3.5 shrink-0" />}
+                    {isSelected }
                   </div>
                   <span className="text-[10px] opacity-75">{opt.desc}</span>
                 </button>
@@ -148,18 +144,17 @@ export default function AccessibilityPanel({
       {/* SECTION 2: Display Mode */}
       <section className="space-y-3 pt-4 border-t border-current/10" id="acc-sec-display" aria-labelledby="acc-sec-display-title">
         <div className="flex items-center gap-2 text-xs font-semibold opacity-70" id="acc-sec-display-title">
-          <Eye className="w-4 h-4 shrink-0" style={{ color: "var(--success-green, #1D9E75)" }} />
+          
           <span>2. Display Mode</span>
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5" id="acc-display-grid" role="radiogroup" aria-label="Display theme mode">
           {[
-            { id: 'light', label: 'Light mode', icon: Sun, desc: 'Light background' },
-            { id: 'dark', label: 'Dark mode', icon: Moon, desc: 'Dark background' },
-            { id: 'high-contrast', label: 'High contrast', icon: Eye, desc: 'High contrast black and white' },
-            { id: 'low-vision', label: 'Low vision', icon: Zap, desc: 'Yellow text on dark background' }
+            { id: 'light', label: 'Light mode', desc: 'Light background' },
+            { id: 'dark', label: 'Dark mode', desc: 'Dark background' },
+            { id: 'high-contrast', label: 'High contrast', desc: 'High contrast black and white' },
+            { id: 'low-vision', label: 'Low vision', desc: 'Yellow text on dark background' }
           ].map((opt) => {
-            const IconComp = opt.icon;
             const isSelected = settings.displayMode === opt.id;
             return (
               <button
@@ -174,10 +169,6 @@ export default function AccessibilityPanel({
                     : 'border-current/20 hover:border-current/50 bg-current/[0.02]'
                 }`}
               >
-                <div className="flex justify-between items-center w-full">
-                  <IconComp className="w-4 h-4 shrink-0" />
-                  {isSelected && <Check className="w-3.5 h-3.5 shrink-0" />}
-                </div>
                 <div className="mt-2 space-y-0.5">
                   <span className="text-xs font-medium block">{opt.label}</span>
                   <span className="text-[10px] opacity-75 block leading-tight">{opt.desc}</span>
@@ -191,7 +182,7 @@ export default function AccessibilityPanel({
       {/* SECTION 3: Reading Support */}
       <section className="space-y-4 pt-4 border-t border-current/10" id="acc-sec-reading-support" aria-labelledby="acc-sec-reading-title">
         <div className="flex items-center gap-2 text-xs font-semibold opacity-70" id="acc-sec-reading-title">
-          <BookOpen className="w-4 h-4 shrink-0" style={{ color: "currentColor" }} />
+          
           <span>3. Reading Support</span>
         </div>
 
@@ -217,7 +208,7 @@ export default function AccessibilityPanel({
             }`}
           >
             <span>{settings.dyslexiaFont ? 'Enabled' : 'Disabled'}</span>
-            <Check className={`w-3.5 h-3.5 ${settings.dyslexiaFont ? 'opacity-100' : 'opacity-0'}`} />
+            
           </button>
         </div>
 
@@ -244,7 +235,7 @@ export default function AccessibilityPanel({
                   }`}
                 >
                   <span>{sp.label}</span>
-                  {settings.letterSpacing === sp.id && <Check className="w-3 h-3" />}
+                  {settings.letterSpacing === sp.id }
                 </button>
               ))}
             </div>
@@ -272,7 +263,7 @@ export default function AccessibilityPanel({
                   }`}
                 >
                   <span>{lh.label}</span>
-                  {settings.lineHeight === lh.id && <Check className="w-3 h-3" />}
+                  {settings.lineHeight === lh.id }
                 </button>
               ))}
             </div>
@@ -301,7 +292,7 @@ export default function AccessibilityPanel({
                   }`}
                 >
                   <span>{rw.label}</span>
-                  {settings.readingWidth === rw.id && <Check className="w-3 h-3" />}
+                  {settings.readingWidth === rw.id }
                 </button>
               ))}
             </div>
@@ -312,7 +303,7 @@ export default function AccessibilityPanel({
       {/* SECTION 4: Interaction */}
       <section className="space-y-3 pt-4 border-t border-current/10" id="acc-sec-interaction" aria-labelledby="acc-sec-interaction-title">
         <div className="flex items-center gap-2 text-xs font-semibold opacity-70" id="acc-sec-interaction-title">
-          <Sliders className="w-4 h-4 shrink-0" style={{ color: "currentColor" }} />
+          
           <span>4. Interaction & Motion</span>
         </div>
 
@@ -336,7 +327,7 @@ export default function AccessibilityPanel({
               }`}
             >
               <span>{settings.reducedMotion ? 'On' : 'Off'}</span>
-              <Check className={`w-3.5 h-3.5 ${settings.reducedMotion ? 'opacity-100' : 'opacity-0'}`} />
+              
             </button>
           </div>
 
@@ -359,7 +350,7 @@ export default function AccessibilityPanel({
               }`}
             >
               <span>{settings.enhancedFocus ? 'On' : 'Off'}</span>
-              <Check className={`w-3.5 h-3.5 ${settings.enhancedFocus ? 'opacity-100' : 'opacity-0'}`} />
+              
             </button>
           </div>
         </div>
@@ -368,7 +359,7 @@ export default function AccessibilityPanel({
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2" id="acc-extra-interaction-row">
           <div className="p-3 rounded-xl border border-current/15 flex items-center justify-between gap-2">
             <span className="text-xs font-medium flex items-center gap-2">
-              {settings.soundEnabled ? <Volume2 className="w-4 h-4 shrink-0" style={{ color: "var(--success-green, #1D9E75)" }} /> : <VolumeX className="w-4 h-4 opacity-50" />}
+              {settings.soundEnabled ? null : null}
               Sound feedback
             </span>
             <button
@@ -419,7 +410,7 @@ export default function AccessibilityPanel({
           className="px-4 py-2.5 min-h-[44px] rounded-xl border border-current/30 text-current hover:bg-current/[0.04] text-xs font-semibold flex items-center gap-2 cursor-pointer transition-colors focus-visible:ring-2 focus-visible:ring-[#912A4A]"
           aria-label="Restore default accessibility settings"
         >
-          <RotateCcw className="w-3.5 h-3.5 shrink-0" />
+          
           <span>Reset to default settings</span>
         </button>
       </section>
@@ -428,7 +419,7 @@ export default function AccessibilityPanel({
       {appModules.length > 0 && (
         <section className="pt-4 border-t border-current/10 space-y-2" id="acc-sec-modules">
           <h4 className="text-xs font-semibold opacity-70 flex items-center gap-1.5">
-            <Grid className="w-3.5 h-3.5" />
+            
             Workspace modules
           </h4>
           <p className="text-[11px] opacity-75">
@@ -449,7 +440,7 @@ export default function AccessibilityPanel({
                       : 'border-current/25 opacity-60 hover:opacity-100'
                   }`}
                 >
-                  {isChecked && <Check className="w-3 h-3" />}
+                  {isChecked }
                   <span>{moduleName}</span>
                 </button>
               );

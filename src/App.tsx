@@ -30,6 +30,7 @@ import {
   Compass,
   BookOpen,
   Heart,
+  Wind,
   Settings as SettingsIcon,
   MessageSquare,
   Sparkles,
@@ -41,11 +42,16 @@ import {
   Eye,
   Clock,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Search,
+  Menu,
+  X
 } from 'lucide-react';
 
 export default function App() {
   const [showLanding, setShowLanding] = useState<boolean>(true);
+  const [sidebarSearch, setSidebarSearch] = useState<string>('');
+  const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean>(false);
   const [activeTab, setActiveTab] = useState<string>('dashboard');
   const [researchSubTab, setResearchSubTab] = useState<string>('projects');
   const [referenceSubMode, setReferenceSubMode] = useState<'library' | 'verifier'>('library');
@@ -66,6 +72,7 @@ export default function App() {
     if (subTab) {
       setResearchSubTab(subTab);
     }
+    setMobileMenuOpen(false);
   };
 
   // Accessibility parameters driven dynamically
@@ -285,9 +292,43 @@ export default function App() {
           }}
         />
       )}
-      {/* Sidebar - Structured by 3 Parent Choices and Submenus */}
-      <aside className="w-full md:w-64 bg-[#FAF8F5] dark:bg-[#1B0A3B] text-stone-800 dark:text-stone-200 border-r border-stone-200 dark:border-[#2c135a] flex flex-col justify-between p-4 shrink-0 z-10 shadow-md max-h-screen overflow-y-auto">
-        <div className="space-y-5">
+
+      {/* Mobile Top Header */}
+      <header className="md:hidden sticky top-0 z-30 bg-[#FAF8F5] dark:bg-[#1B0A3B] border-b border-stone-200 dark:border-[#2c135a] px-4 py-2.5 flex items-center justify-between shadow-xs shrink-0">
+        <button
+          type="button"
+          onClick={() => {
+            setShowLanding(true);
+            setMobileMenuOpen(false);
+          }}
+          className="cursor-pointer focus:outline-none flex items-center gap-2"
+        >
+          <img 
+            src={theme === 'light' ? '/assets/logo_cream.png' : '/assets/logo_transparent.png'} 
+            alt="Second Thought Logo" 
+            className="h-8 w-auto object-contain max-w-[140px]"
+            referrerPolicy="no-referrer"
+          />
+        </button>
+
+        <button
+          type="button"
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="p-2 rounded-lg bg-stone-100 dark:bg-[#25114a] border border-stone-200 dark:border-[#351a67] text-stone-700 dark:text-stone-200 hover:text-stone-900 dark:hover:text-white transition-colors cursor-pointer"
+          aria-label="Toggle Navigation Menu"
+          id="mobile-menu-toggle-btn"
+        >
+          {mobileMenuOpen ? <X className="w-5 h-5 text-[#912A4A] dark:text-rose-400" /> : <Menu className="w-5 h-5" />}
+        </button>
+      </header>
+
+      {/* Sidebar - Structured by 3 Parent Choices and Submenus (Desktop sidebar, Mobile drawer overlay) */}
+      <aside className={`bg-[#FAF8F5] dark:bg-[#1B0A3B] text-stone-800 dark:text-stone-200 border-r border-stone-200 dark:border-[#2c135a] flex flex-col justify-between p-4 shrink-0 z-40 transition-all ${
+        mobileMenuOpen
+          ? 'fixed inset-x-0 top-[53px] bottom-0 w-full overflow-y-auto block shadow-2xl animate-fadeIn'
+          : 'hidden md:flex md:w-64 md:static md:max-h-screen md:overflow-y-auto md:shadow-md'
+      }`}>
+        <div>
           {/* Logo / Header */}
           <div className="pb-1 px-1">
             <button
@@ -305,6 +346,32 @@ export default function App() {
             </button>
           </div>
 
+          {/* Simple Search Input Field (18pts below logo, 18pts above Pause and Breathe) */}
+          <div className="mt-[18pt] mb-[18pt] px-1" id="sidebar-search-container">
+            <div className="relative flex items-center">
+              <Search className="w-3.5 h-3.5 absolute left-2.5 text-stone-400 dark:text-stone-500 pointer-events-none" />
+              <input
+                type="text"
+                value={sidebarSearch}
+                onChange={(e) => setSidebarSearch(e.target.value)}
+                placeholder="Search..."
+                className="w-full pl-8 pr-7 py-1.5 text-xs rounded-md bg-stone-100/90 dark:bg-[#25114a] border border-stone-200/90 dark:border-[#351a67] text-stone-800 dark:text-stone-200 placeholder-stone-400 dark:placeholder-stone-500 focus:outline-none focus:ring-1 focus:ring-[#1D9E75] dark:focus:ring-[#28c093] transition-colors"
+                id="sidebar-search-input"
+                aria-label="Search workspace"
+              />
+              {sidebarSearch && (
+                <button
+                  type="button"
+                  onClick={() => setSidebarSearch('')}
+                  className="absolute right-2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-xs cursor-pointer focus:outline-none"
+                  title="Clear search"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          </div>
+
           {/* Structured Parent Navigation Menu */}
           <nav className="space-y-4" role="tablist" aria-label="Calm Companion Menu">
             
@@ -317,14 +384,14 @@ export default function App() {
                     handleNavigate('wellbeing');
                     setOpenSections((prev) => ({ ...prev, pause: true }));
                   }}
-                  className={`flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-colors cursor-pointer ${
+                  className={`flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-colors cursor-pointer border ${
                     activeTab === 'wellbeing' || activeTab === 'focus'
-                      ? 'text-[#912A4A] bg-[#912A4A]/10 dark:text-rose-300 dark:bg-[#291452]'
-                      : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a]'
+                      ? 'text-[#1D9E75] dark:text-[#28c093] border-[#1D9E75] dark:border-[#1D9E75] bg-stone-100/80 dark:bg-stone-800/60'
+                      : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a] border-transparent'
                   }`}
                 >
-                  <Heart className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400 shrink-0" />
-                  <span>Pause and Breathe</span>
+                  <Wind className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'wellbeing' || activeTab === 'focus' ? 'text-[#1D9E75] dark:text-[#28c093]' : 'text-stone-500 dark:text-stone-400'}`} />
+                  <span>Pause and breathe</span>
                 </button>
                 <button
                   type="button"
@@ -342,25 +409,25 @@ export default function App() {
                     role="tab"
                     aria-selected={activeTab === 'wellbeing'}
                     onClick={() => handleNavigate('wellbeing')}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center transition-all cursor-pointer ${
+                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center transition-all cursor-pointer border ${
                       activeTab === 'wellbeing'
-                        ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
-                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
+                        ? 'bg-stone-100/90 text-stone-900 font-semibold border-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-[#1D9E75]'
+                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-transparent'
                     }`}
                   >
-                    Wellbeing
+                    Wellbeing centre
                   </button>
                   <button
                     role="tab"
                     aria-selected={activeTab === 'focus'}
                     onClick={() => handleNavigate('focus')}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center transition-all cursor-pointer ${
+                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center transition-all cursor-pointer border ${
                       activeTab === 'focus'
-                        ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
-                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
+                        ? 'bg-stone-100/90 text-stone-900 font-semibold border-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-[#1D9E75]'
+                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-transparent'
                     }`}
                   >
-                    Focus Space
+                    Focus space
                   </button>
                 </div>
               )}
@@ -375,13 +442,13 @@ export default function App() {
                     handleNavigate('about');
                     setOpenSections((prev) => ({ ...prev, explore: true }));
                   }}
-                  className={`flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-colors cursor-pointer ${
+                  className={`flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-colors cursor-pointer border ${
                     activeTab === 'about' || activeTab === 'accessibility'
-                      ? 'text-[#912A4A] bg-[#912A4A]/10 dark:text-rose-300 dark:bg-[#291452]'
-                      : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a]'
+                      ? 'text-[#1D9E75] dark:text-[#28c093] border-[#1D9E75] dark:border-[#1D9E75] bg-stone-100/80 dark:bg-stone-800/60'
+                      : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a] border-transparent'
                   }`}
                 >
-                  <Compass className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400 shrink-0" />
+                  <Compass className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'about' || activeTab === 'accessibility' ? 'text-[#1D9E75] dark:text-[#28c093]' : 'text-stone-500 dark:text-stone-400'}`} />
                   <span>Explore</span>
                 </button>
                 <button
@@ -400,10 +467,10 @@ export default function App() {
                     role="tab"
                     aria-selected={activeTab === 'about'}
                     onClick={() => handleNavigate('about')}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center transition-all cursor-pointer ${
+                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center transition-all cursor-pointer border ${
                       activeTab === 'about'
-                        ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
-                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
+                        ? 'bg-stone-100/90 text-stone-900 font-semibold border-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-[#1D9E75]'
+                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-transparent'
                     }`}
                   >
                     About
@@ -412,10 +479,10 @@ export default function App() {
                     role="tab"
                     aria-selected={activeTab === 'accessibility'}
                     onClick={() => handleNavigate('accessibility')}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center transition-all cursor-pointer ${
+                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center transition-all cursor-pointer border ${
                       activeTab === 'accessibility'
-                        ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
-                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
+                        ? 'bg-stone-100/90 text-stone-900 font-semibold border-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-[#1D9E75]'
+                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-transparent'
                     }`}
                   >
                     Accessibility
@@ -433,14 +500,14 @@ export default function App() {
                     handleNavigate('dashboard');
                     setOpenSections((prev) => ({ ...prev, ready: true }));
                   }}
-                  className={`flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-colors cursor-pointer ${
+                  className={`flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-colors cursor-pointer border ${
                     activeTab === 'dashboard' || activeTab === 'research' || activeTab === 'ai_assistant'
-                      ? 'text-[#912A4A] bg-[#912A4A]/10 dark:text-rose-300 dark:bg-[#291452]'
-                      : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a]'
+                      ? 'text-[#1D9E75] dark:text-[#28c093] border-[#1D9E75] dark:border-[#1D9E75] bg-stone-100/80 dark:bg-stone-800/60'
+                      : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a] border-transparent'
                   }`}
                 >
-                  <Sparkles className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400 shrink-0" />
-                  <span>I'm Ready</span>
+                  <Sparkles className={`w-3.5 h-3.5 shrink-0 ${activeTab === 'dashboard' || activeTab === 'research' || activeTab === 'ai_assistant' ? 'text-[#1D9E75] dark:text-[#28c093]' : 'text-stone-500 dark:text-stone-400'}`} />
+                  <span>I'm ready</span>
                 </button>
                 <button
                   type="button"
@@ -460,10 +527,10 @@ export default function App() {
                     role="tab"
                     aria-selected={activeTab === 'dashboard'}
                     onClick={() => handleNavigate('dashboard')}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center transition-all cursor-pointer ${
+                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center transition-all cursor-pointer border ${
                       activeTab === 'dashboard'
-                        ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
-                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
+                        ? 'bg-stone-100/90 text-stone-900 font-semibold border-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-[#1D9E75]'
+                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-transparent'
                     }`}
                   >
                     Projects
@@ -472,7 +539,7 @@ export default function App() {
                   {/* Document Analytical, Referencing & Data Tools Submenu */}
                   <div className="pt-2.5 pb-1">
                     <span className="text-[11.5px] font-sans font-semibold text-stone-800 dark:text-stone-200 block px-2">
-                      Research & Writing Tools
+                      Research & writing tools
                     </span>
                   </div>
 
@@ -481,10 +548,10 @@ export default function App() {
                       role="tab"
                       aria-selected={activeTab === 'research' && researchSubTab === 'references'}
                       onClick={() => handleNavigate('research', 'references')}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
+                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer border ${
                         activeTab === 'research' && researchSubTab === 'references'
-                          ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
-                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
+                          ? 'bg-stone-100/90 text-stone-900 font-semibold border-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-[#1D9E75]'
+                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-transparent'
                       }`}
                     >
                       References
@@ -494,10 +561,10 @@ export default function App() {
                       role="tab"
                       aria-selected={activeTab === 'research' && researchSubTab === 'literature'}
                       onClick={() => handleNavigate('research', 'literature')}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
+                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer border ${
                         activeTab === 'research' && researchSubTab === 'literature'
-                          ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
-                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
+                          ? 'bg-stone-100/90 text-stone-900 font-semibold border-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-[#1D9E75]'
+                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-transparent'
                       }`}
                     >
                       Paper Summaries
@@ -507,10 +574,10 @@ export default function App() {
                       role="tab"
                       aria-selected={activeTab === 'research' && researchSubTab === 'analysis'}
                       onClick={() => handleNavigate('research', 'analysis')}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
+                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer border ${
                         activeTab === 'research' && researchSubTab === 'analysis'
-                          ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
-                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
+                          ? 'bg-stone-100/90 text-stone-900 font-semibold border-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-[#1D9E75]'
+                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-transparent'
                       }`}
                     >
                       Concept Map
@@ -520,10 +587,10 @@ export default function App() {
                       role="tab"
                       aria-selected={activeTab === 'research' && researchSubTab === 'writing'}
                       onClick={() => handleNavigate('research', 'writing')}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
+                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer border ${
                         activeTab === 'research' && researchSubTab === 'writing'
-                          ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
-                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
+                          ? 'bg-stone-100/90 text-stone-900 font-semibold border-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-[#1D9E75]'
+                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-transparent'
                       }`}
                     >
                       Writing Assistant
@@ -533,10 +600,10 @@ export default function App() {
                       role="tab"
                       aria-selected={activeTab === 'research' && researchSubTab === 'publishing'}
                       onClick={() => handleNavigate('research', 'publishing')}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
+                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer border ${
                         activeTab === 'research' && researchSubTab === 'publishing'
-                          ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
-                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
+                          ? 'bg-stone-100/90 text-stone-900 font-semibold border-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-[#1D9E75]'
+                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-transparent'
                       }`}
                     >
                       Publishing & Export
@@ -546,10 +613,10 @@ export default function App() {
                       role="tab"
                       aria-selected={activeTab === 'research' && researchSubTab === 'funding'}
                       onClick={() => handleNavigate('research', 'funding')}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
+                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer border ${
                         activeTab === 'research' && researchSubTab === 'funding'
-                          ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
-                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
+                          ? 'bg-stone-100/90 text-stone-900 font-semibold border-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-[#1D9E75]'
+                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-transparent'
                       }`}
                     >
                       Grants & Proposals
@@ -559,10 +626,10 @@ export default function App() {
                       role="tab"
                       aria-selected={activeTab === 'ai_assistant'}
                       onClick={() => handleNavigate('ai_assistant')}
-                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer ${
+                      className={`w-full text-left px-2.5 py-1.5 rounded-md text-[11px] font-sans flex items-center transition-all cursor-pointer border ${
                         activeTab === 'ai_assistant'
-                          ? 'bg-stone-200/80 text-stone-900 font-semibold border-l-2 border-[#912A4A] dark:bg-[#291452] dark:text-white dark:border-rose-400'
-                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white'
+                          ? 'bg-stone-100/90 text-stone-900 font-semibold border-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-[#1D9E75]'
+                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-transparent'
                       }`}
                     >
                       Ask AI
@@ -581,10 +648,10 @@ export default function App() {
             role="tab"
             aria-selected={activeTab === 'feedback'}
             onClick={() => handleNavigate('feedback')}
-            className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center transition-all cursor-pointer ${
+            className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center transition-all cursor-pointer border ${
               activeTab === 'feedback'
-                ? 'bg-stone-200/80 text-stone-900 font-semibold dark:bg-[#291452] dark:text-white'
-                : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a]'
+                ? 'bg-stone-100/90 text-stone-900 font-semibold border-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-[#1D9E75]'
+                : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] border-transparent'
             }`}
           >
             Feedback
@@ -593,10 +660,10 @@ export default function App() {
             role="tab"
             aria-selected={activeTab === 'settings'}
             onClick={() => handleNavigate('settings')}
-            className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center transition-all cursor-pointer ${
+            className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center transition-all cursor-pointer border ${
               activeTab === 'settings'
-                ? 'bg-stone-200/80 text-stone-900 font-semibold dark:bg-[#291452] dark:text-white'
-                : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a]'
+                ? 'bg-stone-100/90 text-stone-900 font-semibold border-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-[#1D9E75]'
+                : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] border-transparent'
             }`}
           >
             Settings
@@ -605,7 +672,7 @@ export default function App() {
       </aside>
 
       {/* Main viewport */}
-      <main className="flex-grow p-4 md:p-8 overflow-y-auto max-h-screen">
+      <main className="flex-grow p-3 sm:p-6 md:p-8 overflow-y-auto w-full max-w-full md:max-h-screen">
         <div className="max-w-7xl mx-auto h-full">
           
           {/* RESEARCH WORKSPACE & HOME */}
@@ -649,7 +716,7 @@ export default function App() {
 
           {/* FOCUS PANEL */}
           {activeTab === 'focus' && (
-            <ResearchWellbeing mode="focus" />
+            <ResearchWellbeing mode="focus" onExitFocus={() => setActiveTab('dashboard')} />
           )}
 
           {/* ABOUT COMPANION PANEL */}
@@ -692,10 +759,9 @@ export default function App() {
       {/* Global Visible Feedback Trigger Button - floating in the bottom-right for instant accessibility */}
       <button
         onClick={() => setIsFeedbackOpen(true)}
-        className="fixed bottom-4 right-4 z-40 bg-[#912A4A] hover:bg-[#78223d] text-white px-3 py-2.5 rounded-full shadow-lg flex items-center gap-2 text-xs transition-all hover:scale-105 cursor-pointer border border-[#912A4A]/20"
+        className="fixed bottom-4 right-4 z-40 bg-[#912A4A] hover:bg-[#78223d] text-white px-3.5 py-2.5 rounded-full shadow-lg flex items-center gap-2 text-xs transition-all hover:scale-105 cursor-pointer border border-[#912A4A]/20"
         title="Share your emotional friction, bugs, or ideas"
       >
-        <MessageSquare className="w-4 h-4 text-rose-200" />
         <span className="font-semibold font-sans">Feedback</span>
       </button>
 

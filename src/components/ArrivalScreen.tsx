@@ -5,7 +5,6 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { EyeOff, Sliders, ArrowRight } from 'lucide-react';
 import { AccessibilitySettings } from '../types';
 import AccessibilityPanel from './AccessibilityPanel';
 import { useCmsText } from '../cms/CmsContentProvider';
@@ -14,6 +13,7 @@ import BrandLogo from './BrandLogo';
 
 interface ArrivalScreenProps {
   onContinue: () => void;
+  onSkip?: () => void;
   settings: AccessibilitySettings;
   onSettingsChange: (settings: AccessibilitySettings) => void;
   appModules: string[];
@@ -21,6 +21,7 @@ interface ArrivalScreenProps {
 
 export default function ArrivalScreen({
   onContinue,
+  onSkip,
   settings,
   onSettingsChange,
   appModules
@@ -52,7 +53,7 @@ export default function ArrivalScreen({
 
   return (
     <div
-      className={`min-h-screen flex flex-col p-10 md:p-20 transition-colors duration-300 ${themeClasses} select-none`}
+      className={`min-h-screen flex flex-col px-6 pb-10 pt-24 md:p-20 transition-colors duration-300 ${themeClasses} select-none relative`}
       id="arrival-screen"
     >
       {/* Brand wordmark — small, calm, top-left, fades in gently after the greeting */}
@@ -60,13 +61,13 @@ export default function ArrivalScreen({
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: reducedMotion ? 0 : 1.5, ease: 'easeInOut', delay: reducedMotion ? 0 : 4.5 }}
-        className="text-left shrink-0"
+        className="absolute top-6 left-6 md:top-8 md:left-20 text-left shrink-0 z-10"
         id="arrival-logo"
       >
         <BrandLogo settings={settings} className="w-28 md:w-32" />
       </motion.div>
 
-      <div className="flex-1 flex items-center justify-center">
+      <div className="flex-1 flex flex-col justify-start md:justify-center items-center py-4 md:py-0">
       <div className="max-w-5xl w-full grid grid-cols-1 lg:grid-cols-12 gap-16 items-center" id="arrival-grid">
         
         {/* Left Column: Greeting & Action Buttons */}
@@ -81,7 +82,6 @@ export default function ArrivalScreen({
                 id="arrival-reduced-motion-indicator"
                 title="Reduced motion is active. Screen transitions are disabled for your accessibility preference."
               >
-                <EyeOff className="w-3 h-3 text-[#1D9E75] shrink-0" />
                 <span>Reduced Motion</span>
               </motion.div>
             )}
@@ -139,7 +139,7 @@ export default function ArrivalScreen({
             animate={{ opacity: 1 }}
             transition={{ duration: reducedMotion ? 0 : 2.5, ease: 'easeInOut', delay: 2.0 }}
             id="arrival-action"
-            className="flex flex-wrap gap-8 md:gap-12 items-center pt-2"
+            className="flex flex-wrap gap-6 md:gap-10 items-center pt-2"
           >
             <button
               id="arrival-continue-btn"
@@ -147,8 +147,17 @@ export default function ArrivalScreen({
               className="p-0 pl-0 m-0 bg-transparent border-0 py-2 text-base md:text-lg font-normal text-[#912A4A] opacity-80 hover:opacity-100 transition-all cursor-pointer flex items-center gap-2 group"
             >
               <span>{cmsText('arrival.continue', 'Continue')}</span>
-              <ArrowRight className="w-4 h-4 text-[#912A4A] opacity-80 shrink-0 group-hover:translate-x-1 transition-transform" />
             </button>
+
+            {onSkip && (
+              <button
+                id="arrival-skip-btn"
+                onClick={onSkip}
+                className="py-2 text-base md:text-lg font-normal text-[#912A4A] opacity-80 hover:opacity-100 transition-all cursor-pointer flex items-center gap-2 group"
+              >
+                <span>{cmsText('arrival.skip', 'Skip to Projects')}</span>
+              </button>
+            )}
 
             <button
               id="arrival-accessibility-btn"
@@ -159,7 +168,6 @@ export default function ArrivalScreen({
                   : 'opacity-80 hover:opacity-100'
               }`}
             >
-              <Sliders className="w-4 h-4 text-[#912A4A] opacity-80 shrink-0" />
               <span>{cmsText('arrival.accessibility', 'Accessibility Settings')}</span>
             </button>
           </motion.div>

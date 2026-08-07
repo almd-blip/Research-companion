@@ -6,39 +6,7 @@
 import React, { useState } from 'react';
 import { Paper, EvidenceMap, ResearchQuestionAnalysis, PatternAndDataAnalysis, CriticalPartnerFeedback, LiteratureSynthesisResult } from '../types';
 import { postWithAiRouting } from '../lib/localAiService';
-import {
-  Brain,
-  BookOpen,
-  Map,
-  HelpCircle,
-  BarChart2,
-  ShieldAlert,
-  Sparkles,
-  CheckCircle2,
-  AlertTriangle,
-  Layers,
-  FileSpreadsheet,
-  Upload,
-  ArrowRight,
-  Lightbulb,
-  Search,
-  Filter,
-  Activity,
-  Compass,
-  MessageSquare,
-  ShieldCheck,
-  RotateCcw,
-  Plus,
-  Trash2,
-  FileText,
-  Network,
-  GitBranch,
-  Check,
-  Download,
-  Info,
-  Sliders,
-  Tag
-} from 'lucide-react';
+
 
 interface ResearchIntelligenceLayerProps {
   papers: Paper[];
@@ -354,7 +322,7 @@ export default function ResearchIntelligenceLayer({
       <div className="bg-gradient-to-r from-stone-900 via-amber-950 to-stone-900 text-stone-100 p-6 rounded-xl shadow-sm border border-stone-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <div className="flex items-center gap-2 text-amber-400 font-sans text-xs uppercase tracking-wider font-semibold">
-            <Brain className="w-4 h-4" /> Research Intelligence Engine
+             Research Intelligence Engine
           </div>
           <h2 className="text-xl font-bold font-sans mt-1 text-white">
             Deep Cognitive Research Partner
@@ -375,7 +343,7 @@ export default function ResearchIntelligenceLayer({
               : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
           }`}
         >
-          <BookOpen className="w-3.5 h-3.5" /> 1. Literature Analysis & Synthesis
+           1. Literature Analysis & Synthesis
         </button>
 
         <button
@@ -386,7 +354,7 @@ export default function ResearchIntelligenceLayer({
               : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
           }`}
         >
-          <Map className="w-3.5 h-3.5" /> 2. Local Evidence Mapping
+           2. Local Evidence Mapping
         </button>
 
         <button
@@ -397,7 +365,7 @@ export default function ResearchIntelligenceLayer({
               : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
           }`}
         >
-          <HelpCircle className="w-3.5 h-3.5" /> 3. Question Development
+           3. Question Development
         </button>
 
         <button
@@ -408,7 +376,7 @@ export default function ResearchIntelligenceLayer({
               : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
           }`}
         >
-          <BarChart2 className="w-3.5 h-3.5" /> 4. Pattern & Data Analytics
+           4. Pattern & Data Analytics
         </button>
 
         <button
@@ -419,7 +387,7 @@ export default function ResearchIntelligenceLayer({
               : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
           }`}
         >
-          <ShieldAlert className="w-3.5 h-3.5" /> 5. Critical Research Partner
+           5. Critical Research Partner
         </button>
       </div>
 
@@ -432,7 +400,7 @@ export default function ResearchIntelligenceLayer({
               <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl p-6 max-w-xl w-full shadow-2xl space-y-4">
                 <div className="flex justify-between items-center border-b border-stone-100 dark:border-stone-900 pb-3">
                   <div className="flex items-center gap-2">
-                    <Upload className="w-5 h-5 text-amber-800 dark:text-amber-400" />
+                    
                     <h3 className="font-sans font-bold text-sm text-stone-900 dark:text-stone-100">
                       Upload Paper Collection
                     </h3>
@@ -493,7 +461,7 @@ export default function ResearchIntelligenceLayer({
                     id="paper-collection-file"
                   />
                   <label htmlFor="paper-collection-file" className="cursor-pointer block space-y-1">
-                    <Upload className="w-6 h-6 mx-auto text-amber-800 dark:text-amber-400" />
+                    
                     <span className="font-sans text-xs font-semibold text-stone-700 dark:text-stone-300 block">
                       Click to choose collection file
                     </span>
@@ -554,7 +522,7 @@ export default function ResearchIntelligenceLayer({
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                    <Layers className="w-4 h-4 text-amber-800 dark:text-amber-400" /> Corpus Collection ({selectedPaperIds.length}/{allCorpusPapers.length})
+                     Corpus Collection ({selectedPaperIds.length}/{allCorpusPapers.length})
                   </h3>
                   <p className="font-sans text-[11px] text-stone-500 mt-1 leading-relaxed">
                     Select papers to synthesize themes, concepts, theories, methodologies, and relationship maps.
@@ -568,7 +536,7 @@ export default function ResearchIntelligenceLayer({
                   onClick={() => setShowUploadModal(true)}
                   className="flex-1 font-sans text-xs bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 py-1.5 px-2.5 rounded transition-colors flex items-center justify-center gap-1.5"
                 >
-                  <Plus className="w-3.5 h-3.5 text-amber-800 dark:text-amber-400" /> Upload Collection
+                   Upload Collection
                 </button>
                 <button
                   onClick={handleSelectAllPapers}
@@ -616,7 +584,7 @@ export default function ResearchIntelligenceLayer({
                 disabled={loadingSynthesis || selectedPaperIds.length === 0}
                 className="w-full font-sans text-xs bg-amber-900 text-white py-2.5 rounded hover:bg-amber-800 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shadow-sm"
               >
-                <Sparkles className="w-4 h-4" />
+                
                 {loadingSynthesis ? 'Synthesizing Themes & Mapping...' : 'Analyze Literature Synthesis'}
               </button>
             </div>
@@ -642,7 +610,7 @@ export default function ResearchIntelligenceLayer({
                           : 'bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
                       }`}
                     >
-                      <BookOpen className="w-3.5 h-3.5" /> Overview
+                       Overview
                     </button>
                     <button
                       onClick={() => setSynthesisSubTab('themes_concepts')}
@@ -652,7 +620,7 @@ export default function ResearchIntelligenceLayer({
                           : 'bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
                       }`}
                     >
-                      <Tag className="w-3.5 h-3.5" /> Themes & Concepts ({synthesisOutput.majorThemes?.length || 0})
+                       Themes & Concepts ({synthesisOutput.majorThemes?.length || 0})
                     </button>
                     <button
                       onClick={() => setSynthesisSubTab('theories_methods')}
@@ -662,7 +630,7 @@ export default function ResearchIntelligenceLayer({
                           : 'bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
                       }`}
                     >
-                      <Brain className="w-3.5 h-3.5" /> Theories & Methods
+                       Theories & Methods
                     </button>
                     <button
                       onClick={() => setSynthesisSubTab('relationships')}
@@ -672,7 +640,7 @@ export default function ResearchIntelligenceLayer({
                           : 'bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
                       }`}
                     >
-                      <Network className="w-3.5 h-3.5" /> Mapped Relationships ({synthesisOutput.mappedRelationships?.length || 0})
+                       Mapped Relationships ({synthesisOutput.mappedRelationships?.length || 0})
                     </button>
                     <button
                       onClick={() => setSynthesisSubTab('schools_of_thought')}
@@ -682,7 +650,7 @@ export default function ResearchIntelligenceLayer({
                           : 'bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
                       }`}
                     >
-                      <Compass className="w-3.5 h-3.5" /> Schools of Thought
+                       Schools of Thought
                     </button>
                   </div>
 
@@ -692,7 +660,7 @@ export default function ResearchIntelligenceLayer({
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="bg-stone-50 dark:bg-stone-900/50 p-4 rounded-lg border border-stone-200/60 dark:border-stone-800 space-y-2">
                           <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                            <CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" /> Established Findings & Consensus
+                             Established Findings & Consensus
                           </h4>
                           <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
                             {synthesisOutput.agreements || 'Identified consensus across methodology and underlying theoretical framework.'}
@@ -710,7 +678,7 @@ export default function ResearchIntelligenceLayer({
 
                         <div className="bg-amber-50/30 dark:bg-stone-900/50 p-4 rounded-lg border border-amber-900/10 dark:border-stone-800 space-y-2">
                           <h4 className="font-sans font-semibold text-xs text-amber-900 dark:text-amber-400 flex items-center gap-1.5">
-                            <AlertTriangle className="w-4 h-4 text-amber-700" /> Emerging Debates & Divergences
+                             Emerging Debates & Divergences
                           </h4>
                           <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
                             {synthesisOutput.disagreements || 'Divergences exist regarding measurement metrics, context, and sample populations.'}
@@ -730,7 +698,7 @@ export default function ResearchIntelligenceLayer({
                       {synthesisOutput.unresolvedQuestions && synthesisOutput.unresolvedQuestions.length > 0 && (
                         <div className="p-4 bg-sky-50/30 dark:bg-stone-900/50 rounded-lg border border-sky-900/10 dark:border-stone-800 space-y-2">
                           <h4 className="font-sans font-semibold text-xs text-sky-900 dark:text-sky-300 flex items-center gap-1.5">
-                            <HelpCircle className="w-4 h-4 text-sky-600" /> Key Unresolved Questions
+                             Key Unresolved Questions
                           </h4>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
                             {synthesisOutput.unresolvedQuestions.map((q, idx) => (
@@ -750,7 +718,7 @@ export default function ResearchIntelligenceLayer({
                       {/* Themes Section */}
                       <div className="space-y-3">
                         <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 uppercase tracking-wide flex items-center gap-1.5">
-                          <Layers className="w-4 h-4 text-amber-800 dark:text-amber-400" /> Identified Major Themes
+                           Identified Major Themes
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {synthesisOutput.majorThemes?.map((theme, idx) => (
@@ -785,7 +753,7 @@ export default function ResearchIntelligenceLayer({
                       {/* Concepts Dictionary Section */}
                       <div className="space-y-3 pt-4 border-t border-stone-100 dark:border-stone-900">
                         <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 uppercase tracking-wide flex items-center gap-1.5">
-                          <Tag className="w-4 h-4 text-sky-600" /> Core Concepts & Definitions
+                           Core Concepts & Definitions
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           {synthesisOutput.coreConcepts?.map((c, idx) => (
@@ -812,7 +780,7 @@ export default function ResearchIntelligenceLayer({
                       {/* Underlying Theories */}
                       <div className="space-y-3">
                         <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 uppercase tracking-wide flex items-center gap-1.5">
-                          <Brain className="w-4 h-4 text-amber-800 dark:text-amber-400" /> Underlying Theoretical Frameworks
+                           Underlying Theoretical Frameworks
                         </h4>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           {synthesisOutput.underlyingTheories?.map((t, idx) => (
@@ -835,7 +803,7 @@ export default function ResearchIntelligenceLayer({
                       {/* Methodologies */}
                       <div className="space-y-3 pt-4 border-t border-stone-100 dark:border-stone-900">
                         <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 uppercase tracking-wide flex items-center gap-1.5">
-                          <BarChart2 className="w-4 h-4 text-emerald-600" /> Methodologies Employed
+                           Methodologies Employed
                         </h4>
                         <div className="grid grid-cols-1 gap-3">
                           {synthesisOutput.methodologiesUsed?.map((m, idx) => (
@@ -867,7 +835,7 @@ export default function ResearchIntelligenceLayer({
                     <div className="space-y-4">
                       <div className="flex flex-wrap items-center justify-between gap-2 bg-stone-50 dark:bg-stone-900 p-3 rounded-lg border border-stone-200/60 dark:border-stone-800">
                         <div className="flex items-center gap-2">
-                          <Network className="w-4 h-4 text-amber-800 dark:text-amber-400" />
+                          
                           <span className="font-sans font-semibold text-xs text-stone-800 dark:text-stone-200">
                             Local Relationship Mapping Engine
                           </span>
@@ -915,11 +883,11 @@ export default function ResearchIntelligenceLayer({
                                   <span className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 bg-stone-100 dark:bg-stone-900 px-2.5 py-1 rounded border border-stone-200/60 dark:border-stone-800">
                                     {rel.source}
                                   </span>
-                                  <ArrowRight className="w-4 h-4 text-amber-800 dark:text-amber-400 shrink-0" />
+                                  
                                   <span className={`text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded border ${badgeStyle}`}>
                                     {rel.relationshipType}
                                   </span>
-                                  <ArrowRight className="w-4 h-4 text-amber-800 dark:text-amber-400 shrink-0" />
+                                  
                                   <span className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 bg-stone-100 dark:bg-stone-900 px-2.5 py-1 rounded border border-stone-200/60 dark:border-stone-800">
                                     {rel.target}
                                   </span>
@@ -938,7 +906,7 @@ export default function ResearchIntelligenceLayer({
                   {synthesisSubTab === 'schools_of_thought' && (
                     <div className="space-y-4">
                       <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 uppercase tracking-wide flex items-center gap-1.5">
-                        <Compass className="w-4 h-4 text-amber-800 dark:text-amber-400" /> Schools of Thought & Academic Paradigms
+                         Schools of Thought & Academic Paradigms
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {synthesisOutput.schoolsOfThought?.map((school, idx) => (
@@ -964,7 +932,7 @@ export default function ResearchIntelligenceLayer({
                 </div>
               ) : (
                 <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-stone-400 font-sans text-xs text-center space-y-3">
-                  <BookOpen className="w-10 h-10 mx-auto text-stone-300 dark:text-stone-700" />
+                  
                   <p className="font-medium text-stone-600 dark:text-stone-300">
                     No Literature Synthesis generated yet
                   </p>
@@ -1000,7 +968,7 @@ export default function ResearchIntelligenceLayer({
                   disabled={loadingEvidenceMap}
                   className="font-sans text-xs bg-amber-900 text-white px-4 py-2.5 rounded hover:bg-amber-800 transition-all flex items-center gap-1.5 cursor-pointer shrink-0 disabled:opacity-50"
                 >
-                  <Map className="w-4 h-4" /> Build Evidence Map
+                   Build Evidence Map
                 </button>
               </div>
             </div>
@@ -1051,7 +1019,7 @@ export default function ResearchIntelligenceLayer({
                 {/* Supporting Literature */}
                 <div className="bg-emerald-50/30 dark:bg-stone-950 border border-emerald-900/15 dark:border-emerald-900/30 rounded-lg p-5 space-y-4">
                   <div className="flex items-center gap-2 border-b border-emerald-900/10 pb-3">
-                    <CheckCircle2 className="w-4 h-4 text-emerald-700 dark:text-emerald-400" />
+                    
                     <h3 className="font-sans font-semibold text-xs text-emerald-950 dark:text-emerald-300">
                       Supporting Literature ({evidenceMapResult.supportingLiterature?.length || 0})
                     </h3>
@@ -1072,7 +1040,7 @@ export default function ResearchIntelligenceLayer({
                 {/* Opposing Literature */}
                 <div className="bg-rose-50/30 dark:bg-stone-950 border border-rose-900/15 dark:border-rose-900/30 rounded-lg p-5 space-y-4">
                   <div className="flex items-center gap-2 border-b border-rose-900/10 pb-3">
-                    <AlertTriangle className="w-4 h-4 text-rose-700 dark:text-rose-400" />
+                    
                     <h3 className="font-sans font-semibold text-xs text-rose-950 dark:text-rose-300">
                       Opposing / Challenging Literature ({evidenceMapResult.opposingLiterature?.length || 0})
                     </h3>
@@ -1127,7 +1095,7 @@ export default function ResearchIntelligenceLayer({
             </div>
           ) : (
             <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-stone-400 font-sans text-xs text-center space-y-2">
-              <Map className="w-8 h-8 mx-auto text-stone-300 dark:text-stone-700" />
+              
               <p>Type your research question above and click "Build Evidence Map" to extract supporting vs opposing literature and evidence gaps.</p>
             </div>
           )}
@@ -1141,7 +1109,7 @@ export default function ResearchIntelligenceLayer({
           <div className="lg:col-span-1 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-5 rounded-lg space-y-4">
             <div>
               <h3 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                <Compass className="w-4 h-4 text-amber-800 dark:text-amber-400" /> Topic Refiner
+                 Topic Refiner
               </h3>
               <p className="font-sans text-[11px] text-stone-500 mt-1 leading-relaxed">
                 Transform broad research interests into precise, answerable research questions while highlighting why each matters and what gap it fills.
@@ -1176,7 +1144,7 @@ export default function ResearchIntelligenceLayer({
                 disabled={loadingQuestions || !topicInput.trim()}
                 className="w-full font-sans text-xs bg-amber-900 text-white py-2.5 rounded hover:bg-amber-800 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
-                <Lightbulb className="w-4 h-4" />
+                
                 {loadingQuestions ? 'Refining Questions...' : 'Develop Researchable Questions'}
               </button>
             </div>
@@ -1257,7 +1225,7 @@ export default function ResearchIntelligenceLayer({
               </div>
             ) : (
               <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-stone-400 font-sans text-xs text-center space-y-2">
-                <HelpCircle className="w-8 h-8 mx-auto text-stone-300 dark:text-stone-700" />
+                
                 <p>Provide a broad research topic on the left to refine it into clear, answerable questions with gap justifications.</p>
               </div>
             )}
@@ -1272,7 +1240,7 @@ export default function ResearchIntelligenceLayer({
           <div className="lg:col-span-1 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-5 rounded-lg space-y-4">
             <div>
               <h3 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                <FileSpreadsheet className="w-4 h-4 text-amber-800 dark:text-amber-400" /> Data Input & Corpus
+                 Data Input & Corpus
               </h3>
               <p className="font-sans text-[11px] text-stone-500 mt-1 leading-relaxed">
                 Import CSV spreadsheets or use your local literature collection to identify recurring patterns, variable correlations, and anomalies.
@@ -1318,7 +1286,7 @@ export default function ResearchIntelligenceLayer({
                   <div className="flex justify-between items-center">
                     <label className="font-sans font-medium text-[11px] text-stone-700 dark:text-stone-300">CSV Text Data</label>
                     <label className="text-[10px] text-amber-900 dark:text-amber-400 hover:underline cursor-pointer flex items-center gap-1">
-                      <Upload className="w-3 h-3" /> Upload File
+                       Upload File
                       <input type="file" accept=".csv,.txt" onChange={handleFileUpload} className="hidden" />
                     </label>
                   </div>
@@ -1343,7 +1311,7 @@ export default function ResearchIntelligenceLayer({
               disabled={loadingDataAnalysis}
               className="w-full font-sans text-xs bg-amber-900 text-white py-2.5 rounded hover:bg-amber-800 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
-              <BarChart2 className="w-4 h-4" />
+              
               {loadingDataAnalysis ? 'Analyzing Patterns...' : 'Run Pattern & Data Analytics'}
             </button>
           </div>
@@ -1372,7 +1340,7 @@ export default function ResearchIntelligenceLayer({
                   {dataAnalysisResult.chartData && dataAnalysisResult.chartData.length > 0 && (
                     <div className="p-4 bg-white dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 rounded-lg space-y-3">
                       <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                        <Activity className="w-4 h-4 text-amber-800 dark:text-amber-400" /> Relative Frequency / Distribution Visualizer
+                         Relative Frequency / Distribution Visualizer
                       </h4>
                       <div className="space-y-2 pt-1">
                         {dataAnalysisResult.chartData.map((cd, i) => {
@@ -1443,7 +1411,7 @@ export default function ResearchIntelligenceLayer({
               </div>
             ) : (
               <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-stone-400 font-sans text-xs text-center space-y-2">
-                <BarChart2 className="w-8 h-8 mx-auto text-stone-300 dark:text-stone-700" />
+                
                 <p>Provide CSV dataset text or choose your literature corpus on the left, then click "Run Pattern & Data Analytics".</p>
               </div>
             )}
@@ -1458,7 +1426,7 @@ export default function ResearchIntelligenceLayer({
           <div className="lg:col-span-1 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-5 rounded-lg space-y-4">
             <div>
               <h3 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                <ShieldAlert className="w-4 h-4 text-amber-800 dark:text-amber-400" /> Critical Colleague Persona
+                 Critical Colleague Persona
               </h3>
               <p className="font-sans text-[11px] text-stone-500 mt-1 leading-relaxed">
                 Acts as a constructive peer reviewer to test underpinning assumptions, unstated premises, and generalizability before accepting conclusions.
@@ -1493,7 +1461,7 @@ export default function ResearchIntelligenceLayer({
                 disabled={loadingCriticalPartner || !hypothesisInput.trim()}
                 className="w-full font-sans text-xs bg-amber-900 text-white py-2.5 rounded hover:bg-amber-800 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
-                <ShieldCheck className="w-4 h-4" />
+                
                 {loadingCriticalPartner ? 'Evaluating Assumptions...' : 'Evaluate with Critical Partner'}
               </button>
             </div>
@@ -1517,7 +1485,7 @@ export default function ResearchIntelligenceLayer({
                 {criticalResult.secondThoughtSteps && (
                   <div className="bg-amber-50/40 dark:bg-stone-900/50 p-4 rounded-lg border border-amber-900/15 dark:border-stone-800 space-y-3">
                     <h4 className="font-sans font-semibold text-xs text-amber-900 dark:text-amber-400 flex items-center gap-1.5">
-                      <RotateCcw className="w-4 h-4" /> Second Thought Framework Application
+                       Second Thought Framework Application
                     </h4>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-xs font-sans">
                       <div className="bg-white dark:bg-stone-950 p-2 rounded border border-stone-200/60 dark:border-stone-800">
@@ -1552,7 +1520,7 @@ export default function ResearchIntelligenceLayer({
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="p-4 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg space-y-2">
                     <h5 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                      <AlertTriangle className="w-3.5 h-3.5 text-amber-600" /> Underpinning Assumptions & Unstated Premises
+                       Underpinning Assumptions & Unstated Premises
                     </h5>
                     <ul className="space-y-1.5">
                       {criticalResult.underpinningAssumptions?.map((item, i) => (
@@ -1565,7 +1533,7 @@ export default function ResearchIntelligenceLayer({
 
                   <div className="p-4 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg space-y-2">
                     <h5 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                      <MessageSquare className="w-3.5 h-3.5 text-sky-600" /> Alternative Explanations & Counter-Arguments
+                       Alternative Explanations & Counter-Arguments
                     </h5>
                     <ul className="space-y-1.5">
                       {criticalResult.counterArgumentsToConsider?.map((item, i) => (
@@ -1587,7 +1555,7 @@ export default function ResearchIntelligenceLayer({
               </div>
             ) : (
               <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-stone-400 font-sans text-xs text-center space-y-2">
-                <ShieldAlert className="w-8 h-8 mx-auto text-stone-300 dark:text-stone-700" />
+                
                 <p>Enter a research claim or conclusion on the left to evaluate its underpinning assumptions and test its boundary limits with your critical partner.</p>
               </div>
             )}

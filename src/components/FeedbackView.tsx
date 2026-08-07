@@ -4,7 +4,6 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { MessageSquare, Save, Download, Clipboard, AlertCircle, Sparkles, Check, Trash } from 'lucide-react';
 
 interface FeedbackLog {
   id: string;
@@ -100,7 +99,7 @@ _Generated locally via Research Companion feedback engine._`;
       {/* Header */}
       <div className="border-b border-stone-200 dark:border-stone-800 pb-5">
         <h1 className="font-sans font-medium tracking-tight text-3xl text-stone-900 dark:text-stone-100 flex items-center gap-2">
-          <MessageSquare className="w-7 h-7 text-amber-600 dark:text-amber-500" /> Share feedback
+          Share feedback
         </h1>
         <p className="font-sans text-stone-500 text-sm mt-1.5 leading-relaxed">
           Help us shape the companion. We capture your physical and emotional friction, wording changes, accessibility blocks, or delightful moments. All feedback is saved offline locally.
@@ -109,7 +108,6 @@ _Generated locally via Research Companion feedback engine._`;
 
       {toastMessage && (
         <div className="bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/40 p-3.5 rounded-lg flex items-center gap-2 text-xs text-emerald-800 dark:text-emerald-300 animate-fadeIn">
-          <Check className="w-4 h-4" />
           <span>{toastMessage}</span>
         </div>
       )}
@@ -188,7 +186,7 @@ _Generated locally via Research Companion feedback engine._`;
               type="submit"
               className="w-full text-xs font-semibold p-3 rounded-lg bg-stone-900 text-stone-100 hover:bg-stone-800 dark:bg-stone-800 dark:hover:bg-stone-700 transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
             >
-              <Save className="w-3.5 h-3.5" /> Save feedback log
+              Save feedback log
             </button>
           </form>
         </div>
@@ -202,14 +200,13 @@ _Generated locally via Research Companion feedback engine._`;
                 onClick={handleDownloadLogs}
                 className="text-[10px] font-mono border border-stone-200 dark:border-stone-850 px-2 py-1 rounded bg-stone-50 dark:bg-stone-900 text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 flex items-center gap-1.5 cursor-pointer"
               >
-                <Download className="w-3 h-3" /> Export JSON
+                Export JSON
               </button>
             )}
           </div>
 
           {feedbackList.length === 0 ? (
             <div className="border border-dashed border-stone-200 dark:border-stone-800 rounded-xl p-8 text-center text-stone-400 dark:text-stone-600">
-              <MessageSquare className="w-8 h-8 mx-auto stroke-1 mb-2 text-stone-300 dark:text-stone-700" />
               <p className="text-xs">No feedback has been logged yet.</p>
               <p className="text-[10px] mt-1 text-stone-400">Your entries will be displayed here in historical reverse order.</p>
             </div>
@@ -237,24 +234,20 @@ _Generated locally via Research Companion feedback engine._`;
                       </span>
                     </div>
 
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5 text-xs">
                       <button
                         onClick={() => handleCopyAsMarkdown(log)}
-                        className="p-1.5 text-stone-400 hover:text-stone-700 dark:hover:text-stone-300 rounded hover:bg-stone-50 dark:hover:bg-stone-900 cursor-pointer"
+                        className="text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 px-2 py-0.5 rounded hover:bg-stone-100 dark:hover:bg-stone-900 cursor-pointer font-mono text-[10px]"
                         title="Copy as Markdown"
                       >
-                        {copiedId === log.id ? (
-                          <Check className="w-3.5 h-3.5 text-emerald-600" />
-                        ) : (
-                          <Clipboard className="w-3.5 h-3.5" />
-                        )}
+                        {copiedId === log.id ? 'Copied' : 'Copy'}
                       </button>
                       <button
                         onClick={() => handleDeleteFeedback(log.id)}
-                        className="p-1.5 text-stone-400 hover:text-red-600 dark:hover:text-red-400 rounded hover:bg-stone-50 dark:hover:bg-stone-900 cursor-pointer"
+                        className="text-stone-400 hover:text-red-600 dark:hover:text-red-400 px-2 py-0.5 rounded hover:bg-stone-100 dark:hover:bg-stone-900 cursor-pointer font-mono text-[10px]"
                         title="Delete log"
                       >
-                        <Trash className="w-3.5 h-3.5" />
+                        Delete
                       </button>
                     </div>
                   </div>

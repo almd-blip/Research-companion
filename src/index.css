@@ -216,3 +216,110 @@ body.font-dyslexic * {
   stroke: #ffffff !important;
 }
 
+/* ==========================================================================
+   MINIMAL & CLEAN PRINT STYLESHEET FOR OFFLINE READING
+   ========================================================================== */
+@media print {
+  /* Page Setup & Margins */
+  @page {
+    size: portrait;
+    margin: 18mm 15mm;
+  }
+
+  /* Force white background & dark text across entire page */
+  html, body, #scholar-companion-root, main {
+    background: #ffffff !important;
+    background-color: #ffffff !important;
+    color: #111111 !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Hide interactive chrome: sidebar, navigation, floating buttons, overlays, footers */
+  aside,
+  nav,
+  button:not(.print-keep),
+  .no-print,
+  #about-section-controls,
+  #about-spec-banner,
+  [role="tablist"],
+  [class*="fixed"],
+  .shadow-lg,
+  .shadow-xl,
+  .shadow-2xl,
+  .backdrop-blur-xs,
+  .backdrop-blur-md {
+    display: none !important;
+  }
+
+  /* Explicit print display helpers */
+  .print\:block {
+    display: block !important;
+  }
+  .print\:flex {
+    display: flex !important;
+  }
+  .print\:hidden {
+    display: none !important;
+  }
+
+  /* Dark mode overrides for pure paper printing */
+  .dark, .dark * {
+    background-color: #ffffff !important;
+    color: #111111 !important;
+    border-color: #d1d5db !important;
+  }
+
+  /* Format About Page for Print */
+  #about-module {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* Force all expandable content blocks in About page to display in print */
+  [id^="about-content-"] {
+    display: block !important;
+    height: auto !important;
+    opacity: 1 !important;
+    overflow: visible !important;
+  }
+
+  /* Hide accordion plus/minus toggle indicators in print */
+  [aria-hidden="true"] {
+    display: none !important;
+  }
+
+  /* Prevent page breaks inside cards & principles */
+  div[id^="about-item-"],
+  .page-break-inside-avoid {
+    page-break-inside: avoid;
+    break-inside: avoid;
+    margin-bottom: 1.25rem !important;
+  }
+
+  /* Sharp legibility for typography */
+  p, h1, h2, h3, h4, h5, h6, span, li, div {
+    color: #111111 !important;
+    text-shadow: none !important;
+    font-size: 100% !important;
+  }
+
+  /* Remove borders and shadows from interactive cards when printing */
+  .border, div[class*="border-"] {
+    border-color: #e5e7eb !important;
+  }
+
+  /* Expand textareas in print mode so full content is visible without scrolling */
+  textarea {
+    border: none !important;
+    resize: none !important;
+    overflow: visible !important;
+    height: auto !important;
+    min-height: 0 !important;
+  }
+}
+
+

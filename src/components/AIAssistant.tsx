@@ -4,7 +4,6 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Sparkles, Send, Bot, User, RefreshCw, HelpCircle, AlertCircle } from 'lucide-react';
 import ResearchIntegrityBanner from './ResearchIntegrityBanner';
 import { postWithAiRouting } from '../lib/localAiService';
 
@@ -124,7 +123,7 @@ export default function AIAssistant() {
       <div className="border-b border-stone-200 dark:border-stone-800 pb-4 mb-3 flex justify-between items-center shrink-0">
         <div className="text-left">
           <h1 className="font-sans font-medium text-2xl tracking-tight text-stone-900 dark:text-stone-100 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-amber-500 animate-pulse" /> AI Assistant
+            AI Assistant
           </h1>
           <p className="font-sans text-xs text-stone-500 mt-1">
             Consult your dedicated academic guide for writing methods, structures, and mental clarity.
@@ -153,13 +152,13 @@ export default function AIAssistant() {
               m.role === 'user' ? 'ml-auto flex-row-reverse' : 'mr-auto'
             }`}
           >
-            {/* Avatar */}
-            <div className={`p-2 rounded-full shrink-0 ${
+            {/* Role indicator */}
+            <div className={`px-2 py-0.5 rounded text-[10px] font-semibold shrink-0 ${
               m.role === 'user' 
                 ? 'bg-amber-900/10 text-amber-900 dark:bg-stone-800 dark:text-stone-300' 
                 : 'bg-stone-100 text-stone-600 dark:bg-stone-900 dark:text-stone-400 border border-stone-200 dark:border-stone-800'
             }`}>
-              {m.role === 'user' ? <User className="w-4 h-4" /> : <Bot className="w-4 h-4 text-amber-600 dark:text-amber-500" />}
+              {m.role === 'user' ? 'You' : 'AI'}
             </div>
 
             {/* Bubble */}
@@ -183,11 +182,10 @@ export default function AIAssistant() {
 
         {isLoading && (
           <div className="flex items-start gap-3.5 mr-auto animate-fadeIn">
-            <div className="p-2 rounded-full bg-stone-100 text-stone-600 dark:bg-stone-900 dark:text-stone-400 border border-stone-200 dark:border-stone-850 shrink-0">
-              <Bot className="w-4 h-4 text-amber-600" />
+            <div className="px-2 py-0.5 rounded text-[10px] font-semibold bg-stone-100 text-stone-600 dark:bg-stone-900 dark:text-stone-400 border border-stone-200 dark:border-stone-850 shrink-0">
+              AI
             </div>
             <div className="p-4 rounded-xl rounded-tl-none bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-850 text-stone-500 dark:text-stone-400 italic text-xs shadow-xs flex items-center gap-2">
-              <RefreshCw className="w-3.5 h-3.5 animate-spin text-amber-600" />
               Your advisor is drafting a reply, checking structured evidence...
             </div>
           </div>
@@ -195,7 +193,6 @@ export default function AIAssistant() {
 
         {error && (
           <div className="p-3.5 bg-red-50/10 dark:bg-red-950/10 border border-red-200 dark:border-red-900/40 rounded-lg text-xs text-red-700 dark:text-red-400 flex items-start gap-2 max-w-xl animate-fadeIn">
-            <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
             <div>
               <p className="font-semibold">Unable to consult advisor</p>
               <p className="mt-0.5 leading-relaxed">{error}</p>
@@ -211,7 +208,7 @@ export default function AIAssistant() {
         {messages.length === 1 && !isLoading && (
           <div className="space-y-1.5 text-left">
             <span className="text-[10px] font-mono text-stone-400 flex items-center gap-1">
-              <HelpCircle className="w-3.5 h-3.5 text-stone-300" /> Need a starting point? Ask one of these:
+              Need a starting point? Ask one of these:
             </span>
             <div className="flex flex-wrap gap-2">
               {starterPrompts.map((prompt) => (
@@ -245,16 +242,16 @@ export default function AIAssistant() {
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={isLoading}
-            className="w-full font-sans text-xs p-3.5 pr-12 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-1 focus:ring-amber-500 disabled:opacity-60"
+            className="w-full font-sans text-xs p-3.5 pr-20 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-1 focus:ring-amber-500 disabled:opacity-60"
             required
           />
           <button
             type="submit"
             disabled={isLoading || !input.trim()}
-            className="absolute right-2 p-2 rounded-lg bg-stone-900 dark:bg-stone-800 text-white hover:bg-stone-800 disabled:opacity-40 transition-colors cursor-pointer"
+            className="absolute right-2 px-3 py-1.5 rounded-lg bg-stone-900 dark:bg-stone-800 text-white text-xs font-semibold hover:bg-stone-800 disabled:opacity-40 transition-colors cursor-pointer"
             title="Send query"
           >
-            <Send className="w-4 h-4" />
+            Send
           </button>
         </form>
       </div>

@@ -5,22 +5,6 @@
 
 import React, { useState, useEffect } from 'react';
 import {
-  Cpu,
-  Server,
-  Activity,
-  CheckCircle2,
-  AlertCircle,
-  RefreshCw,
-  ShieldCheck,
-  Zap,
-  Sliders,
-  Terminal,
-  Database,
-  HelpCircle,
-  Globe,
-  Lock,
-} from 'lucide-react';
-import {
   LocalAIConfig,
   LocalAIProvider,
   LocalHealthResult,
@@ -98,7 +82,7 @@ export default function LocalAIRuntimeManager({
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2.5">
             <div className="p-2 rounded-lg bg-amber-900/10 dark:bg-stone-800 text-amber-900 dark:text-amber-400">
-              <Cpu className="w-5 h-5" />
+              
             </div>
             <div>
               <h3 className="font-semibold text-stone-900 dark:text-stone-100 text-xs flex items-center gap-2">
@@ -124,7 +108,7 @@ export default function LocalAIRuntimeManager({
                   : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
               }`}
             >
-              <Globe className="w-3.5 h-3.5" /> Gemini Cloud
+               Gemini Cloud
             </button>
             <button
               type="button"
@@ -135,7 +119,7 @@ export default function LocalAIRuntimeManager({
                   : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-white'
               }`}
             >
-              <Lock className="w-3.5 h-3.5 text-amber-400" /> Offline Local AI
+               Offline Local AI
             </button>
           </div>
         </div>
@@ -178,7 +162,7 @@ export default function LocalAIRuntimeManager({
                         <span className={`text-xs font-bold ${isSelected ? 'text-amber-950 dark:text-amber-300' : 'text-stone-800 dark:text-stone-200'}`}>
                           {preset.name}
                         </span>
-                        {isSelected && <CheckCircle2 className="w-4 h-4 text-amber-800 dark:text-amber-400 shrink-0" />}
+                        {isSelected }
                       </div>
                       <p className="text-[10px] text-stone-500 dark:text-stone-400 mt-1 leading-snug">
                         {preset.description}
@@ -198,22 +182,22 @@ export default function LocalAIRuntimeManager({
           <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-4 space-y-4 shadow-2xs">
             <div className="flex flex-wrap items-center justify-between gap-2 border-b border-stone-150 dark:border-stone-850 pb-2.5">
               <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                <Server className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Connection Status
+                 Connection Status
               </h4>
 
               {/* Live Status Badge */}
               <div className="flex items-center gap-2">
                 {isTesting ? (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono bg-stone-100 text-stone-600 dark:bg-stone-800 dark:text-stone-300">
-                    <RefreshCw className="w-3 h-3 animate-spin text-[#912A4A]" /> Testing connection...
+                     Testing connection...
                   </span>
                 ) : health.status === 'connected' ? (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono bg-emerald-100 dark:bg-emerald-950 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-200 dark:border-emerald-800">
-                    <CheckCircle2 className="w-3 h-3 text-emerald-600" /> Connected ({health.latencyMs}ms)
+                     Connected ({health.latencyMs}ms)
                   </span>
                 ) : (
                   <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono bg-red-100 dark:bg-red-950 text-red-800 dark:text-red-300 font-bold border border-red-200 dark:border-red-800">
-                    <AlertCircle className="w-3 h-3 text-red-600" /> Local server offline
+                     Local server offline
                   </span>
                 )}
 
@@ -292,7 +276,7 @@ export default function LocalAIRuntimeManager({
           {/* Open-Weight Models Catalog */}
           <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-4 space-y-3 shadow-2xs">
             <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5 border-b border-stone-150 dark:border-stone-850 pb-2">
-              <Zap className="w-4 h-4 text-[#912A4A] dark:text-rose-400" /> Model choices
+               Model choices
             </h4>
 
             <p className="text-[11px] text-stone-500 leading-snug">
@@ -345,7 +329,7 @@ export default function LocalAIRuntimeManager({
           {/* Privacy & Governance Toggles */}
           <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-4 space-y-3 text-xs shadow-2xs">
             <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5 border-b border-stone-150 dark:border-stone-850 pb-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-600" /> Privacy & fallback options
+               Privacy & fallback options
             </h4>
 
             <div className="space-y-3">
@@ -396,7 +380,7 @@ export default function LocalAIRuntimeManager({
 
             {saveSuccess && (
               <span className="text-xs font-semibold text-emerald-700 dark:text-emerald-400 flex items-center gap-1">
-                <CheckCircle2 className="w-4 h-4" /> Local AI settings saved.
+                 Local AI settings saved.
               </span>
             )}
           </div>
