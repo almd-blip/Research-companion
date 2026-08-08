@@ -129,7 +129,7 @@ export default function ResearchHome({
     { label: 'Curious', value: 'curious', desc: 'Exploring alternative links and pathways', emoji: '🔍' },
     { label: 'Overwhelmed', value: 'overwhelmed', desc: 'Drowning in literature and expectations', emoji: '🌊' },
     { label: 'Stuck', value: 'stuck', desc: 'Facing a cognitive wall or blocker', emoji: '🧱' },
-    { label: 'Doubting myself', value: 'doubting', desc: 'Feeling like an academic impostor', emoji: '💭' },
+    { label: 'Doubting myself', value: 'doubting', desc: 'Feeling like an impostor or fraud', emoji: '💭' },
     { label: 'Tired', value: 'tired', desc: 'Low energy, physical or mental fatigue', emoji: '💤' },
     { label: 'Avoiding writing', value: 'avoiding_writing', desc: 'Dreading the blank page or editing', emoji: '🫣' },
     { label: 'Anxious', value: 'anxious', desc: 'Nervous system feels alert or heavy', emoji: '🌪️' }
@@ -184,7 +184,7 @@ export default function ResearchHome({
         reflectionPrompt: "What hidden connections might exist between your primary question and your secondary field?"
       },
       overwhelmed: {
-        mentoringResponse: "A common and valid response to high-density academic spaces. Overwhelm is simply cognitive capacity reaching its temporary limit. There is no need to make massive progress today.",
+        mentoringResponse: "A common and valid response to high-density creative and research spaces. Overwhelm is simply cognitive capacity reaching its temporary limit. There is no need to make massive progress today.",
         actionSteps: ["Choose just one paper", "Read just one page", "Make just one note"],
         reflectionPrompt: "If you could only do one 5-minute task today to release pressure, what would it be?"
       },
@@ -502,7 +502,7 @@ export default function ResearchHome({
         <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-6 rounded-lg flex flex-col justify-between shadow-sm text-left">
           <div>
             <p className="font-sans text-xs text-stone-500 leading-relaxed mb-4">
-              Academic tasks are giant. Safeguard your emotional energy by choosing just **one small achievable task** today. No pressure for more.
+              Writing and research projects are giant. Safeguard your emotional energy by choosing just **one small achievable task** today. No pressure for more.
             </p>
 
             {savedFocus ? (

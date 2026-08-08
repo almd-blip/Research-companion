@@ -20,7 +20,28 @@ interface SelfCareTopic {
   reflectionPrompt: string;
 }
 
-export default function ResearchWellbeing({ mode, onExitFocus }: { mode?: 'focus' | 'wellbeing'; onExitFocus?: () => void } = {}) {
+export interface FocusTimerSharedProps {
+  preferredFocusMinutes: number;
+  preferredBreakMinutes: number;
+  timeLeft: number;
+  timerRunning: boolean;
+  isBreak: boolean;
+  completedSessions: number;
+  changeFocusDuration: (mins: number) => void;
+  changeBreakDuration: (mins: number) => void;
+  toggleTimerRunning: () => void;
+  resetTimer: () => void;
+}
+
+export default function ResearchWellbeing({
+  mode,
+  onExitFocus,
+  timerProps,
+}: {
+  mode?: 'focus' | 'wellbeing';
+  onExitFocus?: () => void;
+  timerProps?: FocusTimerSharedProps;
+} = {}) {
   // Wellbeing Library child destinations: 'home' | 'insights' | 'guides' | 'breathe' | 'wins'
   const [activeChildDestination, setActiveChildDestination] = useState<'home' | 'insights' | 'guides' | 'breathe' | 'wins'>(
     'home'
@@ -49,17 +70,57 @@ export default function ResearchWellbeing({ mode, onExitFocus }: { mode?: 'focus
     });
   };
 
-  // Focus timer states & contextual encouragement
-  const [timeLeft, setTimeLeft] = useState(25 * 60);
-  const [timerRunning, setTimerRunning] = useState(false);
-  const [isBreak, setIsBreak] = useState(false);
+  // User customizable focus & break duration (in minutes) - Local fallbacks
+  const [localPreferredFocusMinutes, setLocalPreferredFocusMinutes] = useState<number>(() => {
+    const saved = localStorage.getItem('scholar_preferred_focus_minutes');
+    return saved ? Math.max(1, parseInt(saved, 10)) : 25;
+  });
+
+  const [localPreferredBreakMinutes, setLocalPreferredBreakMinutes] = useState<number>(() => {
+    const saved = localStorage.getItem('scholar_preferred_break_minutes');
+    return saved ? Math.max(1, parseInt(saved, 10)) : 5;
+  });
+
+  const [customFocusInput, setCustomFocusInput] = useState<string>('');
+  const [customBreakInput, setCustomBreakInput] = useState<string>('');
+
+  // Focus timer states & contextual encouragement - Local fallbacks
+  const [localTimeLeft, setLocalTimeLeft] = useState(() => localPreferredFocusMinutes * 60);
+  const [localTimerRunning, setLocalTimerRunning] = useState(false);
+  const [localIsBreak, setLocalIsBreak] = useState(false);
   const [notification, setNotification] = useState<string | null>(null);
 
-  // Focus session counter for contextual encouragement
-  const [completedSessions, setCompletedSessions] = useState<number>(() => {
+  // Change focus duration - Local fallback
+  const localChangeFocusDuration = (mins: number) => {
+    const validMins = Math.max(1, Math.min(180, mins));
+    setLocalPreferredFocusMinutes(validMins);
+    localStorage.setItem('scholar_preferred_focus_minutes', validMins.toString());
+    if (!localTimerRunning && !localIsBreak) {
+      setLocalTimeLeft(validMins * 60);
+    }
+  };
+
+  // Change break duration - Local fallback
+  const localChangeBreakDuration = (mins: number) => {
+    const validMins = Math.max(1, Math.min(60, mins));
+    setLocalPreferredBreakMinutes(validMins);
+    localStorage.setItem('scholar_preferred_break_minutes', validMins.toString());
+    if (!localTimerRunning && localIsBreak) {
+      setLocalTimeLeft(validMins * 60);
+    }
+  };
+
+  // Focus session counter for contextual encouragement - Local fallback
+  const [localCompletedSessions, setLocalCompletedSessions] = useState<number>(() => {
     const cached = localStorage.getItem('scholar_focus_completed_sessions');
     return cached ? parseInt(cached, 10) : 0;
   });
+
+  const localPomodoroReset = () => {
+    setLocalTimerRunning(false);
+    setLocalIsBreak(false);
+    setLocalTimeLeft(localPreferredFocusMinutes * 60);
+  };
 
   const [showGentleEncouragement, setShowGentleEncouragement] = useState<boolean>(false);
 
@@ -76,7 +137,7 @@ export default function ResearchWellbeing({ mode, onExitFocus }: { mode?: 'focus
       id: 'self_care_principles',
       title: 'Research self-care',
       emoji: '🕯️',
-      description: 'Foundational principles of sustaining yourself in academic spaces.',
+      description: 'Foundational principles of sustaining yourself in creative and research spaces.',
       quote: 'Scholarship is a journey of endurance, not a temporary sprint. If you burn out, your ideas cannot reach the world.',
       tips: [
         'Establish clear offline blocks. Close your computer fully at a set hour.',
@@ -149,18 +210,32 @@ export default function ResearchWellbeing({ mode, onExitFocus }: { mode?: 'focus
     }
   ];
 
-  // Pomodoro timer effect
+  // Effective timer state derived from shared timerProps or local state
+  const preferredFocusMinutes = timerProps ? timerProps.preferredFocusMinutes : localPreferredFocusMinutes;
+  const preferredBreakMinutes = timerProps ? timerProps.preferredBreakMinutes : localPreferredBreakMinutes;
+  const timeLeft = timerProps ? timerProps.timeLeft : localTimeLeft;
+  const timerRunning = timerProps ? timerProps.timerRunning : localTimerRunning;
+  const isBreak = timerProps ? timerProps.isBreak : localIsBreak;
+  const completedSessions = timerProps ? timerProps.completedSessions : localCompletedSessions;
+
+  const changeFocusDuration = timerProps ? timerProps.changeFocusDuration : localChangeFocusDuration;
+  const changeBreakDuration = timerProps ? timerProps.changeBreakDuration : localChangeBreakDuration;
+  const toggleTimerRunning = timerProps ? timerProps.toggleTimerRunning : () => setLocalTimerRunning(!localTimerRunning);
+  const handlePomodoroReset = timerProps ? timerProps.resetTimer : localPomodoroReset;
+
+  // Local Pomodoro timer effect (only if no timerProps supplied)
   useEffect(() => {
+    if (timerProps) return; // Managed centrally by App
     let interval: any = null;
-    if (timerRunning && timeLeft > 0) {
+    if (localTimerRunning && localTimeLeft > 0) {
       interval = setInterval(() => {
-        setTimeLeft((prev) => prev - 1);
+        setLocalTimeLeft((prev) => prev - 1);
       }, 1000);
-    } else if (timeLeft === 0) {
-      setTimerRunning(false);
-      if (!isBreak) {
-        const nextSessions = completedSessions + 1;
-        setCompletedSessions(nextSessions);
+    } else if (localTimeLeft === 0) {
+      setLocalTimerRunning(false);
+      if (!localIsBreak) {
+        const nextSessions = localCompletedSessions + 1;
+        setLocalCompletedSessions(nextSessions);
         localStorage.setItem('scholar_focus_completed_sessions', nextSessions.toString());
 
         if (nextSessions % 2 === 0) {
@@ -169,16 +244,16 @@ export default function ResearchWellbeing({ mode, onExitFocus }: { mode?: 'focus
           setNotification('Focus session resolved. Please take an offline screen-free break.');
         }
 
-        setIsBreak(true);
-        setTimeLeft(5 * 60);
+        setLocalIsBreak(true);
+        setLocalTimeLeft(localPreferredBreakMinutes * 60);
       } else {
         setNotification('Break interval completed. Ready to anchor focus?');
-        setIsBreak(false);
-        setTimeLeft(25 * 60);
+        setLocalIsBreak(false);
+        setLocalTimeLeft(localPreferredFocusMinutes * 60);
       }
     }
     return () => clearInterval(interval);
-  }, [timerRunning, timeLeft, isBreak, completedSessions]);
+  }, [timerProps, localTimerRunning, localTimeLeft, localIsBreak, localCompletedSessions, localPreferredFocusMinutes, localPreferredBreakMinutes]);
 
   // Clean up audio on unmount
   useEffect(() => {
@@ -191,12 +266,6 @@ export default function ResearchWellbeing({ mode, onExitFocus }: { mode?: 'focus
     const m = Math.floor(seconds / 60);
     const s = seconds % 60;
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-  };
-
-  const handlePomodoroReset = () => {
-    setTimerRunning(false);
-    setIsBreak(false);
-    setTimeLeft(25 * 60);
   };
 
   // Procedural audio synthesizer
@@ -311,36 +380,44 @@ export default function ResearchWellbeing({ mode, onExitFocus }: { mode?: 'focus
     <div className="max-w-3xl mx-auto space-y-6 font-sans px-2 sm:px-4" id="research-wellbeing-module">
       
       {/* Header */}
-      <div className="pb-4" id="wellbeing-header-container">
-        <div className="space-y-1.5 text-left" id="wellbeing-header-text">
-          {mode === 'focus' && (
-            <div className="pb-1">
-              <button
-                type="button"
-                onClick={onExitFocus}
-                className="font-sans text-xs px-3 py-1.5 rounded-md border border-stone-300 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-200 transition-colors flex items-center gap-2 cursor-pointer font-semibold inline-flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d9e75]"
-                id="wellbeing-exit-focus-mode-btn"
-                title="Exit focus space"
-              >
-                <span>Exit focus</span>
-              </button>
-            </div>
-          )}
-          <h1 className="font-sans font-medium tracking-tight text-2xl sm:text-3xl text-stone-900 dark:text-stone-100 flex items-center gap-3" id="wellbeing-page-title">
-            {mode === 'focus' ? 'Calm focus space' : 'Wellbeing centre'}
-          </h1>
-          <p className="font-sans text-stone-500 dark:text-stone-400 text-xs sm:text-sm leading-relaxed" id="wellbeing-page-subtitle">
-            {mode === 'focus'
-              ? 'Work gently without alerts, badges, or noise. Pair your writing blocks with procedurally generated audio soundscapes.'
-              : 'Sustaining your mental and emotional wellness is an active requirement of rigorous scholarship. This is not meditation; it is research self-preservation.'}
-          </p>
-          {mode !== 'focus' && (
-            <div className="flex items-center gap-1.5 pt-1.5 text-xs font-sans text-stone-400 dark:text-stone-500" id="wellbeing-reading-indicator">
-              <span>Academic self-care, focus tools & reflective support</span>
-            </div>
-          )}
+      {activeChildDestination !== 'insights' && (
+        <div className="pb-4" id="wellbeing-header-container">
+          <div className="space-y-1.5 text-left" id="wellbeing-header-text">
+            {mode === 'focus' && (
+              <div className="pb-1">
+                <button
+                  type="button"
+                  onClick={onExitFocus}
+                  className="font-sans text-xs px-3 py-1.5 rounded-md border border-stone-300 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-200 transition-colors flex items-center gap-2 cursor-pointer font-semibold inline-flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d9e75]"
+                  id="wellbeing-exit-focus-mode-btn"
+                  title="Exit focus space"
+                >
+                  <span>Exit focus</span>
+                </button>
+              </div>
+            )}
+            <h1 className="font-sans font-medium tracking-tight text-2xl sm:text-3xl text-stone-900 dark:text-stone-100 flex items-center gap-3" id="wellbeing-page-title">
+              {mode === 'focus'
+                ? 'Calm focus space'
+                : activeChildDestination === 'breathe'
+                ? 'Pause, Breathe and Be present'
+                : 'Wellbeing centre'}
+            </h1>
+            <p className="font-sans text-stone-500 dark:text-stone-400 text-xs sm:text-sm leading-relaxed" id="wellbeing-page-subtitle">
+              {mode === 'focus'
+                ? 'Work gently without alerts, badges, or noise. Pair your writing blocks with procedurally generated audio soundscapes.'
+                : activeChildDestination === 'breathe'
+                ? 'Experiential breathing exercises, rhythmic pacing, and grounding focus practices to anchor presence during research.'
+                : 'Sustaining your mental and emotional wellness is an active requirement of thoughtful creation and rigorous inquiry. This is not meditation; it is research and creative self-preservation.'}
+            </p>
+            {mode !== 'focus' && activeChildDestination !== 'breathe' && (
+              <div className="flex items-center gap-1.5 pt-1.5 text-xs font-sans text-stone-400 dark:text-stone-500" id="wellbeing-reading-indicator">
+                <span>Self-care, focus tools & reflective support</span>
+              </div>
+            )}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Contextual Banner */}
       {notification && (
@@ -405,7 +482,7 @@ export default function ResearchWellbeing({ mode, onExitFocus }: { mode?: 'focus
               {/* Row 1: Card 1 (Pause, Breathe & Be Present) & Card 2 (Sustaining Yourself Guides) */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 relative items-stretch">
                 {/* Vertical Burgundy Divider between Col 1 and Col 2 */}
-                <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-2 bottom-2 w-[2px] bg-[#912A4A] pointer-events-none" />
+                <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-[52px] bottom-[48px] w-[2px] bg-[#912A4A] pointer-events-none" />
 
                 {/* Card 1: Pause, Breathe & Be Present */}
                 <button
@@ -424,7 +501,7 @@ export default function ResearchWellbeing({ mode, onExitFocus }: { mode?: 'focus
                   </div>
                   <div className="flex items-center justify-end pt-8 mt-auto w-full gap-2">
                     <span className="text-xs font-semibold text-[#912A4A] opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                      Enter
+                      Find out more →
                     </span>
                   </div>
                 </button>
@@ -441,12 +518,12 @@ export default function ResearchWellbeing({ mode, onExitFocus }: { mode?: 'focus
                       Sustaining Yourself Guides
                     </h2>
                     <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-                      Practical guidance for sustaining cognitive energy, managing research density, and navigating academic overwhelm.
+                      Practical guidance for sustaining cognitive energy, managing project density, and navigating creative or research overwhelm.
                     </p>
                   </div>
                   <div className="flex items-center justify-end pt-8 mt-auto w-full gap-2">
                     <span className="text-xs font-semibold text-[#912A4A] opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                      Enter
+                      Find out more →
                     </span>
                   </div>
                 </button>
@@ -455,7 +532,7 @@ export default function ResearchWellbeing({ mode, onExitFocus }: { mode?: 'focus
               {/* Row 2: Card 3 (Wellbeing Research Insights) */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 relative items-stretch">
                 {/* Vertical Burgundy Divider between Col 1 and Col 2 */}
-                <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-2 bottom-2 w-[2px] bg-[#912A4A] pointer-events-none" />
+                <div className="hidden md:block absolute left-1/2 -translate-x-1/2 top-[52px] bottom-[48px] w-[2px] bg-[#912A4A] pointer-events-none" />
 
                 {/* Card 3: Wellbeing Research Insights */}
                 <button
@@ -469,12 +546,12 @@ export default function ResearchWellbeing({ mode, onExitFocus }: { mode?: 'focus
                       Wellbeing Research Insights
                     </h2>
                     <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-                      Evidence-based literature syntheses and academic research on wellbeing, cognitive fatigue, and research endurance.
+                      Evidence-based literature syntheses and research on wellbeing, cognitive fatigue, and endurance.
                     </p>
                   </div>
                   <div className="flex items-center justify-end pt-8 mt-auto w-full gap-2">
                     <span className="text-xs font-semibold text-[#912A4A] opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
-                      Enter
+                      Find out more →
                     </span>
                   </div>
                 </button>
@@ -488,58 +565,62 @@ export default function ResearchWellbeing({ mode, onExitFocus }: { mode?: 'focus
           {/* DETAIL VIEWS HEADER: Back button & Breadcrumb bar when inside a child view */}
           {activeChildDestination !== 'home' && (
             <div className="space-y-6">
-              <div className="flex flex-wrap items-center justify-between gap-4 pb-2">
-                <button
-                  type="button"
-                  onClick={() => setActiveChildDestination('home')}
-                  className="text-xs font-semibold text-[#912A4A] dark:text-rose-400 hover:underline flex items-center gap-1.5 cursor-pointer"
-                  id="wellbeing-back-to-home-btn"
-                >
-                  <span>Back to Wellbeing centre</span>
-                </button>
+              {activeChildDestination !== 'insights' && (
+                <div className="flex flex-wrap items-center justify-between gap-4 pb-2">
+                  <button
+                    type="button"
+                    onClick={() => setActiveChildDestination('home')}
+                    className="text-xs font-semibold text-[#912A4A] dark:text-rose-400 hover:underline flex items-center gap-1.5 cursor-pointer"
+                    id="wellbeing-back-to-home-btn"
+                  >
+                    <span>Back to Wellbeing centre</span>
+                  </button>
 
-                {/* Sub-destination tabs for quick switching between child cards */}
-                <div className="flex flex-wrap items-center gap-2 text-xs text-stone-600 dark:text-stone-400" role="tablist">
-                  <button
-                    role="tab"
-                    aria-selected={activeChildDestination === 'breathe'}
-                    onClick={() => setActiveChildDestination('breathe')}
-                    className={`hover:text-[#912A4A] transition-colors cursor-pointer font-medium py-1 px-2.5 rounded-md border ${
-                      activeChildDestination === 'breathe'
-                        ? 'bg-white dark:bg-stone-800 text-[#912A4A] dark:text-rose-400 font-semibold border-[#912A4A]/40 shadow-xs'
-                        : 'border-transparent'
-                    }`}
-                  >
-                    Pause, Breathe & Be Present
-                  </button>
-                  <span>•</span>
-                  <button
-                    role="tab"
-                    aria-selected={activeChildDestination === 'guides'}
-                    onClick={() => setActiveChildDestination('guides')}
-                    className={`hover:text-[#912A4A] transition-colors cursor-pointer font-medium py-1 px-2.5 rounded-md border ${
-                      activeChildDestination === 'guides'
-                        ? 'bg-white dark:bg-stone-800 text-[#912A4A] dark:text-rose-400 font-semibold border-[#912A4A]/40 shadow-xs'
-                        : 'border-transparent'
-                    }`}
-                  >
-                    Sustaining Yourself Guides
-                  </button>
-                  <span>•</span>
-                  <button
-                    role="tab"
-                    aria-selected={activeChildDestination === 'insights'}
-                    onClick={() => setActiveChildDestination('insights')}
-                    className={`hover:text-[#912A4A] transition-colors cursor-pointer font-medium py-1 px-2.5 rounded-md border ${
-                      activeChildDestination === 'insights'
-                        ? 'bg-white dark:bg-stone-800 text-[#912A4A] dark:text-rose-400 font-semibold border-[#912A4A]/40 shadow-xs'
-                        : 'border-transparent'
-                    }`}
-                  >
-                    Wellbeing Research Insights
-                  </button>
+                  {/* Sub-destination tabs for quick switching between child cards (hidden on breathe page as requested) */}
+                  {activeChildDestination !== 'breathe' && (
+                    <div className="flex flex-wrap items-center gap-2 text-xs text-stone-600 dark:text-stone-400" role="tablist">
+                      <button
+                        role="tab"
+                        aria-selected={activeChildDestination === 'breathe'}
+                        onClick={() => setActiveChildDestination('breathe')}
+                        className={`hover:text-[#912A4A] transition-colors cursor-pointer font-medium py-1 px-2.5 rounded-md border ${
+                          activeChildDestination === 'breathe'
+                            ? 'bg-white dark:bg-stone-800 text-[#912A4A] dark:text-rose-400 font-semibold border-[#912A4A]/40 shadow-xs'
+                            : 'border-transparent'
+                        }`}
+                      >
+                        Pause, Breathe & Be Present
+                      </button>
+                      <span>•</span>
+                      <button
+                        role="tab"
+                        aria-selected={activeChildDestination === 'guides'}
+                        onClick={() => setActiveChildDestination('guides')}
+                        className={`hover:text-[#912A4A] transition-colors cursor-pointer font-medium py-1 px-2.5 rounded-md border ${
+                          activeChildDestination === 'guides'
+                            ? 'bg-white dark:bg-stone-800 text-[#912A4A] dark:text-rose-400 font-semibold border-[#912A4A]/40 shadow-xs'
+                            : 'border-transparent'
+                        }`}
+                      >
+                        Sustaining Yourself Guides
+                      </button>
+                      <span>•</span>
+                      <button
+                        role="tab"
+                        aria-selected={activeChildDestination === 'insights'}
+                        onClick={() => setActiveChildDestination('insights')}
+                        className={`hover:text-[#912A4A] transition-colors cursor-pointer font-medium py-1 px-2.5 rounded-md border ${
+                          activeChildDestination === 'insights'
+                            ? 'bg-white dark:bg-stone-800 text-[#912A4A] dark:text-rose-400 font-semibold border-[#912A4A]/40 shadow-xs'
+                            : 'border-transparent'
+                        }`}
+                      >
+                        Wellbeing Research Insights
+                      </button>
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
 
               {/* CHILD DESTINATION 1: PAUSE, BREATHE & BE PRESENT */}
               {activeChildDestination === 'breathe' && (
@@ -673,20 +754,132 @@ export default function ResearchWellbeing({ mode, onExitFocus }: { mode?: 'focus
         <div className="space-y-8 text-left py-2" id="wellbeing-focus-section">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Pomodoro Timer */}
-            <div className="bg-stone-50 dark:bg-stone-900/40 border border-stone-200/80 dark:border-stone-800 p-6 rounded-md flex flex-col justify-between space-y-6">
+            <div className="bg-stone-50 dark:bg-stone-900/40 border border-stone-200/80 dark:border-stone-800 p-6 rounded-md flex flex-col justify-between space-y-5">
               <div className="space-y-2">
                 <span className="font-sans text-xs font-mono text-[#1d9e75] dark:text-[#28c093] font-semibold tracking-wider">
-                  {isBreak ? 'Gentle decompression interval' : 'Quiet study interval'}
+                  {isBreak ? `Gentle decompression interval (${preferredBreakMinutes}m)` : `Quiet study interval (${preferredFocusMinutes}m)`}
                 </span>
                 <h2 className="font-mono text-5xl font-light text-stone-900 dark:text-stone-100 tracking-tight">
                   {formatTime(timeLeft)}
                 </h2>
               </div>
 
+              {/* Focus Duration Selection */}
+              <div className="space-y-2.5 pt-2 border-t border-stone-200/80 dark:border-stone-800">
+                <div className="flex items-center justify-between">
+                  <label className="text-xs font-semibold text-stone-800 dark:text-stone-200 block">
+                    Preferred focus duration:
+                  </label>
+                  <span className="text-[11px] font-mono text-stone-500">
+                    {preferredFocusMinutes} min
+                  </span>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-1.5">
+                  {[15, 20, 25, 45, 60, 90].map((mins) => (
+                    <button
+                      key={mins}
+                      type="button"
+                      onClick={() => changeFocusDuration(mins)}
+                      className={`px-2.5 py-1 text-xs rounded border transition-all cursor-pointer font-medium ${
+                        preferredFocusMinutes === mins
+                          ? 'bg-[#1d9e75] text-white font-semibold border-[#1d9e75] shadow-xs'
+                          : 'bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-800 hover:border-stone-400'
+                      }`}
+                    >
+                      {mins}m
+                    </button>
+                  ))}
+                </div>
+
+                {/* Custom focus input */}
+                <div className="flex items-center gap-2 pt-1">
+                  <span className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">Custom:</span>
+                  <input
+                    type="number"
+                    min="1"
+                    max="180"
+                    value={customFocusInput}
+                    onChange={(e) => setCustomFocusInput(e.target.value)}
+                    placeholder="e.g. 50"
+                    className="w-20 px-2.5 py-1 text-xs rounded border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:border-[#1d9e75]"
+                  />
+                  <span className="text-[11px] text-stone-500">min</span>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const parsed = parseInt(customFocusInput, 10);
+                      if (!isNaN(parsed) && parsed > 0 && parsed <= 180) {
+                        changeFocusDuration(parsed);
+                        setCustomFocusInput('');
+                      }
+                    }}
+                    disabled={!customFocusInput.trim() || isNaN(parseInt(customFocusInput, 10)) || parseInt(customFocusInput, 10) <= 0}
+                    className="px-2.5 py-1 text-xs rounded bg-stone-200 dark:bg-stone-800 text-stone-800 dark:text-stone-200 hover:bg-stone-300 dark:hover:bg-stone-700 disabled:opacity-40 cursor-pointer font-medium transition-colors"
+                  >
+                    Set
+                  </button>
+                </div>
+
+                {/* Break Duration Preset Selector & Custom Break Input */}
+                <div className="space-y-1.5 pt-1">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[11px] font-medium text-stone-600 dark:text-stone-400">
+                      Break length ({preferredBreakMinutes} min):
+                    </span>
+                    <div className="flex items-center gap-1">
+                      {[3, 5, 10, 15, 20].map((bmins) => (
+                        <button
+                          key={bmins}
+                          type="button"
+                          onClick={() => changeBreakDuration(bmins)}
+                          className={`px-2 py-0.5 text-[11px] rounded border transition-colors cursor-pointer ${
+                            preferredBreakMinutes === bmins
+                              ? 'bg-stone-700 dark:bg-stone-300 text-white dark:text-stone-900 font-semibold border-stone-700'
+                              : 'bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-stone-800'
+                          }`}
+                        >
+                          {bmins}m
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Custom break input */}
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">Custom break:</span>
+                    <input
+                      type="number"
+                      min="1"
+                      max="60"
+                      value={customBreakInput}
+                      onChange={(e) => setCustomBreakInput(e.target.value)}
+                      placeholder="e.g. 7"
+                      className="w-20 px-2.5 py-1 text-xs rounded border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:border-[#1d9e75]"
+                    />
+                    <span className="text-[11px] text-stone-500">min</span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const parsed = parseInt(customBreakInput, 10);
+                        if (!isNaN(parsed) && parsed > 0 && parsed <= 60) {
+                          changeBreakDuration(parsed);
+                          setCustomBreakInput('');
+                        }
+                      }}
+                      disabled={!customBreakInput.trim() || isNaN(parseInt(customBreakInput, 10)) || parseInt(customBreakInput, 10) <= 0}
+                      className="px-2.5 py-1 text-xs rounded bg-stone-200 dark:bg-stone-800 text-stone-800 dark:text-stone-200 hover:bg-stone-300 dark:hover:bg-stone-700 disabled:opacity-40 cursor-pointer font-medium transition-colors"
+                    >
+                      Set
+                    </button>
+                  </div>
+                </div>
+              </div>
+
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
-                  onClick={() => setTimerRunning(!timerRunning)}
+                  onClick={toggleTimerRunning}
                   className="px-5 py-2.5 rounded-md bg-[#1d9e75] hover:bg-[#168260] dark:bg-[#28c093] dark:hover:bg-[#1e9a75] text-white dark:text-stone-950 text-xs font-sans font-semibold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d9e75]"
                 >
                   {timerRunning ? 'Pause' : 'Start interval'}
@@ -700,7 +893,7 @@ export default function ResearchWellbeing({ mode, onExitFocus }: { mode?: 'focus
                 </button>
               </div>
 
-              <p className="font-sans text-xs text-stone-500 dark:text-stone-400 italic leading-relaxed pt-2">
+              <p className="font-sans text-xs text-stone-500 dark:text-stone-400 italic leading-relaxed pt-1">
                 "No streaks. No alerts. Work gently until the timer resolves. If you feel tired, close the app and rest."
               </p>
             </div>

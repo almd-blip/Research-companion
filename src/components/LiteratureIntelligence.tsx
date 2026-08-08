@@ -297,7 +297,7 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
                 <div className="space-y-4">
                   <div className="space-y-1.5">
                     <h4 className="font-sans font-semibold text-xs text-emerald-800 dark:text-emerald-400 flex items-center gap-1">
-                       Points of Academic Convergence
+                       Points of Conceptual Convergence
                     </h4>
                     <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
                       {synthesisResult.agreements}

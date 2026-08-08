@@ -74,7 +74,7 @@ export default function ResearchIntegrityBanner({
               <strong className="text-amber-950 dark:text-amber-300 font-semibold block mb-1">
                 Boundary Commitment:
               </strong>
-              The Research Companion will <strong>never write, generate, or produce complete academic papers, articles, books, chapters, or reports</strong> on behalf of the user. The AI is designed strictly to support the research process, not replace the researcher.
+              The Research Companion will <strong>never write, generate, or produce complete papers, articles, books, chapters, or reports</strong> on behalf of the user. The AI is designed strictly to support the research and writing process, not replace the creator or researcher.
             </div>
 
             {/* Grid of Capabilities vs Responsibilities */}
@@ -135,13 +135,13 @@ export default function ResearchIntegrityBanner({
                     <span className="text-amber-800 dark:text-amber-400 font-bold">•</span> Interpreting empirical evidence & findings
                   </li>
                   <li className="flex items-start gap-1.5">
-                    <span className="text-amber-800 dark:text-amber-400 font-bold">•</span> Drawing academic conclusions
+                    <span className="text-amber-800 dark:text-amber-400 font-bold">•</span> Drawing original conclusions
                   </li>
                   <li className="flex items-start gap-1.5">
-                    <span className="text-amber-800 dark:text-amber-400 font-bold">•</span> Writing original scholarly work
+                    <span className="text-amber-800 dark:text-amber-400 font-bold">•</span> Writing original work
                   </li>
                   <li className="flex items-start gap-1.5">
-                    <span className="text-amber-800 dark:text-amber-400 font-bold">•</span> Making final scholarly judgements
+                    <span className="text-amber-800 dark:text-amber-400 font-bold">•</span> Making final authorial judgements
                   </li>
                   <li className="flex items-start gap-1.5">
                     <span className="text-amber-800 dark:text-amber-400 font-bold">•</span> Ensuring factual accuracy & correct citations
@@ -164,7 +164,7 @@ export default function ResearchIntegrityBanner({
             {/* Modal Actions */}
             <div className="flex flex-wrap items-center justify-between gap-2 pt-3 border-t border-stone-150 dark:border-stone-900">
               <span className="text-[10px] text-stone-400 italic">
-                A non-generative, author-led academic workflow.
+                A non-generative, author-led creative and research workflow.
               </span>
 
               <div className="flex gap-2">

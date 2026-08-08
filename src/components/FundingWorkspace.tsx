@@ -113,7 +113,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-stone-200 dark:border-stone-800 pb-3">
         <div>
           <h2 className="font-sans font-medium text-stone-900 dark:text-stone-100 text-lg flex items-center gap-2">
-             Academic Funding Workspace
+             Funding & Grants Workspace
           </h2>
           <p className="font-sans text-xs text-stone-500 mt-0.5">Integrate literature directly with grant preparations, impact statements, and funder benchmarks.</p>
         </div>
@@ -237,7 +237,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
                Reusable Bio & Capability Profile
             </h4>
             <p className="font-sans text-[11px] text-stone-500">
-              Store reusable academic descriptions (bios, research methodology standards) to quickly paste across grant bids.
+              Store reusable descriptions (bios, project methodology standards, impact statements) to quickly paste across grant bids and proposals.
             </p>
 
             <div className="space-y-3 max-h-[250px] overflow-y-auto">

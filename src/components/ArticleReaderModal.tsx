@@ -130,20 +130,18 @@ export default function ArticleReaderModal({ article, onClose }: ArticleReaderMo
             className="font-sans text-xs px-3 py-1.5 rounded-md bg-stone-200 dark:bg-stone-800 text-stone-800 dark:text-stone-200 hover:bg-stone-300 dark:hover:bg-stone-700 transition-colors flex items-center gap-1.5 font-medium cursor-pointer"
             id="reader-return-btn"
           >
-            <ArrowLeft className="w-3.5 h-3.5" />
             <span>Return to Insight</span>
           </button>
 
           <div className="flex items-center flex-wrap gap-2">
             {/* Search Input in Article */}
             <div className="relative flex items-center">
-              <Search className="w-3 h-3 absolute left-2 text-stone-400 pointer-events-none" />
               <input
                 type="text"
                 placeholder="Search article text..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-7 pr-2 py-1 text-xs rounded bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 w-36 sm:w-48 focus:outline-none focus:border-[#1d9e75]"
+                className="px-2 py-1 text-xs rounded bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 w-36 sm:w-48 focus:outline-none focus:border-[#1d9e75]"
               />
               {searchTerm && (
                 <button 
@@ -157,7 +155,7 @@ export default function ArticleReaderModal({ article, onClose }: ArticleReaderMo
 
             {/* Font Size Selector */}
             <div className="flex items-center bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded p-0.5">
-              <Type className="w-3 h-3 text-stone-400 mx-1" />
+              <span className="text-[10px] text-stone-400 mx-1 font-mono">Font:</span>
               <button
                 onClick={() => setFontSize('sm')}
                 className={`px-1.5 py-0.5 text-[10px] rounded font-mono ${fontSize === 'sm' ? 'bg-[#1d9e75] text-white font-bold' : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800'}`}
@@ -198,8 +196,7 @@ export default function ArticleReaderModal({ article, onClose }: ArticleReaderMo
               }`}
               title={isBookmarked ? 'Remove Bookmark' : 'Bookmark Article'}
             >
-              <Bookmark className={`w-3.5 h-3.5 ${isBookmarked ? 'fill-current' : ''}`} />
-              <span className="hidden sm:inline">{isBookmarked ? 'Bookmarked' : 'Bookmark'}</span>
+              <span>{isBookmarked ? 'Bookmarked' : 'Bookmark'}</span>
             </button>
 
             {/* Copy Citation */}
@@ -208,16 +205,15 @@ export default function ArticleReaderModal({ article, onClose }: ArticleReaderMo
               className="p-1.5 rounded border bg-white dark:bg-stone-900 border-stone-200 dark:border-stone-700 text-stone-600 dark:text-stone-300 hover:border-[#1d9e75] transition-colors text-xs flex items-center gap-1 cursor-pointer"
               title="Copy Citation"
             >
-              {copyStatus ? <Check className="w-3.5 h-3.5 text-emerald-500" /> : <Share2 className="w-3.5 h-3.5" />}
-              <span className="hidden sm:inline">{copyStatus ? 'Copied' : 'Cite'}</span>
+              <span>{copyStatus ? 'Copied' : 'Cite'}</span>
             </button>
 
             <button
               onClick={onClose}
-              className="p-1 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 rounded cursor-pointer ml-1"
+              className="px-2 py-1 text-xs text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 rounded cursor-pointer ml-1"
               title="Close Reader"
             >
-              <X className="w-5 h-5" />
+              ✕
             </button>
           </div>
         </div>
@@ -260,7 +256,7 @@ export default function ArticleReaderModal({ article, onClose }: ArticleReaderMo
                   rel="noreferrer"
                   className="text-[#1d9e75] hover:underline flex items-center gap-1"
                 >
-                  {article.doi} <ExternalLink className="w-3 h-3" />
+                  {article.doi}
                 </a>
               </p>
             )}
@@ -280,7 +276,7 @@ export default function ArticleReaderModal({ article, onClose }: ArticleReaderMo
               <div className="flex flex-wrap gap-1.5 pt-2">
                 {article.keywords.map((kw, idx) => (
                   <span key={idx} className="text-[10px] px-2 py-0.5 rounded bg-stone-200/70 dark:bg-stone-800 text-stone-600 dark:text-stone-300 flex items-center gap-1">
-                    <Tag className="w-2.5 h-2.5" /> {kw}
+                    #{kw}
                   </span>
                 ))}
               </div>
@@ -292,7 +288,7 @@ export default function ArticleReaderModal({ article, onClose }: ArticleReaderMo
             <div className="bg-emerald-50 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/80 p-3 rounded-lg flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 animate-fadeIn">
               <div className="space-y-1 flex-grow">
                 <p className="text-xs font-semibold text-emerald-800 dark:text-emerald-300 flex items-center gap-1">
-                  <Highlighter className="w-3.5 h-3.5" /> Highlight selected text:
+                  Highlight selected text:
                 </p>
                 <p className="text-xs text-stone-700 dark:text-stone-300 italic line-clamp-2 bg-white/60 dark:bg-stone-900/60 p-1.5 rounded">
                   "{selectedText}"
@@ -328,7 +324,6 @@ export default function ArticleReaderModal({ article, onClose }: ArticleReaderMo
           {highlights.length > 0 && (
             <div className="bg-amber-50/50 dark:bg-stone-950 p-3 sm:p-4 rounded-lg border border-amber-200/60 dark:border-stone-800 space-y-2">
               <h4 className="text-xs font-bold text-stone-800 dark:text-stone-200 flex items-center gap-1.5">
-                <Highlighter className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                 Your Offline Highlights ({highlights.length})
               </h4>
               <div className="space-y-2 max-h-40 overflow-y-auto">

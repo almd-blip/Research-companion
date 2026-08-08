@@ -17,7 +17,7 @@ interface WritingCompanionProps {
 export default function WritingCompanion({ papers }: WritingCompanionProps) {
   const [draftContent, setDraftContent] = useState<string>(() => {
     return localStorage.getItem('draft_companion_text') || 
-      "Writing academic papers is a high-cognitive-load task. Researchers must weave together multiple lines of evidence, theoretical models, and empirical data, all while keeping citations strictly correct. Because attention is all you need, neural network sequence structures can be simplified. It has been proven that metric-centric gamification in research applications induces severe anxiety and disrupts flow states, causing imposter syndrome thoughts. Therefore, Zotero and Mendeley could be designed differently.";
+      "Writing, researching, and developing projects is a high-cognitive-load task. Writers and creators must weave together multiple lines of evidence, ideas, and empirical data, all while keeping sources and references clear. Because attention is key, sequence structures can be simplified. Metric-centric gamification in creative applications often induces anxiety and disrupts flow states. Therefore, tools should be designed with care, calm, and focus.";
   });
 
   const [loadingAnalysis, setLoadingAnalysis] = useState(false);
@@ -190,13 +190,13 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
             </div>
           </div>
 
-          <label htmlFor="draft-companion-textarea" className="sr-only">Academic Paper Draft Editor</label>
+          <label htmlFor="draft-companion-textarea" className="sr-only">Draft Editor</label>
           <textarea
             id="draft-companion-textarea"
             value={draftContent}
             onChange={handleTextChange}
             className="flex-1 w-full font-serif font-light text-stone-800 dark:text-stone-200 text-sm p-4 bg-stone-50/50 dark:bg-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-[#912A4A] focus:ring-offset-2 dark:focus:ring-offset-stone-950 resize-none min-h-[350px] leading-relaxed"
-            placeholder="Outline your thoughts, connect concepts, and type drafts here... When ready, click 'Cross-Reference Library' on the top right to verify claims against your academic database."
+            placeholder="Outline your thoughts, connect concepts, and type drafts here... When ready, click 'Cross-Reference Library' on the top right to verify claims against your library or reference database."
           />
         </div>
 
@@ -336,7 +336,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
           </div>
         ) : (
           <div className="flex-1 flex flex-col items-start justify-start py-24 text-left text-stone-400 dark:text-stone-500 font-sans text-xs">
-            <p className="px-4">Click "Cross-Reference Library" on the left to verify academic statement support, track contradictions, and organize argument hierarchies.</p>
+            <p className="px-4">Click "Cross-Reference Library" on the left to verify statement support, track contradictions, and organize argument hierarchies.</p>
           </div>
         )}
       </div>

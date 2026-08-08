@@ -72,7 +72,7 @@ const ABOUT_SECTIONS: SectionData[] = [
     title: 'Research integrity boundary',
     summary: 'This is not a content generation platform. It is here to support, empower and assist you.',
     content:
-      'The Research Companion will never write, generate, or produce complete academic papers, articles, books, reports, or research outputs on your behalf. The purpose of the AI is to support the research process, not replace the researcher. The AI acts as a research assistant, critical thinking partner, and analytical tool — helping you organize materials, identify themes, map literature, evaluate evidence, structure notes, and check logic — while you remain solely responsible for forming arguments, interpreting evidence, drawing conclusions, and writing original work.',
+      'The Research Companion will never write, generate, or produce complete papers, articles, books, reports, or creative projects on your behalf. The purpose of the AI is to support your research and writing process, not replace the creator or researcher. The AI acts as a thinking partner and analytical tool — helping you organize materials, identify themes, map literature, evaluate evidence, structure notes, and check logic — while you remain solely responsible for forming arguments, interpreting evidence, drawing conclusions, and writing original work.',
   },
 ];
 
@@ -277,7 +277,7 @@ export default function About() {
           {/* Call-to-action to read technical specification paper */}
           <div className="pt-12 mt-8 pb-4 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4" id="about-spec-banner">
             <div className="space-y-1 text-left" id="about-spec-info">
-              <h4 className="text-sm font-semibold text-stone-900 dark:text-stone-100" id="about-spec-title">Academic Specification & Roadmap</h4>
+              <h4 className="text-sm font-semibold text-stone-900 dark:text-stone-100" id="about-spec-title">Platform Specification & Roadmap</h4>
               <p className="text-stone-500 text-xs" id="about-spec-subtitle">Read our formal design specification, database architectures, and engineering guidelines.</p>
             </div>
             <button

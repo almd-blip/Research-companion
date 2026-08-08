@@ -116,6 +116,128 @@ export default function App() {
     return cached ? JSON.parse(cached) : [];
   });
 
+  // GLOBAL FOCUS TIMER STATE (persists & ticks across all tabs including Projects screen)
+  const [preferredFocusMinutes, setPreferredFocusMinutes] = useState<number>(() => {
+    const saved = localStorage.getItem('scholar_preferred_focus_minutes');
+    return saved ? Math.max(1, parseInt(saved, 10)) : 25;
+  });
+
+  const [preferredBreakMinutes, setPreferredBreakMinutes] = useState<number>(() => {
+    const saved = localStorage.getItem('scholar_preferred_break_minutes');
+    return saved ? Math.max(1, parseInt(saved, 10)) : 5;
+  });
+
+  const [focusTimeLeft, setFocusTimeLeft] = useState<number>(() => preferredFocusMinutes * 60);
+  const [focusTimerRunning, setFocusTimerRunning] = useState<boolean>(false);
+  const [focusIsBreak, setFocusIsBreak] = useState<boolean>(false);
+  const [focusCompletedSessions, setFocusCompletedSessions] = useState<number>(() => {
+    const cached = localStorage.getItem('scholar_focus_completed_sessions');
+    return cached ? parseInt(cached, 10) : 0;
+  });
+
+  // Focus Alert state shown on Projects screen & across all workspace tabs
+  const [focusAlert, setFocusAlert] = useState<{
+    title: string;
+    message: string;
+    type: 'focus_ended' | 'break_ended';
+    timestamp: number;
+  } | null>(null);
+
+  // Focus timer duration changers
+  const changeFocusDuration = (mins: number) => {
+    const validMins = Math.max(1, Math.min(180, mins));
+    setPreferredFocusMinutes(validMins);
+    localStorage.setItem('scholar_preferred_focus_minutes', validMins.toString());
+    if (!focusTimerRunning && !focusIsBreak) {
+      setFocusTimeLeft(validMins * 60);
+    }
+  };
+
+  const changeBreakDuration = (mins: number) => {
+    const validMins = Math.max(1, Math.min(60, mins));
+    setPreferredBreakMinutes(validMins);
+    localStorage.setItem('scholar_preferred_break_minutes', validMins.toString());
+    if (!focusTimerRunning && focusIsBreak) {
+      setFocusTimeLeft(validMins * 60);
+    }
+  };
+
+  const handlePomodoroReset = () => {
+    setFocusTimerRunning(false);
+    setFocusIsBreak(false);
+    setFocusTimeLeft(preferredFocusMinutes * 60);
+  };
+
+  // Play gentle Web Audio chime when timer finishes
+  const playTimerChime = () => {
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
+      const now = audioCtx.currentTime;
+      [440, 554.37, 659.25].forEach((freq, i) => {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(freq, now + i * 0.12);
+        gain.gain.setValueAtTime(0.001, now + i * 0.12);
+        gain.gain.exponentialRampToValueAtTime(0.15, now + i * 0.12 + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 1.2);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(now + i * 0.12);
+        osc.stop(now + i * 0.12 + 1.2);
+      });
+    } catch (e) {
+      console.warn('Timer chime suppressed', e);
+    }
+  };
+
+  // Main global timer countdown effect
+  useEffect(() => {
+    let interval: any = null;
+    if (focusTimerRunning && focusTimeLeft > 0) {
+      interval = setInterval(() => {
+        setFocusTimeLeft((prev) => prev - 1);
+      }, 1000);
+    } else if (focusTimerRunning && focusTimeLeft === 0) {
+      setFocusTimerRunning(false);
+      playTimerChime();
+
+      if (!focusIsBreak) {
+        const nextSessions = focusCompletedSessions + 1;
+        setFocusCompletedSessions(nextSessions);
+        localStorage.setItem('scholar_focus_completed_sessions', nextSessions.toString());
+
+        setFocusAlert({
+          title: 'Focus Session Completed 🌿',
+          message: `Your ${preferredFocusMinutes}-minute quiet study interval has resolved. Time for a gentle break or task switch!`,
+          type: 'focus_ended',
+          timestamp: Date.now(),
+        });
+
+        setFocusIsBreak(true);
+        setFocusTimeLeft(preferredBreakMinutes * 60);
+      } else {
+        setFocusAlert({
+          title: 'Break Interval Finished ☕',
+          message: `Your ${preferredBreakMinutes}-minute decompression break has concluded. Ready to return to your projects?`,
+          type: 'break_ended',
+          timestamp: Date.now(),
+        });
+
+        setFocusIsBreak(false);
+        setFocusTimeLeft(preferredFocusMinutes * 60);
+      }
+    }
+    return () => clearInterval(interval);
+  }, [focusTimerRunning, focusTimeLeft, focusIsBreak, focusCompletedSessions, preferredFocusMinutes, preferredBreakMinutes]);
+
+  // Format seconds to mm:ss helper
+  const formatTimerTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60);
+    const s = seconds % 60;
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+  };
+
   // Sync to local storage
   useEffect(() => {
     localStorage.setItem('scholar_papers', JSON.stringify(papers));
@@ -421,13 +543,19 @@ export default function App() {
                     role="tab"
                     aria-selected={activeTab === 'focus'}
                     onClick={() => handleNavigate('focus')}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center transition-all cursor-pointer border ${
+                    className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans flex items-center justify-between transition-all cursor-pointer border ${
                       activeTab === 'focus'
                         ? 'bg-stone-100/90 text-stone-900 font-semibold border-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-[#1D9E75]'
                         : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-transparent'
                     }`}
                   >
-                    Focus space
+                    <span>Focus space</span>
+                    {focusTimerRunning && (
+                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#1d9e75]/20 text-[#1d9e75] dark:text-[#28c093] font-semibold flex items-center gap-1 animate-pulse shrink-0">
+                        <Clock className="w-3 h-3" />
+                        {formatTimerTime(focusTimeLeft)}
+                      </span>
+                    )}
                   </button>
                 </div>
               )}
@@ -674,7 +802,86 @@ export default function App() {
       {/* Main viewport */}
       <main className="flex-grow p-3 sm:p-6 md:p-8 overflow-y-auto w-full max-w-full md:max-h-screen">
         <div className="max-w-7xl mx-auto h-full">
-          
+
+          {/* GLOBAL FOCUS TIMER ALERT BANNER (Shows on Projects screen and all workspace views when timer ends) */}
+          {focusAlert && (
+            <div
+              className="mb-6 p-4 rounded-lg bg-[#1d9e75]/10 dark:bg-[#1d9e75]/25 border-2 border-[#1d9e75] dark:border-[#28c093] shadow-lg animate-fadeIn text-left flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 z-50 relative"
+              role="alert"
+              id="focus-timer-ended-alert"
+            >
+              <div className="flex items-start gap-3">
+                <div className="w-9 h-9 rounded-full bg-[#1d9e75] dark:bg-[#28c093] text-white dark:text-stone-950 flex items-center justify-center font-bold shrink-0 text-base shadow-xs">
+                  {focusAlert.type === 'focus_ended' ? '🌿' : '☕'}
+                </div>
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h4 className="text-xs font-bold text-stone-900 dark:text-stone-100 font-sans tracking-wide">
+                      {focusAlert.title}
+                    </h4>
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1d9e75]/20 dark:bg-[#28c093]/30 text-[#1d9e75] dark:text-[#28c093] font-semibold border border-[#1d9e75]/30">
+                      {activeTab === 'research' || activeTab === 'dashboard' ? 'Projects Screen Alert' : 'Timer Alert'}
+                    </span>
+                  </div>
+                  <p className="text-xs text-stone-700 dark:text-stone-300 leading-relaxed font-sans">
+                    {focusAlert.message}
+                  </p>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                {focusAlert.type === 'focus_ended' ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFocusAlert(null);
+                      setFocusIsBreak(true);
+                      setFocusTimeLeft(preferredBreakMinutes * 60);
+                      setFocusTimerRunning(true);
+                    }}
+                    className="px-3.5 py-1.5 rounded-md bg-[#1d9e75] hover:bg-[#168260] dark:bg-[#28c093] dark:hover:bg-[#1f9b76] text-white dark:text-stone-950 text-xs font-semibold font-sans transition-colors cursor-pointer shadow-xs"
+                  >
+                    Start Break ({preferredBreakMinutes}m)
+                  </button>
+                ) : (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setFocusAlert(null);
+                      setFocusIsBreak(false);
+                      setFocusTimeLeft(preferredFocusMinutes * 60);
+                      setFocusTimerRunning(true);
+                    }}
+                    className="px-3.5 py-1.5 rounded-md bg-[#1d9e75] hover:bg-[#168260] dark:bg-[#28c093] dark:hover:bg-[#1f9b76] text-white dark:text-stone-950 text-xs font-semibold font-sans transition-colors cursor-pointer shadow-xs"
+                  >
+                    Start Focus ({preferredFocusMinutes}m)
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    handleNavigate('focus');
+                    setFocusAlert(null);
+                  }}
+                  className="px-3 py-1.5 rounded-md border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 text-xs font-semibold font-sans hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer"
+                >
+                  Go to Focus Space
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setFocusAlert(null)}
+                  className="p-1.5 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 text-xs cursor-pointer rounded hover:bg-stone-200/50 dark:hover:bg-stone-800 transition-colors ml-1"
+                  title="Dismiss Alert"
+                  aria-label="Dismiss timer alert"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* RESEARCH WORKSPACE & HOME */}
           {(activeTab === 'dashboard' || activeTab === 'research') && (
             <div className="animate-fadeIn">
@@ -716,7 +923,22 @@ export default function App() {
 
           {/* FOCUS PANEL */}
           {activeTab === 'focus' && (
-            <ResearchWellbeing mode="focus" onExitFocus={() => setActiveTab('dashboard')} />
+            <ResearchWellbeing
+              mode="focus"
+              onExitFocus={() => setActiveTab('dashboard')}
+              timerProps={{
+                preferredFocusMinutes,
+                preferredBreakMinutes,
+                timeLeft: focusTimeLeft,
+                timerRunning: focusTimerRunning,
+                isBreak: focusIsBreak,
+                completedSessions: focusCompletedSessions,
+                changeFocusDuration,
+                changeBreakDuration,
+                toggleTimerRunning: () => setFocusTimerRunning(!focusTimerRunning),
+                resetTimer: handlePomodoroReset,
+              }}
+            />
           )}
 
           {/* ABOUT COMPANION PANEL */}

@@ -21,7 +21,7 @@ export default function AIAssistant() {
       {
         id: 'initial',
         role: 'model',
-        text: "Greetings, fellow scholar. I am your AI academic mentor and research companion. Whether you need to structure your methodology, reframe your thesis scope, overcome cognitive writer's block, or practice for your defense, I am here to assist with structured and supportive guidance. How can I support your inquiry today?",
+        text: "Greetings. I am your AI writing, research, and project mentor. Whether you need to structure your methodology, reframe your project scope, overcome creative block, or prepare for presentations, I am here to assist with structured and supportive guidance. How can I support your project today?",
         timestamp: new Date().toISOString()
       }
     ];
@@ -107,7 +107,7 @@ export default function AIAssistant() {
         {
           id: 'initial',
           role: 'model',
-          text: "Greetings, fellow scholar. I am your AI academic mentor and research companion. Whether you need to structure your methodology, reframe your thesis scope, overcome cognitive writer's block, or practice for your defense, I am here to assist with structured and supportive guidance. How can I support your inquiry today?",
+          text: "Greetings. I am your AI writing, research, and project mentor. Whether you need to structure your methodology, reframe your project scope, overcome creative block, or prepare for presentations, I am here to assist with structured and supportive guidance. How can I support your project today?",
           timestamp: new Date().toISOString()
         }
       ];
@@ -126,7 +126,7 @@ export default function AIAssistant() {
             AI Assistant
           </h1>
           <p className="font-sans text-xs text-stone-500 mt-1">
-            Consult your dedicated academic guide for writing methods, structures, and mental clarity.
+            Consult your dedicated guide for writing methods, structures, and mental clarity.
           </p>
         </div>
         

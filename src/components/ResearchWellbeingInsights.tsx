@@ -106,7 +106,7 @@ export default function ResearchWellbeingInsights() {
             <span>Wellbeing Research Insights</span>
           </h1>
           <p className="font-sans text-stone-500 dark:text-stone-400 text-xs sm:text-sm leading-relaxed" id="wellbeing-insights-subtitle">
-            Curated evidence library exploring the human experience of academic research, scholarly writing, creative practice, cognition, identity, and researcher wellbeing.
+            Curated evidence library exploring the human experience of writing, research, creative practice, cognition, identity, and personal wellbeing.
           </p>
           <div className="flex items-center gap-1.5 pt-1.5 text-xs font-sans text-stone-400 dark:text-stone-500" id="wellbeing-insights-meta">
             <span>Open Access papers, evidence syntheses & extended references</span>
@@ -430,7 +430,7 @@ export default function ResearchWellbeingInsights() {
                     evidenceTab === 'academic' ? 'text-[#1d9e75] dark:text-[#28c093] font-semibold underline underline-offset-4' : ''
                   }`}
                 >
-                  Academic Research
+                  Research Literature
                 </button>
                 <span>•</span>
                 <button
@@ -507,10 +507,10 @@ export default function ResearchWellbeingInsights() {
                   </div>
                 )}
 
-                {/* Additional Academic Sources */}
+                {/* Additional Research Sources */}
                 <div className="space-y-3 pt-2">
                   <h4 className="text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider flex items-center gap-1.5 font-sans">
-                    <span>Academic Citations & Publishers</span>
+                    <span>Literature Citations & Publishers</span>
                   </h4>
 
                   {selectedInsight.additionalSources.filter(s => s.category === 'academic').map((src) => (
@@ -625,7 +625,7 @@ export default function ResearchWellbeingInsights() {
 
                 {selectedInsight.additionalSources.filter(s => s.category === 'creative').length === 0 && (
                   <div className="p-6 text-center text-xs text-stone-500 italic bg-stone-50 dark:bg-stone-900/30 rounded-md border border-stone-200/60 dark:border-stone-800">
-                    Creative practice sources are integrated across the main academic and extended evidence tabs for this insight.
+                    Creative practice sources are integrated across the main research literature and extended evidence tabs for this insight.
                   </div>
                 )}
               </div>

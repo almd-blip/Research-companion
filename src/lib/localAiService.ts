@@ -37,7 +37,7 @@ export const OPEN_WEIGHT_MODELS: OpenWeightModelPreset[] = [
     id: 'gpt-oss',
     name: 'gpt-oss (Open-Weight GPT Architecture)',
     family: 'gpt-oss',
-    recommendedFor: 'General academic reasoning, structured methodology, and literature synthesis',
+    recommendedFor: 'General reasoning, structured methodology, writing, and literature synthesis',
     defaultOllamaName: 'gpt-oss:latest',
   },
   {

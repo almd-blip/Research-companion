@@ -276,7 +276,7 @@ export default function Settings({
                         : 'bg-stone-50 dark:bg-stone-900/40 border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 font-normal hover:bg-stone-100 dark:hover:bg-stone-800/60'
                     }`}
                   >
-                    Balanced (include general academic sources)
+                    Balanced (include general literature & sources)
                   </button>
                 </div>
               </div>

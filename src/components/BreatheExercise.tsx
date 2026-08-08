@@ -61,6 +61,26 @@ export default function BreatheExercise() {
   const noiseSourceRef = useRef<AudioBufferSourceNode | null>(null);
   const gainNodeRef = useRef<GainNode | null>(null);
 
+  // Presence Exercises state
+  const [activePresenceTab, setActivePresenceTab] = useState<'sensory' | 'somatic' | 'vision' | 'defusion'>('sensory');
+  const [sensoryChecked, setSensoryChecked] = useState<boolean[]>([false, false, false, false, false]);
+  const [somaticChecked, setSomaticChecked] = useState<boolean[]>([false, false, false, false]);
+  const [visionTimeLeft, setVisionTimeLeft] = useState(30);
+  const [visionTimerActive, setVisionTimerActive] = useState(false);
+  const [defusionText, setDefusionText] = useState('');
+  const [releasedThought, setReleasedThought] = useState<string | null>(null);
+
+  // Vision timer effect
+  useEffect(() => {
+    let t: any = null;
+    if (visionTimerActive && visionTimeLeft > 0) {
+      t = setInterval(() => setVisionTimeLeft((v) => v - 1), 1000);
+    } else if (visionTimeLeft === 0) {
+      setVisionTimerActive(false);
+    }
+    return () => clearInterval(t);
+  }, [visionTimerActive, visionTimeLeft]);
+
   const activePattern = BREATH_PATTERNS.find((p) => p.id === selectedPatternId) || BREATH_PATTERNS[0];
 
   // Reset timer on pattern change
@@ -336,6 +356,313 @@ export default function BreatheExercise() {
         {completedCycles > 0 && (
           <div className="pt-2 text-[11px] font-mono text-stone-400 dark:text-stone-500">
             Completed cycles: {completedCycles}
+          </div>
+        )}
+      </div>
+
+      {/* SECTION DIVIDER & PRESENCE EXERCISES HEADER */}
+      <div className="pt-8 border-t border-stone-200 dark:border-stone-800 space-y-4" id="presence-exercises-section">
+        <div className="space-y-1">
+          <h3 className="font-sans font-semibold text-base sm:text-lg text-stone-900 dark:text-stone-100 flex items-center gap-2">
+            <span>Presence Exercises</span>
+          </h3>
+          <p className="font-sans text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
+            Grounding practices to pull your focus out of cognitive saturation and reconnect with the immediate present moment.
+          </p>
+        </div>
+
+        {/* Presence Exercise Selector Tabs */}
+        <div className="flex flex-wrap gap-2 pt-1 border-b border-stone-200 dark:border-stone-800 pb-3" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activePresenceTab === 'sensory'}
+            onClick={() => setActivePresenceTab('sensory')}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+              activePresenceTab === 'sensory'
+                ? 'bg-[#1d9e75] text-white font-semibold shadow-xs'
+                : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
+            }`}
+          >
+            5-4-3-2-1 Sensory Grounding
+          </button>
+
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activePresenceTab === 'somatic'}
+            onClick={() => setActivePresenceTab('somatic')}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+              activePresenceTab === 'somatic'
+                ? 'bg-[#1d9e75] text-white font-semibold shadow-xs'
+                : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
+            }`}
+          >
+            Somatic Anchor Check-In
+          </button>
+
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activePresenceTab === 'vision'}
+            onClick={() => setActivePresenceTab('vision')}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+              activePresenceTab === 'vision'
+                ? 'bg-[#1d9e75] text-white font-semibold shadow-xs'
+                : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
+            }`}
+          >
+            30s Panoramic Vision
+          </button>
+
+          <button
+            type="button"
+            role="tab"
+            aria-selected={activePresenceTab === 'defusion'}
+            onClick={() => setActivePresenceTab('defusion')}
+            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+              activePresenceTab === 'defusion'
+                ? 'bg-[#1d9e75] text-white font-semibold shadow-xs'
+                : 'bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-200 dark:hover:bg-stone-700'
+            }`}
+          >
+            Thought Observer
+          </button>
+        </div>
+
+        {/* PRESENCE TAB 1: 5-4-3-2-1 SENSORY GROUNDING */}
+        {activePresenceTab === 'sensory' && (
+          <div className="py-2 space-y-4 animate-fadeIn">
+            <div className="space-y-1">
+              <h4 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
+                5-4-3-2-1 Sensory Grounding Technique
+              </h4>
+              <p className="text-xs text-stone-600 dark:text-stone-400">
+                A cognitive grounding method to interrupt mental spiraling by anchoring your attention into physical sensory inputs.
+              </p>
+            </div>
+
+            <div className="space-y-2.5 pt-1">
+              {[
+                { count: '5', label: 'Things You Can See', detail: 'A detail on your desk, light hitting a surface, a shadow, a color, or a texture nearby.' },
+                { count: '4', label: 'Things You Can Feel', detail: 'The soles of your feet on the floor, your back against the seat, your clothes on shoulders, air on skin.' },
+                { count: '3', label: 'Things You Can Hear', detail: 'The hum of your laptop fan, distant ambient movement, or your own breathing.' },
+                { count: '2', label: 'Things You Can Smell/Taste', detail: 'The scent of coffee/tea, fresh room air, or clean paper.' },
+                { count: '1', label: 'Grounding Truth', detail: 'Acknowledge: "I am present right now. I am safe to take this one step at a time."' },
+              ].map((item, idx) => {
+                const isDone = sensoryChecked[idx];
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      const next = [...sensoryChecked];
+                      next[idx] = !next[idx];
+                      setSensoryChecked(next);
+                    }}
+                    className={`w-full text-left p-3 rounded-md border transition-all cursor-pointer flex items-start gap-3 ${
+                      isDone
+                        ? 'bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-800/80 text-stone-800 dark:text-stone-200'
+                        : 'bg-stone-50/50 dark:bg-stone-900/30 border-stone-200 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-700'
+                    }`}
+                  >
+                    <span className={`w-5 h-5 rounded-full flex items-center justify-center text-xs font-mono font-bold shrink-0 mt-0.5 ${
+                      isDone ? 'bg-emerald-600 text-white' : 'bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300'
+                    }`}>
+                      {isDone ? '✓' : item.count}
+                    </span>
+                    <div className="space-y-0.5">
+                      <span className={`text-xs font-semibold block ${isDone ? 'text-emerald-800 dark:text-emerald-300 line-through' : 'text-stone-900 dark:text-stone-100'}`}>
+                        Notice {item.count} {item.label}
+                      </span>
+                      <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-normal">
+                        {item.detail}
+                      </p>
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            {sensoryChecked.every(Boolean) && (
+              <div className="p-3 bg-emerald-100/70 dark:bg-emerald-900/40 border border-emerald-300 dark:border-emerald-700 rounded-md text-xs font-semibold text-emerald-800 dark:text-emerald-200 flex items-center justify-between animate-fadeIn">
+                <span>🌿 Sensory grounding reset complete. Your awareness is anchored in the present.</span>
+                <button
+                  type="button"
+                  onClick={() => setSensoryChecked([false, false, false, false, false])}
+                  className="text-[11px] underline cursor-pointer hover:text-emerald-950 dark:hover:text-emerald-100"
+                >
+                  Reset
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* PRESENCE TAB 2: SOMATIC ANCHOR CHECK-IN */}
+        {activePresenceTab === 'somatic' && (
+          <div className="py-2 space-y-4 animate-fadeIn">
+            <div className="space-y-1">
+              <h4 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
+                Somatic Anchor & Tension Check-In
+              </h4>
+              <p className="text-xs text-stone-600 dark:text-stone-400">
+                Long writing or research blocks store hidden physical tension. Tap each step as you release it.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+              {[
+                { title: 'Drop Shoulders & Neck', instruction: 'Lower your shoulders 1 inch away from your ears and let go of held effort in your traps.' },
+                { title: 'Unclench Jaw & Tongue', instruction: 'Soft-open your teeth, release your jaw, and let your tongue rest flat on the floor of your mouth.' },
+                { title: 'Hand on Collarbone', instruction: 'Place one palm firmly over your upper chest/collarbone and feel 3 steady, comforting heartbeats.' },
+                { title: 'Press Soles into Floor', instruction: 'Firmly press both feet flat onto the floor, noticing the solid earth beneath you.' },
+              ].map((step, idx) => {
+                const isChecked = somaticChecked[idx];
+                return (
+                  <button
+                    key={idx}
+                    type="button"
+                    onClick={() => {
+                      const next = [...somaticChecked];
+                      next[idx] = !next[idx];
+                      setSomaticChecked(next);
+                    }}
+                    className={`p-3.5 rounded-md border text-left transition-all cursor-pointer flex flex-col justify-between space-y-2 ${
+                      isChecked
+                        ? 'bg-emerald-50/80 dark:bg-emerald-950/30 border-emerald-300 dark:border-emerald-800/80'
+                        : 'bg-stone-50/50 dark:bg-stone-900/30 border-stone-200 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-700'
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className={`text-xs font-semibold ${isChecked ? 'text-emerald-800 dark:text-emerald-300 line-through' : 'text-stone-900 dark:text-stone-100'}`}>
+                        {step.title}
+                      </span>
+                      <span className={`w-4 h-4 rounded-full flex items-center justify-center text-[10px] ${
+                        isChecked ? 'bg-emerald-600 text-white' : 'border border-stone-300 dark:border-stone-700 text-transparent'
+                      }`}>
+                        ✓
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-relaxed">
+                      {step.instruction}
+                    </p>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* PRESENCE TAB 3: 30S PANORAMIC VISION */}
+        {activePresenceTab === 'vision' && (
+          <div className="py-2 space-y-4 animate-fadeIn">
+            <div className="space-y-1">
+              <h4 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
+                30-Second Soft-Focus & Peripheral De-Gaze
+              </h4>
+              <p className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
+                Staring at screens forces narrow foveal vision, which signals alertness to the brain. Expanding your vision softly into peripheral awareness lowers sympathetic nervous system arousal.
+              </p>
+            </div>
+
+            <div className="py-2 space-y-3">
+              <div className="text-xs text-stone-700 dark:text-stone-300 leading-relaxed space-y-1">
+                <p>1. Look away from your monitor toward a distant wall or window.</p>
+                <p>2. Without moving your eyes, gently notice what is in your far left and right peripheral vision.</p>
+                <p>3. Relax your eyelids and soften your focus for 30 seconds.</p>
+              </div>
+
+              <div className="flex items-center gap-4 pt-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setVisionTimeLeft(30);
+                    setVisionTimerActive(true);
+                  }}
+                  className="px-4 py-2 rounded-md bg-[#1d9e75] text-white text-xs font-semibold hover:bg-[#168260] transition-colors cursor-pointer"
+                >
+                  {visionTimerActive ? 'Restart 30s Practice' : 'Start 30s De-Gaze'}
+                </button>
+
+                <div className="flex items-center gap-2">
+                  <span className="text-xl font-mono font-bold text-stone-900 dark:text-stone-100">
+                    {visionTimeLeft}s
+                  </span>
+                  {visionTimerActive && (
+                    <span className="text-xs font-mono text-[#1d9e75] dark:text-[#28c093] animate-pulse">
+                      Softening vision...
+                    </span>
+                  )}
+                  {visionTimeLeft === 0 && (
+                    <span className="text-xs text-emerald-600 dark:text-emerald-400 font-semibold">
+                      ✓ Complete! Gently return to work.
+                    </span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* PRESENCE TAB 4: THOUGHT OBSERVER */}
+        {activePresenceTab === 'defusion' && (
+          <div className="py-2 space-y-4 animate-fadeIn">
+            <div className="space-y-1">
+              <h4 className="text-sm font-semibold text-stone-900 dark:text-stone-100">
+                The Mindful Thought Observer
+              </h4>
+              <p className="text-xs text-stone-600 dark:text-stone-400">
+                Observe writing worries or intrusive mental chatter as passing events rather than absolute realities.
+              </p>
+            </div>
+
+            <div className="space-y-3">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium text-stone-700 dark:text-stone-300 block">
+                  What thought or worry is pulling you out of the present?
+                </label>
+                <input
+                  type="text"
+                  value={defusionText}
+                  onChange={(e) => setDefusionText(e.target.value)}
+                  placeholder="e.g. My argument isn't strong enough or I'm running out of time..."
+                  className="w-full px-3 py-2 text-xs rounded-md bg-[#FAF9F6] dark:bg-stone-900 border border-stone-200 dark:border-stone-700 focus:outline-none focus:border-[#1d9e75] text-stone-900 dark:text-stone-100"
+                />
+              </div>
+
+              <button
+                type="button"
+                onClick={() => {
+                  if (defusionText.trim()) {
+                    setReleasedThought(defusionText.trim());
+                    setDefusionText('');
+                  }
+                }}
+                disabled={!defusionText.trim()}
+                className="px-4 py-2 rounded-md bg-[#1d9e75] disabled:opacity-40 text-white text-xs font-semibold hover:bg-[#168260] transition-colors cursor-pointer"
+              >
+                Observe & Defuse Thought
+              </button>
+
+              {releasedThought && (
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="p-4 bg-emerald-50/90 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-800 rounded-md space-y-2"
+                >
+                  <p className="text-xs font-semibold text-emerald-900 dark:text-emerald-200">
+                    🌿 Thought Observer Perspective:
+                  </p>
+                  <blockquote className="text-xs text-stone-700 dark:text-stone-300 italic border-l-2 border-emerald-500 pl-3 py-1 bg-white/60 dark:bg-stone-900/60 rounded-r">
+                    "I notice I am having the thought that: <span className="font-medium text-stone-900 dark:text-stone-100">{releasedThought}</span>."
+                  </blockquote>
+                  <p className="text-[11px] text-stone-600 dark:text-stone-400">
+                    This is a passing cognitive event in your awareness, not an obligation or a fact. Acknowledge it gently, and return your focus to your current breath.
+                  </p>
+                </motion.div>
+              )}
+            </div>
           </div>
         )}
       </div>

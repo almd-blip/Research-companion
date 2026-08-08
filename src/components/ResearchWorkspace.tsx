@@ -6,6 +6,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ResearchJourney, Paper, Chapter, Task, TimelineEvent, Collection } from '../types';
 import { PrintModal } from './PrintModal';
+import { Plus, Trash2, AlertTriangle, Bookmark, Copy, Check, X } from 'lucide-react';
 
 import LiteratureLibrary from './LiteratureLibrary';
 import KnowledgeGraph from './KnowledgeGraph';
@@ -69,8 +70,121 @@ export default function ResearchWorkspace({
   // Print modal state
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
 
-  // Reflective Strip State ("Second Thought Signature")
+  // Reflective Strip State ("Second Thought Signature") - Adaptive
   const [showReflectiveStrip, setShowReflectiveStrip] = useState(true);
+  const [pauseStripType, setPauseStripType] = useState<'initial' | 'stretch'>('initial');
+  const [dismissedInitialStrip, setDismissedInitialStrip] = useState<boolean>(() => {
+    return localStorage.getItem('scholar_dismissed_initial_pause_strip') === 'true';
+  });
+  const [hasShownStretchReminder, setHasShownStretchReminder] = useState<boolean>(() => {
+    return localStorage.getItem('scholar_pause_stretch_reminder_shown') === 'true';
+  });
+  const [writingSessionSeconds, setWritingSessionSeconds] = useState<number>(0);
+
+  // Reflection Shelf State ("Private Thinking Space")
+  const [isReflectionShelfOpen, setIsReflectionShelfOpen] = useState(false);
+  const [newThoughtText, setNewThoughtText] = useState('');
+  const [newThoughtTag, setNewThoughtTag] = useState<'Research Insight' | 'Reflection' | 'Question' | 'Idea' | 'Later'>('Reflection');
+  const [copiedReflectionId, setCopiedReflectionId] = useState<string | null>(null);
+
+  interface ReflectionItem {
+    id: string;
+    text: string;
+    tag: 'Research Insight' | 'Reflection' | 'Question' | 'Idea' | 'Later';
+    timestamp: number;
+    journeyId: string;
+  }
+
+  const [reflections, setReflections] = useState<ReflectionItem[]>(() => {
+    const cached = localStorage.getItem(`scholar_reflections_${activeJourneyId}`);
+    if (cached) {
+      try {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed)) return parsed;
+      } catch (e) {}
+    }
+    return [
+      {
+        id: 'ref-default-1',
+        text: 'Consider expanding the discussion on methodological limitations before concluding Section 3.',
+        tag: 'Research Insight',
+        timestamp: Date.now() - 3600000 * 3,
+        journeyId: activeJourneyId,
+      },
+      {
+        id: 'ref-default-2',
+        text: 'Should I reframe the core thesis around epistemic humility in automated systems?',
+        tag: 'Question',
+        timestamp: Date.now() - 3600000 * 18,
+        journeyId: activeJourneyId,
+      },
+    ];
+  });
+
+  useEffect(() => {
+    const cached = localStorage.getItem(`scholar_reflections_${activeJourneyId}`);
+    if (cached) {
+      try {
+        setReflections(JSON.parse(cached));
+      } catch (e) {}
+    } else {
+      setReflections([
+        {
+          id: `ref-default-1-${activeJourneyId}`,
+          text: 'Consider expanding the discussion on methodological limitations before concluding Section 3.',
+          tag: 'Research Insight',
+          timestamp: Date.now() - 3600000 * 3,
+          journeyId: activeJourneyId,
+        },
+        {
+          id: `ref-default-2-${activeJourneyId}`,
+          text: 'Should I reframe the core thesis around epistemic humility in automated systems?',
+          tag: 'Question',
+          timestamp: Date.now() - 3600000 * 18,
+          journeyId: activeJourneyId,
+        },
+      ]);
+    }
+  }, [activeJourneyId]);
+
+  const handleAddReflection = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newThoughtText.trim()) return;
+    const newItem: ReflectionItem = {
+      id: `ref-${Date.now()}`,
+      text: newThoughtText.trim(),
+      tag: newThoughtTag,
+      timestamp: Date.now(),
+      journeyId: activeJourneyId,
+    };
+    const updated = [newItem, ...reflections];
+    setReflections(updated);
+    localStorage.setItem(`scholar_reflections_${activeJourneyId}`, JSON.stringify(updated));
+    setNewThoughtText('');
+  };
+
+  const handleDeleteReflection = (id: string) => {
+    const updated = reflections.filter((r) => r.id !== id);
+    setReflections(updated);
+    localStorage.setItem(`scholar_reflections_${activeJourneyId}`, JSON.stringify(updated));
+  };
+
+  const handleCopyReflection = (id: string, text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedReflectionId(id);
+    setTimeout(() => setCopiedReflectionId(null), 2000);
+  };
+
+  const formatReflectionTime = (timestamp: number): string => {
+    const diff = Date.now() - timestamp;
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    return `${days}d ago`;
+  };
 
   // Research Tools Modal/Drawer state
   const [activeResearchTool, setActiveResearchTool] = useState<string | null>(initialActiveTool || null);
@@ -178,11 +292,6 @@ export default function ResearchWorkspace({
       chapters: updatedChs,
     });
 
-    if (content.trim().length > 10 && showReflectiveStrip) {
-      // Gently collapse reflective strip when typing begins
-      setShowReflectiveStrip(false);
-    }
-
     setSaveStatus('saved');
     if (saveTimeoutRef.current) window.clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = window.setTimeout(() => {
@@ -267,6 +376,41 @@ export default function ResearchWorkspace({
   // Word count & read time helper
   const wordCount = activeChapter?.content ? activeChapter.content.trim().split(/\s+/).filter(Boolean).length : 0;
   const readTimeMin = Math.max(1, Math.ceil(wordCount / 200));
+
+  // ADAPTIVE PAUSE STRIP LOGIC:
+  // 1. Empty document (< 50 words): "Pause: What will you discover today?"
+  // 2. After 50–100 words (wordCount >= 50): Fade away automatically.
+  // 3. After 1 hour (3600s) of continuous writing session: Show gentle reminder ("Pause: Would stretching or a glass of water help?") ONCE only.
+  useEffect(() => {
+    if (pauseStripType === 'initial') {
+      if (wordCount >= 50 && showReflectiveStrip) {
+        setShowReflectiveStrip(false);
+      } else if (wordCount < 50 && !dismissedInitialStrip && !showReflectiveStrip) {
+        setShowReflectiveStrip(true);
+      }
+    }
+  }, [wordCount, pauseStripType, showReflectiveStrip, dismissedInitialStrip]);
+
+  // Continuous writing session timer
+  useEffect(() => {
+    let interval: any = null;
+    if (navEnvironmentMode === 'write') {
+      interval = setInterval(() => {
+        setWritingSessionSeconds((prev) => prev + 1);
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [navEnvironmentMode]);
+
+  // Trigger 1-hour stretch reminder once
+  useEffect(() => {
+    if (writingSessionSeconds >= 3600 && !hasShownStretchReminder) {
+      setPauseStripType('stretch');
+      setShowReflectiveStrip(true);
+      setHasShownStretchReminder(true);
+      localStorage.setItem('scholar_pause_stretch_reminder_shown', 'true');
+    }
+  }, [writingSessionSeconds, hasShownStretchReminder]);
 
   // Contextual Tool Trigger for Selected Text
   const handleTriggerContextTool = (tool: string) => {
@@ -353,7 +497,7 @@ export default function ResearchWorkspace({
                   >
                     <option value="book">Book & Novel Manuscript</option>
                     <option value="journal">Essay & Journal Article</option>
-                    <option value="phd">Academic Research & Dissertation</option>
+                    <option value="phd">Research Project & Dissertation</option>
                     <option value="policy">Reflective Journaling & Notes</option>
                   </select>
                 </div>
@@ -618,10 +762,60 @@ export default function ResearchWorkspace({
             onClick={() => setIsAddingProject(true)}
             className="p-1 text-stone-400 hover:text-[#912A4A] dark:hover:text-rose-400 rounded transition-colors cursor-pointer"
             title="Create New Project"
+            aria-label="Create New Project"
           >
-            
+            <Plus className="w-4 h-4" />
           </button>
+
+          {onDeleteJourney && (
+            <button
+              onClick={() => setConfirmDeleteId(activeJourney.id)}
+              className="p-1 text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 rounded transition-colors cursor-pointer"
+              title="Delete Current Project"
+              aria-label="Delete Current Project"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
+          )}
         </div>
+
+        {/* Delete Project Confirmation Modal */}
+        {confirmDeleteId && (
+          <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
+            <div className="max-w-md w-full bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-6 rounded-xl space-y-4 shadow-xl text-left">
+              <div className="flex items-center gap-3 text-rose-600 dark:text-rose-400">
+                <AlertTriangle className="w-6 h-6 shrink-0" />
+                <h3 className="font-serif font-bold text-lg text-stone-900 dark:text-stone-100">
+                  Delete Writing Project?
+                </h3>
+              </div>
+              <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed font-sans">
+                Are you sure you want to delete <strong className="text-stone-800 dark:text-stone-200">"{journeys.find(j => j.id === confirmDeleteId)?.title}"</strong>? This will permanently remove all chapters, outlines, notes, and task lists associated with this project.
+              </p>
+              <div className="flex justify-end gap-2 pt-2 border-t border-stone-150 dark:border-stone-850">
+                <button
+                  type="button"
+                  onClick={() => setConfirmDeleteId(null)}
+                  className="font-sans text-xs px-3 py-2 border border-stone-200 dark:border-stone-800 rounded text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (onDeleteJourney && confirmDeleteId) {
+                      onDeleteJourney(confirmDeleteId);
+                    }
+                    setConfirmDeleteId(null);
+                  }}
+                  className="font-sans text-xs bg-rose-600 text-white hover:bg-rose-700 px-4 py-2 rounded transition-colors cursor-pointer font-medium"
+                >
+                  Delete Permanently
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Center / Right: Chapter Selector + Primary Environment Mode (Write | Research | Plan) + Focus Mode */}
         <div className="flex items-center gap-3 flex-wrap">
@@ -773,18 +967,31 @@ export default function ResearchWorkspace({
       {navEnvironmentMode === 'write' && (
         <div className="space-y-4">
           
-          {/* SECOND THOUGHT SIGNATURE FEATURE: Subtle Reflective Strip */}
+          {/* SECOND THOUGHT SIGNATURE FEATURE: Adaptive Reflective Pause Strip */}
           {showReflectiveStrip && (
-            <div className="p-3.5 bg-[#FAF8F5] dark:bg-stone-900/60 rounded-xl border-l-2 border-[#912A4A] text-stone-700 dark:text-stone-300 flex items-center justify-between text-xs font-serif italic shadow-xs animate-fadeIn">
+            <div className="p-3.5 bg-[#FAF8F5] dark:bg-stone-900/60 rounded-xl border-l-2 border-[#912A4A] text-stone-700 dark:text-stone-300 flex items-center justify-between text-xs font-serif italic shadow-xs animate-fadeIn transition-all duration-300">
               <div className="flex items-center gap-2">
                 <span className="font-sans not-italic uppercase tracking-widest text-[10px] font-bold text-[#912A4A] dark:text-rose-400">
                   Pause:
                 </span>
-                <span>What will you discover today?</span>
+                <span>
+                  {pauseStripType === 'stretch'
+                    ? 'Would stretching or a glass of water help?'
+                    : 'What will you discover today?'}
+                </span>
               </div>
               <button
-                onClick={() => setShowReflectiveStrip(false)}
-                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-[10px] font-sans not-italic cursor-pointer"
+                onClick={() => {
+                  setShowReflectiveStrip(false);
+                  if (pauseStripType === 'initial') {
+                    setDismissedInitialStrip(true);
+                    localStorage.setItem('scholar_dismissed_initial_pause_strip', 'true');
+                  } else if (pauseStripType === 'stretch') {
+                    setHasShownStretchReminder(true);
+                    localStorage.setItem('scholar_pause_stretch_reminder_shown', 'true');
+                  }
+                }}
+                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-[10px] font-sans not-italic cursor-pointer px-1.5 py-0.5 rounded hover:bg-stone-200/50 dark:hover:bg-stone-800 transition-colors"
               >
                 Dismiss
               </button>
@@ -794,12 +1001,92 @@ export default function ResearchWorkspace({
           {/* Main Pristine Canvas Surface */}
           <div className="relative p-3.5 sm:p-6 md:p-10 bg-white dark:bg-stone-900/80 rounded-2xl border border-stone-200/80 dark:border-stone-800 shadow-xs transition-all duration-200 min-h-[58vh]">
             
-            {/* Save Status Pill */}
-            {saveStatus === 'saved' && (
-              <div className="absolute top-4 right-6 text-[10px] font-mono text-stone-400 tracking-wider uppercase flex items-center gap-1">
-                 Saved
-              </div>
-            )}
+            {/* Canvas Header: Save Status */}
+            <div className="absolute top-4 right-6 flex items-center gap-3 z-10">
+              {saveStatus === 'saved' && (
+                <div className="text-[10px] font-mono text-stone-400 tracking-wider uppercase flex items-center gap-1">
+                   Saved
+                </div>
+              )}
+            </div>
+
+            {/* Tiny Bookmark Tab in Canvas Margin */}
+            <button
+              type="button"
+              onClick={() => setIsReflectionShelfOpen(!isReflectionShelfOpen)}
+              className="absolute -right-3.5 top-12 z-20 w-7 h-9 rounded-r-md bg-[#912A4A] hover:bg-[#78223d] text-white shadow-md flex items-center justify-center transition-transform hover:scale-110 cursor-pointer border border-l-0 border-white/20"
+              title="Toggle Reflection Shelf"
+              aria-label="Toggle Reflection Shelf"
+            >
+              <Bookmark className="w-3.5 h-3.5" />
+            </button>
+
+            {/* Quick Action (+) Button under Bookmark Icon in Canvas Margin */}
+            <div className="absolute -right-3.5 top-22 z-20">
+              <button
+                type="button"
+                onClick={() => setIsFloatingMenuOpen(!isFloatingMenuOpen)}
+                className="w-7 h-9 rounded-r-md bg-[#912A4A] hover:bg-[#78223d] text-white shadow-md flex items-center justify-center transition-transform hover:scale-110 cursor-pointer border border-l-0 border-white/20"
+                title="Quick Actions (+)"
+                aria-label="Quick Actions (+)"
+              >
+                <Plus className={`w-3.5 h-3.5 transition-transform duration-200 ${isFloatingMenuOpen ? 'rotate-45' : ''}`} />
+              </button>
+
+              {isFloatingMenuOpen && (
+                <div className="absolute top-0 right-9 w-48 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl shadow-2xl p-2 space-y-1 text-xs font-sans animate-fadeIn z-50">
+                  <button
+                    onClick={() => {
+                      setFloatingActionModal('note');
+                      setIsFloatingMenuOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 cursor-pointer transition-colors"
+                  >
+                    <span>+ New Note</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setFloatingActionModal('ai');
+                      setIsFloatingMenuOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 cursor-pointer transition-colors"
+                  >
+                    <span>+ AI Assistant</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setFloatingActionModal('thought');
+                      setIsFloatingMenuOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 cursor-pointer transition-colors"
+                  >
+                    <span>+ Capture Thought</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setFloatingActionModal('voice');
+                      setIsFloatingMenuOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 cursor-pointer transition-colors"
+                  >
+                    <span>+ Voice</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setFloatingActionModal('pause');
+                      setIsFloatingMenuOpen(false);
+                    }}
+                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 cursor-pointer transition-colors border-t border-stone-100 dark:border-stone-800 pt-1.5"
+                  >
+                    <span>+ Pause</span>
+                  </button>
+                </div>
+              )}
+            </div>
 
             {/* Contextual Selection Bar (revealed when text selected) */}
             {selectedText && (
@@ -1307,80 +1594,6 @@ export default function ResearchWorkspace({
       )}
 
       {/* ----------------------------------------------------------------- */}
-      {/* FLOATING ACTION MENU ('○' Second Thought Circular Button)          */}
-      {/* ----------------------------------------------------------------- */}
-      <div className="fixed bottom-6 right-6 z-40">
-        <div className="relative">
-          {isFloatingMenuOpen && (
-            <div className="absolute bottom-14 right-0 w-48 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl shadow-2xl p-2 space-y-1 text-xs font-sans animate-fadeIn">
-              <button
-                onClick={() => {
-                  setFloatingActionModal('note');
-                  setIsFloatingMenuOpen(false);
-                }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 cursor-pointer transition-colors"
-              >
-                
-                <span>+ New Note</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setFloatingActionModal('ai');
-                  setIsFloatingMenuOpen(false);
-                }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 cursor-pointer transition-colors"
-              >
-                
-                <span>+ AI Assistant</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setFloatingActionModal('thought');
-                  setIsFloatingMenuOpen(false);
-                }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 cursor-pointer transition-colors"
-              >
-                
-                <span>+ Capture Thought</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setFloatingActionModal('voice');
-                  setIsFloatingMenuOpen(false);
-                }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 cursor-pointer transition-colors"
-              >
-                
-                <span>+ Voice</span>
-              </button>
-
-              <button
-                onClick={() => {
-                  setFloatingActionModal('pause');
-                  setIsFloatingMenuOpen(false);
-                }}
-                className="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 cursor-pointer transition-colors border-t border-stone-100 dark:border-stone-800 pt-1.5"
-              >
-                
-                <span>+ Pause</span>
-              </button>
-            </div>
-          )}
-
-          <button
-            onClick={() => setIsFloatingMenuOpen(!isFloatingMenuOpen)}
-            className="w-11 h-11 rounded-full bg-[#912A4A] hover:bg-[#78223d] text-white shadow-lg flex items-center justify-center font-serif text-lg font-bold cursor-pointer transition-transform hover:scale-105"
-            title="Second Thought Actions"
-          >
-            ○
-          </button>
-        </div>
-      </div>
-
-      {/* ----------------------------------------------------------------- */}
       {/* FLOATING ACTION MODALS (Quick Note, AI, Thought, Voice, Pause)    */}
       {/* ----------------------------------------------------------------- */}
       {floatingActionModal && (
@@ -1563,6 +1776,175 @@ export default function ResearchWorkspace({
             >
               Close
             </button>
+          </div>
+        </div>
+      )}
+
+      {/* ----------------------------------------------------------------- */}
+      {/* REFLECTION SHELF NARROW SIDE PANEL                                */}
+      {/* Private thinking space accompanying manuscript                   */}
+      {/* ----------------------------------------------------------------- */}
+      {isReflectionShelfOpen && (
+        <div className="fixed inset-0 z-50 overflow-hidden flex justify-end animate-fadeIn">
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 bg-stone-900/40 backdrop-blur-xs transition-opacity"
+            onClick={() => setIsReflectionShelfOpen(false)}
+          />
+
+          {/* Side Panel */}
+          <div className="relative w-80 sm:w-96 max-w-full bg-white dark:bg-stone-900 border-l border-stone-200 dark:border-stone-800 shadow-2xl h-full flex flex-col z-10 animate-slideInRight overflow-hidden">
+            
+            {/* Panel Header */}
+            <div className="p-4 sm:p-5 border-b border-stone-200/80 dark:border-stone-800 bg-[#FAF8F5] dark:bg-stone-950/60 flex items-start justify-between gap-2">
+              <div>
+                <h3 className="font-serif text-xl font-bold text-stone-900 dark:text-stone-100">
+                  Reflection Shelf
+                </h3>
+                <p className="text-xs text-stone-500 dark:text-stone-400 font-sans mt-1 leading-snug">
+                  Unlike comments, these are for the writer, not collaborators. A private thinking space accompanying your manuscript.
+                </p>
+              </div>
+              <button
+                onClick={() => setIsReflectionShelfOpen(false)}
+                className="p-1 rounded-lg text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-200/50 dark:hover:bg-stone-800 transition-colors cursor-pointer"
+                title="Close Reflection Shelf"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {/* Panel Body: Scrollable */}
+            <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5">
+              
+              {/* New Reflection Form */}
+              <form onSubmit={handleAddReflection} className="space-y-3 bg-stone-50 dark:bg-stone-950 p-3.5 rounded-xl border border-stone-200/80 dark:border-stone-800 shadow-xs">
+                <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300">
+                  Capture Reflection
+                </label>
+                
+                <textarea
+                  value={newThoughtText}
+                  onChange={(e) => setNewThoughtText(e.target.value)}
+                  placeholder="💭 New thought..."
+                  rows={3}
+                  className="w-full font-sans text-xs p-3 rounded-lg border border-stone-250 dark:border-stone-750 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-[#912A4A] resize-none leading-relaxed"
+                />
+
+                {/* Category Tag Selector */}
+                <div className="space-y-1.5">
+                  <span className="text-[11px] font-sans text-stone-500 dark:text-stone-400 block font-medium">
+                    Category Tag
+                  </span>
+                  <div className="flex flex-wrap gap-1.5">
+                    {(['Research Insight', 'Reflection', 'Question', 'Idea', 'Later'] as const).map((tag) => {
+                      const isSelected = newThoughtTag === tag;
+                      return (
+                        <button
+                          key={tag}
+                          type="button"
+                          onClick={() => setNewThoughtTag(tag)}
+                          className={`px-2.5 py-1 rounded-full text-[11px] font-sans transition-all cursor-pointer ${
+                            isSelected
+                              ? 'bg-[#912A4A] text-white font-semibold shadow-xs'
+                              : 'bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-750 hover:border-[#912A4A]/50'
+                          }`}
+                        >
+                          {tag}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                <button
+                  type="submit"
+                  disabled={!newThoughtText.trim()}
+                  className="w-full py-2 bg-[#912A4A] hover:bg-[#78223d] disabled:opacity-50 text-white rounded-lg text-xs font-sans font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-xs"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Save Reflection</span>
+                </button>
+              </form>
+
+              {/* Divider */}
+              <div className="border-t border-stone-200 dark:border-stone-800" />
+
+              {/* Saved Reflections Header */}
+              <div className="flex items-center justify-between">
+                <h4 className="font-sans font-bold text-xs uppercase tracking-wider text-stone-700 dark:text-stone-300">
+                  Saved Reflections ({reflections.length})
+                </h4>
+              </div>
+
+              {/* Reflections List */}
+              {reflections.length === 0 ? (
+                <div className="p-6 text-center text-stone-400 dark:text-stone-500 text-xs italic font-serif bg-stone-50/50 dark:bg-stone-950/30 rounded-xl border border-dashed border-stone-200 dark:border-stone-800">
+                  No private reflections saved yet. Capture thoughts, questions, or ideas as you draft.
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {reflections.map((item) => {
+                    let tagStyle = 'bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300 border-stone-200';
+                    if (item.tag === 'Research Insight') {
+                      tagStyle = 'bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 border-[#912A4A]/20';
+                    } else if (item.tag === 'Question') {
+                      tagStyle = 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/20';
+                    } else if (item.tag === 'Idea') {
+                      tagStyle = 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border-emerald-500/20';
+                    } else if (item.tag === 'Reflection') {
+                      tagStyle = 'bg-indigo-500/10 text-indigo-800 dark:text-indigo-300 border-indigo-500/20';
+                    } else if (item.tag === 'Later') {
+                      tagStyle = 'bg-stone-500/10 text-stone-800 dark:text-stone-300 border-stone-500/20';
+                    }
+
+                    return (
+                      <div
+                        key={item.id}
+                        className="p-3.5 bg-white dark:bg-stone-900 rounded-xl border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-2 hover:border-[#912A4A]/30 transition-colors group"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <span className={`px-2 py-0.5 rounded-md text-[10px] font-sans font-semibold border ${tagStyle}`}>
+                            {item.tag}
+                          </span>
+
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10px] font-mono text-stone-400">
+                              {formatReflectionTime(item.timestamp)}
+                            </span>
+                            
+                            <button
+                              onClick={() => handleCopyReflection(item.id, item.text)}
+                              className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors cursor-pointer"
+                              title="Copy reflection"
+                            >
+                              {copiedReflectionId === item.id ? (
+                                <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                              ) : (
+                                <Copy className="w-3 h-3" />
+                              )}
+                            </button>
+
+                            <button
+                              onClick={() => handleDeleteReflection(item.id)}
+                              className="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/40 text-stone-400 hover:text-rose-600 transition-colors cursor-pointer"
+                              title="Delete reflection"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          </div>
+                        </div>
+
+                        <p className="font-sans text-xs text-stone-800 dark:text-stone-200 whitespace-pre-wrap leading-relaxed">
+                          {item.text}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+
+            </div>
           </div>
         </div>
       )}

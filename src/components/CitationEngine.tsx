@@ -194,7 +194,7 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-stone-100 dark:border-stone-800 pb-3">
             <div>
               <h3 className="font-sans font-semibold text-stone-900 dark:text-stone-100 text-sm flex items-center gap-1.5">
-                 Academic Bibliography Generator
+                 Bibliography & Reference Generator
               </h3>
               <p className="font-sans text-[11px] text-stone-400">Perfect formatting aligned to active style conventions.</p>
             </div>
@@ -407,7 +407,7 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
             Metadata Verification Workbench
           </h4>
           <p className="font-sans text-[11px] text-stone-500 dark:text-stone-400 mt-1">
-            References with incomplete parameters violate citation accuracy standards. Complete missing DOIs to lock academic integrity.
+            References with incomplete parameters violate citation accuracy standards. Complete missing DOIs or URL links to lock reference integrity.
           </p>
         </div>
 
