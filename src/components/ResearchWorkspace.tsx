@@ -571,7 +571,7 @@ export default function ResearchWorkspace({
             onChange={(e) => handleUpdateChapterContent(e.target.value)}
             placeholder="Begin writing..."
             autoFocus
-            className="w-full h-full min-h-[60vh] font-sans text-base md:text-lg text-stone-900 dark:text-stone-100 bg-transparent resize-none focus:outline-none leading-relaxed tracking-normal placeholder:text-stone-300 dark:placeholder:text-stone-700"
+            className="w-full h-full min-h-[60vh] font-sans text-base md:text-lg text-stone-900 dark:text-stone-100 bg-transparent resize-none focus:outline-none leading-[1.85] tracking-[0.012em] placeholder:text-stone-300 dark:placeholder:text-stone-700 py-3"
           />
         </div>
 
@@ -1157,7 +1157,7 @@ export default function ResearchWorkspace({
                 }
               }}
               placeholder="Begin writing your manuscript, essay, novel, or reflective journal entry here... Highlight any text to reveal contextual tools."
-              className="w-full font-sans text-base md:text-lg text-stone-900 dark:text-stone-100 bg-transparent resize-y min-h-[460px] focus:outline-none leading-relaxed tracking-normal placeholder:text-stone-400/70 placeholder:font-sans selection:bg-[#912A4A]/20 dark:selection:bg-rose-900/40"
+              className="w-full font-sans text-base md:text-lg text-stone-900 dark:text-stone-100 bg-transparent resize-y min-h-[460px] focus:outline-none leading-[1.85] tracking-[0.012em] placeholder:text-stone-400/70 placeholder:font-sans selection:bg-[#912A4A]/20 dark:selection:bg-rose-900/40 py-3"
             />
           </div>
 

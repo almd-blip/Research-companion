@@ -195,7 +195,7 @@ export default function WritingCompanion({ papers }: WritingCompanionProps) {
             id="draft-companion-textarea"
             value={draftContent}
             onChange={handleTextChange}
-            className="flex-1 w-full font-serif font-light text-stone-800 dark:text-stone-200 text-sm p-4 bg-stone-50/50 dark:bg-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-[#912A4A] focus:ring-offset-2 dark:focus:ring-offset-stone-950 resize-none min-h-[350px] leading-relaxed"
+            className="flex-1 w-full font-serif font-light text-stone-800 dark:text-stone-200 text-sm md:text-base p-5 bg-stone-50/50 dark:bg-transparent rounded-lg focus:outline-none focus:ring-2 focus:ring-[#912A4A] focus:ring-offset-2 dark:focus:ring-offset-stone-950 resize-none min-h-[350px] leading-[1.85] tracking-[0.012em]"
             placeholder="Outline your thoughts, connect concepts, and type drafts here... When ready, click 'Cross-Reference Library' on the top right to verify claims against your library or reference database."
           />
         </div>
