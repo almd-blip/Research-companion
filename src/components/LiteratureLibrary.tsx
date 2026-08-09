@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { Trash2, ChevronDown, ChevronRight, ChevronsUpDown, Search, Quote, FilePlus, Plus } from 'lucide-react';
 import { Paper, Collection, Annotation } from '../types';
 import DataIngestionModule from './DataIngestionModule';
 
@@ -81,6 +82,30 @@ export default function LiteratureLibrary({
   // Annotation text states
   const [newAnnotationText, setNewAnnotationText] = useState('');
   const [newAnnotationComment, setNewAnnotationComment] = useState('');
+
+  // Progressive disclosure state for reference entries
+  const [expandedPaperIds, setExpandedPaperIds] = useState<Record<string, boolean>>({});
+
+  const togglePaperExpand = (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setExpandedPaperIds((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
+  const toggleExpandAll = () => {
+    const allAreExpanded = filteredPapers.length > 0 && filteredPapers.every((p) => expandedPaperIds[p.id]);
+    if (allAreExpanded) {
+      setExpandedPaperIds({});
+    } else {
+      const nextMap: Record<string, boolean> = {};
+      filteredPapers.forEach((p) => {
+        nextMap[p.id] = true;
+      });
+      setExpandedPaperIds(nextMap);
+    }
+  };
 
   const filteredPapers = papers.filter((p) => {
     const matchesSearch =
@@ -205,12 +230,12 @@ export default function LiteratureLibrary({
         {/* Search & Actions Bar */}
         <div className="flex flex-col sm:flex-row gap-3">
           <div className="relative flex-1">
-            
+            <Search className="w-4 h-4 absolute left-3 top-3 text-stone-400 pointer-events-none" />
             <label htmlFor="library-search" className="sr-only">Search Literature Library</label>
             <input
               id="library-search"
               type="text"
-              placeholder="Search literature by title, author, tag..."
+              placeholder="Search by title, author, or keyword..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full font-sans text-xs pl-9 pr-4 py-2.5 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950"
@@ -219,14 +244,14 @@ export default function LiteratureLibrary({
 
           <div className="flex gap-2 flex-wrap sm:flex-nowrap">
             <label htmlFor="citation-style-global-select" className="sr-only">Citation Preview Style</label>
-            <div className="flex items-center gap-1.5 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded px-2 py-1">
-              
+            <div className="flex items-center gap-1.5 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded px-2.5 py-1">
+              <Quote className="w-3.5 h-3.5 text-amber-800 dark:text-amber-400 shrink-0" />
               <select
                 id="citation-style-global-select"
                 value={citationStyle}
                 onChange={(e) => setCitationStyle(e.target.value as CommonCitationStyle)}
                 className="font-sans text-xs bg-transparent text-stone-800 dark:text-stone-200 focus:outline-none cursor-pointer font-medium"
-                title="Select citation format style for paper previews"
+                title="Choose citation style format for paper previews"
               >
                 <option value="Harvard">Harvard Style</option>
                 <option value="APA">APA 7th Edition</option>
@@ -241,7 +266,8 @@ export default function LiteratureLibrary({
               id="collection-filter"
               value={selectedCollection}
               onChange={(e) => setSelectedCollection(e.target.value)}
-              className="font-sans text-xs px-3 py-2 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950"
+              className="font-sans text-xs px-3 py-2 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus-visible:ring-offset-stone-950"
+              title="Filter articles by collection category"
             >
               <option value="all">All Collections</option>
               {collections.map((col) => (
@@ -259,10 +285,10 @@ export default function LiteratureLibrary({
                   ? 'bg-amber-900 text-white border-amber-900 dark:bg-amber-800'
                   : 'bg-stone-100 dark:bg-stone-900 text-stone-800 dark:text-stone-200 border-stone-200 dark:border-stone-800 hover:bg-stone-200 dark:hover:bg-stone-800'
               }`}
-              title="Import local JSON or text data dumps for local RAG datasets"
+              title="Import articles from files or text"
             >
-              
-              Ingest Data Dump (RAG)
+              <FilePlus className="w-3.5 h-3.5" />
+              Batch Import Dataset
             </button>
 
             <button
@@ -270,9 +296,10 @@ export default function LiteratureLibrary({
                 setIsAdding(!isAdding);
                 setShowIngestionModule(false);
               }}
-              className="font-sans text-xs bg-amber-900/10 dark:bg-amber-900/30 text-amber-900 dark:text-amber-300 border border-amber-900/20 px-3 py-2 rounded hover:bg-amber-900/20 transition-all flex items-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950"
+              className="font-sans text-xs bg-amber-900/10 dark:bg-amber-900/30 text-amber-900 dark:text-amber-300 border border-amber-900/20 px-3 py-2 rounded hover:bg-amber-900/20 transition-all flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950"
             >
-               Add Document
+              <Plus className="w-3.5 h-3.5" />
+              Add Document
             </button>
           </div>
         </div>
@@ -368,86 +395,166 @@ export default function LiteratureLibrary({
           </form>
         )}
 
+        {/* Papers Listing Grid Header & Progressive Disclosure Control */}
+        <div className="flex items-center justify-between pb-2 border-b border-stone-200 dark:border-stone-800 text-xs font-sans text-stone-500">
+          <span className="text-[11px] font-medium text-stone-600 dark:text-stone-400">
+            {filteredPapers.length} {filteredPapers.length === 1 ? 'reference' : 'references'}
+          </span>
+          {filteredPapers.length > 0 && (
+            <button
+              type="button"
+              onClick={toggleExpandAll}
+              className="flex items-center gap-1.5 text-[11px] text-amber-900 dark:text-amber-400 hover:text-amber-950 dark:hover:text-amber-300 font-medium cursor-pointer transition-colors"
+              title="Toggle expand or collapse all reference entries"
+            >
+              <ChevronsUpDown className="w-3.5 h-3.5" />
+              {filteredPapers.length > 0 && filteredPapers.every((p) => expandedPaperIds[p.id])
+                ? 'Collapse All'
+                : 'Expand All'}
+            </button>
+          )}
+        </div>
+
         {/* Papers Listing Grid */}
         <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
           {filteredPapers.map((p) => {
             const col = collections.find((c) => c.id === p.collectionId);
+            const isExpanded = !!expandedPaperIds[p.id];
+
             return (
               <div
                 key={p.id}
                 role="button"
                 tabIndex={0}
-                onClick={() => setSelectedPaper(p)}
+                onClick={() => {
+                  setSelectedPaper(p);
+                }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' || e.key === ' ') {
                     e.preventDefault();
                     setSelectedPaper(p);
                   }
                 }}
-                className={`p-4 border rounded-lg cursor-pointer transition-all flex justify-between items-start focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950 ${
+                className={`p-3.5 border rounded-lg cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950 ${
                   selectedPaper?.id === p.id
-                    ? 'border-amber-900/30 bg-amber-50/15 dark:bg-stone-900/30'
+                    ? 'border-amber-900/40 bg-amber-50/20 dark:bg-stone-900/40'
                     : 'border-stone-200 dark:border-stone-900 bg-white dark:bg-stone-950 hover:border-stone-300 dark:hover:border-stone-800'
                 }`}
               >
-                <div className="space-y-1 pr-4 flex-1">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <h3 className="font-sans font-semibold text-stone-900 dark:text-stone-100 text-xs sm:text-sm line-clamp-1">
+                {/* Collapsed View: Shows ONLY title & expand toggle chevron */}
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 flex-1 min-w-0">
+                    <button
+                      type="button"
+                      onClick={(e) => togglePaperExpand(p.id, e)}
+                      className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 dark:text-stone-400 shrink-0 cursor-pointer transition-colors"
+                      title={isExpanded ? 'Collapse reference details' : 'Expand reference details'}
+                    >
+                      {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                    </button>
+
+                    <h3 className="font-sans font-semibold text-stone-900 dark:text-stone-100 text-xs sm:text-sm truncate flex-1">
                       {p.title}
                     </h3>
-                    {p.verificationStatus === 'missing_metadata' && (
-                      <span className="flex items-center gap-0.5 text-[9px] bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400 px-1.5 py-0.5 rounded border border-red-200/50">
-                         Incomplete
-                      </span>
-                    )}
-                    {p.verificationStatus === 'verified' && (
-                      <span className="flex items-center gap-0.5 text-[9px] bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-200/50">
-                         Verified
-                      </span>
-                    )}
                   </div>
 
-                  <p className="font-sans text-[11px] text-stone-500 dark:text-stone-400 line-clamp-1">
-                    {p.authors}
-                  </p>
-
-                  <div className="flex items-center gap-3 pt-2 text-[10px] text-stone-400 font-sans">
-                    <span>{p.journal ? `${p.journal} (${p.year})` : p.year}</span>
-                    {col && (
-                      <span className="px-1.5 py-0.5 rounded-full border text-[9px] bg-stone-50 dark:bg-stone-900">
-                        {col.name}
-                      </span>
-                    )}
-                  </div>
-
-                  {/* Formatted Citation Snippet */}
-                  <p className="font-serif text-[10px] text-amber-900/90 dark:text-amber-300/80 italic line-clamp-1 pt-1.5 border-t border-stone-100 dark:border-stone-900 mt-1">
-                    <span className="font-mono text-[9px] uppercase font-bold not-italic text-stone-400 mr-1">[{citationStyle} Preview]:</span>
-                    {formatPaperPreview(p, citationStyle)}
-                  </p>
-                </div>
-
-                <div className="flex flex-col items-end gap-2">
-                  <span className="font-mono text-[9px] text-stone-400">
-                    {p.doi ? 'DOI Locked' : 'No DOI'}
-                  </span>
-                  
-                  {p.verificationStatus === 'missing_metadata' && (
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleVerifyMetadata(p);
-                      }}
-                      disabled={verifyingId === p.id}
-                      className="font-sans text-[10px] bg-amber-900/10 dark:bg-amber-900/25 text-amber-900 dark:text-amber-400 border border-amber-900/20 px-2 py-0.5 rounded hover:bg-amber-900/20 transition-all flex items-center gap-0.5"
-                    >
-                      {verifyingId === p.id ? (
-                        <span className="w-2 h-2 border border-amber-900 border-t-transparent rounded-full animate-spin"></span>
-                      ) : null}
-                      Repair
-                    </button>
+                  {!isExpanded && (
+                    <div className="flex items-center gap-2 shrink-0">
+                      {p.verificationStatus === 'missing_metadata' && (
+                        <span className="text-[9px] bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400 px-1.5 py-0.5 rounded border border-red-200/50">
+                          Incomplete
+                        </span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={(e) => togglePaperExpand(p.id, e)}
+                        className="text-[10px] text-stone-400 hover:text-amber-900 dark:hover:text-amber-400 font-sans cursor-pointer hidden sm:inline"
+                        title="Click to expand full citation metadata"
+                      >
+                        Expand details
+                      </button>
+                    </div>
                   )}
                 </div>
+
+                {/* Progressive Disclosure: Expanded View with full metadata & actions */}
+                {isExpanded && (
+                  <div className="mt-3 pt-3 border-t border-stone-100 dark:border-stone-900 space-y-2 animate-fadeIn font-sans">
+                    <div className="flex items-center justify-between gap-2 flex-wrap text-xs">
+                      <p className="text-[#1B0A3B]/80 dark:text-stone-300 font-medium">
+                        <span className="text-stone-400 font-normal mr-1">Authors:</span>
+                        {p.authors || 'Unknown Author'}
+                      </p>
+
+                      <div className="flex items-center gap-1.5">
+                        {p.verificationStatus === 'missing_metadata' && (
+                          <span className="text-[9px] bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400 px-1.5 py-0.5 rounded border border-red-200/50">
+                            Incomplete
+                          </span>
+                        )}
+                        {p.verificationStatus === 'verified' && (
+                          <span className="text-[9px] bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-200/50">
+                            Verified
+                          </span>
+                        )}
+                        {col && (
+                          <span className="px-1.5 py-0.5 rounded-full border text-[9px] bg-stone-50 dark:bg-stone-900 text-stone-600 dark:text-stone-300">
+                            {col.name}
+                          </span>
+                        )}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3 text-[11px] text-stone-500 dark:text-stone-400">
+                      <span>{p.journal ? `${p.journal} (${p.year})` : p.year}</span>
+                      <span className="font-mono text-[10px]">{p.doi ? `DOI: ${p.doi}` : 'No DOI'}</span>
+                    </div>
+
+                    {/* Formatted Citation Preview Snippet */}
+                    <p className="font-serif text-[11px] text-amber-900/90 dark:text-amber-300/80 italic pt-2 border-t border-stone-100 dark:border-stone-900 mt-1">
+                      <span className="font-mono text-[9px] uppercase font-bold not-italic text-stone-400 mr-1.5">[{citationStyle} Preview]:</span>
+                      {formatPaperPreview(p, citationStyle)}
+                    </p>
+
+                    {/* Actions in Expanded View */}
+                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100 dark:border-stone-900">
+                      {p.verificationStatus === 'missing_metadata' && (
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleVerifyMetadata(p);
+                          }}
+                          disabled={verifyingId === p.id}
+                          className="font-sans text-[10px] bg-amber-900/10 dark:bg-amber-900/25 text-amber-900 dark:text-amber-400 border border-amber-900/20 px-2 py-0.5 rounded hover:bg-amber-900/20 transition-all flex items-center gap-1 cursor-pointer"
+                        >
+                          {verifyingId === p.id && (
+                            <span className="w-2 h-2 border border-amber-900 border-t-transparent rounded-full animate-spin"></span>
+                          )}
+                          Repair Metadata
+                        </button>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirm(`Delete reference "${p.title}" permanently?`)) {
+                            onDeletePaper(p.id);
+                            if (selectedPaper?.id === p.id) {
+                              setSelectedPaper(papers.find((item) => item.id !== p.id) || null);
+                            }
+                          }
+                        }}
+                        className="text-[10px] font-sans px-2 py-1 text-stone-400 hover:text-red-600 transition-colors cursor-pointer rounded flex items-center gap-1 border border-stone-200/60 dark:border-stone-800"
+                        title="Delete reference"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        Delete
+                      </button>
+                    </div>
+                  </div>
+                )}
               </div>
             );
           })}
@@ -476,10 +583,11 @@ export default function LiteratureLibrary({
                       setSelectedPaper(papers.find((p) => p.id !== selectedPaper.id) || null);
                     }
                   }}
-                  className="text-stone-400 hover:text-red-600 transition-colors cursor-pointer"
+                  className="p-1 text-stone-400 hover:text-red-600 transition-colors cursor-pointer flex items-center gap-1 text-xs font-sans"
                   title="Remove Paper"
                 >
-                  
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete</span>
                 </button>
               </div>
 

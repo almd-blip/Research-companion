@@ -88,7 +88,7 @@ export default function ReflectiveWins() {
         <input
           id="project-micro-win-input"
           type="text"
-          placeholder="Record a project win (e.g., drafted paragraph 2, added reference, organized outline)..."
+          placeholder="Record a win (e.g., wrote paragraph 1, found an article, organized outline)..."
           value={newWin}
           onChange={(e) => setNewWin(e.target.value)}
           className="flex-grow font-sans text-xs sm:text-sm p-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1d9e75]"

@@ -27,7 +27,7 @@ When evaluating creative and scholarly labor, scholars often experience heighten
         licence: 'CC BY 4.0',
         source: 'Frontiers Open Access Repository',
         localFile: 'mak_2019_impostor_scales.pdf',
-        abstract: 'The impostor phenomenon (IP) is an internal experience of intellectual phoniness, prevalent among high-performing students, academics, and professionals. This systematic review synthesizes validation studies of IP measurement instruments across global cohorts to evaluate psychometric properties and construct validity.',
+        abstract: 'The impostor phenomenon (IP) is an internal experience of intellectual phoniness, prevalent among high-performing students, academics, and professionals. This systematic review synthesises validation studies of IP measurement instruments across global cohorts to evaluate psychometric properties and construct validity.',
         keywords: ['Impostor Phenomenon', 'Psychometrics', 'Systematic Review', 'Academic Wellbeing', 'Perfectionism'],
         researchType: 'systematic review',
         category: 'academic',
@@ -171,7 +171,7 @@ Measurement scales need to demonstrate adequate psychometric properties if score
 #### Dimensionality
 The majority of selected studies provided adequate information for content validity and internal consistency. However, gaps were evident on several criteria. Establishing the internal dimensionality of the impostor phenomenon could not be reached due to mixed results from the selected papers. Four impostorism scales were identified—CIPS, HIPS, PFS, and LIS—which demonstrated moderate to high internal consistency, with the exception of two HIPS studies (Edwards et al., 1987; Kolligian and Sternberg, 1991).
 
-Seven studies utilized factor analysis to develop or validate impostor phenomenon scales. The English and German CIPS were factor analyzed resulting in a three factor theoretically preferred model aligned to Clance's (1985) original conceptualization of the impostor phenomenon as **Fake**, **Luck**, and **Discount** (Holmes et al., 1993; Chrisman et al., 1995; Brauer and Wolf, 2016). However, a two factor model was shown to have a better statistical fit when compared to the three factor solution in some samples (Chrisman et al., 1995). Despite factor analysis results that indicate multiple dimensions, scoring of these measures appears to reflect a unidimensional conceptualization of the construct by calculating an overall total score.
+Seven studies utilized factor analysis to develop or validate impostor phenomenon scales. The English and German CIPS were factor analyzed resulting in a three factor theoretically preferred model aligned to Clance's (1985) original conceptualisation of the impostor phenomenon as **Fake**, **Luck**, and **Discount** (Holmes et al., 1993; Chrisman et al., 1995; Brauer and Wolf, 2016). However, a two factor model was shown to have a better statistical fit when compared to the three factor solution in some samples (Chrisman et al., 1995). Despite factor analysis results that indicate multiple dimensions, scoring of these measures appears to reflect a unidimensional conceptualisation of the construct by calculating an overall total score.
 
 #### Ascertaining a Gold Standard
 Criterion validity was problematic in the selected studies because a clear 'gold standard' measure could not be ascertained. This review has highlighted a gold standard is yet to be established due to a number of factors relating to chronology, dimensional clarity and scale popularity.
@@ -315,7 +315,7 @@ In creative professions, artistic identity construction often involves deep emot
 
 **Objective:** To understand how researchers experience working in academia and the effects these experiences have on their mental health and well-being, through synthesizing published qualitative data.
 
-**Method:** A systematic review and qualitative meta-synthesis was conducted to gain a comprehensive overview of what is currently known about academic researchers' mental health and well-being. Relevant papers were identified through searching electronic databases, Google Scholar, and citation tracking. The quality of the included studies was assessed using the CASP checklist, and the data was synthesized using reflexive thematic analysis. The review protocol was registered on PROSPERO (CRD42021232480).
+**Method:** A systematic review and qualitative meta-synthesis was conducted to gain a comprehensive overview of what is currently known about academic researchers' mental health and well-being. Relevant papers were identified through searching electronic databases, Google Scholar, and citation tracking. The quality of the included studies was assessed using the CASP checklist, and the data was synthesised using reflexive thematic analysis. The review protocol was registered on PROSPERO (CRD42021232480).
 
 **Results:** 26 papers were identified and included in this review. Academic researchers' experiences were captured under seven key themes:
 1. Insecurity and career prospects
@@ -483,7 +483,7 @@ Developing writing self-efficacy requires scaffolding regular micro-wins, protec
 
 ## Abstract
 
-Writing self-efficacy—the conviction that one possesses the capabilities to organize and execute written arguments effectively—is a pivotal determinant of scholarly productivity, mental well-being, and career longevity. Early Career Researchers (ECRs) frequently encounter severe writing blockages rooted in epistemic self-doubt when transitioning from supervised doctoral study to autonomous journal publishing. This empirical study evaluates structured reflection and peer support interventions designed to rebuild academic writing self-efficacy among ECRs navigating the modern publish-or-perish higher education landscape.
+Writing self-efficacy—the conviction that one possesses the capabilities to organise and execute written arguments effectively—is a pivotal determinant of scholarly productivity, mental well-being, and career longevity. Early Career Researchers (ECRs) frequently encounter severe writing blockages rooted in epistemic self-doubt when transitioning from supervised doctoral study to autonomous journal publishing. This empirical study evaluates structured reflection and peer support interventions designed to rebuild academic writing self-efficacy among ECRs navigating the modern publish-or-perish higher education landscape.
 
 **Keywords:** Writing Self-Efficacy, Academic Writing, Peer Support, Early Career Researchers, Research Confidence, Publishing Strain
 
@@ -627,8 +627,8 @@ Cognitive Load Theory (CLT) uses an evolutionary model of human cognitive archit
 
 Human cognitive architecture can be conceptualized as an information processing system that mirrors natural biological evolutionary processes. The human cognitive system comprises two fundamental memory structures:
 
-1. **Working Memory:** The active processing arena of human thought. Working memory is strictly capacity-limited and duration-limited when handling novel, unorganized information. When processing relationships between novel elements, working memory capacity drops to as few as 3 to 5 active elements.
-2. **Long-Term Memory:** An organized, vast repository of automated schemas. Once information is organized into schemas and stored in long-term memory, working memory limitations no longer apply when retrieving those schemas into active thought.
+1. **Working Memory:** The active processing arena of human thought. Working memory is strictly capacity-limited and duration-limited when handling novel, unorganised information. When processing relationships between novel elements, working memory capacity drops to as few as 3 to 5 active elements.
+2. **Long-Term Memory:** An organised, vast repository of automated schemas. Once information is organised into schemas and stored in long-term memory, working memory limitations no longer apply when retrieving those schemas into active thought.
 
 When scholars attempt to process dense, unstructured literature or write complex multi-layered manuscripts without external organizational scaffolding, working memory quickly saturates, resulting in cognitive overload, mental fatigue, and processing paralysis.
 
@@ -866,7 +866,7 @@ Craftsmanship theory highlights that true mastery comes from devotion to the slo
 
 ## Abstract
 
-This paper reviews decades of empirical research on psychological well-being, focusing on the six-factor model of eudaimonic well-being derived from existential, humanistic, and developmental psychology. Distinct from hedonic happiness (pleasure and positive affect), eudaimonia emphasizes self-realization, purposeful living, personal growth, and self-acceptance. We summarize findings across epidemiological, clinical, and neurobiological studies, demonstrating how eudaimonic well-being buffers against stress, modulates neuroendocrine and inflammatory pathways (e.g., lower interleukin-6), and fosters psychological resilience during life transitions and professional evaluation.
+This paper reviews decades of empirical research on psychological well-being, focusing on the six-factor model of eudaimonic well-being derived from existential, humanistic, and developmental psychology. Distinct from hedonic happiness (pleasure and positive affect), eudaimonia emphasizes self-realization, purposeful living, personal growth, and self-acceptance. We summarise findings across epidemiological, clinical, and neurobiological studies, demonstrating how eudaimonic well-being buffers against stress, modulates neuroendocrine and inflammatory pathways (e.g., lower interleukin-6), and fosters psychological resilience during life transitions and professional evaluation.
 
 **Keywords:** Eudaimonic Well-Being, Self-Acceptance, Personal Growth, Purpose in Life, Psychological Resilience, Neurobiology of Well-Being
 
@@ -1111,7 +1111,7 @@ The human gut contains trillions of microorganisms (the gut microbiota) that int
 ## 2. Key Signal Transduction Pathways
 
 ### 2.1 Neurotransmitter Synthesis & Microbial Metabolites
-- **Serotonin (5-HT):** Over 90% of the body's total serotonin is synthesized in the gut by enterochromaffin cells, heavily regulated by microbial metabolites.
+- **Serotonin (5-HT):** Over 90% of the body's total serotonin is synthesised in the gut by enterochromaffin cells, heavily regulated by microbial metabolites.
 - **Short-Chain Fatty Acids (SCFAs):** Anaerobic fermentation of dietary fiber produces acetate, propionate, and butyrate. Butyrate reinforces the blood–brain barrier and promotes neurogenesis.
 - **GABA Synthesis:** Specific gut bacterial strains (e.g., *Lactobacillus* and *Bifidobacterium*) produce gamma-aminobutyric acid (GABA), modulating central inhibitory tone and stress reactivity.
 

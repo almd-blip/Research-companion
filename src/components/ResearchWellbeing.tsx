@@ -5,10 +5,31 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { SOUNDSCAPES } from '../data';
+import { Volume2, Bell } from 'lucide-react';
 import ResearchWellbeingInsights from './ResearchWellbeingInsights';
 import BreatheExercise from './BreatheExercise';
 import ReflectiveWins from './ReflectiveWins';
+
+const END_OF_SESSION_SOUNDS = [
+  {
+    id: 'chime',
+    name: 'Gentle Triad Chime',
+    description: 'A soothing three-note harmonic chord (A4 - C#5 - E5) that gently marks interval completion.',
+    type: 'Harmonic'
+  },
+  {
+    id: 'bell',
+    name: 'Warm Singing Bowl',
+    description: 'A resonant, calming low-frequency tone (F3) with warm overtones for a mindful transition.',
+    type: 'Resonant'
+  },
+  {
+    id: 'chime_soft',
+    name: 'Soft Decompression Bell',
+    description: 'A subtle two-note interval (E5 to A5) designed for light, non-intrusive notification.',
+    type: 'Minimal'
+  }
+];
 
 interface SelfCareTopic {
   id: string;
@@ -124,13 +145,44 @@ export default function ResearchWellbeing({
 
   const [showGentleEncouragement, setShowGentleEncouragement] = useState<boolean>(false);
 
-  // Procedural Web Audio states
-  const [activeSoundscape, setActiveSoundscape] = useState<string | null>(null);
-  const audioContextRef = useRef<AudioContext | null>(null);
-  const noiseSourceRef = useRef<AudioBufferSourceNode | null>(null);
-  const filterRef = useRef<BiquadFilterNode | null>(null);
-  const lfoRef = useRef<OscillatorNode | null>(null);
-  const gainRef = useRef<GainNode | null>(null);
+  // Single Session Intent State
+  const [sessionIntent, setSessionIntent] = useState<string>(() => {
+    return localStorage.getItem('scholar_current_session_intent') || '';
+  });
+  const [savedIntentNotice, setSavedIntentNotice] = useState<string | null>(null);
+
+  const handleSaveIntentToProject = () => {
+    if (!sessionIntent.trim()) return;
+    const trimmed = sessionIntent.trim();
+    localStorage.setItem('scholar_current_session_intent', trimmed);
+
+    // Save to pub_notes array so it appears in project workspace notes
+    const newNote = {
+      id: `note_intent_${Date.now()}`,
+      title: `Session Intent (${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })})`,
+      content: trimmed,
+      category: 'todo' as const,
+      tags: ['Focus Intent', 'Session Goal'],
+      createdAt: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+    };
+
+    try {
+      const existingNotesRaw = localStorage.getItem('pub_notes');
+      const existingNotes = existingNotesRaw ? JSON.parse(existingNotesRaw) : [];
+      const updatedNotes = [newNote, ...existingNotes];
+      localStorage.setItem('pub_notes', JSON.stringify(updatedNotes));
+    } catch (e) {
+      console.error('Failed to update pub_notes', e);
+    }
+
+    setSavedIntentNotice(`Saved as note in current project ✓`);
+    setTimeout(() => {
+      setSavedIntentNotice(null);
+    }, 4000);
+  };
+
+  // End of session sound states
+  const [selectedEndSound, setSelectedEndSound] = useState<'chime' | 'bell' | 'chime_soft'>('chime');
 
   const selfCareTopics: SelfCareTopic[] = [
     {
@@ -233,6 +285,7 @@ export default function ResearchWellbeing({
       }, 1000);
     } else if (localTimeLeft === 0) {
       setLocalTimerRunning(false);
+      playEndOfSessionSound(selectedEndSound);
       if (!localIsBreak) {
         const nextSessions = localCompletedSessions + 1;
         setLocalCompletedSessions(nextSessions);
@@ -253,14 +306,7 @@ export default function ResearchWellbeing({
       }
     }
     return () => clearInterval(interval);
-  }, [timerProps, localTimerRunning, localTimeLeft, localIsBreak, localCompletedSessions, localPreferredFocusMinutes, localPreferredBreakMinutes]);
-
-  // Clean up audio on unmount
-  useEffect(() => {
-    return () => {
-      stopProceduralAudio();
-    };
-  }, []);
+  }, [timerProps, localTimerRunning, localTimeLeft, localIsBreak, localCompletedSessions, localPreferredFocusMinutes, localPreferredBreakMinutes, selectedEndSound]);
 
   const formatTime = (seconds: number) => {
     const m = Math.floor(seconds / 60);
@@ -268,111 +314,58 @@ export default function ResearchWellbeing({
     return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
   };
 
-  // Procedural audio synthesizer
-  const startProceduralAudio = (type: 'rain' | 'breeze') => {
-    stopProceduralAudio();
-
+  // Play End of session sound using Web Audio API
+  const playEndOfSessionSound = (soundType: 'chime' | 'bell' | 'chime_soft' = selectedEndSound) => {
     try {
       const AudioContextClass = window.AudioContext || (window as any).webkitAudioContext;
       const ctx = new AudioContextClass();
-      audioContextRef.current = ctx;
+      const now = ctx.currentTime;
 
-      const bufferSize = 2 * ctx.sampleRate;
-      const noiseBuffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
-      const output = noiseBuffer.getChannelData(0);
-      for (let i = 0; i < bufferSize; i++) {
-        output[i] = Math.random() * 2 - 1;
-      }
-
-      const whiteNoise = ctx.createBufferSource();
-      whiteNoise.buffer = noiseBuffer;
-      whiteNoise.loop = true;
-      noiseSourceRef.current = whiteNoise;
-
-      const filter = ctx.createBiquadFilter();
-      filterRef.current = filter;
-
-      const mainGain = ctx.createGain();
-      mainGain.gain.setValueAtTime(0.08, ctx.currentTime);
-      gainRef.current = mainGain;
-
-      if (type === 'rain') {
-        filter.type = 'bandpass';
-        filter.frequency.setValueAtTime(450, ctx.currentTime);
-        filter.Q.setValueAtTime(0.7, ctx.currentTime);
-
-        whiteNoise.connect(filter);
-        filter.connect(mainGain);
-        mainGain.connect(ctx.destination);
-      } else if (type === 'breeze') {
-        filter.type = 'lowpass';
-        filter.frequency.setValueAtTime(300, ctx.currentTime);
-
-        const lfo = ctx.createOscillator();
-        lfo.frequency.setValueAtTime(0.08, ctx.currentTime);
-        lfoRef.current = lfo;
-
-        const lfoGain = ctx.createGain();
-        lfoGain.gain.setValueAtTime(150, ctx.currentTime);
-
-        lfo.connect(lfoGain);
-        lfoGain.connect(filter.frequency);
-
-        whiteNoise.connect(filter);
-        filter.connect(mainGain);
-        mainGain.connect(ctx.destination);
-
-        lfo.start();
-      }
-
-      whiteNoise.start();
-    } catch (err) {
-      console.error('Procedural Web Audio init failed:', err);
-    }
-  };
-
-  const stopProceduralAudio = () => {
-    try {
-      if (noiseSourceRef.current) {
-        noiseSourceRef.current.stop();
-        noiseSourceRef.current.disconnect();
-        noiseSourceRef.current = null;
-      }
-      if (lfoRef.current) {
-        lfoRef.current.stop();
-        lfoRef.current.disconnect();
-        lfoRef.current = null;
-      }
-      if (filterRef.current) {
-        filterRef.current.disconnect();
-        filterRef.current = null;
-      }
-      if (gainRef.current) {
-        gainRef.current.disconnect();
-        gainRef.current = null;
-      }
-      if (audioContextRef.current) {
-        audioContextRef.current.close();
-        audioContextRef.current = null;
+      if (soundType === 'chime') {
+        [440, 554.37, 659.25].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + i * 0.12);
+          gain.gain.setValueAtTime(0.001, now + i * 0.12);
+          gain.gain.exponentialRampToValueAtTime(0.18, now + i * 0.12 + 0.04);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.12 + 1.2);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + i * 0.12);
+          osc.stop(now + i * 0.12 + 1.2);
+        });
+      } else if (soundType === 'bell') {
+        [174.61, 349.23, 523.25].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = i === 0 ? 'sine' : 'triangle';
+          osc.frequency.setValueAtTime(freq, now);
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.exponentialRampToValueAtTime(0.2 / (i + 1), now + 0.08);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 2.0);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now);
+          osc.stop(now + 2.0);
+        });
+      } else {
+        [659.25, 880].forEach((freq, i) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, now + i * 0.18);
+          gain.gain.setValueAtTime(0.001, now + i * 0.18);
+          gain.gain.exponentialRampToValueAtTime(0.15, now + i * 0.18 + 0.03);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + i * 0.18 + 0.9);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(now + i * 0.18);
+          osc.stop(now + i * 0.18 + 0.9);
+        });
       }
     } catch (e) {
-      console.warn('Audio cleanup exception:', e);
-    }
-  };
-
-  const toggleSoundscape = (soundscapeId: string) => {
-    if (activeSoundscape === soundscapeId) {
-      stopProceduralAudio();
-      setActiveSoundscape(null);
-    } else {
-      setActiveSoundscape(soundscapeId);
-      if (soundscapeId === 'sound-1') {
-        startProceduralAudio('rain');
-      } else if (soundscapeId === 'sound-3') {
-        startProceduralAudio('breeze');
-      } else {
-        stopProceduralAudio();
-      }
+      console.warn('End of session audio synthesis failed:', e);
     }
   };
 
@@ -396,22 +389,26 @@ export default function ResearchWellbeing({
                 </button>
               </div>
             )}
-            <h1 className="font-sans font-medium tracking-tight text-2xl sm:text-3xl text-stone-900 dark:text-stone-100 flex items-center gap-3" id="wellbeing-page-title">
+            <h1 className={`font-sans font-medium tracking-tight text-2xl sm:text-3xl flex items-center gap-3 ${activeChildDestination === 'guides' ? 'text-[#1B0A3B]' : 'text-stone-900 dark:text-stone-100'}`} id="wellbeing-page-title">
               {mode === 'focus'
                 ? 'Calm focus space'
                 : activeChildDestination === 'breathe'
                 ? 'Pause, Breathe and Be present'
+                : activeChildDestination === 'guides'
+                ? 'Sustaining Yourself Guides'
                 : 'Wellbeing centre'}
             </h1>
-            <p className="font-sans text-stone-500 dark:text-stone-400 text-xs sm:text-sm leading-relaxed" id="wellbeing-page-subtitle">
+            <p className={`font-sans text-xs sm:text-sm leading-relaxed ${activeChildDestination === 'guides' ? 'text-[#1B0A3B]' : 'text-stone-500 dark:text-stone-400'}`} id="wellbeing-page-subtitle">
               {mode === 'focus'
-                ? 'Work gently without alerts, badges, or noise. Pair your writing blocks with procedurally generated audio soundscapes.'
+                ? 'Work gently without alerts, badges, or noise. Receive a gentle chime when your focus or break interval resolves with End of session sound.'
                 : activeChildDestination === 'breathe'
                 ? 'Experiential breathing exercises, rhythmic pacing, and grounding focus practices to anchor presence during research.'
+                : activeChildDestination === 'guides'
+                ? 'Practical guidance for sustaining cognitive energy, managing project density, and navigating creative or research overwhelm.'
                 : 'Sustaining your mental and emotional wellness is an active requirement of thoughtful creation and rigorous inquiry. This is not meditation; it is research and creative self-preservation.'}
             </p>
             {mode !== 'focus' && activeChildDestination !== 'breathe' && (
-              <div className="flex items-center gap-1.5 pt-1.5 text-xs font-sans text-stone-400 dark:text-stone-500" id="wellbeing-reading-indicator">
+              <div className={`flex items-center gap-1.5 pt-1.5 text-xs font-sans ${activeChildDestination === 'guides' ? 'text-[#1B0A3B]' : 'text-stone-400 dark:text-stone-500'}`} id="wellbeing-reading-indicator">
                 <span>Self-care, focus tools & reflective support</span>
               </div>
             )}
@@ -499,8 +496,8 @@ export default function ResearchWellbeing({
                       Experiential breathing exercises, rhythmic pacing, and grounding focus practices to anchor presence during research.
                     </p>
                   </div>
-                  <div className="flex items-center justify-end pt-8 mt-auto w-full gap-2">
-                    <span className="text-xs font-semibold text-[#912A4A] opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                  <div className="flex items-center justify-start pt-8 mt-auto w-full gap-2">
+                    <span className="text-xs font-semibold text-[#912A4A] dark:text-rose-400 opacity-100 transition-all transform group-hover:translate-x-1">
                       Find out more →
                     </span>
                   </div>
@@ -521,8 +518,8 @@ export default function ResearchWellbeing({
                       Practical guidance for sustaining cognitive energy, managing project density, and navigating creative or research overwhelm.
                     </p>
                   </div>
-                  <div className="flex items-center justify-end pt-8 mt-auto w-full gap-2">
-                    <span className="text-xs font-semibold text-[#912A4A] opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                  <div className="flex items-center justify-start pt-8 mt-auto w-full gap-2">
+                    <span className="text-xs font-semibold text-[#912A4A] dark:text-rose-400 opacity-100 transition-all transform group-hover:translate-x-1">
                       Find out more →
                     </span>
                   </div>
@@ -549,8 +546,8 @@ export default function ResearchWellbeing({
                       Evidence-based literature syntheses and research on wellbeing, cognitive fatigue, and endurance.
                     </p>
                   </div>
-                  <div className="flex items-center justify-end pt-8 mt-auto w-full gap-2">
-                    <span className="text-xs font-semibold text-[#912A4A] opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0">
+                  <div className="flex items-center justify-start pt-8 mt-auto w-full gap-2">
+                    <span className="text-xs font-semibold text-[#912A4A] dark:text-rose-400 opacity-100 transition-all transform group-hover:translate-x-1">
                       Find out more →
                     </span>
                   </div>
@@ -565,12 +562,14 @@ export default function ResearchWellbeing({
           {/* DETAIL VIEWS HEADER: Back button & Breadcrumb bar when inside a child view */}
           {activeChildDestination !== 'home' && (
             <div className="space-y-6">
-              {activeChildDestination !== 'insights' && (
+              {activeChildDestination !== 'insights' && activeChildDestination !== 'guides' && (
                 <div className="flex flex-wrap items-center justify-between gap-4 pb-2">
                   <button
                     type="button"
                     onClick={() => setActiveChildDestination('home')}
-                    className="text-xs font-semibold text-[#912A4A] dark:text-rose-400 hover:underline flex items-center gap-1.5 cursor-pointer"
+                    className={`text-xs font-semibold hover:underline flex items-center gap-1.5 cursor-pointer ${
+                      activeChildDestination === 'guides' ? 'text-[#1B0A3B]' : 'text-[#912A4A] dark:text-rose-400'
+                    }`}
                     id="wellbeing-back-to-home-btn"
                   >
                     <span>Back to Wellbeing centre</span>
@@ -583,10 +582,10 @@ export default function ResearchWellbeing({
                         role="tab"
                         aria-selected={activeChildDestination === 'breathe'}
                         onClick={() => setActiveChildDestination('breathe')}
-                        className={`hover:text-[#912A4A] transition-colors cursor-pointer font-medium py-1 px-2.5 rounded-md border ${
+                        className={`hover:text-[#1D9E75] dark:hover:text-[#28c093] transition-colors cursor-pointer font-medium py-1 px-2.5 rounded-l-md rounded-r-none border-l-0 border-t-0 border-b-0 border-r-2 ${
                           activeChildDestination === 'breathe'
-                            ? 'bg-white dark:bg-stone-800 text-[#912A4A] dark:text-rose-400 font-semibold border-[#912A4A]/40 shadow-xs'
-                            : 'border-transparent'
+                            ? 'bg-stone-100/80 dark:bg-stone-800/80 text-[#1D9E75] dark:text-[#28c093] font-semibold border-r-[#1D9E75] dark:border-r-[#28c093]'
+                            : 'border-r-transparent'
                         }`}
                       >
                         Pause, Breathe & Be Present
@@ -596,10 +595,10 @@ export default function ResearchWellbeing({
                         role="tab"
                         aria-selected={activeChildDestination === 'guides'}
                         onClick={() => setActiveChildDestination('guides')}
-                        className={`hover:text-[#912A4A] transition-colors cursor-pointer font-medium py-1 px-2.5 rounded-md border ${
+                        className={`hover:text-[#1B0A3B] transition-colors cursor-pointer font-medium py-1 px-2.5 rounded-l-md rounded-r-none border-l-0 border-t-0 border-b-0 border-r-2 ${
                           activeChildDestination === 'guides'
-                            ? 'bg-white dark:bg-stone-800 text-[#912A4A] dark:text-rose-400 font-semibold border-[#912A4A]/40 shadow-xs'
-                            : 'border-transparent'
+                            ? 'bg-[#1B0A3B]/10 text-[#1B0A3B] font-semibold border-r-[#1B0A3B]'
+                            : 'border-r-transparent'
                         }`}
                       >
                         Sustaining Yourself Guides
@@ -609,10 +608,10 @@ export default function ResearchWellbeing({
                         role="tab"
                         aria-selected={activeChildDestination === 'insights'}
                         onClick={() => setActiveChildDestination('insights')}
-                        className={`hover:text-[#912A4A] transition-colors cursor-pointer font-medium py-1 px-2.5 rounded-md border ${
+                        className={`hover:text-[#1D9E75] dark:hover:text-[#28c093] transition-colors cursor-pointer font-medium py-1 px-2.5 rounded-l-md rounded-r-none border-l-0 border-t-0 border-b-0 border-r-2 ${
                           activeChildDestination === 'insights'
-                            ? 'bg-white dark:bg-stone-800 text-[#912A4A] dark:text-rose-400 font-semibold border-[#912A4A]/40 shadow-xs'
-                            : 'border-transparent'
+                            ? 'bg-stone-100/80 dark:bg-stone-800/80 text-[#1D9E75] dark:text-[#28c093] font-semibold border-r-[#1D9E75] dark:border-r-[#28c093]'
+                            : 'border-r-transparent'
                         }`}
                       >
                         Wellbeing Research Insights
@@ -631,25 +630,22 @@ export default function ResearchWellbeing({
 
               {/* CHILD DESTINATION 2: SUSTAINING YOURSELF GUIDES */}
               {activeChildDestination === 'guides' && (
-                <div className="space-y-4 text-left animate-fadeIn" id="wellbeing-selfcare-list">
-                  <div className="flex items-center justify-between pb-2 text-xs text-stone-500">
-                    <span className="font-sans text-xs text-stone-600 dark:text-stone-400">
-                      Practical guidance for sustaining energy and momentum during research and creative practice.
-                    </span>
-                    <div className="flex items-center gap-3 shrink-0 ml-4">
+                <div className="space-y-6 text-left animate-fadeIn" id="wellbeing-selfcare-list">
+                  <div className="flex items-center justify-end pb-2 text-xs border-b border-[#912A4A]">
+                    <div className="flex items-center gap-3 shrink-0 ml-4 text-[#1B0A3B]">
                       <button
                         type="button"
                         onClick={() => setAllTopicsOpen(true)}
-                        className="hover:text-[#1d9e75] dark:hover:text-[#28c093] transition-colors cursor-pointer underline underline-offset-2"
+                        className="hover:underline transition-colors cursor-pointer underline underline-offset-2 text-[#1B0A3B]"
                         id="wellbeing-expand-all-btn"
                       >
                         Expand all
                       </button>
-                      <span>•</span>
+                      <span className="text-[#1B0A3B]">•</span>
                       <button
                         type="button"
                         onClick={() => setAllTopicsOpen(false)}
-                        className="hover:text-[#1d9e75] dark:hover:text-[#28c093] transition-colors cursor-pointer underline underline-offset-2"
+                        className="hover:underline transition-colors cursor-pointer underline underline-offset-2 text-[#1B0A3B]"
                         id="wellbeing-collapse-all-btn"
                       >
                         Collapse all
@@ -658,32 +654,35 @@ export default function ResearchWellbeing({
                   </div>
 
                   <div className="space-y-0">
-                    {selfCareTopics.map((topic) => {
+                    {selfCareTopics.map((topic, topicIdx) => {
                       const isOpen = openTopics[topic.id];
                       return (
                         <React.Fragment key={topic.id}>
+                          {topicIdx > 0 && (
+                            <div className="h-[2px] w-full bg-[#912A4A] my-6 sm:my-8 opacity-80" />
+                          )}
                           <div className="py-2 text-left" id={`wellbeing-item-${topic.id}`}>
                             <button
                               type="button"
                               onClick={() => toggleTopic(topic.id)}
                               aria-expanded={isOpen}
                               aria-controls={`wellbeing-content-${topic.id}`}
-                              className="w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1d9e75] rounded-sm py-1 cursor-pointer group"
+                              className="w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1B0A3B] rounded-sm py-1 cursor-pointer group"
                               id={`wellbeing-btn-${topic.id}`}
                             >
                               <div className="flex items-start justify-between gap-4">
-                                <h3 className="font-sans font-semibold text-base sm:text-lg tracking-tight text-stone-900 dark:text-stone-100 group-hover:text-[#1d9e75] dark:group-hover:text-[#28c093] transition-colors flex items-center gap-2">
-                                  <span>{topic.emoji}</span> {topic.title}
+                                <h3 className="font-sans font-semibold text-base sm:text-lg tracking-tight text-[#1B0A3B] transition-colors">
+                                  {topic.title}
                                 </h3>
                                 <span
-                                  className="text-lg font-mono font-medium text-[#1d9e75] dark:text-[#28c093] shrink-0 leading-none select-none ml-2 pt-0.5"
+                                  className="text-xs font-semibold text-[#912A4A] dark:text-rose-400 shrink-0 leading-none select-none ml-2 pt-1 hover:underline"
                                   aria-hidden="true"
                                 >
-                                  {isOpen ? '−' : '+'}
+                                  {isOpen ? 'See less ↑' : 'Find out more →'}
                                 </span>
                               </div>
 
-                              <p className="mt-2 font-sans text-sm sm:text-base text-stone-700 dark:text-stone-300 font-normal leading-relaxed">
+                              <p className="mt-[16pt] font-sans text-sm sm:text-base text-[#1B0A3B] font-normal leading-relaxed">
                                 {topic.description}
                               </p>
                             </button>
@@ -701,29 +700,29 @@ export default function ResearchWellbeing({
                                   }}
                                   className="overflow-hidden space-y-4 pt-3 pb-2"
                                 >
-                                  <div className="p-4 bg-stone-50 dark:bg-stone-900/40 border border-stone-200/80 dark:border-stone-800 rounded-md text-xs sm:text-sm italic text-stone-700 dark:text-stone-300 leading-relaxed">
+                                  <div className="p-4 bg-[#1B0A3B]/5 border border-[#1B0A3B]/15 rounded-md text-xs sm:text-sm italic text-[#1B0A3B] leading-relaxed">
                                     "{topic.quote}"
                                   </div>
 
                                   <div className="space-y-2 pt-1">
-                                    <h4 className="text-xs font-semibold tracking-wider text-stone-900 dark:text-stone-100 font-sans">
+                                    <h4 className="text-xs font-semibold tracking-wider text-[#1B0A3B] font-sans">
                                       Gentle actionable steps:
                                     </h4>
                                     <ul className="space-y-2">
                                       {topic.tips.map((tip, idx) => (
-                                        <li key={idx} className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 flex items-start gap-2.5 leading-relaxed">
-                                          <span className="text-[#1d9e75] dark:text-[#28c093] font-bold select-none">•</span>
-                                          <span>{tip}</span>
+                                        <li key={idx} className="text-xs sm:text-sm text-[#1B0A3B] flex items-start gap-2.5 leading-relaxed">
+                                          <span className="text-[#912A4A] font-bold select-none">•</span>
+                                          <span className="text-[#1B0A3B]">{tip}</span>
                                         </li>
                                       ))}
                                     </ul>
                                   </div>
 
-                                  <div className="p-4 bg-[#1d9e75]/5 dark:bg-[#1d9e75]/15 border border-[#1d9e75]/20 dark:border-[#1d9e75]/30 rounded-md space-y-1">
-                                    <h4 className="text-xs font-semibold text-[#1d9e75] dark:text-[#28c093] flex items-center gap-1.5 font-sans">
+                                  <div className="p-4 bg-[#1B0A3B]/5 border border-[#1B0A3B]/20 rounded-md space-y-1">
+                                    <h4 className="text-xs font-semibold text-[#1B0A3B] flex items-center gap-1.5 font-sans">
                                       Support reflection prompt:
                                     </h4>
-                                    <p className="text-xs sm:text-sm italic text-stone-700 dark:text-stone-300 leading-relaxed">
+                                    <p className="text-xs sm:text-sm italic text-[#1B0A3B] leading-relaxed">
                                       "{topic.reflectionPrompt}"
                                     </p>
                                   </div>
@@ -752,25 +751,25 @@ export default function ResearchWellbeing({
       {/* FOCUS SPACE VIEW (Mode = 'focus') */}
       {mode === 'focus' && (
         <div className="space-y-8 text-left py-2" id="wellbeing-focus-section">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex flex-col space-y-8">
             {/* Pomodoro Timer */}
-            <div className="bg-stone-50 dark:bg-stone-900/40 border border-stone-200/80 dark:border-stone-800 p-6 rounded-md flex flex-col justify-between space-y-5">
+            <div className="bg-[#1B0A3B]/5 border border-[#1B0A3B]/15 p-6 sm:p-8 rounded-md flex flex-col justify-between space-y-6">
               <div className="space-y-2">
-                <span className="font-sans text-xs font-mono text-[#1d9e75] dark:text-[#28c093] font-semibold tracking-wider">
+                <span className="font-sans text-xs font-mono text-[#1B0A3B] font-semibold tracking-wider">
                   {isBreak ? `Gentle decompression interval (${preferredBreakMinutes}m)` : `Quiet study interval (${preferredFocusMinutes}m)`}
                 </span>
-                <h2 className="font-mono text-5xl font-light text-stone-900 dark:text-stone-100 tracking-tight">
+                <h2 className="font-mono text-5xl sm:text-6xl font-light text-[#1B0A3B] tracking-tight">
                   {formatTime(timeLeft)}
                 </h2>
               </div>
 
               {/* Focus Duration Selection */}
-              <div className="space-y-2.5 pt-2 border-t border-stone-200/80 dark:border-stone-800">
+              <div className="space-y-3 pt-3 border-t border-[#1B0A3B]/15">
                 <div className="flex items-center justify-between">
-                  <label className="text-xs font-semibold text-stone-800 dark:text-stone-200 block">
+                  <label className="text-xs font-semibold text-[#1B0A3B] block">
                     Preferred focus duration:
                   </label>
-                  <span className="text-[11px] font-mono text-stone-500">
+                  <span className="text-[11px] font-mono text-[#1B0A3B]">
                     {preferredFocusMinutes} min
                   </span>
                 </div>
@@ -783,8 +782,8 @@ export default function ResearchWellbeing({
                       onClick={() => changeFocusDuration(mins)}
                       className={`px-2.5 py-1 text-xs rounded border transition-all cursor-pointer font-medium ${
                         preferredFocusMinutes === mins
-                          ? 'bg-[#1d9e75] text-white font-semibold border-[#1d9e75] shadow-xs'
-                          : 'bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 border-stone-200 dark:border-stone-800 hover:border-stone-400'
+                          ? 'bg-[#1B0A3B] text-white font-semibold border-[#1B0A3B] shadow-xs'
+                          : 'bg-white dark:bg-stone-950 text-[#1B0A3B] border-[#1B0A3B]/20 hover:border-[#1B0A3B]/50'
                       }`}
                     >
                       {mins}m
@@ -794,7 +793,7 @@ export default function ResearchWellbeing({
 
                 {/* Custom focus input */}
                 <div className="flex items-center gap-2 pt-1">
-                  <span className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">Custom:</span>
+                  <span className="text-[11px] text-[#1B0A3B] font-medium">Custom:</span>
                   <input
                     type="number"
                     min="1"
@@ -802,9 +801,9 @@ export default function ResearchWellbeing({
                     value={customFocusInput}
                     onChange={(e) => setCustomFocusInput(e.target.value)}
                     placeholder="e.g. 50"
-                    className="w-20 px-2.5 py-1 text-xs rounded border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:border-[#1d9e75]"
+                    className="w-20 px-2.5 py-1 text-xs rounded border border-[#1B0A3B]/20 bg-white dark:bg-stone-950 text-[#1B0A3B] focus:outline-none focus:border-[#1B0A3B]"
                   />
-                  <span className="text-[11px] text-stone-500">min</span>
+                  <span className="text-[11px] text-[#1B0A3B]">min</span>
                   <button
                     type="button"
                     onClick={() => {
@@ -815,39 +814,43 @@ export default function ResearchWellbeing({
                       }
                     }}
                     disabled={!customFocusInput.trim() || isNaN(parseInt(customFocusInput, 10)) || parseInt(customFocusInput, 10) <= 0}
-                    className="px-2.5 py-1 text-xs rounded bg-stone-200 dark:bg-stone-800 text-stone-800 dark:text-stone-200 hover:bg-stone-300 dark:hover:bg-stone-700 disabled:opacity-40 cursor-pointer font-medium transition-colors"
+                    className="px-2.5 py-1 text-xs rounded bg-[#1B0A3B]/10 text-[#1B0A3B] hover:bg-[#1B0A3B]/20 disabled:opacity-40 cursor-pointer font-medium transition-colors"
                   >
                     Set
                   </button>
                 </div>
 
                 {/* Break Duration Preset Selector & Custom Break Input */}
-                <div className="space-y-1.5 pt-1">
+                <div className="space-y-2 pt-2">
                   <div className="flex items-center justify-between">
-                    <span className="text-[11px] font-medium text-stone-600 dark:text-stone-400">
-                      Break length ({preferredBreakMinutes} min):
+                    <span className="text-[11px] font-semibold text-[#1B0A3B]">
+                      Break length:
                     </span>
-                    <div className="flex items-center gap-1">
-                      {[3, 5, 10, 15, 20].map((bmins) => (
-                        <button
-                          key={bmins}
-                          type="button"
-                          onClick={() => changeBreakDuration(bmins)}
-                          className={`px-2 py-0.5 text-[11px] rounded border transition-colors cursor-pointer ${
-                            preferredBreakMinutes === bmins
-                              ? 'bg-stone-700 dark:bg-stone-300 text-white dark:text-stone-900 font-semibold border-stone-700'
-                              : 'bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-400 border-stone-200 dark:border-stone-800'
-                          }`}
-                        >
-                          {bmins}m
-                        </button>
-                      ))}
-                    </div>
+                    <span className="text-[11px] font-mono text-[#1B0A3B]">
+                      {preferredBreakMinutes} min
+                    </span>
+                  </div>
+
+                  <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
+                    {[3, 5, 10, 15, 20].map((bmins) => (
+                      <button
+                        key={bmins}
+                        type="button"
+                        onClick={() => changeBreakDuration(bmins)}
+                        className={`px-2.5 py-1 text-xs rounded border transition-all cursor-pointer font-medium ${
+                          preferredBreakMinutes === bmins
+                            ? 'bg-[#1B0A3B] text-white font-semibold border-[#1B0A3B] shadow-xs'
+                            : 'bg-white dark:bg-stone-950 text-[#1B0A3B] border-[#1B0A3B]/20 hover:border-[#1B0A3B]/50'
+                        }`}
+                      >
+                        {bmins}m
+                      </button>
+                    ))}
                   </div>
 
                   {/* Custom break input */}
-                  <div className="flex items-center gap-2">
-                    <span className="text-[11px] text-stone-500 dark:text-stone-400 font-medium">Custom break:</span>
+                  <div className="flex items-center gap-2 pt-1">
+                    <span className="text-[11px] text-[#1B0A3B] font-medium">Custom break:</span>
                     <input
                       type="number"
                       min="1"
@@ -855,9 +858,9 @@ export default function ResearchWellbeing({
                       value={customBreakInput}
                       onChange={(e) => setCustomBreakInput(e.target.value)}
                       placeholder="e.g. 7"
-                      className="w-20 px-2.5 py-1 text-xs rounded border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:border-[#1d9e75]"
+                      className="w-20 px-2.5 py-1 text-xs rounded border border-[#1B0A3B]/20 bg-white dark:bg-stone-950 text-[#1B0A3B] focus:outline-none focus:border-[#1B0A3B]"
                     />
-                    <span className="text-[11px] text-stone-500">min</span>
+                    <span className="text-[11px] text-[#1B0A3B]">min</span>
                     <button
                       type="button"
                       onClick={() => {
@@ -868,7 +871,7 @@ export default function ResearchWellbeing({
                         }
                       }}
                       disabled={!customBreakInput.trim() || isNaN(parseInt(customBreakInput, 10)) || parseInt(customBreakInput, 10) <= 0}
-                      className="px-2.5 py-1 text-xs rounded bg-stone-200 dark:bg-stone-800 text-stone-800 dark:text-stone-200 hover:bg-stone-300 dark:hover:bg-stone-700 disabled:opacity-40 cursor-pointer font-medium transition-colors"
+                      className="px-2.5 py-1 text-xs rounded bg-[#1B0A3B]/10 text-[#1B0A3B] hover:bg-[#1B0A3B]/20 disabled:opacity-40 cursor-pointer font-medium transition-colors"
                     >
                       Set
                     </button>
@@ -876,64 +879,136 @@ export default function ResearchWellbeing({
                 </div>
               </div>
 
+              {/* Single Session Intent text area */}
+              <div className="space-y-2 pt-3 border-t border-[#1B0A3B]/15">
+                <div className="flex items-center justify-between">
+                  <label htmlFor="session-intent-input" className="text-xs font-semibold text-[#1B0A3B] flex items-center gap-1.5">
+                    <span>Session Intent</span>
+                    <span className="text-[10px] text-[#1B0A3B]/70 font-normal font-sans">(Saved to project notes)</span>
+                  </label>
+                  {savedIntentNotice && (
+                    <span className="text-[11px] font-semibold text-[#912A4A] animate-fadeIn">
+                      {savedIntentNotice}
+                    </span>
+                  )}
+                </div>
+                <textarea
+                  id="session-intent-input"
+                  rows={2}
+                  value={sessionIntent}
+                  onChange={(e) => {
+                    setSessionIntent(e.target.value);
+                    localStorage.setItem('scholar_current_session_intent', e.target.value);
+                  }}
+                  placeholder="Set a single goal for this focus session (e.g., Write 3 sentences, read 1 article)..."
+                  className="w-full p-2.5 text-xs sm:text-sm rounded-md border border-[#1B0A3B]/20 bg-white dark:bg-stone-950 text-[#1B0A3B] placeholder:text-[#1B0A3B]/50 focus:outline-none focus:ring-1 focus:ring-[#1B0A3B] resize-none leading-relaxed"
+                />
+                <div className="flex items-center justify-between pt-0.5">
+                  <span className="text-[10px] text-[#1B0A3B]/60 italic">
+                    {sessionIntent.trim() ? 'Ready to attach to project notes' : 'Keep it simple and single-focused.'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={handleSaveIntentToProject}
+                    disabled={!sessionIntent.trim()}
+                    className="px-3 py-1 text-xs rounded bg-[#1B0A3B] text-white hover:bg-[#2A1254] disabled:opacity-40 transition-colors cursor-pointer font-medium"
+                  >
+                    Save as Note
+                  </button>
+                </div>
+              </div>
+
               <div className="flex gap-3 pt-2">
                 <button
                   type="button"
                   onClick={toggleTimerRunning}
-                  className="px-5 py-2.5 rounded-md bg-[#1d9e75] hover:bg-[#168260] dark:bg-[#28c093] dark:hover:bg-[#1e9a75] text-white dark:text-stone-950 text-xs font-sans font-semibold transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d9e75]"
+                  className="px-5 py-2.5 rounded-md bg-[#1B0A3B] hover:bg-[#2A1254] text-white text-xs font-sans font-semibold transition-colors cursor-pointer focus-visible:outline-none"
                 >
                   {timerRunning ? 'Pause' : 'Start interval'}
                 </button>
                 <button
                   type="button"
                   onClick={handlePomodoroReset}
-                  className="px-4 py-2.5 rounded-md border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 text-xs font-sans font-semibold hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d9e75]"
+                  className="px-4 py-2.5 rounded-md border border-[#1B0A3B]/20 bg-white dark:bg-stone-950 text-[#1B0A3B] text-xs font-sans font-semibold hover:bg-[#1B0A3B]/5 transition-colors cursor-pointer focus-visible:outline-none"
                 >
                   Reset
                 </button>
               </div>
 
-              <p className="font-sans text-xs text-stone-500 dark:text-stone-400 italic leading-relaxed pt-1">
+              <p className="font-sans text-xs text-[#1B0A3B] italic leading-relaxed pt-1">
                 "No streaks. No alerts. Work gently until the timer resolves. If you feel tired, close the app and rest."
               </p>
             </div>
 
-            {/* Soundscapes */}
-            <div className="bg-white dark:bg-stone-950 border border-stone-200/80 dark:border-stone-800 p-6 rounded-md flex flex-col justify-between space-y-4">
-              <div className="space-y-3">
-                <h3 className="font-sans font-semibold text-stone-900 dark:text-stone-100 text-sm">
-                  Procedural soundscapes
-                </h3>
-                <p className="font-sans text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
-                  Procedurally synthesized rain and breeze textures generated inside your browser using mathematical audio buffers.
-                </p>
+            {/* Burgundy divider line */}
+            <div className="h-[2px] w-full bg-[#912A4A] opacity-80 my-2" />
 
-                <div className="space-y-2 pt-2">
-                  {SOUNDSCAPES.map((sound) => (
-                    <button
-                      key={sound.id}
-                      type="button"
-                      onClick={() => toggleSoundscape(sound.id)}
-                      className={`w-full text-left p-3 rounded-md border font-sans text-xs flex justify-between items-center transition-all cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d9e75] ${
-                        activeSoundscape === sound.id
-                          ? 'bg-[#1d9e75]/10 border-[#1d9e75]/30 text-[#1d9e75] dark:text-[#28c093] font-semibold'
-                          : 'bg-stone-50/50 dark:bg-stone-900/30 border-stone-200/80 dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
-                      }`}
-                    >
-                      <span>{sound.name}</span>
-                      <span className="font-mono text-[10px] bg-stone-100 dark:bg-stone-900 px-2 py-0.5 rounded text-stone-500">
-                        {activeSoundscape === sound.id ? 'synthesizing' : sound.type}
-                      </span>
-                    </button>
+            {/* End of session sound menu - Dropdown Menu */}
+            <div className="space-y-4 text-left py-2" id="wellbeing-end-sound-section">
+              <div className="flex flex-wrap items-center justify-between gap-2 pb-1">
+                <h3 className="font-sans font-semibold text-[#1B0A3B] text-base sm:text-lg flex items-center gap-2">
+                  <Volume2 className="w-5 h-5 text-[#1B0A3B]" />
+                  <span>End of session sound</span>
+                </h3>
+                <span className="text-xs font-mono px-2.5 py-0.5 rounded bg-[#1B0A3B]/10 text-[#1B0A3B] font-semibold">
+                  Audio Chime
+                </span>
+              </div>
+              
+              <p className="font-sans text-xs sm:text-sm text-[#1B0A3B] leading-relaxed">
+                Select a gentle auditory cue to play when your focus or break interval resolves.
+              </p>
+
+              {/* Dropdown menu selector */}
+              <div className="pt-2">
+                <label htmlFor="end-of-session-sound-select" className="sr-only">
+                  Select end of session sound
+                </label>
+                <select
+                  id="end-of-session-sound-select"
+                  value={selectedEndSound}
+                  onChange={(e) => {
+                    const newSound = e.target.value as 'chime' | 'bell' | 'chime_soft';
+                    setSelectedEndSound(newSound);
+                    playEndOfSessionSound(newSound);
+                  }}
+                  className="w-full sm:w-96 px-3.5 py-2 text-xs sm:text-sm rounded-md border border-[#1B0A3B]/20 bg-white dark:bg-stone-950 text-[#1B0A3B] focus:outline-none focus:ring-2 focus:ring-[#1B0A3B] font-medium cursor-pointer shadow-xs"
+                >
+                  {END_OF_SESSION_SOUNDS.map((sound) => (
+                    <option key={sound.id} value={sound.id}>
+                      {sound.name} ({sound.type})
+                    </option>
                   ))}
-                </div>
+                </select>
               </div>
 
-              {activeSoundscape && (
-                <div className="pt-3 text-[11px] font-sans text-stone-400 text-center">
-                  Click active soundscape to stop audio synthesizer.
-                </div>
-              )}
+              {/* Selected sound description box with integrated preview */}
+              {(() => {
+                const currentSound = END_OF_SESSION_SOUNDS.find((s) => s.id === selectedEndSound) || END_OF_SESSION_SOUNDS[0];
+                return (
+                  <div className="p-4 rounded-md bg-[#1B0A3B]/5 border border-[#1B0A3B]/15 space-y-2.5 mt-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[#1B0A3B]">
+                      <div className="flex items-center gap-2">
+                        <span className="font-semibold text-sm">{currentSound.name}</span>
+                        <span className="font-mono text-[10px] bg-[#1B0A3B]/10 px-2 py-0.5 rounded font-medium">
+                          {currentSound.type}
+                        </span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => playEndOfSessionSound(selectedEndSound)}
+                        className="px-3.5 py-1.5 rounded bg-[#1B0A3B] hover:bg-[#2A1254] text-white text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+                      >
+                        <Volume2 className="w-3.5 h-3.5 text-white" />
+                        <span>Preview Sound</span>
+                      </button>
+                    </div>
+                    <p className="text-xs sm:text-sm text-[#1B0A3B]/80 leading-relaxed">
+                      {currentSound.description}
+                    </p>
+                  </div>
+                );
+              })()}
             </div>
           </div>
         </div>

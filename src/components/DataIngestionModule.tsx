@@ -39,7 +39,7 @@ export default function DataIngestionModule({
   const [activeTab, setActiveTab] = useState<'upload' | 'paste' | 'samples'>('upload');
   const [rawText, setRawText] = useState('');
   const [targetCollectionId, setTargetCollectionId] = useState<string>('all');
-  const [customTag, setCustomTag] = useState<string>('rag-corpus');
+  const [customTag, setCustomTag] = useState<string>('imported-dataset');
   const [parsedItems, setParsedItems] = useState<ParsedItem[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
   const [ingestStatus, setIngestStatus] = useState<string | null>(null);
@@ -47,22 +47,22 @@ export default function DataIngestionModule({
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Sample Data Dumps for Quick Demonstration
+  // Sample Datasets for Quick Demonstration
   const SAMPLE_DUMPS = [
     {
-      name: 'AI & Local Inference RAG Corpus (4 Papers)',
-      description: 'Recent research papers on local LLM deployment, quantization, and offline RAG architectures.',
+      name: 'Artificial Intelligence & Local Inference Corpus (4 Papers)',
+      description: 'Recent research papers on local model deployment, quantisation, and offline retrieval architectures.',
       category: 'Computer Science',
       data: [
         {
-          title: 'Quantized Edge Inference for Offline Retrieval Augmented Generation',
+          title: 'Quantised Edge Inference for Offline Retrieval Augmented Generation',
           authors: 'Marcus Vance, Elena Rostova',
           journal: 'Journal of Local AI & Distributed Systems',
           year: 2025,
           doi: '10.1016/j.jlaid.2025.04.012',
-          abstract: 'We present a light footprint local RAG framework utilizing 4-bit quantized open-weight models and in-memory vector databases. Performance benchmark results show 94% retrieval accuracy with complete data privacy.',
-          notes: 'Key foundational reference for offline RAG setups. Discusses memory constraints on mobile and desktop workstations.',
-          tags: ['local-ai', 'rag', 'quantization', 'privacy']
+          abstract: 'We present a light footprint local retrieval framework utilising 4-bit quantised open-weight models and in-memory vector databases. Performance benchmark results show 94% retrieval accuracy with complete data privacy.',
+          notes: 'Key foundational reference for offline retrieval setups. Discusses memory constraints on mobile and desktop workstations.',
+          tags: ['local-ai', 'retrieval', 'quantisation', 'privacy']
         },
         {
           title: 'Privacy-Preserving On-Device Document Embeddings',
@@ -72,16 +72,16 @@ export default function DataIngestionModule({
           doi: '10.1109/TPRE.2024.981234',
           abstract: 'Investigating local embedding generation using WebAssembly and WebGPU engines inside browser context, eliminating external vector API reliance.',
           notes: 'Evaluates miniLM and nomad embedding models in browser runtime.',
-          tags: ['embeddings', 'webgpu', 'privacy', 'rag']
+          tags: ['embeddings', 'webgpu', 'privacy', 'retrieval']
         },
         {
-          title: 'Structured Knowledge Extraction from Unstructured Academic PDF Dumps',
+          title: 'Structured Knowledge Extraction from Unstructured Academic PDF Files',
           authors: 'Amara Okafor, Jonathan Hayes',
           journal: 'ACM Conference on Document Analysis',
           year: 2025,
           doi: '10.1145/3612345.3612399',
           abstract: 'A comprehensive methodology for local table parsing, reference extraction, and semantic chunking without uploading sensitive pre-publication drafts.',
-          notes: 'Directly applicable to our local literature ingestion pipeline.',
+          notes: 'Directly applicable to our local literature import pipeline.',
           tags: ['pdf-parsing', 'knowledge-graph', 'local-first']
         },
         {
@@ -89,7 +89,7 @@ export default function DataIngestionModule({
           authors: 'Hiroshi Tanaka, Clara Moreau',
           journal: 'International Journal of Digital Libraries',
           year: 2026,
-          doi: '10.1007/s00799-026-00412-x',
+          doi: '10.007/s00799-026-00412-x',
           abstract: 'Comparing local reasoning capabilities against hosted frontier APIs for metadata validation, hallucinated reference detection, and citation style formatting.',
           notes: 'Shows 88% parity with cloud models when fine-tuned prompts are applied.',
           tags: ['citation-verification', 'benchmarks', 'open-weights']
@@ -97,7 +97,7 @@ export default function DataIngestionModule({
       ]
     },
     {
-      name: 'Cognitive Science & Research Methodologies Dump',
+      name: 'Cognitive Science & Research Methodologies Dataset',
       description: 'A curated dataset of cognitive psychology and meta-research literature.',
       category: 'Psychology & Methodologies',
       data: [
@@ -355,7 +355,7 @@ export default function DataIngestionModule({
   const handleExecuteIngest = () => {
     const selected = parsedItems.filter((item) => item.selected);
     if (selected.length === 0) {
-      setIngestStatus('Please select at least one record to ingest.');
+      setIngestStatus('Please select at least one record to import.');
       return;
     }
 
@@ -379,7 +379,7 @@ export default function DataIngestionModule({
         doi: item.doi || '',
         tags: combinedTags,
         collectionId: targetCollectionId === 'all' ? undefined : targetCollectionId,
-        notes: item.notes || `Locally ingested dataset entry. RAG Chunks: ~${item.ragChunksCount}.`,
+        notes: item.notes || `Locally imported dataset entry. Passages: ~${item.ragChunksCount}.`,
         abstract: item.abstract || '',
         verificationStatus: item.doi ? 'verified' : 'missing_metadata',
         missingFields: missing,
@@ -391,7 +391,7 @@ export default function DataIngestionModule({
 
     const totalChunks = selected.reduce((sum, item) => sum + item.ragChunksCount, 0);
     setIngestStatus(
-      `Successfully ingested ${selected.length} research paper(s) (~${totalChunks} RAG chunks) into your local library.`
+      `Successfully imported ${selected.length} research paper(s) (~${totalChunks} passages) into your local library.`
     );
     setParsedItems([]);
     setRawText('');
@@ -401,14 +401,14 @@ export default function DataIngestionModule({
   const handleDownloadSampleTemplate = () => {
     const templateData = [
       {
-        title: 'Sample Research Paper Title for RAG Ingestion',
+        title: 'Sample Research Paper Title for Reference Import',
         authors: 'Author One, Author Two',
         journal: 'Journal of Science and Technology',
         year: 2026,
         doi: '10.1000/sample.doi.123',
-        abstract: 'Detailed abstract describing research background, methods, findings, and conclusions for semantic vector indexing.',
-        notes: 'Full paper notes or raw transcript body text to be embedded locally for RAG operations.',
-        tags: ['machine-learning', 'rag-dataset', 'sample']
+        abstract: 'Detailed abstract describing research background, methods, findings, and conclusions.',
+        notes: 'Full paper notes or raw transcript body text to be saved locally for reference search.',
+        tags: ['machine-learning', 'imported-dataset', 'sample']
       }
     ];
 
@@ -416,7 +416,7 @@ export default function DataIngestionModule({
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'local_research_dump_template.json';
+    link.download = 'local_research_dataset_template.json';
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -437,11 +437,11 @@ export default function DataIngestionModule({
           <div className="flex items-center gap-2">
             
             <h2 className="font-sans font-semibold text-stone-900 dark:text-stone-100 text-base">
-              Local Data Ingestion Module (RAG Pipeline)
+              Import References & Files
             </h2>
           </div>
           <p className="font-sans text-xs text-stone-500 dark:text-stone-400 mt-1">
-            Import local JSON or text document dumps directly into your browser storage to build a private RAG dataset.
+            Add articles and files directly into your saved collection from BibTeX, JSON, or text.
           </p>
         </div>
 
@@ -471,7 +471,7 @@ export default function DataIngestionModule({
                 : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
             }`}
           >
-             Upload Dump File
+             Upload File
           </button>
           <button
             onClick={() => setActiveTab('paste')}
@@ -481,7 +481,7 @@ export default function DataIngestionModule({
                 : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
             }`}
           >
-             Paste Raw JSON/Text
+             Paste Text or JSON
           </button>
           <button
             onClick={() => setActiveTab('samples')}
@@ -491,7 +491,7 @@ export default function DataIngestionModule({
                 : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
             }`}
           >
-             Sample RAG Datasets
+             Sample Datasets
           </button>
         </div>
 
@@ -522,7 +522,7 @@ export default function DataIngestionModule({
             </div>
             <div>
               <p className="font-sans text-xs font-semibold text-stone-800 dark:text-stone-200">
-                Click to browse or drop local dataset dump files here
+                Click to browse or drag and drop dataset files here
               </p>
               <p className="font-sans text-[11px] text-stone-400 mt-1">
                 Supports <strong className="text-stone-600 dark:text-stone-300">.json</strong>, <strong className="text-stone-600 dark:text-stone-300">.bib / BibTeX</strong>, <strong className="text-stone-600 dark:text-stone-300">.txt</strong>, and <strong className="text-stone-600 dark:text-stone-300">.csv</strong> formats.
@@ -537,7 +537,7 @@ export default function DataIngestionModule({
         <div className="space-y-3">
           <div className="flex justify-between items-center">
             <label htmlFor="raw-data-input" className="font-sans text-xs font-medium text-stone-700 dark:text-stone-300">
-              Raw Data Dump (JSON Array, BibTeX, or Delimited Text Section):
+              Raw Dataset (JSON Array, BibTeX, or Delimited Text):
             </label>
             <span className="font-mono text-[10px] text-stone-400">
               {rawText ? `${rawText.length} characters` : 'Empty'}
@@ -548,7 +548,7 @@ export default function DataIngestionModule({
             id="raw-data-input"
             value={rawText}
             onChange={(e) => setRawText(e.target.value)}
-            placeholder={`Paste raw JSON data dump or text sections here...\n\nExample JSON:\n[\n  {\n    "title": "Quantum Computing Applications in Chemistry",\n    "authors": "Dr. Alice Vance",\n    "year": 2026,\n    "doi": "10.1016/sample.2026.001",\n    "abstract": "Analysis of quantum algorithms for ground state calculations...",\n    "tags": ["quantum", "chemistry"]\n  }\n]`}
+            placeholder={`Paste raw JSON data or text references here...\n\nExample JSON:\n[\n  {\n    "title": "Quantum Computing Applications in Chemistry",\n    "authors": "Dr. Alice Vance",\n    "year": 2026,\n    "doi": "10.1016/sample.2026.001",\n    "abstract": "Analysis of quantum algorithms for ground state calculations...",\n    "tags": ["quantum", "chemistry"]\n  }\n]`}
             className="w-full h-44 font-mono text-xs p-3 bg-stone-950 text-rose-200/90 border border-stone-800 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#912A4A] leading-relaxed"
           />
 
@@ -580,7 +580,7 @@ export default function DataIngestionModule({
       {activeTab === 'samples' && (
         <div className="space-y-3">
           <p className="font-sans text-xs text-stone-600 dark:text-stone-400">
-            Select a benchmark dataset dump to load into the parser for evaluation:
+            Select a sample dataset to load and review:
           </p>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -639,7 +639,7 @@ export default function DataIngestionModule({
           {/* Target Settings & Ingestion Target Controls */}
           <div className="bg-stone-50 dark:bg-stone-900 p-4 rounded-lg border border-stone-200/80 dark:border-stone-800 space-y-3">
             <h3 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-               Ingestion Parameters & Collection Target
+               Import Parameters & Target Collection
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -663,7 +663,7 @@ export default function DataIngestionModule({
 
               <div>
                 <label className="block font-sans text-[11px] text-stone-500 dark:text-stone-400 mb-1">
-                  Auto-Tag Ingested Items (comma separated):
+                  Auto-Tag Imported Items (comma separated):
                 </label>
                 <div className="relative">
                   
@@ -671,7 +671,7 @@ export default function DataIngestionModule({
                     type="text"
                     value={customTag}
                     onChange={(e) => setCustomTag(e.target.value)}
-                    placeholder="e.g., rag-corpus, local-dump"
+                    placeholder="e.g., imported-dataset, literature-batch"
                     className="w-full font-sans text-xs pl-8 pr-3 py-2 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded text-stone-800 dark:text-stone-200"
                   />
                 </div>
@@ -702,7 +702,7 @@ export default function DataIngestionModule({
 
             <div className="flex items-center gap-3 text-[11px] text-stone-500 dark:text-stone-400">
               <span>Selected: <strong className="text-[#912A4A] dark:text-rose-300">{selectedCount}</strong></span>
-              <span>Estimated RAG Chunks: <strong className="text-[#912A4A] dark:text-rose-300">~{totalChunksEstimate}</strong></span>
+              <span>Estimated Passages: <strong className="text-[#912A4A] dark:text-rose-300">~{totalChunksEstimate}</strong></span>
             </div>
           </div>
 
@@ -714,7 +714,7 @@ export default function DataIngestionModule({
                   <th className="p-2.5 w-10 text-center">Import</th>
                   <th className="p-2.5">Title & Author Metadata</th>
                   <th className="p-2.5 w-24">Quality</th>
-                  <th className="p-2.5 w-28 text-center">RAG Chunks</th>
+                  <th className="p-2.5 w-28 text-center">Passages</th>
                   <th className="p-2.5 w-28 text-right">Status</th>
                 </tr>
               </thead>
@@ -771,7 +771,7 @@ export default function DataIngestionModule({
                         </span>
                       ) : (
                         <span className="text-[10px] font-medium px-2 py-0.5 bg-emerald-100 dark:bg-emerald-950/60 text-emerald-900 dark:text-emerald-300 rounded">
-                          Ready for RAG
+                          Ready to Import
                         </span>
                       )}
                     </td>
@@ -784,7 +784,7 @@ export default function DataIngestionModule({
           {/* Action Bar */}
           <div className="flex flex-col sm:flex-row justify-between items-center gap-3 pt-2">
             <span className="font-sans text-xs text-stone-500 dark:text-stone-400">
-              All vector embeddings and text extractions remain encrypted in local storage.
+              All text extractions and notes remain encrypted in local browser storage.
             </span>
 
             <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
@@ -799,7 +799,7 @@ export default function DataIngestionModule({
                 disabled={selectedCount === 0}
                 className="font-sans text-xs bg-[#912A4A] hover:bg-[#78223d] text-white px-5 py-2 rounded-md font-semibold flex items-center gap-2 shadow-sm disabled:opacity-50 cursor-pointer transition-all"
               >
-                 Ingest {selectedCount} Record(s) to RAG Library
+                 Import {selectedCount} Reference(s) to Library
               </button>
             </div>
           </div>

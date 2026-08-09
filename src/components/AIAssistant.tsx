@@ -85,7 +85,7 @@ export default function AIAssistant() {
         const modelMsg: ChatMessage = {
           id: Math.random().toString(),
           role: 'model',
-          text: data.text || "I was unable to synthesize a proper response. Please try again.",
+          text: data.text || "I was unable to synthesise a proper response. Please try again.",
           timestamp: new Date().toISOString()
         };
         setMessages(prev => [...prev, modelMsg]);

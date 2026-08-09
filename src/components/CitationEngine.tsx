@@ -3,16 +3,18 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { useState } from 'react';
+import React, { useState } from 'react';
+import { Trash2, ChevronDown, ChevronRight, ChevronsUpDown, Search, Quote, X, BookOpen, Download, Copy, FileText, Check } from 'lucide-react';
 import { Paper, CitationStyle, Collection } from '../types';
 
 interface CitationEngineProps {
   papers: Paper[];
   collections?: Collection[];
   onVerifyMetadata: (paper: Paper) => Promise<void>;
+  onDeletePaper?: (id: string) => void;
 }
 
-export default function CitationEngine({ papers, collections = [], onVerifyMetadata }: CitationEngineProps) {
+export default function CitationEngine({ papers, collections = [], onVerifyMetadata, onDeletePaper }: CitationEngineProps) {
   const [selectedStyle, setSelectedStyle] = useState<CitationStyle>('APA7');
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
@@ -21,6 +23,30 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [collectionFilter, setCollectionFilter] = useState<string>('all');
+
+  // Progressive disclosure state for reference entries
+  const [expandedPaperIds, setExpandedPaperIds] = useState<Record<string, boolean>>({});
+
+  const togglePaperExpand = (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setExpandedPaperIds((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
+  const toggleExpandAll = () => {
+    const allAreExpanded = filteredPapers.length > 0 && filteredPapers.every((p) => expandedPaperIds[p.id]);
+    if (allAreExpanded) {
+      setExpandedPaperIds({});
+    } else {
+      const nextMap: Record<string, boolean> = {};
+      filteredPapers.forEach((p) => {
+        nextMap[p.id] = true;
+      });
+      setExpandedPaperIds(nextMap);
+    }
+  };
 
   // BibTeX export modal/preview state
   const [showBibTeXPreview, setShowBibTeXPreview] = useState(false);
@@ -194,7 +220,8 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
           <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-stone-100 dark:border-stone-800 pb-3">
             <div>
               <h3 className="font-sans font-semibold text-stone-900 dark:text-stone-100 text-sm flex items-center gap-1.5">
-                 Bibliography & Reference Generator
+                <BookOpen className="w-4 h-4 text-amber-800 dark:text-amber-400 shrink-0" />
+                Bibliography & Reference Generator
               </h3>
               <p className="font-sans text-[11px] text-stone-400">Perfect formatting aligned to active style conventions.</p>
             </div>
@@ -202,18 +229,21 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
             {/* Style Selector */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 w-full sm:w-auto">
               <label htmlFor="citation-style-select" className="sr-only">Citation Style</label>
-              <select
-                id="citation-style-select"
-                value={selectedStyle}
-                onChange={(e) => setSelectedStyle(e.target.value as CitationStyle)}
-                className="font-sans text-xs p-2 font-medium border border-stone-300 dark:border-stone-700 rounded text-stone-900 dark:text-stone-100 bg-stone-50 dark:bg-stone-900 w-full sm:w-auto focus:ring-1 focus:ring-amber-500 cursor-pointer"
-              >
-                <option value="Harvard">Harvard Reference Style</option>
-                <option value="APA7">APA 7th Edition</option>
-                <option value="MLA9">MLA 9th Edition</option>
-                <option value="Chicago">Chicago Author-Date</option>
-                <option value="IEEE">IEEE Reference Style</option>
-              </select>
+              <div className="flex items-center gap-1.5 bg-stone-50 dark:bg-stone-900 border border-stone-300 dark:border-stone-700 rounded px-2.5 py-1 w-full sm:w-auto">
+                <Quote className="w-3.5 h-3.5 text-amber-800 dark:text-amber-400 shrink-0" />
+                <select
+                  id="citation-style-select"
+                  value={selectedStyle}
+                  onChange={(e) => setSelectedStyle(e.target.value as CitationStyle)}
+                  className="font-sans text-xs font-medium text-stone-900 dark:text-stone-100 bg-transparent w-full focus:outline-none cursor-pointer"
+                >
+                  <option value="Harvard">Harvard Reference Style</option>
+                  <option value="APA7">APA 7th Edition</option>
+                  <option value="MLA9">MLA 9th Edition</option>
+                  <option value="Chicago">Chicago Author-Date</option>
+                  <option value="IEEE">IEEE Reference Style</option>
+                </select>
+              </div>
 
               <div className="flex items-center gap-1 font-sans text-[10px]">
                 {(['Harvard', 'APA7', 'MLA9', 'Chicago', 'IEEE'] as CitationStyle[]).map((st) => (
@@ -240,20 +270,21 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
               
               {/* Search Bar */}
               <div className="relative flex-1">
-                
+                <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-stone-400 pointer-events-none" />
                 <input
                   type="text"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   placeholder="Filter references by title, author, tag..."
-                  className="w-full font-sans text-xs pl-8 pr-3 py-1.5 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded focus:outline-none focus:ring-1 focus:ring-amber-500 text-stone-800 dark:text-stone-200"
+                  className="w-full font-sans text-xs pl-8 pr-7 py-1.5 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded focus:outline-none focus:ring-1 focus:ring-amber-500 text-stone-800 dark:text-stone-200"
                 />
                 {searchTerm && (
                   <button
                     onClick={() => setSearchTerm('')}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200"
+                    className="absolute right-2 top-1/2 -translate-y-1/2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-0.5 rounded cursor-pointer"
+                    title="Clear search"
                   >
-                    
+                    <X className="w-3 h-3" />
                   </button>
                 )}
               </div>
@@ -289,14 +320,30 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
               </div>
             </div>
 
-            {/* Filter Summary and BibTeX Export Buttons */}
+            {/* Filter Summary, Expand All, and BibTeX Export Buttons */}
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 pt-1 border-t border-stone-200/40 dark:border-stone-800 text-xs">
-              <span className="font-sans text-[11px] text-stone-500 dark:text-stone-400">
-                Showing <strong className="text-stone-800 dark:text-stone-200">{filteredPapers.length}</strong> of {papers.length} references
-                {(searchTerm || statusFilter !== 'all' || collectionFilter !== 'all') && (
-                  <span className="ml-1 text-amber-700 dark:text-amber-400 font-medium">(Filtered)</span>
+              <div className="flex items-center gap-3">
+                <span className="font-sans text-[11px] text-stone-500 dark:text-stone-400">
+                  Showing <strong className="text-stone-800 dark:text-stone-200">{filteredPapers.length}</strong> of {papers.length} references
+                  {(searchTerm || statusFilter !== 'all' || collectionFilter !== 'all') && (
+                    <span className="ml-1 text-amber-700 dark:text-amber-400 font-medium">(Filtered)</span>
+                  )}
+                </span>
+
+                {filteredPapers.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={toggleExpandAll}
+                    className="flex items-center gap-1 text-[11px] text-amber-900 dark:text-amber-400 hover:text-amber-950 dark:hover:text-amber-300 font-medium cursor-pointer transition-colors"
+                    title="Toggle expand or collapse all reference entries"
+                  >
+                    <ChevronsUpDown className="w-3.5 h-3.5" />
+                    {filteredPapers.length > 0 && filteredPapers.every((p) => expandedPaperIds[p.id])
+                      ? 'Collapse All'
+                      : 'Expand All'}
+                  </button>
                 )}
-              </span>
+              </div>
 
               {/* BibTeX Export Group */}
               <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
@@ -306,7 +353,8 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
                   className="font-sans text-xs px-2.5 py-1 bg-amber-900/10 hover:bg-amber-900/20 text-amber-900 dark:bg-amber-950/40 dark:hover:bg-amber-900/40 dark:text-amber-300 border border-amber-900/20 rounded flex items-center gap-1.5 transition-all disabled:opacity-50 cursor-pointer"
                   title="Preview raw BibTeX format for current filtered references"
                 >
-                   Preview BibTeX
+                  <FileText className="w-3.5 h-3.5" />
+                  Preview BibTeX
                 </button>
 
                 <button
@@ -315,67 +363,129 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
                   className="font-sans text-xs px-3 py-1 bg-amber-800 hover:bg-amber-900 dark:bg-amber-700 dark:hover:bg-amber-600 text-white rounded font-medium flex items-center gap-1.5 shadow-sm transition-all disabled:opacity-50 cursor-pointer"
                   title="Export filtered reference list as .bib file"
                 >
-                   Export BibTeX (.bib)
+                  <Download className="w-3.5 h-3.5" />
+                  Export BibTeX (.bib)
                 </button>
               </div>
             </div>
           </div>
 
           {/* References List */}
-          <div className="space-y-3 max-h-[420px] overflow-y-auto pr-1">
+          <div className="space-y-2.5 max-h-[420px] overflow-y-auto pr-1">
             {filteredPapers.map((p) => {
               const cite = formatCitation(p, selectedStyle);
-              const bibSnippet = paperToBibTeX(p);
+              const isExpanded = !!expandedPaperIds[p.id];
 
               return (
                 <div
                   key={p.id}
-                  className="p-3.5 border border-stone-100 dark:border-stone-900 bg-stone-50/20 dark:bg-stone-900/20 hover:border-stone-200 dark:hover:border-stone-800 rounded font-serif text-xs leading-relaxed flex flex-col sm:flex-row gap-3 justify-between group items-start transition-all"
+                  className={`p-3 border rounded transition-all font-sans ${
+                    isExpanded
+                      ? 'border-stone-200 dark:border-stone-800 bg-stone-50/40 dark:bg-stone-900/40'
+                      : 'border-stone-100 dark:border-stone-900 bg-stone-50/20 dark:bg-stone-900/20 hover:border-stone-200 dark:hover:border-stone-800'
+                  }`}
                 >
-                  <div className="text-stone-700 dark:text-stone-300 flex-1">
-                    {/* Render basic HTML representation for italicizing journals */}
-                    {cite.split('*').map((part, idx) =>
-                      idx % 2 === 1 ? (
-                        <em key={idx} className="font-medium italic">
-                          {part}
-                        </em>
-                      ) : (
-                        part
-                      )
-                    )}
+                  {/* Collapsed view: Title only with toggle button */}
+                  <div
+                    onClick={(e) => togglePaperExpand(p.id, e)}
+                    className="flex items-center justify-between gap-3 cursor-pointer"
+                  >
+                    <div className="flex items-center gap-2 min-w-0 flex-1">
+                      <button
+                        type="button"
+                        onClick={(e) => togglePaperExpand(p.id, e)}
+                        className="p-1 rounded hover:bg-stone-200/60 dark:hover:bg-stone-800 text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 shrink-0 cursor-pointer transition-colors"
+                        title={isExpanded ? 'Collapse reference details' : 'Expand reference citation details'}
+                      >
+                        {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                      </button>
 
-                    {p.tags.length > 0 && (
-                      <div className="flex flex-wrap gap-1 mt-1.5 font-sans">
-                        {p.tags.map((tag) => (
-                          <span
-                            key={tag}
-                            className="text-[10px] px-1.5 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 rounded"
-                          >
-                            #{tag}
-                          </span>
-                        ))}
+                      <h4 className="font-semibold text-xs sm:text-sm text-stone-800 dark:text-stone-200 truncate flex-1">
+                        {p.title}
+                      </h4>
+                    </div>
+
+                    {!isExpanded && (
+                      <span className="text-[10px] text-stone-400 hover:text-amber-800 dark:hover:text-amber-400 cursor-pointer shrink-0 hidden sm:inline">
+                        Expand citation
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Progressive Disclosure: Expanded Citation View */}
+                  {isExpanded && (
+                    <div className="mt-3 pt-3 border-t border-stone-200/60 dark:border-stone-800 space-y-3 animate-fadeIn font-serif text-xs leading-relaxed">
+                      <div className="text-stone-700 dark:text-stone-300">
+                        {/* Render basic HTML representation for italicizing journals */}
+                        {cite.split('*').map((part, idx) =>
+                          idx % 2 === 1 ? (
+                            <em key={idx} className="font-medium italic">
+                              {part}
+                            </em>
+                          ) : (
+                            part
+                          )
+                        )}
+
+                        {p.tags.length > 0 && (
+                          <div className="flex flex-wrap gap-1 mt-2 font-sans">
+                            {p.tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className="text-[10px] px-1.5 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 rounded"
+                              >
+                                #{tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
 
-                  {/* Actions per reference */}
-                  <div className="flex items-center gap-1 shrink-0 self-end sm:self-start">
-                    <button
-                      onClick={() => setActiveBibTeXPaper(p)}
-                      className="p-1 px-2 text-[10px] font-sans border border-stone-200 dark:border-stone-700 rounded text-stone-500 hover:text-amber-800 dark:hover:text-amber-400 hover:border-amber-700/30 transition-all cursor-pointer flex items-center gap-1"
-                      title="View individual BibTeX entry"
-                    >
-                       BibTeX
-                    </button>
+                      {/* Actions per reference */}
+                      <div className="flex items-center justify-end gap-1.5 pt-2 border-t border-stone-100 dark:border-stone-900">
+                        <button
+                          onClick={() => setActiveBibTeXPaper(p)}
+                          className="p-1 px-2 text-[10px] font-sans border border-stone-200 dark:border-stone-700 rounded text-stone-500 hover:text-amber-800 dark:hover:text-amber-400 hover:border-amber-700/30 transition-all cursor-pointer flex items-center gap-1"
+                          title="View individual BibTeX entry"
+                        >
+                          <FileText className="w-3 h-3" />
+                          BibTeX
+                        </button>
 
-                    <button
-                      onClick={() => handleCopy(p.id, cite.replace(/\*/g, ''))}
-                      className="p-1.5 rounded text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-all cursor-pointer opacity-80"
-                      title="Copy styled citation to Clipboard"
-                    >
-                      {copiedId === p.id ? null : null}
-                    </button>
-                  </div>
+                        <button
+                          onClick={() => handleCopy(p.id, cite.replace(/\*/g, ''))}
+                          className="p-1 px-2 text-[10px] font-sans border border-stone-200 dark:border-stone-700 rounded text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 hover:border-stone-400 transition-all cursor-pointer flex items-center gap-1"
+                          title="Copy styled citation to Clipboard"
+                        >
+                          {copiedId === p.id ? (
+                            <>
+                              <Check className="w-3 h-3 text-emerald-600" />
+                              Copied!
+                            </>
+                          ) : (
+                            <>
+                              <Copy className="w-3 h-3" />
+                              Copy
+                            </>
+                          )}
+                        </button>
+
+                        {onDeletePaper && (
+                          <button
+                            onClick={() => {
+                              if (confirm(`Delete reference "${p.title}" permanently?`)) {
+                                onDeletePaper(p.id);
+                              }
+                            }}
+                            className="p-1.5 rounded text-stone-400 hover:text-red-600 transition-all cursor-pointer"
+                            title="Delete Reference"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
               );
             })}

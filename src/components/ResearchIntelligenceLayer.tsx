@@ -318,77 +318,28 @@ export default function ResearchIntelligenceLayer({
 
   return (
     <div className="space-y-6" id="research-intelligence-layer">
-      {/* Header Banner */}
-      <div className="bg-gradient-to-r from-stone-900 via-amber-950 to-stone-900 text-stone-100 p-6 rounded-xl shadow-sm border border-stone-800 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-amber-400 font-sans text-xs uppercase tracking-wider font-semibold">
-             Research Intelligence Engine
-          </div>
-          <h2 className="text-xl font-bold font-sans mt-1 text-white">
-            Deep Cognitive Research Partner
-          </h2>
-          <p className="text-stone-300 font-sans text-xs mt-1 max-w-2xl leading-relaxed">
-            Move beyond superficial summaries to map evidence networks, refine researchable questions, discover data patterns, and test assumptions using constructive critical inquiry.
-          </p>
-        </div>
-      </div>
-
       {/* Main Mode Navigation Tabs */}
-      <div className="border-b border-stone-200 dark:border-stone-800 flex flex-wrap gap-2 pb-1" role="tablist">
-        <button
-          onClick={() => setActiveTab('synthesis')}
-          className={`px-3.5 py-2 rounded-t-lg text-xs font-sans font-medium transition-all flex items-center gap-2 cursor-pointer ${
-            activeTab === 'synthesis'
-              ? 'bg-amber-900 text-white dark:bg-amber-800 shadow-sm'
-              : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
-          }`}
-        >
-           1. Literature Analysis & Synthesis
-        </button>
-
-        <button
-          onClick={() => setActiveTab('evidence_map')}
-          className={`px-3.5 py-2 rounded-t-lg text-xs font-sans font-medium transition-all flex items-center gap-2 cursor-pointer ${
-            activeTab === 'evidence_map'
-              ? 'bg-amber-900 text-white dark:bg-amber-800 shadow-sm'
-              : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
-          }`}
-        >
-           2. Local Evidence Mapping
-        </button>
-
-        <button
-          onClick={() => setActiveTab('question_dev')}
-          className={`px-3.5 py-2 rounded-t-lg text-xs font-sans font-medium transition-all flex items-center gap-2 cursor-pointer ${
-            activeTab === 'question_dev'
-              ? 'bg-amber-900 text-white dark:bg-amber-800 shadow-sm'
-              : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
-          }`}
-        >
-           3. Question Development
-        </button>
-
-        <button
-          onClick={() => setActiveTab('pattern_data')}
-          className={`px-3.5 py-2 rounded-t-lg text-xs font-sans font-medium transition-all flex items-center gap-2 cursor-pointer ${
-            activeTab === 'pattern_data'
-              ? 'bg-amber-900 text-white dark:bg-amber-800 shadow-sm'
-              : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
-          }`}
-        >
-           4. Pattern & Data Analytics
-        </button>
-
-        <button
-          onClick={() => setActiveTab('critical_partner')}
-          className={`px-3.5 py-2 rounded-t-lg text-xs font-sans font-medium transition-all flex items-center gap-2 cursor-pointer ${
-            activeTab === 'critical_partner'
-              ? 'bg-amber-900 text-white dark:bg-amber-800 shadow-sm'
-              : 'text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900'
-          }`}
-        >
-           5. Critical Research Partner
-        </button>
+      <div className="border-b border-stone-200/80 dark:border-stone-800 flex flex-wrap gap-1 pb-px" role="tablist">
+        {[
+          { id: 'synthesis', label: 'Find Main Themes', title: 'Summarize major themes and topics across all your saved articles' },
+          { id: 'evidence_map', label: 'Map Your Evidence', title: 'Compare supporting facts and opposing viewpoints for any question' },
+          { id: 'question_dev', label: 'Build Good Questions', title: 'Turn broad topics into clear, specific research questions' },
+          { id: 'pattern_data', label: 'Spot Data Patterns', title: 'Analyze numbers and data tables to find trends' },
+          { id: 'critical_partner', label: 'Test Your Ideas', title: 'Check your assumptions and claims against potential weak points' },
+        ].map((tab) => (
+          <button
+            key={tab.id}
+            onClick={() => setActiveTab(tab.id as any)}
+            title={tab.title}
+            className={`px-4 py-2.5 text-xs font-sans transition-all cursor-pointer border-b-2 ${
+              activeTab === tab.id
+                ? 'border-[#912A4A] text-[#912A4A] dark:text-rose-300 font-semibold'
+                : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-300 font-medium'
+            }`}
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
       {/* ----------------- TAB 1: LITERATURE ANALYSIS & SYNTHESIS ----------------- */}
@@ -518,14 +469,14 @@ export default function ResearchIntelligenceLayer({
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             {/* Controls Side */}
-            <div className="lg:col-span-1 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-5 rounded-lg space-y-4">
+            <div className="lg:col-span-1 bg-stone-50/60 dark:bg-stone-900/40 border border-stone-200/80 dark:border-stone-800 p-5 rounded-xl space-y-4">
               <div className="flex justify-between items-start">
                 <div>
                   <h3 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                     Corpus Collection ({selectedPaperIds.length}/{allCorpusPapers.length})
+                     Selected Articles ({selectedPaperIds.length}/{allCorpusPapers.length})
                   </h3>
                   <p className="font-sans text-[11px] text-stone-500 mt-1 leading-relaxed">
-                    Select papers to synthesize themes, concepts, theories, methodologies, and relationship maps.
+                    Choose articles to discover common topics, main ideas, key terms, and how they connect.
                   </p>
                 </div>
               </div>
@@ -534,13 +485,13 @@ export default function ResearchIntelligenceLayer({
               <div className="flex gap-2">
                 <button
                   onClick={() => setShowUploadModal(true)}
-                  className="flex-1 font-sans text-xs bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 py-1.5 px-2.5 rounded transition-colors flex items-center justify-center gap-1.5"
+                  className="flex-1 font-sans text-xs bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 py-1.5 px-2.5 rounded-md transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                 >
                    Upload Collection
                 </button>
                 <button
                   onClick={handleSelectAllPapers}
-                  className="font-sans text-[11px] text-stone-600 dark:text-stone-400 hover:underline px-2 py-1"
+                  className="font-sans text-[11px] text-stone-600 dark:text-stone-400 hover:underline px-2 py-1 cursor-pointer"
                 >
                   {selectedPaperIds.length === allCorpusPapers.length ? 'Deselect All' : 'Select All'}
                 </button>
@@ -553,21 +504,21 @@ export default function ResearchIntelligenceLayer({
                   return (
                     <label
                       key={p.id}
-                      className={`flex items-start gap-2.5 p-2.5 bg-white dark:bg-stone-950 border rounded text-xs font-sans cursor-pointer hover:bg-stone-50 dark:hover:bg-stone-900/50 transition-colors ${
-                        isCustom ? 'border-amber-800/30 dark:border-amber-500/30' : 'border-stone-200/80 dark:border-stone-800'
+                      className={`flex items-start gap-2.5 p-2.5 bg-white dark:bg-stone-950 border rounded-lg text-xs font-sans cursor-pointer hover:bg-stone-50 dark:hover:bg-stone-900/50 transition-colors ${
+                        isCustom ? 'border-rose-900/20 dark:border-rose-500/30' : 'border-stone-200/80 dark:border-stone-800'
                       }`}
                     >
                       <input
                         type="checkbox"
                         checked={selectedPaperIds.includes(p.id)}
                         onChange={() => handleTogglePaper(p.id)}
-                        className="mt-0.5 rounded text-amber-900 focus:ring-amber-500"
+                        className="mt-0.5 rounded text-[#912A4A] focus:ring-[#912A4A]"
                       />
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
                           <p className="font-medium text-stone-800 dark:text-stone-200 line-clamp-1 leading-snug">{p.title}</p>
                           {isCustom && (
-                            <span className="text-[9px] bg-amber-100 dark:bg-amber-950 text-amber-900 dark:text-amber-300 font-semibold px-1.5 py-0.2 rounded shrink-0">
+                            <span className="text-[9px] bg-rose-50 dark:bg-rose-950 text-[#912A4A] dark:text-rose-300 font-semibold px-1.5 py-0.2 rounded shrink-0">
                               Uploaded
                             </span>
                           )}
@@ -582,76 +533,45 @@ export default function ResearchIntelligenceLayer({
               <button
                 onClick={handleRunLiteratureSynthesis}
                 disabled={loadingSynthesis || selectedPaperIds.length === 0}
-                className="w-full font-sans text-xs bg-amber-900 text-white py-2.5 rounded hover:bg-amber-800 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shadow-sm"
+                className="w-full font-sans text-xs bg-[#1B0A3B] text-white py-2.5 rounded-lg hover:bg-[#2A1254] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shadow-sm"
               >
                 
-                {loadingSynthesis ? 'Synthesizing Themes & Mapping...' : 'Analyze Literature Synthesis'}
+                {loadingSynthesis ? 'Finding Themes...' : 'Find Big Themes'}
               </button>
             </div>
 
             {/* Output Display */}
             <div className="lg:col-span-2 space-y-6">
               {loadingSynthesis ? (
-                <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-center flex flex-col items-center justify-center space-y-3">
-                  <div className="w-6 h-6 border-2 border-amber-900 border-t-transparent rounded-full animate-spin"></div>
+                <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl p-12 text-center flex flex-col items-center justify-center space-y-3">
+                  <div className="w-6 h-6 border-2 border-[#912A4A] border-t-transparent rounded-full animate-spin"></div>
                   <p className="font-sans text-xs text-stone-500 italic">
-                    Extracting major themes, core concepts, underlying theories, methodologies, and relationship connections...
+                    Looking for main themes, key ideas, and connections across your articles...
                   </p>
                 </div>
               ) : synthesisOutput ? (
-                <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-6 shadow-sm">
+                <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl p-6 space-y-6 shadow-xs">
                   {/* Synthesis Sub-tabs navigation */}
-                  <div className="border-b border-stone-200 dark:border-stone-800 flex flex-wrap gap-2 pb-2">
-                    <button
-                      onClick={() => setSynthesisSubTab('overview')}
-                      className={`px-3 py-1.5 rounded-md text-xs font-sans font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
-                        synthesisSubTab === 'overview'
-                          ? 'bg-amber-900 text-white dark:bg-amber-800'
-                          : 'bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
-                      }`}
-                    >
-                       Overview
-                    </button>
-                    <button
-                      onClick={() => setSynthesisSubTab('themes_concepts')}
-                      className={`px-3 py-1.5 rounded-md text-xs font-sans font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
-                        synthesisSubTab === 'themes_concepts'
-                          ? 'bg-amber-900 text-white dark:bg-amber-800'
-                          : 'bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
-                      }`}
-                    >
-                       Themes & Concepts ({synthesisOutput.majorThemes?.length || 0})
-                    </button>
-                    <button
-                      onClick={() => setSynthesisSubTab('theories_methods')}
-                      className={`px-3 py-1.5 rounded-md text-xs font-sans font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
-                        synthesisSubTab === 'theories_methods'
-                          ? 'bg-amber-900 text-white dark:bg-amber-800'
-                          : 'bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
-                      }`}
-                    >
-                       Theories & Methods
-                    </button>
-                    <button
-                      onClick={() => setSynthesisSubTab('relationships')}
-                      className={`px-3 py-1.5 rounded-md text-xs font-sans font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
-                        synthesisSubTab === 'relationships'
-                          ? 'bg-amber-900 text-white dark:bg-amber-800'
-                          : 'bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
-                      }`}
-                    >
-                       Mapped Relationships ({synthesisOutput.mappedRelationships?.length || 0})
-                    </button>
-                    <button
-                      onClick={() => setSynthesisSubTab('schools_of_thought')}
-                      className={`px-3 py-1.5 rounded-md text-xs font-sans font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
-                        synthesisSubTab === 'schools_of_thought'
-                          ? 'bg-amber-900 text-white dark:bg-amber-800'
-                          : 'bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
-                      }`}
-                    >
-                       Schools of Thought
-                    </button>
+                  <div className="border-b border-stone-200/80 dark:border-stone-800 flex flex-wrap gap-1 pb-2">
+                    {[
+                      { id: 'overview', label: 'Overview' },
+                      { id: 'themes_concepts', label: `Themes & Concepts (${synthesisOutput.majorThemes?.length || 0})` },
+                      { id: 'theories_methods', label: 'Theories & Methods' },
+                      { id: 'relationships', label: `Mapped Relationships (${synthesisOutput.mappedRelationships?.length || 0})` },
+                      { id: 'schools_of_thought', label: 'Schools of Thought' },
+                    ].map((st) => (
+                      <button
+                        key={st.id}
+                        onClick={() => setSynthesisSubTab(st.id as any)}
+                        className={`px-3 py-1.5 rounded-md text-xs font-sans font-medium transition-colors cursor-pointer flex items-center gap-1.5 ${
+                          synthesisSubTab === st.id
+                            ? 'bg-[#912A4A] text-white dark:bg-[#912A4A]'
+                            : 'bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
+                        }`}
+                      >
+                        {st.label}
+                      </button>
+                    ))}
                   </div>
 
                   {/* 1. OVERVIEW SUB-TAB */}
@@ -906,23 +826,23 @@ export default function ResearchIntelligenceLayer({
                   {synthesisSubTab === 'schools_of_thought' && (
                     <div className="space-y-4">
                       <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 uppercase tracking-wide flex items-center gap-1.5">
-                         Schools of Thought & Academic Paradigms
+                         Main Schools of Thought & Perspectives
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {synthesisOutput.schoolsOfThought?.map((school, idx) => (
                           <div key={idx} className="p-4 bg-stone-50 dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 rounded-lg space-y-2">
                             <span className="text-[9px] font-mono bg-amber-900 text-white px-2 py-0.5 rounded font-bold uppercase">
-                              Paradigm {idx + 1}
+                              Perspective {idx + 1}
                             </span>
                             <h5 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100">{school.schoolName}</h5>
                             <p className="font-sans text-xs text-stone-700 dark:text-stone-300 leading-relaxed">
-                              <strong>Core Tenet:</strong> {school.coreTenet}
+                              <strong>Core Idea:</strong> {school.coreTenet}
                             </p>
                             <p className="font-sans text-[11px] text-stone-500">
                               <strong>Key Authors:</strong> {school.keyAuthors}
                             </p>
                             <p className="font-sans text-[11px] text-stone-500">
-                              <strong>Distinguishing Assumptions:</strong> {school.distinguishingAssumptions}
+                              <strong>Key Assumptions:</strong> {school.distinguishingAssumptions}
                             </p>
                           </div>
                         ))}
@@ -934,10 +854,10 @@ export default function ResearchIntelligenceLayer({
                 <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-stone-400 font-sans text-xs text-center space-y-3">
                   
                   <p className="font-medium text-stone-600 dark:text-stone-300">
-                    No Literature Synthesis generated yet
+                    No themes generated yet
                   </p>
                   <p className="max-w-md mx-auto text-stone-400">
-                    Select corpus sources from the left panel or click "Upload Collection" to import papers, then click "Analyze Literature Synthesis" to identify major themes, concepts, theories, methodologies, and mapping relationships locally.
+                    Select articles from the left panel or click "Upload Collection" to import articles, then click "Find Big Themes" to identify main themes and connections.
                   </p>
                 </div>
               )}
@@ -953,22 +873,22 @@ export default function ResearchIntelligenceLayer({
           <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-5 rounded-lg space-y-4">
             <div className="space-y-1.5">
               <label className="font-sans font-medium text-xs text-stone-700 dark:text-stone-300">
-                Core Research Question for Evidence Map
+                Main Question to Map Evidence
               </label>
               <div className="flex gap-2">
                 <input
                   type="text"
                   value={evidenceQuestion}
                   onChange={(e) => setEvidenceQuestion(e.target.value)}
-                  placeholder="e.g., What impact does open-access funding have on research citation speed?"
-                  className="flex-1 font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded bg-stone-50/50 dark:bg-stone-900 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  placeholder="e.g., Does physical exercise help students improve test scores?"
+                  className="flex-1 font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded-lg bg-stone-50/50 dark:bg-stone-900 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#912A4A]"
                 />
                 <button
                   onClick={() => handleGenerateEvidenceMap()}
                   disabled={loadingEvidenceMap}
-                  className="font-sans text-xs bg-amber-900 text-white px-4 py-2.5 rounded hover:bg-amber-800 transition-all flex items-center gap-1.5 cursor-pointer shrink-0 disabled:opacity-50"
+                  className="font-sans text-xs bg-[#1B0A3B] text-white px-4 py-2.5 rounded-lg hover:bg-[#2A1254] transition-all flex items-center gap-1.5 cursor-pointer shrink-0 disabled:opacity-50"
                 >
-                   Build Evidence Map
+                   Create Evidence Map
                 </button>
               </div>
             </div>
@@ -1060,7 +980,7 @@ export default function ResearchIntelligenceLayer({
               {/* Consensus, Disagreement, Strengths & Gaps */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-4 rounded-lg space-y-2">
-                  <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 uppercase tracking-wider">Areas of Consensus</h4>
+                  <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 uppercase tracking-wider">What Authors Agree On</h4>
                   <ul className="space-y-1.5">
                     {evidenceMapResult.areasOfConsensus?.map((c, i) => (
                       <li key={i} className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed flex items-start gap-1.5">
@@ -1071,7 +991,7 @@ export default function ResearchIntelligenceLayer({
                 </div>
 
                 <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-4 rounded-lg space-y-2">
-                  <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 uppercase tracking-wider">Areas of Disagreement</h4>
+                  <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 uppercase tracking-wider">What Authors Disagree On</h4>
                   <ul className="space-y-1.5">
                     {evidenceMapResult.areasOfDisagreement?.map((d, i) => (
                       <li key={i} className="text-xs text-stone-600 dark:text-stone-400 leading-relaxed flex items-start gap-1.5">
@@ -1082,7 +1002,7 @@ export default function ResearchIntelligenceLayer({
                 </div>
 
                 <div className="bg-amber-50/40 dark:bg-stone-950 border border-amber-900/20 dark:border-stone-800 p-4 rounded-lg space-y-2">
-                  <h4 className="font-sans font-semibold text-xs text-amber-900 dark:text-amber-400 uppercase tracking-wider">Identified Evidence Gaps</h4>
+                  <h4 className="font-sans font-semibold text-xs text-amber-900 dark:text-amber-400 uppercase tracking-wider">Missing Facts & Open Questions</h4>
                   <ul className="space-y-1.5">
                     {evidenceMapResult.evidenceGaps?.map((g, i) => (
                       <li key={i} className="text-xs text-stone-700 dark:text-stone-300 leading-relaxed flex items-start gap-1.5">
@@ -1096,7 +1016,7 @@ export default function ResearchIntelligenceLayer({
           ) : (
             <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-stone-400 font-sans text-xs text-center space-y-2">
               
-              <p>Type your research question above and click "Build Evidence Map" to extract supporting vs opposing literature and evidence gaps.</p>
+              <p>Type your question above and click "Create Evidence Map" to see supporting and opposing facts.</p>
             </div>
           )}
         </div>
@@ -1106,46 +1026,46 @@ export default function ResearchIntelligenceLayer({
       {activeTab === 'question_dev' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fadeIn">
           {/* Form Controls */}
-          <div className="lg:col-span-1 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-5 rounded-lg space-y-4">
+          <div className="lg:col-span-1 bg-stone-50/60 dark:bg-stone-900/40 border border-stone-200/80 dark:border-stone-800 p-5 rounded-xl space-y-4">
             <div>
               <h3 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                 Topic Refiner
+                 Question Builder
               </h3>
               <p className="font-sans text-[11px] text-stone-500 mt-1 leading-relaxed">
-                Transform broad research interests into precise, answerable research questions while highlighting why each matters and what gap it fills.
+                Turn broad topics into clear, answerable questions while highlighting why each matters and what gap it fills.
               </p>
             </div>
 
             <div className="space-y-3">
               <div className="space-y-1">
-                <label className="font-sans font-medium text-[11px] text-stone-700 dark:text-stone-300">Broad Topic / Subject</label>
+                <label className="font-sans font-medium text-[11px] text-stone-700 dark:text-stone-300">What topic are you studying?</label>
                 <input
                   type="text"
                   value={topicInput}
                   onChange={(e) => setTopicInput(e.target.value)}
-                  placeholder="e.g., Climate adaptation policy in urban coastal cities"
-                  className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  placeholder="e.g. How plastic pollution affects ocean wildlife"
+                  className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded-lg bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#912A4A]"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-sans font-medium text-[11px] text-stone-700 dark:text-stone-300">Context / Domain Notes</label>
+                <label className="font-sans font-medium text-[11px] text-stone-700 dark:text-stone-300">Any extra details or focus area?</label>
                 <textarea
                   value={contextInput}
                   onChange={(e) => setContextInput(e.target.value)}
                   rows={3}
-                  placeholder="e.g., Focusing on municipal funding allocations and community resistance"
-                  className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  placeholder="e.g. Focus on sea turtles in coastal regions"
+                  className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded-lg bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#912A4A]"
                 />
               </div>
 
               <button
                 onClick={handleRunQuestionDevelopment}
                 disabled={loadingQuestions || !topicInput.trim()}
-                className="w-full font-sans text-xs bg-amber-900 text-white py-2.5 rounded hover:bg-amber-800 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full font-sans text-xs bg-[#1B0A3B] text-white py-2.5 rounded-lg hover:bg-[#2A1254] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 
-                {loadingQuestions ? 'Refining Questions...' : 'Develop Researchable Questions'}
+                {loadingQuestions ? 'Building Questions...' : 'Make Research Questions'}
               </button>
             </div>
           </div>
@@ -1155,7 +1075,7 @@ export default function ResearchIntelligenceLayer({
             {loadingQuestions ? (
               <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-center flex flex-col items-center justify-center space-y-3">
                 <div className="w-6 h-6 border-2 border-amber-900 border-t-transparent rounded-full animate-spin"></div>
-                <p className="font-sans text-xs text-stone-500 italic">Distinguishing answerable questions, identifying overlooked variables, and explaining knowledge gaps...</p>
+                <p className="font-sans text-xs text-stone-500 italic">Finding clear questions, key factors, and missing information...</p>
               </div>
             ) : questionDevResult ? (
               <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-6 shadow-sm">
@@ -1237,7 +1157,7 @@ export default function ResearchIntelligenceLayer({
       {activeTab === 'pattern_data' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fadeIn">
           {/* Dataset / Corpus Input */}
-          <div className="lg:col-span-1 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-5 rounded-lg space-y-4">
+          <div className="lg:col-span-1 bg-stone-50/60 dark:bg-stone-900/40 border border-stone-200/80 dark:border-stone-800 p-5 rounded-xl space-y-4">
             <div>
               <h3 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
                  Data Input & Corpus
@@ -1250,9 +1170,9 @@ export default function ResearchIntelligenceLayer({
             <div className="flex gap-2 border-b border-stone-200 dark:border-stone-800 pb-2">
               <button
                 onClick={() => setDataInputType('csv')}
-                className={`text-xs px-3 py-1 rounded transition-colors ${
+                className={`text-xs px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
                   dataInputType === 'csv'
-                    ? 'bg-amber-900 text-white font-medium'
+                    ? 'bg-[#912A4A] text-white font-medium'
                     : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-300'
                 }`}
               >
@@ -1260,9 +1180,9 @@ export default function ResearchIntelligenceLayer({
               </button>
               <button
                 onClick={() => setDataInputType('corpus')}
-                className={`text-xs px-3 py-1 rounded transition-colors ${
+                className={`text-xs px-3 py-1.5 rounded-md transition-colors cursor-pointer ${
                   dataInputType === 'corpus'
-                    ? 'bg-amber-900 text-white font-medium'
+                    ? 'bg-[#912A4A] text-white font-medium'
                     : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-300'
                 }`}
               >
@@ -1309,10 +1229,10 @@ export default function ResearchIntelligenceLayer({
             <button
               onClick={handleRunDataAnalysis}
               disabled={loadingDataAnalysis}
-              className="w-full font-sans text-xs bg-amber-900 text-white py-2.5 rounded hover:bg-amber-800 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+              className="w-full font-sans text-xs bg-[#1B0A3B] text-white py-2.5 rounded-lg hover:bg-[#2A1254] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               
-              {loadingDataAnalysis ? 'Analyzing Patterns...' : 'Run Pattern & Data Analytics'}
+              {loadingDataAnalysis ? 'Finding Patterns...' : 'Find Patterns in Data'}
             </button>
           </div>
 
@@ -1321,18 +1241,18 @@ export default function ResearchIntelligenceLayer({
             {loadingDataAnalysis ? (
               <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-center flex flex-col items-center justify-center space-y-3">
                 <div className="w-6 h-6 border-2 border-amber-900 border-t-transparent rounded-full animate-spin"></div>
-                <p className="font-sans text-xs text-stone-500 italic">Calculating descriptive metrics, variable relationships, and unexpected data connections...</p>
+                <p className="font-sans text-xs text-stone-500 italic">Looking for patterns, links between items, and key numbers...</p>
               </div>
             ) : dataAnalysisResult ? (
               <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-6 shadow-sm">
                 <div className="border-b border-stone-100 dark:border-stone-900 pb-3">
                   <span className="font-sans text-[9px] uppercase tracking-wider text-amber-800 font-semibold">Data & Pattern Intelligence</span>
-                  <h3 className="font-sans font-bold text-stone-900 dark:text-stone-100 text-base mt-0.5">Analytical Report & Visual Distributions</h3>
+                  <h3 className="font-sans font-bold text-stone-900 dark:text-stone-100 text-base mt-0.5">Data Report & Visual Charts</h3>
                 </div>
 
                 <div className="space-y-4">
                   <div className="p-4 bg-stone-50 dark:bg-stone-900/40 rounded-lg border border-stone-200/80 dark:border-stone-800 space-y-1.5">
-                    <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100">Executive Summary</h4>
+                    <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100">Summary Overview</h4>
                     <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed">{dataAnalysisResult.summary}</p>
                   </div>
 
@@ -1340,7 +1260,7 @@ export default function ResearchIntelligenceLayer({
                   {dataAnalysisResult.chartData && dataAnalysisResult.chartData.length > 0 && (
                     <div className="p-4 bg-white dark:bg-stone-900/50 border border-stone-200 dark:border-stone-800 rounded-lg space-y-3">
                       <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                         Relative Frequency / Distribution Visualizer
+                         Data Chart & Counts
                       </h4>
                       <div className="space-y-2 pt-1">
                         {dataAnalysisResult.chartData.map((cd, i) => {
@@ -1368,7 +1288,7 @@ export default function ResearchIntelligenceLayer({
                   {/* Variable Relationships */}
                   {dataAnalysisResult.variableRelationships && dataAnalysisResult.variableRelationships.length > 0 && (
                     <div className="space-y-2">
-                      <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 uppercase tracking-wide">Variable Relationships & Correlations</h4>
+                      <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 uppercase tracking-wide">How Factors & Numbers Connect</h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         {dataAnalysisResult.variableRelationships.map((vr, i) => (
                           <div key={i} className="p-3 bg-amber-50/20 dark:bg-stone-900/30 border border-amber-900/10 dark:border-stone-800 rounded space-y-1">
@@ -1412,7 +1332,7 @@ export default function ResearchIntelligenceLayer({
             ) : (
               <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-stone-400 font-sans text-xs text-center space-y-2">
                 
-                <p>Provide CSV dataset text or choose your literature corpus on the left, then click "Run Pattern & Data Analytics".</p>
+                <p>Paste table data or choose articles on the left, then click "Find Patterns in Data".</p>
               </div>
             )}
           </div>
@@ -1423,46 +1343,46 @@ export default function ResearchIntelligenceLayer({
       {activeTab === 'critical_partner' && (
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 animate-fadeIn">
           {/* Statement Input Form */}
-          <div className="lg:col-span-1 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-5 rounded-lg space-y-4">
+          <div className="lg:col-span-1 bg-stone-50/60 dark:bg-stone-900/40 border border-stone-200/80 dark:border-stone-800 p-5 rounded-xl space-y-4">
             <div>
               <h3 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                 Critical Colleague Persona
+                 Idea Assessor
               </h3>
               <p className="font-sans text-[11px] text-stone-500 mt-1 leading-relaxed">
-                Acts as a constructive peer reviewer to test underpinning assumptions, unstated premises, and generalizability before accepting conclusions.
+                Acts as a helpful reviewer to test underlying assumptions and claims before reaching conclusions.
               </p>
             </div>
 
             <div className="space-y-3">
               <div className="space-y-1">
-                <label className="font-sans font-medium text-[11px] text-stone-700 dark:text-stone-300">Hypothesis or Research Claim</label>
+                <label className="font-sans font-medium text-[11px] text-stone-700 dark:text-stone-300">What claim or guess do you want to check?</label>
                 <textarea
                   value={hypothesisInput}
                   onChange={(e) => setHypothesisInput(e.target.value)}
                   rows={4}
-                  placeholder="e.g., Implementing peer mentoring programs reduces student dropout rate by 25%."
-                  className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  placeholder="e.g. Eating a good breakfast helps students concentrate better in school."
+                  className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded-lg bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#912A4A]"
                 />
               </div>
 
               <div className="space-y-1">
-                <label className="font-sans font-medium text-[11px] text-stone-700 dark:text-stone-300">Research Background Context</label>
+                <label className="font-sans font-medium text-[11px] text-stone-700 dark:text-stone-300">What situation or background is this for?</label>
                 <input
                   type="text"
                   value={criticalContext}
                   onChange={(e) => setCriticalContext(e.target.value)}
-                  placeholder="e.g., Higher education study across three state universities."
-                  className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                  placeholder="e.g. Middle school students during morning classes."
+                  className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded-lg bg-white dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-2 focus:ring-[#912A4A]"
                 />
               </div>
 
               <button
                 onClick={handleRunCriticalPartner}
                 disabled={loadingCriticalPartner || !hypothesisInput.trim()}
-                className="w-full font-sans text-xs bg-amber-900 text-white py-2.5 rounded hover:bg-amber-800 transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
+                className="w-full font-sans text-xs bg-[#1B0A3B] text-white py-2.5 rounded-lg hover:bg-[#2A1254] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
               >
                 
-                {loadingCriticalPartner ? 'Evaluating Assumptions...' : 'Evaluate with Critical Partner'}
+                {loadingCriticalPartner ? 'Checking Assumptions...' : 'Check My Assumptions'}
               </button>
             </div>
           </div>
@@ -1472,7 +1392,7 @@ export default function ResearchIntelligenceLayer({
             {loadingCriticalPartner ? (
               <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-center flex flex-col items-center justify-center space-y-3">
                 <div className="w-6 h-6 border-2 border-amber-900 border-t-transparent rounded-full animate-spin"></div>
-                <p className="font-sans text-xs text-stone-500 italic">"Are there specific assumptions underpinning this interpretation?" Checking unstated premises...</p>
+                <p className="font-sans text-xs text-stone-500 italic">"What assumptions are behind this idea?" Checking hidden premises...</p>
               </div>
             ) : criticalResult ? (
               <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-6 shadow-sm">

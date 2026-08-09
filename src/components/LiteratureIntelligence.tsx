@@ -246,9 +246,9 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
           
           {/* Paper selector checkboxes column */}
           <div className="lg:col-span-1 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-5 rounded-lg h-fit space-y-4">
-            <h3 className="font-sans font-medium text-xs text-amber-800 dark:text-amber-400 tracking-wide">Select Synthesis Sources</h3>
+            <h3 className="font-sans font-medium text-xs text-amber-800 dark:text-amber-400 tracking-wide">Select Articles to Compare</h3>
             <p className="font-sans text-[11px] text-stone-500 leading-tight">
-              Check at least two documents in your library to explore agreement, methodological debates, and thematic consensus.
+              Choose at least two documents from your library to compare their main ideas, agreements, and differences.
             </p>
 
             <div className="space-y-2 max-h-[300px] overflow-y-auto">
@@ -276,7 +276,7 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
               disabled={loadingSynthesis || selectedPaperIdsForSynthesis.length < 2}
               className="w-full font-sans text-xs bg-amber-900 text-white py-2.5 rounded hover:bg-amber-800 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
             >
-               Synthesize Relationships
+              Compare Main Ideas & Themes
             </button>
           </div>
 
@@ -285,19 +285,19 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
             {loadingSynthesis ? (
               <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-left flex flex-col items-start justify-start space-y-3">
                 <div className="w-6 h-6 border-2 border-amber-900 border-t-transparent rounded-full animate-spin"></div>
-                <p className="font-sans text-xs text-stone-500 italic">Synthesizing multiple literature perspectives, isolating thematic convergences, mapping debates...</p>
+                <p className="font-sans text-xs text-stone-500 italic">Comparing your articles, finding common topics, and spotting differences...</p>
               </div>
             ) : synthesisResult ? (
               <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-6">
                 <div className="border-b border-stone-100 dark:border-stone-900 pb-3">
-                  <span className="font-sans text-[9px] text-amber-800 tracking-wide font-semibold">Gemini Synthesis Report</span>
-                  <h3 className="font-sans font-bold text-stone-900 dark:text-stone-100 text-base mt-1">Cross-Paper Synthesis Output</h3>
+                  <span className="font-sans text-[9px] text-amber-800 tracking-wide font-semibold">AI Synthesis Report</span>
+                  <h3 className="font-sans font-bold text-stone-900 dark:text-stone-100 text-base mt-1">Article Comparison Summary</h3>
                 </div>
 
                 <div className="space-y-4">
                   <div className="space-y-1.5">
                     <h4 className="font-sans font-semibold text-xs text-emerald-800 dark:text-emerald-400 flex items-center gap-1">
-                       Points of Conceptual Convergence
+                      Where the Articles Agree
                     </h4>
                     <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
                       {synthesisResult.agreements}
@@ -306,7 +306,7 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
 
                   <div className="space-y-1.5 pt-4 border-t border-stone-100 dark:border-stone-900">
                     <h4 className="font-sans font-semibold text-xs text-amber-800 dark:text-amber-400 flex items-center gap-1">
-                       Divergences, Nuances & Methodological Debates
+                      Where the Articles Disagree or Differ
                     </h4>
                     <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
                       {synthesisResult.disagreements}
@@ -317,7 +317,7 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
                   {synthesisResult.thematicClusters && (
                     <div className="space-y-3 pt-4 border-t border-stone-100 dark:border-stone-900">
                       <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                         Structured Thematic Clusters
+                        Main Topic Groups
                       </h4>
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         {synthesisResult.thematicClusters.map((cluster: any, idx: number) => (

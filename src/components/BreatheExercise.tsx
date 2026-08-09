@@ -626,7 +626,7 @@ export default function BreatheExercise() {
                   type="text"
                   value={defusionText}
                   onChange={(e) => setDefusionText(e.target.value)}
-                  placeholder="e.g. My argument isn't strong enough or I'm running out of time..."
+                  placeholder="e.g., I'm worried my idea isn't clear or I'm running out of time..."
                   className="w-full px-3 py-2 text-xs rounded-md bg-[#FAF9F6] dark:bg-stone-900 border border-stone-200 dark:border-stone-700 focus:outline-none focus:border-[#1d9e75] text-stone-900 dark:text-stone-100"
                 />
               </div>

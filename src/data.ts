@@ -241,7 +241,7 @@ Our vision is a digital workspace that actively nurtures intellectual agency. Ra
 • [Research Workspace]: Journey boards mapping chapters, tasks, questions, and timelines.
 • [Writing Companion]: Distraction-free draft editor with side-by-side local reference recommending panel.
 • [Citation Engine]: Style formatter (APA7, IEEE, MLA, etc.) and metadata repair tools.
-• [Research Wellbeing]: Soundscape mixer, Impostor Syndrome reframing guides, and meeting checklists.
+• [Research Wellbeing]: End of session sound chimes, Impostor Syndrome reframing guides, and meeting checklists.
 • [Funding Workspace]: Grant bid preparations, funder criteria compliance checklists, and bios.
 • [Knowledge Graph]: D3 interactive visualization of interconnected themes, papers, and quotes.`
     },
@@ -306,7 +306,7 @@ In our client implementation, this is completely mirrored in a local database fi
 • Milestone 1: Deliver beautiful 'Warm Paper' UI theme, accessibility typography switcher, and flat dashboard navigation.
 • Milestone 2: Build the Literature Library & local state managers with DOI check-ups and JSON Import/Export.
 • Milestone 3: Integrate Express server + @google/genai, implementing structured summaries, claim checking, and mentor check-ins.
-• Milestone 4: Add the Wellbeing Soundscapes & Pomodoro timers, and render the D3 Interactive Knowledge Graph.
+• Milestone 4: Add the Focus timers & End of session sound chimes, and render the D3 Interactive Knowledge Graph.
 • Milestone 5: Compile, verify, and launch the unified specifications workspace.`
     },
     {
@@ -337,7 +337,7 @@ In our client implementation, this is completely mirrored in a local database fi
 
 • Traditional Managers: Designed as static indexing containers. They are rigid, bloated, and present no features supporting synthesis, writing drafts, or cognitive wellbeing.
 • AI Writing Assistants: Wrappers that write the text *for* you, inducing guilt, encouraging intellectual passivity, and risking severe citation fabrication.
-• Research Companion Difference: Focuses on the *journey* and *health* of the creator, writer, and researcher. It does not write the paper or book; it helps you organize your thoughts. It does not display speed charts; it reminds you to breathe. It connects local literature traceably, checks your claims with cold evidence, and helps you trust your own voice.`
+• Research Companion Difference: Focuses on the *journey* and *health* of the creator, writer, and researcher. It does not write the paper or book; it helps you organise your thoughts. It does not display speed charts; it reminds you to breathe. It connects local literature traceably, checks your claims with cold evidence, and helps you trust your own voice.`
     }
   ]
 };

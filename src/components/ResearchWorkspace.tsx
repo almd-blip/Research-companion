@@ -13,10 +13,12 @@ import KnowledgeGraph from './KnowledgeGraph';
 import ResearchIntelligenceLayer from './ResearchIntelligenceLayer';
 import WritingCompanion from './WritingCompanion';
 import CreativePublishingWorkspace from './CreativePublishingWorkspace';
+import FundingWorkspace from './FundingWorkspace';
 import DataIngestionModule from './DataIngestionModule';
 import CitationEngine from './CitationEngine';
 import ResearchTimeline from './ResearchTimeline';
 import ReflectiveWins from './ReflectiveWins';
+import PerspectiveCheck from './PerspectiveCheck';
 
 interface ResearchWorkspaceProps {
   journeys: ResearchJourney[];
@@ -31,6 +33,7 @@ interface ResearchWorkspaceProps {
   onAddPaper?: (added: Paper) => void;
   onDeletePaper?: (id: string) => void;
   initialActiveTool?: string;
+  navKey?: number;
 }
 
 export type StudioToolCategory = 'research' | 'analysis' | 'data' | 'writing' | 'publishing';
@@ -56,6 +59,7 @@ export default function ResearchWorkspace({
   onAddPaper = () => {},
   onDeletePaper = () => {},
   initialActiveTool,
+  navKey,
 }: ResearchWorkspaceProps) {
   // Primary Navigation Mode in Writing Environment: 'write' | 'research' | 'plan'
   const [navEnvironmentMode, setNavEnvironmentMode] = useState<'write' | 'research' | 'plan'>('write');
@@ -244,7 +248,7 @@ export default function ResearchWorkspace({
       setActiveResearchTool(initialActiveTool);
       setNavEnvironmentMode('research');
     }
-  }, [initialActiveTool]);
+  }, [initialActiveTool, navKey]);
 
   const activeChapter = activeJourney?.chapters.find((ch) => ch.id === selectedChapterId) || activeJourney?.chapters[0];
 
@@ -1316,10 +1320,46 @@ export default function ResearchWorkspace({
           <div className="flex justify-between items-center pb-2 border-b border-stone-200/80 dark:border-stone-850">
             <div>
               <h3 className="font-serif font-bold text-lg text-stone-900 dark:text-stone-100">
-                Research Tools
+                {activeResearchTool === 'references'
+                  ? 'References'
+                  : activeResearchTool === 'upload_docs'
+                  ? 'Upload Documents'
+                  : activeResearchTool === 'lit_intelligence'
+                  ? 'Paper Summaries & Key Ideas'
+                  : activeResearchTool === 'knowledge_graph'
+                  ? 'Idea Map & Connected Topics'
+                  : activeResearchTool === 'analysis'
+                  ? 'Questions & Missing Ideas'
+                  : activeResearchTool === 'writing_companion' || activeResearchTool === 'repetition_spotter' || activeResearchTool === 'writing'
+                  ? 'Writing Assistant'
+                  : activeResearchTool === 'publishing_export' || activeResearchTool === 'journal_requirements' || activeResearchTool === 'publishing'
+                  ? 'Publishing & Export'
+                  : activeResearchTool === 'grants_proposals' || activeResearchTool === 'export_workspace' || activeResearchTool === 'funding'
+                  ? 'Grants & Proposals'
+                  : activeResearchTool === 'perspective_check'
+                  ? 'Perspective Check'
+                  : 'Research Tools'}
               </h3>
               <p className="font-sans text-xs text-stone-500">
-                Select a research module to explore literature, analyze evidence, or manage citations.
+                {activeResearchTool === 'references'
+                  ? 'Browse, search, and manage your saved reference list.'
+                  : activeResearchTool === 'upload_docs'
+                  ? 'Add PDF papers, spreadsheets, notes, or reference files directly.'
+                  : activeResearchTool === 'lit_intelligence'
+                  ? 'Find big ideas, main themes, and key takeaways across your articles.'
+                  : activeResearchTool === 'knowledge_graph'
+                  ? 'See how different articles and topics connect like a mind map.'
+                  : activeResearchTool === 'analysis'
+                  ? 'Ask smart questions, test your ideas, and spot what is missing in existing research.'
+                  : activeResearchTool === 'writing_companion' || activeResearchTool === 'repetition_spotter' || activeResearchTool === 'writing'
+                  ? 'Get helpful feedback on writing style, clarity, and flow.'
+                  : activeResearchTool === 'publishing_export' || activeResearchTool === 'journal_requirements' || activeResearchTool === 'publishing'
+                  ? 'Check your citations, review submission rules, and export your finished work.'
+                  : activeResearchTool === 'grants_proposals' || activeResearchTool === 'export_workspace' || activeResearchTool === 'funding'
+                  ? 'Find grants, organize project ideas, and track application rules.'
+                  : activeResearchTool === 'perspective_check'
+                  ? 'Is your data representative enough for the questions or stories you are exploring?'
+                  : 'Select a research tool below to explore articles, test ideas, or organize citations.'}
               </p>
             </div>
 
@@ -1424,6 +1464,51 @@ export default function ResearchWorkspace({
                   Get thoughtful feedback on tone, structure, and writing flow.
                 </p>
               </button>
+
+              <button
+                onClick={() => setActiveResearchTool('publishing_export')}
+                className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl text-left hover:border-[#912A4A] transition-all cursor-pointer space-y-2 group"
+              >
+                <div className="p-2 bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 rounded-lg w-fit">
+                  
+                </div>
+                <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300">
+                  Publishing & Export
+                </h4>
+                <p className="text-xs text-stone-500 leading-relaxed">
+                  Prepare submissions, run citation audits, and format for target journals.
+                </p>
+              </button>
+
+              <button
+                onClick={() => setActiveResearchTool('grants_proposals')}
+                className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl text-left hover:border-[#912A4A] transition-all cursor-pointer space-y-2 group"
+              >
+                <div className="p-2 bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 rounded-lg w-fit">
+                  
+                </div>
+                <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300">
+                  Grants & Proposals
+                </h4>
+                <p className="text-xs text-stone-500 leading-relaxed">
+                  Track funding opportunities, reusable proposal snippets, and grant compliance.
+                </p>
+              </button>
+
+              <button
+                onClick={() => setActiveResearchTool('perspective_check')}
+                className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl text-left hover:border-[#912A4A] transition-all cursor-pointer space-y-2 group"
+              >
+                <div className="p-2 bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 rounded-lg w-fit">
+                  
+                </div>
+                <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300">
+                  Perspective Check
+                </h4>
+                <p className="text-xs text-stone-500 leading-relaxed">
+                  Think about whose experiences, ideas and knowledge are included, who might be missing, and whether this could change what you find.
+                </p>
+              </button>
             </div>
           )}
 
@@ -1492,9 +1577,32 @@ export default function ResearchWorkspace({
             </div>
           )}
 
-          {activeResearchTool === 'writing_companion' && (
+          {(activeResearchTool === 'writing_companion' || activeResearchTool === 'repetition_spotter' || activeResearchTool === 'writing') && (
             <WritingCompanion
               papers={papers}
+            />
+          )}
+
+          {(activeResearchTool === 'publishing_export' || activeResearchTool === 'journal_requirements' || activeResearchTool === 'publishing') && (
+            <CreativePublishingWorkspace
+              papers={papers}
+              onAddPaper={onAddPaper}
+              onUpdatePaper={onUpdatePaper}
+            />
+          )}
+
+          {(activeResearchTool === 'grants_proposals' || activeResearchTool === 'export_workspace' || activeResearchTool === 'funding') && (
+            <FundingWorkspace
+              journeys={journeys}
+              papers={papers}
+              onUpdateJourney={onUpdateJourney}
+            />
+          )}
+
+          {activeResearchTool === 'perspective_check' && (
+            <PerspectiveCheck
+              papers={papers}
+              activeJourney={activeJourney}
             />
           )}
 

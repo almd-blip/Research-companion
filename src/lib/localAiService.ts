@@ -97,10 +97,10 @@ export const PROVIDER_PRESETS: Record<Exclude<LocalAIProvider, 'gemini'>, { name
     description: 'Ecosystem for desktop offline LLM inference with zero data telemetry.',
   },
   anythingllm: {
-    name: 'AnythingLLM Local RAG Pipeline',
+    name: 'AnythingLLM Local Knowledge Engine',
     defaultUrl: 'http://localhost:3001/api/v1',
     defaultModel: 'default',
-    description: 'Local knowledge-base management and local retrieval augmented generation (RAG) agent.',
+    description: 'Local knowledge-base management and document retrieval engine.',
   },
   custom: {
     name: 'Custom OpenAI-Compatible API Endpoint',

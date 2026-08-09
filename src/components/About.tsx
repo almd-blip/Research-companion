@@ -22,7 +22,7 @@ const ABOUT_SECTIONS: SectionData[] = [
     title: 'Our core philosophy',
     summary: 'Self-care, calm and support.',
     content:
-      'Research is a deeply human endeavor, often marked by uncertainty, cognitive overload, and intense pressure. We reject productivity-at-all-costs frameworks in favor of a calm, spacious, and supportive environment. The companion is designed to meet you wherever you are emotionally and intellectually, offering grounding tools when anxious, structured guidance when overwhelmed, and deep focus when ready.',
+      'Research is a deeply human endeavour, often marked by uncertainty, cognitive overload, and intense pressure. We reject productivity-at-all-costs frameworks in favour of a calm, spacious, and supportive environment. The companion is designed to meet you wherever you are emotionally and intellectually, offering grounding tools when anxious, structured guidance when overwhelmed, and deep focus when ready.',
   },
   {
     id: 'purpose',
@@ -37,7 +37,7 @@ const ABOUT_SECTIONS: SectionData[] = [
     title: 'How it works',
     summary: 'The companion adapts to your needs.',
     content:
-      'By indicating your project type and your emotional arrival state, the companion adjusts its interface focus, prompts, and micro-guidance. It organizes your papers, assists with citation metadata corrections via Gemini, maps concept connections dynamically, and tracks small wins securely on your device.',
+      'By indicating your project type and your emotional arrival state, the companion adjusts its interface focus, prompts, and micro-guidance. It organises your papers, assists with citation metadata corrections via Gemini, maps concept connections dynamically, and tracks small wins securely on your device.',
   },
   {
     id: 'growth',
@@ -58,7 +58,7 @@ const ABOUT_SECTIONS: SectionData[] = [
     title: 'Accessibility & wellbeing',
     summary: 'We design with Accessibility, Inclusion and Wellbeing at the forefront.',
     content:
-      'Our layouts prioritize fluid margins, optimal text line-lengths, adjustable font sizes, high-contrast states, and friendly, readable interfaces. Rest, reflective breaks, and screen-free decompressions are integrated as active necessities, rather than passive rewards.',
+      'Our layouts prioritise fluid margins, optimal text line-lengths, adjustable font sizes, high-contrast states, and friendly, readable interfaces. Rest, reflective breaks, and screen-free decompressions are integrated as active necessities, rather than passive rewards.',
   },
   {
     id: 'privacy',
@@ -72,7 +72,7 @@ const ABOUT_SECTIONS: SectionData[] = [
     title: 'Research integrity boundary',
     summary: 'This is not a content generation platform. It is here to support, empower and assist you.',
     content:
-      'The Research Companion will never write, generate, or produce complete papers, articles, books, reports, or creative projects on your behalf. The purpose of the AI is to support your research and writing process, not replace the creator or researcher. The AI acts as a thinking partner and analytical tool — helping you organize materials, identify themes, map literature, evaluate evidence, structure notes, and check logic — while you remain solely responsible for forming arguments, interpreting evidence, drawing conclusions, and writing original work.',
+      'The Research Companion will never write, generate, or produce complete papers, articles, books, reports, or creative projects on your behalf. The purpose of the AI is to support your research and writing process, not replace the creator or researcher. The AI acts as a thinking partner and analytical tool — helping you organise materials, identify themes, map literature, evaluate evidence, structure notes, and check logic — while you remain solely responsible for forming arguments, interpreting evidence, drawing conclusions, and writing original work.',
   },
 ];
 
@@ -127,7 +127,7 @@ export default function About() {
   ).join('\n\n----------------------------------------\n\n');
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 font-sans px-2 sm:px-4" id="about-module">
+    <div className="max-w-4xl mx-auto space-y-8 font-sans px-4 sm:px-6 py-6 animate-fadeIn text-left" id="about-module">
       <PrintModal
         isOpen={isPrintModalOpen}
         onClose={() => setIsPrintModalOpen(false)}
@@ -159,18 +159,18 @@ export default function About() {
         </div>
       </div>
 
-      {/* Header (Always Visible on Screen) */}
-      <div className="pb-4 print:hidden" id="about-header-container">
+      {/* Header (Matching Wellbeing Centre Layout Language) */}
+      <div className="border-b border-stone-200/80 dark:border-stone-800 pb-6 mb-8 text-left print:hidden" id="about-header-container">
         <div className="space-y-1.5" id="about-header-text">
           <h1 className="font-sans font-medium tracking-tight text-2xl sm:text-3xl text-stone-900 dark:text-stone-100 flex items-center gap-3" id="about-page-title">
             About Research Companion
           </h1>
-          <p className="font-sans text-stone-500 dark:text-stone-400 text-xs sm:text-sm" id="about-page-subtitle">
+          <p className="font-sans text-stone-500 dark:text-stone-400 text-xs sm:text-sm leading-relaxed" id="about-page-subtitle">
             A gentle, human-centric space designed to support you through the emotional and intellectual journeys of research.
           </p>
           <div className="flex items-center gap-1.5 pt-1.5 text-xs font-sans text-stone-400 dark:text-stone-500" id="about-reading-time">
             <Clock className="w-3.5 h-3.5 text-stone-400 dark:text-stone-500 shrink-0" />
-            <span>Estimated reading time: {readingTimeMinutes} min</span>
+            <span>Estimated reading time: {readingTimeMinutes} min • Platform ethos & core principles</span>
           </div>
         </div>
       </div>

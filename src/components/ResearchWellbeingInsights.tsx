@@ -97,69 +97,40 @@ export default function ResearchWellbeingInsights() {
   });
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 font-sans px-2 sm:px-4 text-left" id="research-wellbeing-insights-root">
+    <div className="max-w-4xl mx-auto space-y-8 font-sans px-4 sm:px-6 py-6 animate-fadeIn text-left" id="research-wellbeing-insights-root">
       
-      {/* Header (Matching About Page Layout) */}
-      <div className="pb-4" id="wellbeing-insights-header-container">
+      {/* Header (Matching Wellbeing Centre Layout Language) */}
+      <div className="border-b border-[#912A4A] pb-6 mb-8 text-left" id="wellbeing-insights-header-container">
         <div className="space-y-1.5" id="wellbeing-insights-header-text">
-          <h1 className="font-sans font-medium tracking-tight text-2xl sm:text-3xl text-stone-900 dark:text-stone-100 flex items-center gap-3" id="wellbeing-insights-title">
+          <h1 className="font-sans font-medium tracking-tight text-2xl sm:text-3xl text-[#1B0A3B] flex items-center gap-3" id="wellbeing-insights-title">
             <span>Wellbeing Research Insights</span>
           </h1>
-          <p className="font-sans text-stone-500 dark:text-stone-400 text-xs sm:text-sm leading-relaxed" id="wellbeing-insights-subtitle">
+          <p className="font-sans text-[#1B0A3B] text-xs sm:text-sm leading-relaxed" id="wellbeing-insights-subtitle">
             Curated evidence library exploring the human experience of writing, research, creative practice, cognition, identity, and personal wellbeing.
           </p>
-          <div className="flex items-center gap-1.5 pt-1.5 text-xs font-sans text-stone-400 dark:text-stone-500" id="wellbeing-insights-meta">
+          <div className="flex items-center gap-1.5 pt-1.5 text-xs font-sans text-[#1B0A3B]" id="wellbeing-insights-meta">
             <span>Open Access papers, evidence syntheses & extended references</span>
           </div>
         </div>
       </div>
 
-      {/* Control bar (Matching About Page Section Controls) */}
-      <div className="flex flex-wrap items-center justify-between text-xs text-stone-500 dark:text-stone-400 pb-2 gap-y-2" id="wellbeing-insights-controls">
-        <div className="flex items-center gap-3 font-medium">
-          <button
-            type="button"
-            onClick={() => setActiveTab('insights')}
-            className={`hover:text-[#1d9e75] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d9e75] flex items-center gap-1.5 ${
-              activeTab === 'insights' ? 'text-[#1d9e75] dark:text-[#28c093] font-semibold underline underline-offset-4' : ''
-            }`}
-            id="wellbeing-insights-tab-directory"
-          >
-            <span>Insights Directory</span>
-          </button>
-          <span>•</span>
-          <button
-            type="button"
-            onClick={() => setActiveTab('my_library')}
-            className={`hover:text-[#1d9e75] transition-colors cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d9e75] flex items-center gap-1.5 ${
-              activeTab === 'my_library' ? 'text-[#1d9e75] dark:text-[#28c093] font-semibold underline underline-offset-4' : ''
-            }`}
-            id="wellbeing-insights-tab-library"
-          >
-            <span>My Research Library</span>
-            {userDocs.length > 0 && (
-              <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-[#1d9e75] text-white font-bold">
-                {userDocs.length}
-              </span>
-            )}
-          </button>
-        </div>
-
-        {activeTab === 'insights' && !selectedInsight && (
+      {/* Control bar */}
+      <div className="flex flex-wrap items-center justify-end text-xs text-[#1B0A3B] pb-2 border-b border-[#912A4A] gap-y-2" id="wellbeing-insights-controls">
+        {!selectedInsight && (
           <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => setAllInsightsOpen(true)}
-              className="hover:text-[#1d9e75] dark:hover:text-[#28c093] transition-colors cursor-pointer underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d9e75]"
+              className="hover:underline transition-colors cursor-pointer text-[#1B0A3B]"
               id="wellbeing-insights-expand-all-btn"
             >
               Expand All
             </button>
-            <span>•</span>
+            <span className="text-[#1B0A3B]">•</span>
             <button
               type="button"
               onClick={() => setAllInsightsOpen(false)}
-              className="hover:text-[#1d9e75] dark:hover:text-[#28c093] transition-colors cursor-pointer underline underline-offset-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d9e75]"
+              className="hover:underline transition-colors cursor-pointer text-[#1B0A3B]"
               id="wellbeing-insights-collapse-all-btn"
             >
               Collapse All
@@ -168,28 +139,8 @@ export default function ResearchWellbeingInsights() {
         )}
       </div>
 
-      {/* VIEW 1: MY RESEARCH LIBRARY */}
-      {activeTab === 'my_library' && (
-        <MyResearchLibrary 
-          insights={insights}
-          onOpenArticleReader={(doc) => setReaderArticle({
-            id: doc.id,
-            title: doc.title,
-            authors: doc.authors,
-            year: doc.year,
-            journal: doc.filename,
-            licence: 'User Uploaded Copy',
-            source: 'Local Storage',
-            abstract: doc.notes || 'User uploaded research copy',
-            keywords: doc.tags,
-            fullText: doc.textContent,
-            researchType: 'user paper'
-          })}
-        />
-      )}
-
-      {/* VIEW 2: INSIGHTS DIRECTORY (Unboxed Progressive Disclosure List) */}
-      {activeTab === 'insights' && !selectedInsight && (
+      {/* VIEW: INSIGHTS DIRECTORY (Unboxed Progressive Disclosure List) */}
+      {!selectedInsight && (
         <div className="space-y-6" id="wellbeing-insights-directory">
           
           {/* Unboxed Search Bar */}
@@ -197,21 +148,21 @@ export default function ResearchWellbeingInsights() {
             <div className="relative flex-grow max-w-md">
               <input
                 type="text"
-                placeholder="Search research evidence, topics, authors or DOIs..."
+                placeholder="Search topics, authors, or article ideas..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full px-3 py-1.5 text-xs sm:text-sm rounded-md bg-stone-50 dark:bg-stone-900/40 border border-stone-300 dark:border-stone-700 focus:outline-none focus:ring-2 focus:ring-[#1d9e75] text-stone-800 dark:text-stone-200"
+                className="w-full px-3 py-1.5 text-xs sm:text-sm rounded-md bg-[#1B0A3B]/5 border border-[#1B0A3B]/20 focus:outline-none focus:ring-2 focus:ring-[#1B0A3B] text-[#1B0A3B] placeholder:text-[#1B0A3B]/60"
               />
             </div>
 
-            <div className="text-xs text-stone-500 dark:text-stone-400 font-sans flex items-center gap-1.5">
+            <div className="text-xs text-[#1B0A3B] font-sans flex items-center gap-1.5">
               <span>Offline Open-Access & Extended Evidence</span>
             </div>
           </div>
 
-          {/* Unboxed Progressive Disclosure List (Matching About Page) */}
+          {/* Unboxed Progressive Disclosure List */}
           <div className="space-y-0" id="wellbeing-insights-principles-list">
-            {filteredInsights.map((insight) => {
+            {filteredInsights.map((insight, idx) => {
               const isOpen = openInsights[insight.id];
               const openAccessCount = insight.embeddedArticles.length;
               const extendedCount = insight.additionalSources.length;
@@ -219,45 +170,48 @@ export default function ResearchWellbeingInsights() {
 
               return (
                 <React.Fragment key={insight.id}>
+                  {idx > 0 && (
+                    <div className="h-[2px] w-full bg-[#912A4A] my-6 sm:my-8 opacity-80" />
+                  )}
                   <div className="py-2 text-left" id={`wellbeing-insight-item-${insight.id}`}>
                     <button
                       type="button"
                       onClick={() => toggleInsight(insight.id)}
                       aria-expanded={isOpen}
                       aria-controls={`wellbeing-insight-content-${insight.id}`}
-                      className="w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1d9e75] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950 rounded-sm py-1 cursor-pointer group"
+                      className="w-full text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-[#1B0A3B] rounded-sm py-1 cursor-pointer group"
                       id={`wellbeing-insight-btn-${insight.id}`}
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="space-y-1">
-                          <h3 className="font-sans font-semibold text-base sm:text-lg tracking-tight text-stone-900 dark:text-stone-100 group-hover:text-[#1d9e75] dark:group-hover:text-[#28c093] transition-colors">
+                          <h3 className="font-sans font-semibold text-base sm:text-lg tracking-tight text-[#1B0A3B] transition-colors">
                             {insight.title}
                           </h3>
                           <div className="flex items-center gap-2">
-                            <span className="text-[10px] font-mono font-bold tracking-wider text-[#1d9e75] dark:text-[#28c093]">
+                            <span className="text-[10px] font-mono font-bold tracking-wider text-[#1B0A3B]">
                               {insight.category}
                             </span>
-                            <span className="text-stone-300 dark:text-stone-700">•</span>
-                            <span className="text-xs text-stone-500 dark:text-stone-400 font-sans">
+                            <span className="text-[#1B0A3B]">•</span>
+                            <span className="text-xs text-[#1B0A3B] font-sans">
                               {insight.readingTime}
                             </span>
                           </div>
                         </div>
                         <span
-                          className="text-lg font-mono font-medium text-[#1d9e75] dark:text-[#28c093] shrink-0 leading-none select-none ml-2 pt-0.5"
+                          className="text-xs font-semibold text-[#912A4A] dark:text-rose-400 shrink-0 leading-none select-none ml-2 pt-1 hover:underline"
                           aria-hidden="true"
                         >
-                          {isOpen ? '−' : '+'}
+                          {isOpen ? 'See less ↑' : 'Find out more →'}
                         </span>
                       </div>
 
-                      {/* 1st-layer statement (always visible, 16pt space below title) */}
-                      <p className="mt-[16pt] font-sans text-sm sm:text-base text-stone-800 dark:text-stone-200 font-normal leading-relaxed">
+                      {/* 1st-layer statement */}
+                      <p className="mt-[16pt] font-sans text-sm sm:text-base text-[#1B0A3B] font-normal leading-relaxed">
                         "{insight.researchQuestion}"
                       </p>
                     </button>
 
-                    {/* 2nd-layer full text (revealed on expansion with smooth height transition) */}
+                    {/* 2nd-layer full text */}
                     <AnimatePresence initial={false}>
                       {isOpen && (
                         <motion.div
@@ -271,22 +225,22 @@ export default function ResearchWellbeingInsights() {
                           }}
                           className="overflow-hidden space-y-4 pt-3 pb-2"
                         >
-                          <p className="font-sans text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed italic">
+                          <p className="font-sans text-xs sm:text-sm text-[#1B0A3B] leading-relaxed italic">
                             {insight.summary}
                           </p>
 
                           <div className="flex flex-wrap items-center justify-between gap-3 pt-2 text-xs">
-                            <div className="flex items-center gap-3 font-mono text-stone-500">
+                            <div className="flex items-center gap-3 font-mono text-[#1B0A3B]">
                               {openAccessCount > 0 && (
-                                <span className="text-[#1d9e75] dark:text-[#28c093] font-semibold flex items-center gap-1">
+                                <span className="text-[#1B0A3B] font-semibold flex items-center gap-1">
                                   {openAccessCount} CC Papers
                                 </span>
                               )}
-                              <span className="flex items-center gap-1">
+                              <span className="flex items-center gap-1 text-[#1B0A3B]">
                                 {extendedCount} Extended
                               </span>
                               {userAttachedCount > 0 && (
-                                <span className="text-amber-700 dark:text-amber-400 font-semibold flex items-center gap-1">
+                                <span className="text-[#1B0A3B] font-semibold flex items-center gap-1">
                                   {userAttachedCount} Uploaded
                                 </span>
                               )}
@@ -298,7 +252,7 @@ export default function ResearchWellbeingInsights() {
                                 setSelectedInsightId(insight.id);
                                 setEvidenceTab('academic');
                               }}
-                              className="font-sans font-semibold text-xs text-[#1d9e75] dark:text-[#28c093] hover:underline flex items-center gap-1 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d9e75]"
+                              className="font-sans font-semibold text-xs text-[#1B0A3B] hover:underline flex items-center gap-1 cursor-pointer focus-visible:outline-none"
                             >
                               <span>Explore Evidence & Read Papers →</span>
                             </button>
@@ -312,7 +266,7 @@ export default function ResearchWellbeingInsights() {
             })}
 
             {filteredInsights.length === 0 && (
-              <div className="py-12 text-center text-stone-400 dark:text-stone-500 text-xs sm:text-sm italic border border-dashed border-stone-200 dark:border-stone-800 rounded-md">
+              <div className="py-12 text-center text-[#1B0A3B] text-xs sm:text-sm italic border border-dashed border-[#1B0A3B]/20 rounded-md">
                 No wellbeing research insights match your search query. Try searching for terms like "impostor", "writing", "wellbeing", or "burnout".
               </div>
             )}
@@ -320,8 +274,8 @@ export default function ResearchWellbeingInsights() {
         </div>
       )}
 
-      {/* VIEW 3: SINGLE INSIGHT FULL DETAIL (Unboxed Layout) */}
-      {activeTab === 'insights' && selectedInsight && (
+      {/* VIEW: SINGLE INSIGHT FULL DETAIL */}
+      {selectedInsight && (
         <div className="space-y-6 text-left py-2" id="wellbeing-single-insight-view">
           
           {/* Back button */}
@@ -329,45 +283,45 @@ export default function ResearchWellbeingInsights() {
             <button
               type="button"
               onClick={() => setSelectedInsightId(null)}
-              className="text-xs font-sans font-semibold text-stone-700 dark:text-stone-300 hover:text-[#1d9e75] dark:hover:text-[#28c093] transition-colors flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d9e75]"
+              className="text-xs font-sans font-semibold text-[#1B0A3B] hover:underline transition-colors flex items-center gap-1.5 cursor-pointer focus-visible:outline-none"
             >
-              <span>← Back to Insights Directory</span>
+              <span>← Back to Insights</span>
             </button>
 
-            <span className="text-xs font-mono text-stone-400">
+            <span className="text-xs font-mono text-[#1B0A3B]">
               Insight: {selectedInsight.id}
             </span>
           </div>
 
           {/* Unboxed Header */}
           <div className="space-y-3">
-            <h1 className="font-sans font-medium tracking-tight text-2xl sm:text-3xl text-stone-900 dark:text-stone-100" id="single-insight-title">
+            <h1 className="font-sans font-medium tracking-tight text-2xl sm:text-3xl text-[#1B0A3B]" id="single-insight-title">
               {selectedInsight.title}
             </h1>
 
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <span className="text-xs font-mono font-bold tracking-wider text-[#1d9e75] dark:text-[#28c093]">
+              <span className="text-xs font-mono font-bold tracking-wider text-[#1B0A3B]">
                 {selectedInsight.category}
               </span>
-              <span className="text-xs text-stone-500 font-sans flex items-center gap-1">
+              <span className="text-xs text-[#1B0A3B] font-sans flex items-center gap-1">
                 {selectedInsight.readingTime}
               </span>
             </div>
 
-            {/* Core Research Question (Unboxed) */}
-            <div className="p-4 bg-stone-50 dark:bg-stone-900/40 border border-stone-200/80 dark:border-stone-800 rounded-md space-y-1">
-              <span className="text-[11px] font-mono font-semibold tracking-wider text-[#1d9e75] dark:text-[#28c093]">
+            {/* Core Research Question */}
+            <div className="p-4 bg-[#1B0A3B]/5 border border-[#1B0A3B]/15 rounded-md space-y-1">
+              <span className="text-[11px] font-mono font-semibold tracking-wider text-[#1B0A3B]">
                 Core research question
               </span>
-              <p className="text-sm font-medium text-stone-800 dark:text-stone-200 flex items-start gap-2">
+              <p className="text-sm font-medium text-[#1B0A3B] flex items-start gap-2">
                 <span>"{selectedInsight.researchQuestion}"</span>
               </p>
             </div>
 
-            {/* Second Thought Plain-English Summary (Unboxed) */}
-            <div className="p-4 sm:p-5 bg-stone-50/50 dark:bg-stone-900/30 border border-stone-200/80 dark:border-stone-800 rounded-md space-y-3">
+            {/* Second Thought Plain-English Summary */}
+            <div className="p-4 sm:p-5 bg-[#1B0A3B]/5 border border-[#1B0A3B]/15 rounded-md space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="font-sans font-semibold text-sm text-[#1d9e75] dark:text-[#28c093] flex items-center gap-2">
+                <h3 className="font-sans font-semibold text-sm text-[#1B0A3B] flex items-center gap-2">
                   <span>Second Thought Plain-English Summary</span>
                 </h3>
                 
@@ -375,7 +329,7 @@ export default function ResearchWellbeingInsights() {
                   <button
                     type="button"
                     onClick={() => handleStartEditSummary(selectedInsight)}
-                    className="text-xs text-stone-500 hover:text-[#1d9e75] flex items-center gap-1 cursor-pointer font-medium"
+                    className="text-xs text-[#1B0A3B] hover:underline flex items-center gap-1 cursor-pointer font-medium"
                   >
                     <span>Edit Summary</span>
                   </button>
@@ -384,14 +338,14 @@ export default function ResearchWellbeingInsights() {
                     <button
                       type="button"
                       onClick={handleSaveSummary}
-                      className="px-2.5 py-1 text-xs rounded bg-[#1d9e75] text-white font-semibold flex items-center gap-1"
+                      className="px-2.5 py-1 text-xs rounded bg-[#1B0A3B] text-white font-semibold flex items-center gap-1"
                     >
                       <span>Save</span>
                     </button>
                     <button
                       type="button"
                       onClick={() => setEditingSummary(false)}
-                      className="text-xs text-stone-400 hover:text-stone-600"
+                      className="text-xs text-[#1B0A3B] hover:underline"
                     >
                       Cancel
                     </button>
@@ -400,7 +354,7 @@ export default function ResearchWellbeingInsights() {
               </div>
 
               {!editingSummary ? (
-                <div className="text-xs sm:text-sm leading-relaxed text-stone-700 dark:text-stone-300 space-y-2 whitespace-pre-wrap font-sans">
+                <div className="text-xs sm:text-sm leading-relaxed text-[#1B0A3B] space-y-2 whitespace-pre-wrap font-sans">
                   {selectedInsight.summary || 'Plain-English summary coming soon.'}
                 </div>
               ) : (
@@ -408,46 +362,46 @@ export default function ResearchWellbeingInsights() {
                   rows={6}
                   value={summaryText}
                   onChange={(e) => setSummaryText(e.target.value)}
-                  className="w-full text-xs sm:text-sm p-3 border border-[#1d9e75] rounded-md bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none"
+                  className="w-full text-xs sm:text-sm p-3 border border-[#1B0A3B]/30 rounded-md bg-white dark:bg-stone-950 text-[#1B0A3B] focus:outline-none"
                 />
               )}
             </div>
           </div>
 
-          {/* RESEARCH EVIDENCE SECTION (Unboxed Tabs) */}
+          {/* RESEARCH EVIDENCE SECTION */}
           <div className="space-y-4 pt-4">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-2">
-              <h3 className="font-sans font-semibold text-base text-stone-900 dark:text-stone-100 flex items-center gap-2">
+              <h3 className="font-sans font-semibold text-base text-[#1B0A3B] flex items-center gap-2">
                 <span>Research Evidence & Papers</span>
               </h3>
 
               {/* Evidence Category Controls */}
-              <div className="flex items-center gap-3 text-xs text-stone-500 dark:text-stone-400 font-medium">
+              <div className="flex items-center gap-3 text-xs text-[#1B0A3B] font-medium">
                 <button
                   type="button"
                   onClick={() => setEvidenceTab('academic')}
-                  className={`hover:text-[#1d9e75] transition-colors cursor-pointer ${
-                    evidenceTab === 'academic' ? 'text-[#1d9e75] dark:text-[#28c093] font-semibold underline underline-offset-4' : ''
+                  className={`hover:underline transition-colors cursor-pointer ${
+                    evidenceTab === 'academic' ? 'font-semibold underline underline-offset-4' : ''
                   }`}
                 >
                   Research Literature
                 </button>
-                <span>•</span>
+                <span className="text-[#1B0A3B]">•</span>
                 <button
                   type="button"
                   onClick={() => setEvidenceTab('creative')}
-                  className={`hover:text-[#1d9e75] transition-colors cursor-pointer ${
-                    evidenceTab === 'creative' ? 'text-[#1d9e75] dark:text-[#28c093] font-semibold underline underline-offset-4' : ''
+                  className={`hover:underline transition-colors cursor-pointer ${
+                    evidenceTab === 'creative' ? 'font-semibold underline underline-offset-4' : ''
                   }`}
                 >
                   Creative Practice
                 </button>
-                <span>•</span>
+                <span className="text-[#1B0A3B]">•</span>
                 <button
                   type="button"
                   onClick={() => setEvidenceTab('additional')}
-                  className={`hover:text-[#1d9e75] transition-colors cursor-pointer ${
-                    evidenceTab === 'additional' ? 'text-[#1d9e75] dark:text-[#28c093] font-semibold underline underline-offset-4' : ''
+                  className={`hover:underline transition-colors cursor-pointer ${
+                    evidenceTab === 'additional' ? 'font-semibold underline underline-offset-4' : ''
                   }`}
                 >
                   Extended Sources & Uploads
@@ -461,43 +415,43 @@ export default function ResearchWellbeingInsights() {
                 {/* Embedded Open Access Articles */}
                 {selectedInsight.embeddedArticles.length > 0 && (
                   <div className="space-y-3">
-                    <h4 className="text-xs font-semibold text-[#1d9e75] dark:text-[#28c093] uppercase tracking-wider flex items-center gap-1.5 font-sans">
+                    <h4 className="text-xs font-semibold text-[#1B0A3B] uppercase tracking-wider flex items-center gap-1.5 font-sans">
                       <span>Layer 1: Embedded Open-Access Articles (Full Text Included)</span>
                     </h4>
 
                     {selectedInsight.embeddedArticles.map((art) => (
                       <div 
                         key={art.id}
-                        className="p-4 bg-stone-50 dark:bg-stone-900/40 border border-stone-200/80 dark:border-stone-800 rounded-md space-y-3 text-left"
+                        className="p-4 bg-[#1B0A3B]/5 border border-[#1B0A3B]/15 rounded-md space-y-3 text-left"
                       >
                         <div className="flex flex-wrap items-center justify-between gap-2">
-                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#1d9e75] text-white">
+                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-[#1B0A3B] text-white">
                             Available Offline ({art.licence})
                           </span>
-                          <span className="text-xs font-mono text-stone-500">
+                          <span className="text-xs font-mono text-[#1B0A3B]">
                             Type: {art.researchType}
                           </span>
                         </div>
 
                         <div>
-                          <h4 className="font-sans font-semibold text-base text-stone-900 dark:text-stone-100">
+                          <h4 className="font-sans font-semibold text-base text-[#1B0A3B]">
                             {art.title}
                           </h4>
-                          <p className="text-xs text-stone-600 dark:text-stone-400 mt-0.5 font-medium">
+                          <p className="text-xs text-[#1B0A3B] mt-0.5 font-medium">
                             {art.authors} ({art.year}) • <span className="italic">{art.journal}</span>
                           </p>
                         </div>
 
-                        <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed italic border-l-2 border-[#1d9e75] pl-3 py-1">
+                        <p className="text-xs sm:text-sm text-[#1B0A3B] leading-relaxed italic border-l-2 border-[#1B0A3B] pl-3 py-1">
                           "{art.abstract}"
                         </p>
 
                         <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
-                          <span className="text-[11px] font-mono text-stone-500">DOI: {art.doi}</span>
+                          <span className="text-[11px] font-mono text-[#1B0A3B]">DOI: {art.doi}</span>
                           <button
                             type="button"
                             onClick={() => setReaderArticle(art)}
-                            className="px-3.5 py-1.5 rounded-md bg-[#1d9e75] hover:bg-[#16815f] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#1d9e75]"
+                            className="px-3.5 py-1.5 rounded-md bg-[#1B0A3B] hover:bg-[#2A1254] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
                           >
                             <span>Read Full Text Offline</span>
                           </button>
@@ -509,33 +463,33 @@ export default function ResearchWellbeingInsights() {
 
                 {/* Additional Research Sources */}
                 <div className="space-y-3 pt-2">
-                  <h4 className="text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider flex items-center gap-1.5 font-sans">
+                  <h4 className="text-xs font-semibold text-[#1B0A3B] uppercase tracking-wider flex items-center gap-1.5 font-sans">
                     <span>Literature Citations & Publishers</span>
                   </h4>
 
                   {selectedInsight.additionalSources.filter(s => s.category === 'academic').map((src) => (
                     <div 
                       key={src.id}
-                      className="p-4 bg-stone-50 dark:bg-stone-900/30 border border-stone-200/80 dark:border-stone-800 rounded-md space-y-2 text-left"
+                      className="p-4 bg-[#1B0A3B]/5 border border-[#1B0A3B]/15 rounded-md space-y-2 text-left"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300">
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1B0A3B]/10 text-[#1B0A3B]">
                           {src.licenceStatus}
                         </span>
-                        <span className="text-[10px] font-mono text-stone-500">
+                        <span className="text-[10px] font-mono text-[#1B0A3B]">
                           Type: {src.researchType}
                         </span>
                       </div>
 
-                      <h4 className="font-sans font-semibold text-sm sm:text-base text-stone-900 dark:text-stone-100">
+                      <h4 className="font-sans font-semibold text-sm sm:text-base text-[#1B0A3B]">
                         {src.title}
                       </h4>
-                      <p className="text-xs text-stone-600 dark:text-stone-400 font-medium">
+                      <p className="text-xs text-[#1B0A3B] font-medium">
                         {src.authors} ({src.year}) • <span className="italic">{src.publication}</span>
                       </p>
 
-                      <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-                        <strong className="text-stone-800 dark:text-stone-200">Relevance:</strong> {src.researchRelevance}
+                      <p className="text-xs sm:text-sm text-[#1B0A3B] leading-relaxed">
+                        <strong className="text-[#1B0A3B]">Relevance:</strong> {src.researchRelevance}
                       </p>
 
                       <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
@@ -544,21 +498,11 @@ export default function ResearchWellbeingInsights() {
                             href={src.doi}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-xs text-[#1d9e75] hover:underline font-mono flex items-center gap-1"
+                            className="text-xs text-[#1B0A3B] hover:underline font-mono flex items-center gap-1"
                           >
                             DOI Link ↗
                           </a>
                         )}
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setActiveTab('my_library');
-                          }}
-                          className="px-3 py-1 rounded-md border border-stone-300 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs transition-colors flex items-center gap-1 cursor-pointer font-medium"
-                        >
-                          <span>Upload Your Own Copy</span>
-                        </button>
                       </div>
                     </div>
                   ))}
@@ -569,33 +513,33 @@ export default function ResearchWellbeingInsights() {
             {/* TAB CONTENT 2: CREATIVE PRACTICE RESEARCH */}
             {evidenceTab === 'creative' && (
               <div className="space-y-4">
-                <h4 className="text-xs font-semibold text-[#1d9e75] dark:text-[#28c093] uppercase tracking-wider flex items-center gap-1.5 font-sans">
+                <h4 className="text-xs font-semibold text-[#1B0A3B] uppercase tracking-wider flex items-center gap-1.5 font-sans">
                   <span>Creative Practice & Labor Research</span>
                 </h4>
 
                 {selectedInsight.additionalSources.filter(s => s.category === 'creative').map((src) => (
                   <div 
                     key={src.id}
-                    className="p-4 bg-stone-50 dark:bg-stone-900/30 border border-stone-200/80 dark:border-stone-800 rounded-md space-y-2 text-left"
+                    className="p-4 bg-[#1B0A3B]/5 border border-[#1B0A3B]/15 rounded-md space-y-2 text-left"
                   >
                     <div className="flex flex-wrap items-center justify-between gap-2">
-                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300">
+                      <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1B0A3B]/10 text-[#1B0A3B]">
                         {src.licenceStatus}
                       </span>
-                      <span className="text-[10px] font-mono text-stone-500">
+                      <span className="text-[10px] font-mono text-[#1B0A3B]">
                         Type: {src.researchType}
                       </span>
                     </div>
 
-                    <h4 className="font-sans font-semibold text-sm sm:text-base text-stone-900 dark:text-stone-100">
+                    <h4 className="font-sans font-semibold text-sm sm:text-base text-[#1B0A3B]">
                       {src.title}
                     </h4>
-                    <p className="text-xs text-stone-600 dark:text-stone-400 font-medium">
+                    <p className="text-xs text-[#1B0A3B] font-medium">
                       {src.authors} ({src.year}) • <span className="italic">{src.publication}</span>
                     </p>
 
-                    <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-                      <strong className="text-stone-800 dark:text-stone-200">Relevance:</strong> {src.researchRelevance}
+                    <p className="text-xs sm:text-sm text-[#1B0A3B] leading-relaxed">
+                      <strong className="text-[#1B0A3B]">Relevance:</strong> {src.researchRelevance}
                     </p>
 
                     <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
@@ -604,27 +548,17 @@ export default function ResearchWellbeingInsights() {
                           href={src.doi}
                           target="_blank"
                           rel="noreferrer"
-                          className="text-xs text-[#1d9e75] hover:underline font-mono flex items-center gap-1"
+                          className="text-xs text-[#1B0A3B] hover:underline font-mono flex items-center gap-1"
                         >
                           DOI Link ↗
                         </a>
                       )}
-
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveTab('my_library');
-                        }}
-                        className="px-3 py-1 rounded-md border border-stone-300 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs transition-colors flex items-center gap-1 cursor-pointer font-medium"
-                      >
-                        <span>Upload Your Own Copy</span>
-                      </button>
                     </div>
                   </div>
                 ))}
 
                 {selectedInsight.additionalSources.filter(s => s.category === 'creative').length === 0 && (
-                  <div className="p-6 text-center text-xs text-stone-500 italic bg-stone-50 dark:bg-stone-900/30 rounded-md border border-stone-200/60 dark:border-stone-800">
+                  <div className="p-6 text-center text-xs text-[#1B0A3B] italic bg-[#1B0A3B]/5 rounded-md border border-[#1B0A3B]/15">
                     Creative practice sources are integrated across the main research literature and extended evidence tabs for this insight.
                   </div>
                 )}
@@ -637,33 +571,33 @@ export default function ResearchWellbeingInsights() {
                 
                 {/* Additional sources */}
                 <div className="space-y-3">
-                  <h4 className="text-xs font-semibold text-stone-500 dark:text-stone-400 uppercase tracking-wider flex items-center gap-1.5 font-sans">
+                  <h4 className="text-xs font-semibold text-[#1B0A3B] uppercase tracking-wider flex items-center gap-1.5 font-sans">
                     <span>Layer 2: Extended Research Sources (Non-Open Access / Books)</span>
                   </h4>
 
                   {selectedInsight.additionalSources.map((src) => (
                     <div 
                       key={src.id}
-                      className="p-4 bg-stone-50 dark:bg-stone-900/30 border border-stone-200/80 dark:border-stone-800 rounded-md space-y-2 text-left"
+                      className="p-4 bg-[#1B0A3B]/5 border border-[#1B0A3B]/15 rounded-md space-y-2 text-left"
                     >
                       <div className="flex flex-wrap items-center justify-between gap-2">
-                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-stone-200 dark:bg-stone-800 text-stone-700 dark:text-stone-300">
+                        <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[#1B0A3B]/10 text-[#1B0A3B]">
                           {src.licenceStatus}
                         </span>
-                        <span className="text-[10px] font-mono text-stone-500">
+                        <span className="text-[10px] font-mono text-[#1B0A3B]">
                           Type: {src.researchType}
                         </span>
                       </div>
 
-                      <h4 className="font-sans font-semibold text-sm sm:text-base text-stone-900 dark:text-stone-100">
+                      <h4 className="font-sans font-semibold text-sm sm:text-base text-[#1B0A3B]">
                         {src.title}
                       </h4>
-                      <p className="text-xs text-stone-600 dark:text-stone-400 font-medium">
+                      <p className="text-xs text-[#1B0A3B] font-medium">
                         {src.authors} ({src.year}) • <span className="italic">{src.publication}</span>
                       </p>
 
-                      <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
-                        <strong className="text-stone-800 dark:text-stone-200">Relevance:</strong> {src.researchRelevance}
+                      <p className="text-xs sm:text-sm text-[#1B0A3B] leading-relaxed">
+                        <strong className="text-[#1B0A3B]">Relevance:</strong> {src.researchRelevance}
                       </p>
 
                       <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
@@ -672,7 +606,7 @@ export default function ResearchWellbeingInsights() {
                             href={src.doi}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-xs text-[#1d9e75] hover:underline font-mono flex items-center gap-1"
+                            className="text-xs text-[#1B0A3B] hover:underline font-mono flex items-center gap-1"
                           >
                             DOI Link ↗
                           </a>
@@ -681,21 +615,11 @@ export default function ResearchWellbeingInsights() {
                             href={src.publisherUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-xs text-[#1d9e75] hover:underline font-mono flex items-center gap-1"
+                            className="text-xs text-[#1B0A3B] hover:underline font-mono flex items-center gap-1"
                           >
                             Publisher Link ↗
                           </a>
                         ) : null}
-
-                        <button
-                          type="button"
-                          onClick={() => {
-                            setActiveTab('my_library');
-                          }}
-                          className="px-3 py-1 rounded-md border border-stone-300 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs transition-colors flex items-center gap-1 cursor-pointer font-medium"
-                        >
-                          <span>Upload Your Own Copy</span>
-                        </button>
                       </div>
                     </div>
                   ))}
@@ -704,27 +628,17 @@ export default function ResearchWellbeingInsights() {
                 {/* User uploaded papers attached to this insight */}
                 <div className="pt-4 space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-xs font-semibold text-[#1d9e75] dark:text-[#28c093] uppercase tracking-wider flex items-center gap-1.5 font-sans">
+                    <h4 className="text-xs font-semibold text-[#1B0A3B] uppercase tracking-wider flex items-center gap-1.5 font-sans">
                       <span>Your Uploaded Papers Attached to This Insight</span>
                     </h4>
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setActiveTab('my_library');
-                      }}
-                      className="text-xs text-[#1d9e75] font-semibold hover:underline flex items-center gap-1"
-                    >
-                      <span>Upload & Attach Paper</span>
-                    </button>
                   </div>
 
                   {userDocs.filter(d => d.attachedInsightIds?.includes(selectedInsight.id)).length > 0 ? (
                     userDocs.filter(d => d.attachedInsightIds?.includes(selectedInsight.id)).map(doc => (
-                      <div key={doc.id} className="p-3.5 rounded-md bg-stone-50 dark:bg-stone-900/40 border border-stone-200/80 dark:border-stone-800 flex items-center justify-between text-xs sm:text-sm">
+                      <div key={doc.id} className="p-3.5 rounded-md bg-[#1B0A3B]/5 border border-[#1B0A3B]/15 flex items-center justify-between text-xs sm:text-sm">
                         <div className="space-y-0.5 text-left">
-                          <p className="font-semibold text-stone-900 dark:text-stone-100">{doc.title}</p>
-                          <p className="text-xs text-stone-500">{doc.authors} ({doc.year}) • {doc.filename}</p>
+                          <p className="font-semibold text-[#1B0A3B]">{doc.title}</p>
+                          <p className="text-xs text-[#1B0A3B]">{doc.authors} ({doc.year}) • {doc.filename}</p>
                         </div>
                         <button
                           type="button"
@@ -741,15 +655,15 @@ export default function ResearchWellbeingInsights() {
                             fullText: doc.textContent,
                             researchType: 'user paper'
                           })}
-                          className="px-3 py-1.5 rounded-md bg-[#1d9e75] text-white font-semibold text-xs shrink-0 cursor-pointer hover:bg-[#16815f]"
+                          className="px-3 py-1.5 rounded-md bg-[#1B0A3B] text-white font-semibold text-xs shrink-0 cursor-pointer hover:bg-[#2A1254]"
                         >
                           Read Offline
                         </button>
                       </div>
                     ))
                   ) : (
-                    <p className="text-xs sm:text-sm text-stone-400 dark:text-stone-500 italic text-left">
-                      No personal research papers linked to this insight yet. Upload your legally obtained PDFs to read them offline alongside this insight.
+                    <p className="text-xs sm:text-sm text-[#1B0A3B] italic text-left">
+                      No personal research papers linked to this insight yet.
                     </p>
                   )}
                 </div>

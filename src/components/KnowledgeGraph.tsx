@@ -232,8 +232,8 @@ export default function KnowledgeGraph({ papers, journeys }: KnowledgeGraphProps
       <div className="flex-1 bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 rounded-lg overflow-hidden flex flex-col">
         <div className="p-4 border-b border-stone-200 dark:border-stone-800 bg-stone-50/80 dark:bg-stone-900/60 flex justify-between items-center">
           <div>
-            <h3 className="font-sans font-medium text-stone-900 dark:text-stone-100">Interconnected Knowledge Graph</h3>
-            <p className="font-sans text-xs text-stone-500">Drag nodes to explore, scroll to zoom. Visualization of journeys, literature, and concepts.</p>
+            <h3 className="font-sans font-medium text-stone-900 dark:text-stone-100">Connected Idea Map</h3>
+            <p className="font-sans text-xs text-stone-500">Click and drag points to explore how your notes, articles, and topics connect.</p>
           </div>
           <div className="flex gap-2 text-xs">
             <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#912A4A] inline-block"></span>Journey</span>
@@ -250,7 +250,7 @@ export default function KnowledgeGraph({ papers, journeys }: KnowledgeGraphProps
       {/* Selected Node Inspector Sidebar */}
       <div className="w-full lg:w-80 bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 rounded-lg p-5 flex flex-col justify-between">
         <div>
-          <h4 className="font-sans font-medium text-xs text-[#912A4A] dark:text-rose-400 tracking-wide mb-3">Node inspector</h4>
+          <h4 className="font-sans font-medium text-xs text-[#912A4A] dark:text-rose-400 tracking-wide mb-3">Item Details</h4>
           {selectedNode ? (
             <div className="space-y-4">
               <div>

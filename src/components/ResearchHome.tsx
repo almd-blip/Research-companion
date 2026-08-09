@@ -49,10 +49,10 @@ export default function ResearchHome({
 
   const defaultProjectTypes = [
     { label: 'Essay', emoji: '📄', id: 'essay', tip: 'An essay is a single elegant argument. Focus on refining your thesis statement and linking core paragraphs.' },
-    { label: 'Dissertation', emoji: '🎓', id: 'dissertation', tip: 'Dissertations are milestones of endurance. Focus on structuring clean chapters and organizing key citation clusters.' },
-    { label: 'Literature review', emoji: '📚', id: 'literature_review', tip: 'A literature review synthesizes connections. Focus on building the theme matrix and mapping paper connections.' },
+    { label: 'Dissertation', emoji: '🎓', id: 'dissertation', tip: 'Dissertations are milestones of endurance. Focus on structuring clean chapters and organising key citation clusters.' },
+    { label: 'Literature review', emoji: '📚', id: 'literature_review', tip: 'A literature review synthesises connections. Focus on building the theme matrix and mapping paper connections.' },
     { label: 'PhD thesis', emoji: '📖', id: 'phd_thesis', tip: 'A doctoral journey is an original conversation. Anchor yourself in small milestones, and communicate regularly with your support networks.' },
-    { label: 'Journal article', emoji: '📝', id: 'journal_article', tip: 'Journal entries require succinct precision. Focus on clarifying your methodology and summarizing core evidence matrices.' },
+    { label: 'Journal article', emoji: '📝', id: 'journal_article', tip: 'Journal entries require succinct precision. Focus on clarifying your methodology and summarising core evidence matrices.' },
     { label: 'Funding application', emoji: '💷', id: 'funding_application', tip: 'Funding applications require aligning with criteria. Keep your outcomes specific and outline direct social value.' },
     { label: 'Policy research', emoji: '🏛', id: 'policy_research', tip: 'Policy research bridges theory and action. Frame evidence blocks clearly so key stakeholders can interpret them easily.' },
     { label: 'Research project', emoji: '📊', id: 'research_project', tip: 'A research project is a rich, organic exploration. Rely on your local database logs to trace emerging notes and concepts.' },
@@ -200,7 +200,7 @@ export default function ResearchHome({
       },
       tired: {
         mentoringResponse: "Scholarly research is a marathon, not a dash. Fatigue degrades cognitive synthesis. Rest is not a reward for completing work; it is a metabolic necessity.",
-        actionSteps: ["Enable the 'Nature Breeze' soundscape in wellbeing", "Read an abstract in calm reading mode without taking notes", "Do a metadata-only review of 3 references in the Library"],
+        actionSteps: ["Test the 'End of session sound' chime in Focus space", "Read an abstract in calm reading mode without taking notes", "Do a metadata-only review of 3 references in the Library"],
         reflectionPrompt: "How can you adapt your desk setup or schedule to prioritize physical decompression today?"
       },
       avoiding_writing: {
