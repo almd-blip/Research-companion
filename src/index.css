@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Outfit:wght@100;200;300;400;500;600;700;800;900&display=swap');
 @import "tailwindcss";
 
 @variant dark (&:where(.dark, .dark *));
@@ -40,12 +40,12 @@ p, h1, h2, h3, h4, h5, h6, span, div, label, input, button, select, textarea, th
   text-align: left !important;
 }
 
-/* Dyslexia-Friendly Accessibility Font Alternative: Helvetica */
+/* Accessibility Typeface: Second Thought website source of truth */
 .font-dyslexic,
 .font-dyslexic *,
 body.font-dyslexic,
 body.font-dyslexic * {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
+  font-family: 'Atkinson Hyperlegible', sans-serif !important;
   letter-spacing: 0.02em;
   word-spacing: 0.05em;
 }
