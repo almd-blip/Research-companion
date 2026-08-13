@@ -95,7 +95,7 @@ export default function ArrivalScreen({
                 className="text-4xl md:text-5xl lg:text-6xl font-light tracking-tight leading-tight"
                 id="arrival-line-1"
               >
-                {cmsText('arrival.line1', 'You have arrived.')}
+                {cmsText('arrival.line1', 'Unfold.')}
               </motion.h1>
               
               <motion.h2
