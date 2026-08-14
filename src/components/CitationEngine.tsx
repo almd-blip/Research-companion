@@ -584,10 +584,13 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => setShowBibTeXPreview(false)}
-                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer p-1"
+                className="px-2.5 py-1 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 rounded-lg cursor-pointer flex items-center gap-1 transition-colors shadow-2xs"
+                aria-label="Close BibTeX preview"
               >
-                
+                <X className="w-3.5 h-3.5" />
+                <span>Close</span>
               </button>
             </div>
 

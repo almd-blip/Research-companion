@@ -104,6 +104,7 @@ export interface Chapter {
   title: string;
   status: 'not_started' | 'drafting' | 'review' | 'completed';
   content: string;
+  linkedPaperIds?: string[];
 }
 
 export interface Task {

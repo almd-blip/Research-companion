@@ -4,7 +4,29 @@
  */
 
 import React, { useState } from 'react';
-import { Trash2, ChevronDown, ChevronRight, ChevronsUpDown, Search, Quote, FilePlus, Plus } from 'lucide-react';
+import {
+  Trash2,
+  ChevronDown,
+  ChevronRight,
+  ChevronsUpDown,
+  Search,
+  Quote,
+  FilePlus,
+  Plus,
+  X,
+  Folder,
+  Check,
+  Copy,
+  AlertCircle,
+  ArrowLeft,
+  ChevronLeft,
+  Edit3,
+  FileText,
+  Bookmark,
+  Sparkles,
+  SlidersHorizontal,
+  ExternalLink
+} from 'lucide-react';
 import { Paper, Collection, Annotation } from '../types';
 import DataIngestionModule from './DataIngestionModule';
 
@@ -48,6 +70,7 @@ interface LiteratureLibraryProps {
   onUpdatePaper: (updated: Paper) => void;
   onAddPaper: (paper: Paper) => void;
   onDeletePaper: (id: string) => void;
+  onInsertCitation?: (citation: string) => void;
 }
 
 export default function LiteratureLibrary({
@@ -56,11 +79,57 @@ export default function LiteratureLibrary({
   onUpdatePaper,
   onAddPaper,
   onDeletePaper,
+  onInsertCitation,
 }: LiteratureLibraryProps) {
   const [selectedPaper, setSelectedPaper] = useState<Paper | null>(papers[0] || null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCollection, setSelectedCollection] = useState<string>('all');
   const [verifyingId, setVerifyingId] = useState<string | null>(null);
+
+  // View state: 'list' (shows reference directory) or 'inspector' (shows detailed document inspector)
+  const [viewMode, setViewMode] = useState<'list' | 'inspector'>('list');
+
+  // Progressive Disclosure states for Document Inspector panels
+  const [inspectorPanels, setInspectorPanels] = useState<{
+    citation: boolean;
+    metadata: boolean;
+    abstract: boolean;
+    notes: boolean;
+    highlights: boolean;
+  }>({
+    citation: true, // Formatted citation & quick insert open by default
+    metadata: false, // Collapsed by default
+    abstract: true, // Abstract & summary open by default
+    notes: true, // Notes open by default
+    highlights: false, // Highlights collapsed by default
+  });
+
+  // State to track expanded summaries in the reference list items
+  const [expandedSummaryIds, setExpandedSummaryIds] = useState<Record<string, boolean>>({});
+  const toggleSummaryExpand = (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setExpandedSummaryIds(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
+  const toggleInspectorPanel = (panel: keyof typeof inspectorPanels) => {
+    setInspectorPanels((prev) => ({
+      ...prev,
+      [panel]: !prev[panel],
+    }));
+  };
+
+  const toggleAllInspectorPanels = (expand: boolean) => {
+    setInspectorPanels({
+      citation: expand,
+      metadata: expand,
+      abstract: expand,
+      notes: expand,
+      highlights: expand,
+    });
+  };
 
   // Citation Style state for formatted paper previews
   const [citationStyle, setCitationStyle] = useState<CommonCitationStyle>('Harvard');
@@ -78,12 +147,13 @@ export default function LiteratureLibrary({
   const [newDoi, setNewDoi] = useState('');
   const [newNotes, setNewNotes] = useState('');
   const [newAbstract, setNewAbstract] = useState('');
+  const [newCollectionId, setNewCollectionId] = useState<string>('all');
 
   // Annotation text states
   const [newAnnotationText, setNewAnnotationText] = useState('');
   const [newAnnotationComment, setNewAnnotationComment] = useState('');
 
-  // Progressive disclosure state for reference entries
+  // Progressive disclosure state for reference entries in list view
   const [expandedPaperIds, setExpandedPaperIds] = useState<Record<string, boolean>>({});
 
   const togglePaperExpand = (id: string, e?: React.MouseEvent) => {
@@ -107,15 +177,29 @@ export default function LiteratureLibrary({
     }
   };
 
+  // Robust Search & Collection Filter
   const filteredPapers = papers.filter((p) => {
-    const matchesSearch =
-      p.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.authors.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.tags.some((t) => t.toLowerCase().includes(searchTerm.toLowerCase()));
+    // Check collection match first
+    const matchesCollection =
+      selectedCollection === 'all' || p.collectionId === selectedCollection;
+    if (!matchesCollection) return false;
 
-    const matchesCollection = selectedCollection === 'all' || p.collectionId === selectedCollection;
+    // Check search term
+    const cleanSearch = searchTerm.trim().toLowerCase();
+    if (!cleanSearch) return true;
 
-    return matchesSearch && matchesCollection;
+    const tokens = cleanSearch.split(/\s+/).filter(Boolean);
+    const titleStr = (p.title || '').toLowerCase();
+    const authorsStr = (p.authors || '').toLowerCase();
+    const journalStr = (p.journal || '').toLowerCase();
+    const yearStr = String(p.year || '').toLowerCase();
+    const doiStr = (p.doi || '').toLowerCase();
+    const notesStr = (p.notes || '').toLowerCase();
+    const abstractStr = (p.abstract || '').toLowerCase();
+    const tagsArr = Array.isArray(p.tags) ? p.tags.map((t) => (t || '').toLowerCase()) : [];
+    const fullSearchable = `${titleStr} ${authorsStr} ${journalStr} ${yearStr} ${doiStr} ${notesStr} ${abstractStr} ${tagsArr.join(' ')}`;
+
+    return tokens.every((token) => fullSearchable.includes(token));
   });
 
   const handleVerifyMetadata = async (paper: Paper) => {
@@ -166,6 +250,7 @@ export default function LiteratureLibrary({
       journal: newJournal,
       year: Number(newYear),
       doi: newDoi,
+      collectionId: newCollectionId !== 'all' ? newCollectionId : undefined,
       tags: [],
       notes: newNotes,
       abstract: newAbstract,
@@ -177,6 +262,7 @@ export default function LiteratureLibrary({
     onAddPaper(added);
     setSelectedPaper(added);
     setIsAdding(false);
+    setViewMode('inspector');
 
     // Reset fields
     setNewTitle('');
@@ -186,6 +272,7 @@ export default function LiteratureLibrary({
     setNewDoi('');
     setNewNotes('');
     setNewAbstract('');
+    setNewCollectionId('all');
   };
 
   const handleAddAnnotation = (e: React.FormEvent) => {
@@ -196,13 +283,13 @@ export default function LiteratureLibrary({
       id: 'ann-' + Math.random().toString(36).substr(2, 9),
       text: newAnnotationText,
       comment: newAnnotationComment || undefined,
-      color: '#FEF08A', // soft yellow highlight
+      color: '#FEF08A',
       createdAt: new Date().toISOString(),
     };
 
     const updated: Paper = {
       ...selectedPaper,
-      annotations: [...selectedPaper.annotations, ann],
+      annotations: [...(selectedPaper.annotations || []), ann],
     };
 
     onUpdatePaper(updated);
@@ -215,591 +302,1085 @@ export default function LiteratureLibrary({
     if (!selectedPaper) return;
     const updated: Paper = {
       ...selectedPaper,
-      annotations: selectedPaper.annotations.filter((a) => a.id !== annId),
+      annotations: (selectedPaper.annotations || []).filter((a) => a.id !== annId),
     };
     onUpdatePaper(updated);
     setSelectedPaper(updated);
   };
 
+  // Next / Previous paper navigation within Document Inspector
+  const currentPaperIndex = selectedPaper ? filteredPapers.findIndex(p => p.id === selectedPaper.id) : -1;
+  const handlePrevPaper = () => {
+    if (currentPaperIndex > 0) {
+      setSelectedPaper(filteredPapers[currentPaperIndex - 1]);
+    }
+  };
+  const handleNextPaper = () => {
+    if (currentPaperIndex >= 0 && currentPaperIndex < filteredPapers.length - 1) {
+      setSelectedPaper(filteredPapers[currentPaperIndex + 1]);
+    }
+  };
+
   return (
-    <div className="flex flex-col lg:flex-row gap-8 h-full" id="literature-library-module">
+    <div className="w-full font-sans text-stone-900 dark:text-stone-100 space-y-4" id="literature-library-module">
       
-      {/* Left Column - Directory and paper listings */}
-      <div className="flex-1 space-y-4">
-        
-        {/* Search & Actions Bar */}
-        <div className="flex flex-col sm:flex-row gap-3">
-          <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3 top-3 text-stone-400 pointer-events-none" />
-            <label htmlFor="library-search" className="sr-only">Search Literature Library</label>
-            <input
-              id="library-search"
-              type="text"
-              placeholder="Search by title, author, or keyword..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full font-sans text-xs pl-9 pr-4 py-2.5 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950"
-            />
-          </div>
-
-          <div className="flex gap-2 flex-wrap sm:flex-nowrap">
-            <label htmlFor="citation-style-global-select" className="sr-only">Citation Preview Style</label>
-            <div className="flex items-center gap-1.5 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded px-2.5 py-1">
-              <Quote className="w-3.5 h-3.5 text-amber-800 dark:text-amber-400 shrink-0" />
-              <select
-                id="citation-style-global-select"
-                value={citationStyle}
-                onChange={(e) => setCitationStyle(e.target.value as CommonCitationStyle)}
-                className="font-sans text-xs bg-transparent text-stone-800 dark:text-stone-200 focus:outline-none cursor-pointer font-medium"
-                title="Choose citation style format for paper previews"
-              >
-                <option value="Harvard">Harvard Style</option>
-                <option value="APA">APA 7th Edition</option>
-                <option value="MLA">MLA 9th Edition</option>
-                <option value="Chicago">Chicago Author-Date</option>
-                <option value="IEEE">IEEE Format</option>
-              </select>
-            </div>
-
-            <label htmlFor="collection-filter" className="sr-only">Filter by Collection</label>
-            <select
-              id="collection-filter"
-              value={selectedCollection}
-              onChange={(e) => setSelectedCollection(e.target.value)}
-              className="font-sans text-xs px-3 py-2 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-950 text-stone-700 dark:text-stone-300 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus-visible:ring-offset-stone-950"
-              title="Filter articles by collection category"
-            >
-              <option value="all">All Collections</option>
-              {collections.map((col) => (
-                <option key={col.id} value={col.id}>{col.name}</option>
-              ))}
-            </select>
-
-            <button
-              onClick={() => {
-                setShowIngestionModule(!showIngestionModule);
-                setIsAdding(false);
-              }}
-              className={`font-sans text-xs px-3 py-2 rounded transition-all flex items-center gap-1.5 cursor-pointer border focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 ${
-                showIngestionModule
-                  ? 'bg-amber-900 text-white border-amber-900 dark:bg-amber-800'
-                  : 'bg-stone-100 dark:bg-stone-900 text-stone-800 dark:text-stone-200 border-stone-200 dark:border-stone-800 hover:bg-stone-200 dark:hover:bg-stone-800'
-              }`}
-              title="Import articles from files or text"
-            >
-              <FilePlus className="w-3.5 h-3.5" />
-              Batch Import Dataset
-            </button>
-
-            <button
-              onClick={() => {
-                setIsAdding(!isAdding);
-                setShowIngestionModule(false);
-              }}
-              className="font-sans text-xs bg-amber-900/10 dark:bg-amber-900/30 text-amber-900 dark:text-amber-300 border border-amber-900/20 px-3 py-2 rounded hover:bg-amber-900/20 transition-all flex items-center gap-1.5 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              Add Document
-            </button>
-          </div>
-        </div>
-
-        {/* Data Ingestion Module if active */}
-        {showIngestionModule && (
-          <div className="animate-fadeIn mb-4">
-            <DataIngestionModule
-              existingPapers={papers}
-              collections={collections}
-              onIngestPapers={(newPapers) => {
-                newPapers.forEach((paper) => onAddPaper(paper));
-                setShowIngestionModule(false);
-              }}
-              onClose={() => setShowIngestionModule(false)}
-            />
-          </div>
-        )}
-
-        {/* Paper Adding Form if active */}
-        {isAdding && (
-          <form onSubmit={handleAddPaperSubmit} className="p-5 border border-amber-900/10 bg-amber-50/15 dark:bg-stone-900/20 dark:border-stone-800 rounded-lg space-y-4 animate-fadeIn">
-            <h3 className="font-sans font-medium text-sm text-stone-900 dark:text-stone-100">Add New Reference Material</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <input
-                type="text"
-                placeholder="Paper Title (Required)"
-                value={newTitle}
-                onChange={(e) => setNewTitle(e.target.value)}
-                className="font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200"
-                required
-              />
-              <input
-                type="text"
-                placeholder="Authors (e.g., Jane Doe, John Smith)"
-                value={newAuthors}
-                onChange={(e) => setNewAuthors(e.target.value)}
-                className="font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200"
-              />
-              <input
-                type="text"
-                placeholder="Journal or Conference Publication"
-                value={newJournal}
-                onChange={(e) => setNewJournal(e.target.value)}
-                className="font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200"
-              />
-              <div className="grid grid-cols-2 gap-2">
-                <input
-                  type="number"
-                  placeholder="Year"
-                  value={newYear}
-                  onChange={(e) => setNewYear(Number(e.target.value))}
-                  className="font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200"
-                />
-                <input
-                  type="text"
-                  placeholder="DOI Link or Identifier"
-                  value={newDoi}
-                  onChange={(e) => setNewDoi(e.target.value)}
-                  className="font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200"
-                />
-              </div>
-            </div>
-
-            <textarea
-              placeholder="Abstract or Summary"
-              value={newAbstract}
-              onChange={(e) => setNewAbstract(e.target.value)}
-              className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 h-16"
-            />
-            <textarea
-              placeholder="Personal Notes"
-              value={newNotes}
-              onChange={(e) => setNewNotes(e.target.value)}
-              className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 h-16"
-            />
-
-            <div className="flex gap-2 justify-end">
-              <button
-                type="button"
-                onClick={() => setIsAdding(false)}
-                className="font-sans text-xs px-3 py-2 border border-stone-200 rounded text-stone-500 hover:bg-stone-50"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                className="font-sans text-xs bg-amber-950 text-white px-3 py-2 rounded hover:bg-amber-900 transition-colors"
-              >
-                Save Paper
-              </button>
-            </div>
-          </form>
-        )}
-
-        {/* Papers Listing Grid Header & Progressive Disclosure Control */}
-        <div className="flex items-center justify-between pb-2 border-b border-stone-200 dark:border-stone-800 text-xs font-sans text-stone-500">
-          <span className="text-[11px] font-medium text-stone-600 dark:text-stone-400">
-            {filteredPapers.length} {filteredPapers.length === 1 ? 'reference' : 'references'}
-          </span>
-          {filteredPapers.length > 0 && (
+      {/* ----------------------------------------------------------------- */}
+      {/* VIEW: DOCUMENT INSPECTOR (Focused Single-View with Progressive Disclosure) */}
+      {/* ----------------------------------------------------------------- */}
+      {viewMode === 'inspector' && selectedPaper ? (
+        <div className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-2xl p-4 sm:p-5 space-y-5 shadow-2xs animate-fadeIn">
+          
+          {/* Top Inspector Header: Navigation Breadcrumb & Actions */}
+          <div className="flex items-center justify-between gap-3 pb-3.5 border-b border-stone-150 dark:border-stone-800 flex-wrap">
             <button
               type="button"
-              onClick={toggleExpandAll}
-              className="flex items-center gap-1.5 text-[11px] text-amber-900 dark:text-amber-400 hover:text-amber-950 dark:hover:text-amber-300 font-medium cursor-pointer transition-colors"
-              title="Toggle expand or collapse all reference entries"
+              onClick={() => setViewMode('list')}
+              className="font-sans text-xs font-semibold text-[#912A4A] dark:text-rose-400 hover:text-[#78223d] dark:hover:text-rose-300 flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl bg-stone-100/80 dark:bg-stone-800/80 hover:bg-stone-200/70 dark:hover:bg-stone-700/80 transition-colors cursor-pointer"
             >
-              <ChevronsUpDown className="w-3.5 h-3.5" />
-              {filteredPapers.length > 0 && filteredPapers.every((p) => expandedPaperIds[p.id])
-                ? 'Collapse All'
-                : 'Expand All'}
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Back to References ({filteredPapers.length})</span>
             </button>
-          )}
-        </div>
 
-        {/* Papers Listing Grid */}
-        <div className="space-y-2 max-h-[500px] overflow-y-auto pr-1">
-          {filteredPapers.map((p) => {
-            const col = collections.find((c) => c.id === p.collectionId);
-            const isExpanded = !!expandedPaperIds[p.id];
-
-            return (
-              <div
-                key={p.id}
-                role="button"
-                tabIndex={0}
-                onClick={() => {
-                  setSelectedPaper(p);
-                }}
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault();
-                    setSelectedPaper(p);
-                  }
-                }}
-                className={`p-3.5 border rounded-lg cursor-pointer transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950 ${
-                  selectedPaper?.id === p.id
-                    ? 'border-amber-900/40 bg-amber-50/20 dark:bg-stone-900/40'
-                    : 'border-stone-200 dark:border-stone-900 bg-white dark:bg-stone-950 hover:border-stone-300 dark:hover:border-stone-800'
-                }`}
-              >
-                {/* Collapsed View: Shows ONLY title & expand toggle chevron */}
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <button
-                      type="button"
-                      onClick={(e) => togglePaperExpand(p.id, e)}
-                      className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 dark:text-stone-400 shrink-0 cursor-pointer transition-colors"
-                      title={isExpanded ? 'Collapse reference details' : 'Expand reference details'}
-                    >
-                      {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                    </button>
-
-                    <h3 className="font-sans font-semibold text-stone-900 dark:text-stone-100 text-xs sm:text-sm truncate flex-1">
-                      {p.title}
-                    </h3>
-                  </div>
-
-                  {!isExpanded && (
-                    <div className="flex items-center gap-2 shrink-0">
-                      {p.verificationStatus === 'missing_metadata' && (
-                        <span className="text-[9px] bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400 px-1.5 py-0.5 rounded border border-red-200/50">
-                          Incomplete
-                        </span>
-                      )}
-                      <button
-                        type="button"
-                        onClick={(e) => togglePaperExpand(p.id, e)}
-                        className="text-[10px] text-stone-400 hover:text-amber-900 dark:hover:text-amber-400 font-sans cursor-pointer hidden sm:inline"
-                        title="Click to expand full citation metadata"
-                      >
-                        Expand details
-                      </button>
-                    </div>
-                  )}
-                </div>
-
-                {/* Progressive Disclosure: Expanded View with full metadata & actions */}
-                {isExpanded && (
-                  <div className="mt-3 pt-3 border-t border-stone-100 dark:border-stone-900 space-y-2 animate-fadeIn font-sans">
-                    <div className="flex items-center justify-between gap-2 flex-wrap text-xs">
-                      <p className="text-[#1B0A3B]/80 dark:text-stone-300 font-medium">
-                        <span className="text-stone-400 font-normal mr-1">Authors:</span>
-                        {p.authors || 'Unknown Author'}
-                      </p>
-
-                      <div className="flex items-center gap-1.5">
-                        {p.verificationStatus === 'missing_metadata' && (
-                          <span className="text-[9px] bg-red-50 text-red-700 dark:bg-red-950/30 dark:text-red-400 px-1.5 py-0.5 rounded border border-red-200/50">
-                            Incomplete
-                          </span>
-                        )}
-                        {p.verificationStatus === 'verified' && (
-                          <span className="text-[9px] bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 px-1.5 py-0.5 rounded border border-emerald-200/50">
-                            Verified
-                          </span>
-                        )}
-                        {col && (
-                          <span className="px-1.5 py-0.5 rounded-full border text-[9px] bg-stone-50 dark:bg-stone-900 text-stone-600 dark:text-stone-300">
-                            {col.name}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3 text-[11px] text-stone-500 dark:text-stone-400">
-                      <span>{p.journal ? `${p.journal} (${p.year})` : p.year}</span>
-                      <span className="font-mono text-[10px]">{p.doi ? `DOI: ${p.doi}` : 'No DOI'}</span>
-                    </div>
-
-                    {/* Formatted Citation Preview Snippet */}
-                    <p className="font-serif text-[11px] text-amber-900/90 dark:text-amber-300/80 italic pt-2 border-t border-stone-100 dark:border-stone-900 mt-1">
-                      <span className="font-mono text-[9px] uppercase font-bold not-italic text-stone-400 mr-1.5">[{citationStyle} Preview]:</span>
-                      {formatPaperPreview(p, citationStyle)}
-                    </p>
-
-                    {/* Actions in Expanded View */}
-                    <div className="flex items-center justify-end gap-2 pt-2 border-t border-stone-100 dark:border-stone-900">
-                      {p.verificationStatus === 'missing_metadata' && (
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleVerifyMetadata(p);
-                          }}
-                          disabled={verifyingId === p.id}
-                          className="font-sans text-[10px] bg-amber-900/10 dark:bg-amber-900/25 text-amber-900 dark:text-amber-400 border border-amber-900/20 px-2 py-0.5 rounded hover:bg-amber-900/20 transition-all flex items-center gap-1 cursor-pointer"
-                        >
-                          {verifyingId === p.id && (
-                            <span className="w-2 h-2 border border-amber-900 border-t-transparent rounded-full animate-spin"></span>
-                          )}
-                          Repair Metadata
-                        </button>
-                      )}
-
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          if (confirm(`Delete reference "${p.title}" permanently?`)) {
-                            onDeletePaper(p.id);
-                            if (selectedPaper?.id === p.id) {
-                              setSelectedPaper(papers.find((item) => item.id !== p.id) || null);
-                            }
-                          }
-                        }}
-                        className="text-[10px] font-sans px-2 py-1 text-stone-400 hover:text-red-600 transition-colors cursor-pointer rounded flex items-center gap-1 border border-stone-200/60 dark:border-stone-800"
-                        title="Delete reference"
-                      >
-                        <Trash2 className="w-3 h-3" />
-                        Delete
-                      </button>
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-
-          {filteredPapers.length === 0 && (
-            <div className="text-left py-12 text-stone-400 dark:text-stone-500 font-sans text-xs">
-              No matching literature found in your local library.
-            </div>
-          )}
-        </div>
-      </div>
-
-      {/* Right Column - Paper Details, Metadata, Notes and Annotations Inspector */}
-      <div className="w-full lg:w-96 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 rounded-lg p-5 flex flex-col justify-between">
-        {selectedPaper ? (
-          <div className="space-y-6">
-            
-            {/* Header detail */}
-            <div className="space-y-2">
-              <div className="flex justify-between items-start gap-2">
-                <span className="font-sans text-[9px] text-stone-400 tracking-wide">Document Inspector</span>
-                <button
-                  onClick={() => {
-                    if (confirm('Delete this reference material permanently from local database?')) {
-                      onDeletePaper(selectedPaper.id);
-                      setSelectedPaper(papers.find((p) => p.id !== selectedPaper.id) || null);
-                    }
-                  }}
-                  className="p-1 text-stone-400 hover:text-red-600 transition-colors cursor-pointer flex items-center gap-1 text-xs font-sans"
-                  title="Remove Paper"
-                >
-                  <Trash2 className="w-3.5 h-3.5" />
-                  <span>Delete</span>
-                </button>
-              </div>
-
-              <h2 className="font-sans font-bold text-stone-900 dark:text-stone-100 text-base leading-snug">
-                {selectedPaper.title}
-              </h2>
-              <p className="font-sans text-xs text-stone-600 dark:text-stone-400">
-                {selectedPaper.authors}
-              </p>
-            </div>
-
-            {/* Formatted Citation Preview Card with Dropdown */}
-            <div className="p-3.5 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg space-y-3 shadow-2xs">
-              <div className="flex items-center justify-between border-b border-stone-150 dark:border-stone-850 pb-2">
-                <label htmlFor="inspector-citation-style-select" className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                   Formatted Citation Preview
-                </label>
-
-                {/* Dropdown to switch between common citation styles */}
-                <select
-                  id="inspector-citation-style-select"
-                  value={citationStyle}
-                  onChange={(e) => setCitationStyle(e.target.value as CommonCitationStyle)}
-                  className="font-sans text-xs font-medium py-1 px-2 border border-stone-300 dark:border-stone-700 rounded bg-stone-50 dark:bg-stone-900 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-1 focus:ring-amber-500 cursor-pointer"
-                >
-                  <option value="Harvard">Harvard Reference</option>
-                  <option value="APA">APA 7th Edition</option>
-                  <option value="MLA">MLA 9th Edition</option>
-                  <option value="Chicago">Chicago Author-Date</option>
-                  <option value="IEEE">IEEE Format</option>
-                </select>
-              </div>
-
-              {/* Quick Style Selector Buttons */}
-              <div className="flex items-center gap-1 flex-wrap text-[10px] font-sans">
-                <span className="text-stone-400 text-[9px] uppercase font-mono mr-0.5">Quick Style:</span>
-                {(['Harvard', 'APA', 'MLA', 'Chicago', 'IEEE'] as CommonCitationStyle[]).map((st) => (
-                  <button
-                    key={st}
-                    type="button"
-                    onClick={() => setCitationStyle(st)}
-                    className={`px-2 py-0.5 rounded text-[10px] font-medium transition-colors cursor-pointer ${
-                      citationStyle === st
-                        ? 'bg-amber-900 text-white dark:bg-amber-800 font-bold'
-                        : 'bg-stone-100 dark:bg-stone-900 text-stone-600 dark:text-stone-400 hover:bg-stone-200 dark:hover:bg-stone-800'
-                    }`}
-                  >
-                    {st}
-                  </button>
-                ))}
-              </div>
-
-              {/* Live Formatted Citation Box */}
-              <div className="p-3 bg-amber-50/40 dark:bg-stone-900/60 border border-amber-900/10 dark:border-stone-800 rounded text-xs font-serif text-stone-800 dark:text-stone-200 leading-relaxed italic select-all">
-                {formatPaperPreview(selectedPaper, citationStyle)}
-              </div>
-
-              {/* Actions Footer */}
-              <div className="flex items-center justify-between text-[11px] pt-0.5">
-                <span className="font-mono text-[10px] text-stone-400">
-                  Style: <strong className="text-stone-800 dark:text-stone-200">{citationStyle}</strong>
-                </span>
-
+            <div className="flex items-center gap-2">
+              {/* Previous / Next Paper Switcher */}
+              <div className="flex items-center gap-1 bg-stone-100 dark:bg-stone-800 rounded-lg p-0.5 border border-stone-200/60 dark:border-stone-700">
                 <button
                   type="button"
-                  onClick={() => {
-                    const text = formatPaperPreview(selectedPaper, citationStyle);
-                    navigator.clipboard.writeText(text);
-                    setCopiedCitation(true);
-                    setTimeout(() => setCopiedCitation(false), 2000);
-                  }}
-                  className="px-2.5 py-1 bg-amber-900 text-white hover:bg-amber-800 dark:bg-amber-800 dark:hover:bg-amber-700 rounded font-sans font-medium text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+                  onClick={handlePrevPaper}
+                  disabled={currentPaperIndex <= 0}
+                  className="p-1 rounded text-stone-600 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-700 disabled:opacity-30 cursor-pointer"
+                  title="Previous reference"
+                  aria-label="Previous reference"
                 >
-                  {copiedCitation ? (
-                    <>
-                       Copied to Clipboard
-                    </>
-                  ) : (
-                    <>
-                       Copy Citation
-                    </>
-                  )}
+                  <ChevronLeft className="w-3.5 h-3.5" />
+                </button>
+                <span className="font-mono text-[10px] text-stone-500 px-1.5">
+                  {currentPaperIndex + 1}/{filteredPapers.length}
+                </span>
+                <button
+                  type="button"
+                  onClick={handleNextPaper}
+                  disabled={currentPaperIndex < 0 || currentPaperIndex >= filteredPapers.length - 1}
+                  className="p-1 rounded text-stone-600 dark:text-stone-300 hover:bg-white dark:hover:bg-stone-700 disabled:opacity-30 cursor-pointer"
+                  title="Next reference"
+                  aria-label="Next reference"
+                >
+                  <ChevronRight className="w-3.5 h-3.5" />
                 </button>
               </div>
+
+              {/* Delete Reference */}
+              <button
+                type="button"
+                onClick={() => {
+                  if (confirm(`Delete reference "${selectedPaper.title}" permanently?`)) {
+                    onDeletePaper(selectedPaper.id);
+                    const remaining = papers.filter((p) => p.id !== selectedPaper.id);
+                    if (remaining.length > 0) {
+                      setSelectedPaper(remaining[0]);
+                    } else {
+                      setSelectedPaper(null);
+                      setViewMode('list');
+                    }
+                  }
+                }}
+                className="p-1.5 text-stone-400 hover:text-rose-600 transition-colors cursor-pointer rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/30 text-xs font-sans flex items-center gap-1"
+                title="Remove Document"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline text-[11px]">Delete</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Document Title, Author & Metadata Summary */}
+          <div className="space-y-1.5">
+            <div className="flex items-center gap-2 flex-wrap">
+              <span className="font-mono text-[10px] text-[#912A4A] dark:text-rose-400 font-bold uppercase tracking-wider">
+                Document Inspector
+              </span>
+              {selectedPaper.collectionId && (
+                <span className="text-[10px] bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 px-2 py-0.5 rounded-full border border-stone-200/80 dark:border-stone-700 font-medium">
+                  {collections.find(c => c.id === selectedPaper.collectionId)?.name || 'Collection'}
+                </span>
+              )}
+              {selectedPaper.verificationStatus === 'verified' ? (
+                <span className="text-[10px] bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-200/50 font-medium">
+                  Verified Reference
+                </span>
+              ) : (
+                <span className="text-[10px] bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 px-2 py-0.5 rounded-full border border-amber-200/50 font-medium">
+                  Missing Some Details
+                </span>
+              )}
             </div>
 
-            {/* Metadata check block */}
-            <div className="p-3 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded space-y-2">
-              <h4 className="font-sans font-medium text-[10px] text-stone-400 dark:text-stone-500 tracking-wide">Metadata completeness</h4>
-              
-              <div className="flex items-center justify-between text-xs font-sans">
-                <span className="text-stone-500">DOI Reference:</span>
-                <span className="font-mono text-[10px] text-stone-700 dark:text-stone-300">
-                  {selectedPaper.doi || 'Not Found'}
-                </span>
-              </div>
+            <h3 className="font-serif font-bold text-stone-900 dark:text-stone-100 text-base sm:text-lg leading-snug">
+              {selectedPaper.title}
+            </h3>
+            <p className="font-sans text-xs text-stone-500 dark:text-stone-400">
+              {selectedPaper.authors} ({selectedPaper.year || 'n.d.'})
+              {selectedPaper.journal && ` · ${selectedPaper.journal}`}
+            </p>
+          </div>
 
-              <div className="flex items-center justify-between text-xs font-sans">
-                <span className="text-stone-500">Status:</span>
-                <span className={`capitalize font-semibold text-[10px] ${
-                  selectedPaper.verificationStatus === 'verified' ? 'text-emerald-600' : 'text-amber-600'
-                }`}>
-                  {selectedPaper.verificationStatus.replace('_', ' ')}
-                </span>
-              </div>
+          {/* Quick Collapse/Expand All Accordions Toggle */}
+          <div className="flex items-center justify-between text-xs pt-1 border-t border-stone-150 dark:border-stone-800">
+            <span className="text-[11px] font-mono text-stone-400 uppercase tracking-wider">
+              Inspection Panels
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => toggleAllInspectorPanels(true)}
+                className="text-[11px] text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 font-medium cursor-pointer"
+              >
+                Expand All
+              </button>
+              <span className="text-stone-300 dark:text-stone-700">·</span>
+              <button
+                type="button"
+                onClick={() => toggleAllInspectorPanels(false)}
+                className="text-[11px] text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 font-medium cursor-pointer"
+              >
+                Collapse All
+              </button>
+            </div>
+          </div>
 
-              {selectedPaper.missingFields.length > 0 && (
-                <div className="pt-2 border-t border-stone-100 dark:border-stone-900">
-                  <p className="text-[10px] font-sans text-amber-800 dark:text-amber-400 flex items-center gap-1">
-                     Missing fields for citation formatting:
-                  </p>
-                  <p className="text-[10px] font-mono text-stone-400 mt-1">
-                    {selectedPaper.missingFields.join(', ')}
-                  </p>
+          {/* --------------------------------------------------------------- */}
+          {/* PROGRESSIVE DISCLOSURE ACCORDIONS FOR LONG MENU PANELS           */}
+          {/* --------------------------------------------------------------- */}
+          <div className="space-y-3">
+            
+            {/* PANEL 1: FORMATTED CITATION PREVIEW (Accordion) */}
+            <div className="border border-stone-200/90 dark:border-stone-800 rounded-xl overflow-hidden shadow-2xs">
+              <button
+                type="button"
+                onClick={() => toggleInspectorPanel('citation')}
+                className="w-full p-3.5 bg-stone-50/80 dark:bg-stone-900/90 flex items-center justify-between gap-2 text-left cursor-pointer hover:bg-stone-100/80 dark:hover:bg-stone-850/80 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Quote className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400" />
+                  <span className="font-semibold text-xs text-stone-900 dark:text-stone-100">
+                    Formatted Citation Preview
+                  </span>
+                  <span className="text-[10px] font-mono bg-stone-200/60 dark:bg-stone-800 text-stone-600 dark:text-stone-300 px-2 py-0.5 rounded-md">
+                    {citationStyle} Style
+                  </span>
+                </div>
+                {inspectorPanels.citation ? (
+                  <ChevronDown className="w-4 h-4 text-stone-400" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-stone-400" />
+                )}
+              </button>
+
+              {inspectorPanels.citation && (
+                <div className="p-4 bg-white dark:bg-stone-900/60 border-t border-stone-200/80 dark:border-stone-800 space-y-3 animate-fadeIn">
+                  <div className="flex items-center justify-between gap-2 flex-wrap">
+                    <label htmlFor="citation-inspector-select" className="text-[11px] font-medium text-stone-500">
+                      Citation Format Standard:
+                    </label>
+                    <select
+                      id="citation-inspector-select"
+                      value={citationStyle}
+                      onChange={(e) => setCitationStyle(e.target.value as CommonCitationStyle)}
+                      className="font-sans text-xs font-medium py-1 px-2.5 border border-stone-200 dark:border-stone-700 rounded-lg bg-white dark:bg-stone-900 text-stone-800 dark:text-stone-200 focus:outline-none cursor-pointer"
+                    >
+                      <option value="Harvard">Harvard Reference</option>
+                      <option value="APA">APA 7th Edition</option>
+                      <option value="MLA">MLA 9th Edition</option>
+                      <option value="Chicago">Chicago Author-Date</option>
+                      <option value="IEEE">IEEE Format</option>
+                    </select>
+                  </div>
+
+                  {/* Live Formatted Citation Output */}
+                  <div className="p-3 bg-stone-50/80 dark:bg-stone-950/70 border border-stone-200/80 dark:border-stone-800 rounded-xl text-xs font-serif text-stone-800 dark:text-stone-200 leading-relaxed italic select-all shadow-2xs">
+                    {formatPaperPreview(selectedPaper, citationStyle)}
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="flex items-center justify-end gap-2 pt-1">
+                    {onInsertCitation && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const firstAuthor = (selectedPaper.authors || 'Author').split(',')[0].trim();
+                          const citationSnippet = ` (${firstAuthor} et al., ${selectedPaper.year || new Date().getFullYear()})`;
+                          onInsertCitation(citationSnippet);
+                        }}
+                        className="px-3 py-1.5 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-700 rounded-xl font-sans font-medium text-xs flex items-center gap-1.5 transition-colors cursor-pointer"
+                        title="Insert citation marker into draft"
+                      >
+                        <Plus className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400" />
+                        <span>Insert in Draft</span>
+                      </button>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const text = formatPaperPreview(selectedPaper, citationStyle);
+                        navigator.clipboard.writeText(text);
+                        setCopiedCitation(true);
+                        setTimeout(() => setCopiedCitation(false), 2000);
+                      }}
+                      className="px-3.5 py-1.5 bg-[#912A4A] hover:bg-[#78223d] text-white rounded-xl font-sans font-semibold text-xs flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs"
+                    >
+                      {copiedCitation ? (
+                        <>
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>Copy Citation</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
 
-            {/* Abstract */}
-            {selectedPaper.abstract && (
-              <div className="space-y-1">
-                <h4 className="font-sans font-semibold text-[10px] text-stone-400 tracking-wide">Abstract</h4>
-                <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed italic line-clamp-4">
-                  "{selectedPaper.abstract}"
-                </p>
-              </div>
-            )}
+            {/* PANEL 2: PAPER DETAILS & CHECKLIST (Accordion) */}
+            <div className="border border-stone-200/90 dark:border-stone-800 rounded-xl overflow-hidden shadow-2xs">
+              <button
+                type="button"
+                onClick={() => toggleInspectorPanel('metadata')}
+                className="w-full p-3.5 bg-stone-50/80 dark:bg-stone-900/90 flex items-center justify-between gap-2 text-left cursor-pointer hover:bg-stone-100/80 dark:hover:bg-stone-850/80 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <SlidersHorizontal className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400" />
+                  <span className="font-semibold text-xs text-stone-900 dark:text-stone-100">
+                    Paper Details & Info
+                  </span>
+                  <span className={`text-[10px] px-2 py-0.5 rounded-md font-sans font-semibold ${
+                    selectedPaper.verificationStatus === 'verified'
+                      ? 'bg-emerald-100/70 text-emerald-800 dark:bg-emerald-950 dark:text-emerald-300'
+                      : 'bg-amber-100/70 text-amber-800 dark:bg-amber-950 dark:text-amber-300'
+                  }`}>
+                    {selectedPaper.verificationStatus === 'verified' ? 'All Info Complete' : 'Missing Some Info'}
+                  </span>
+                </div>
+                {inspectorPanels.metadata ? (
+                  <ChevronDown className="w-4 h-4 text-stone-400" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-stone-400" />
+                )}
+              </button>
 
-            {/* Local Notes */}
-            <div className="space-y-2">
-              <label htmlFor="local-notes-textarea" className="font-sans font-semibold text-[10px] text-stone-400 tracking-wide block">Local notes</label>
-              <textarea
-                id="local-notes-textarea"
-                value={selectedPaper.notes}
-                onChange={(e) => {
-                  const updated: Paper = { ...selectedPaper, notes: e.target.value };
-                  onUpdatePaper(updated);
-                  setSelectedPaper(updated);
-                }}
-                className="w-full font-sans text-xs p-3 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 h-24 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950"
-                placeholder="Write your research notes, interpretations, or cross-reference queries..."
-              />
-            </div>
+              {inspectorPanels.metadata && (
+                <div className="p-4 bg-white dark:bg-stone-900/60 border-t border-stone-200/80 dark:border-stone-800 space-y-2.5 text-xs animate-fadeIn">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-stone-500">Online Web ID (DOI):</span>
+                    <span className="font-mono text-[11px] text-stone-800 dark:text-stone-200 truncate max-w-xs select-all">
+                      {selectedPaper.doi || 'None added'}
+                    </span>
+                  </div>
 
-            {/* Highlights and Annotations workbench */}
-            <div className="space-y-3">
-              <h4 className="font-sans font-semibold text-[10px] text-stone-400 tracking-wide">Highlights & PDF annotations</h4>
-              
-              <div className="space-y-2 max-h-[160px] overflow-y-auto pr-1">
-                {selectedPaper.annotations.map((ann) => (
-                  <div key={ann.id} className="p-2.5 bg-yellow-50/50 dark:bg-yellow-950/10 border-l-2 border-yellow-400 dark:border-yellow-700 rounded text-xs space-y-1 font-sans">
-                    <div className="flex justify-between items-start text-[10px] text-stone-400">
-                      <span>Highlighted excerpt:</span>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-stone-500">Year Published:</span>
+                    <span className="font-sans font-medium text-stone-800 dark:text-stone-200">
+                      {selectedPaper.year || 'Unknown year'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-stone-500">Journal or Book:</span>
+                    <span className="font-sans font-medium text-stone-800 dark:text-stone-200">
+                      {selectedPaper.journal || 'Not specified'}
+                    </span>
+                  </div>
+
+                  {selectedPaper.missingFields && selectedPaper.missingFields.length > 0 && (
+                    <div className="pt-2 border-t border-stone-150 dark:border-stone-800 flex items-center justify-between gap-2">
+                      <p className="text-[11px] text-amber-700 dark:text-amber-400 flex items-center gap-1">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span>Missing info: {selectedPaper.missingFields.join(', ')}</span>
+                      </p>
                       <button
-                        onClick={() => handleDeleteAnnotation(ann.id)}
-                        className="text-stone-400 hover:text-red-500 cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-red-500 rounded px-1"
+                        type="button"
+                        onClick={() => handleVerifyMetadata(selectedPaper)}
+                        disabled={verifyingId === selectedPaper.id}
+                        className="text-[11px] px-2.5 py-1 bg-amber-50 dark:bg-amber-950/40 text-amber-800 dark:text-amber-300 border border-amber-200/60 rounded-lg hover:bg-amber-100 transition-colors cursor-pointer font-medium"
                       >
-                        Delete
+                        {verifyingId === selectedPaper.id ? 'Looking up...' : 'Find Missing Info'}
                       </button>
                     </div>
-                    <p className="italic text-stone-700 dark:text-stone-300">"{ann.text}"</p>
-                    {ann.comment && (
-                      <div className="pt-1 text-[11px] text-stone-500 border-t border-yellow-200/50 dark:border-yellow-900/20">
-                        <span className="font-semibold text-amber-800 dark:text-amber-500">Comment:</span> {ann.comment}
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* PANEL 3: ABSTRACT & THEORETICAL SUMMARY (Accordion) */}
+            <div className="border border-stone-200/90 dark:border-stone-800 rounded-xl overflow-hidden shadow-2xs">
+              <button
+                type="button"
+                onClick={() => toggleInspectorPanel('abstract')}
+                className="w-full p-3.5 bg-stone-50/80 dark:bg-stone-900/90 flex items-center justify-between gap-2 text-left cursor-pointer hover:bg-stone-100/80 dark:hover:bg-stone-850/80 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <FileText className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400" />
+                  <span className="font-semibold text-xs text-stone-900 dark:text-stone-100">
+                    Summary & Main Ideas
+                  </span>
+                </div>
+                {inspectorPanels.abstract ? (
+                  <ChevronDown className="w-4 h-4 text-stone-400" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-stone-400" />
+                )}
+              </button>
+
+              {inspectorPanels.abstract && (
+                <div className="p-4 bg-white dark:bg-stone-900/60 border-t border-stone-200/80 dark:border-stone-800 space-y-4 animate-fadeIn">
+                  {/* Full Abstract Text */}
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[11px] font-semibold text-stone-600 dark:text-stone-300">
+                        Abstract / Paper Overview
+                      </span>
+                      {selectedPaper.abstract && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (selectedPaper.abstract) {
+                              navigator.clipboard.writeText(selectedPaper.abstract);
+                            }
+                          }}
+                          className="text-[10px] text-[#912A4A] dark:text-rose-400 hover:underline flex items-center gap-1 cursor-pointer font-medium"
+                        >
+                          <Copy className="w-3 h-3" />
+                          <span>Copy Abstract</span>
+                        </button>
+                      )}
+                    </div>
+                    {selectedPaper.abstract ? (
+                      <div className="font-sans text-xs text-stone-700 dark:text-stone-300 leading-relaxed bg-stone-50/80 dark:bg-stone-950/70 p-3.5 rounded-xl border border-stone-200/70 dark:border-stone-800 select-text">
+                        "{selectedPaper.abstract}"
                       </div>
+                    ) : (
+                      <p className="font-sans text-xs text-stone-400 italic">No abstract recorded for this paper yet.</p>
                     )}
                   </div>
-                ))}
 
-                {selectedPaper.annotations.length === 0 && (
-                  <p className="font-sans text-xs text-stone-400 italic">No highlights recorded yet.</p>
+                  {/* Structured Summary Breakdown if available */}
+                  {selectedPaper.structuredSummary && (
+                    <div className="space-y-3 pt-3 border-t border-stone-150 dark:border-stone-800">
+                      <h5 className="font-semibold text-xs text-stone-800 dark:text-stone-200 flex items-center gap-1.5">
+                        <Sparkles className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400" />
+                        <span>Key Analytical Breakdown</span>
+                      </h5>
+
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                        {selectedPaper.structuredSummary.researchQuestion && (
+                          <div className="p-3 bg-stone-50/70 dark:bg-stone-950/50 rounded-xl border border-stone-200/60 dark:border-stone-800/80 space-y-1">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 font-mono block">
+                              Research Question / Aim
+                            </span>
+                            <p className="text-stone-800 dark:text-stone-200 leading-relaxed font-medium">
+                              {selectedPaper.structuredSummary.researchQuestion}
+                            </p>
+                          </div>
+                        )}
+
+                        {selectedPaper.structuredSummary.methods && (
+                          <div className="p-3 bg-stone-50/70 dark:bg-stone-950/50 rounded-xl border border-stone-200/60 dark:border-stone-800/80 space-y-1">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 font-mono block">
+                              Methodology & Design
+                            </span>
+                            <p className="text-stone-800 dark:text-stone-200 leading-relaxed">
+                              {selectedPaper.structuredSummary.methods}
+                            </p>
+                          </div>
+                        )}
+
+                        {selectedPaper.structuredSummary.findings && (
+                          <div className="p-3 bg-emerald-50/40 dark:bg-emerald-950/20 rounded-xl border border-emerald-200/50 dark:border-emerald-900/40 space-y-1 sm:col-span-2">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 font-mono block">
+                              Core Findings & Key Takeaways
+                            </span>
+                            <p className="text-stone-800 dark:text-stone-200 leading-relaxed">
+                              {selectedPaper.structuredSummary.findings}
+                            </p>
+                          </div>
+                        )}
+
+                        {selectedPaper.structuredSummary.limitations && (
+                          <div className="p-3 bg-amber-50/40 dark:bg-amber-950/20 rounded-xl border border-amber-200/50 dark:border-amber-900/40 space-y-1 sm:col-span-2">
+                            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 font-mono block">
+                              Stated Scope & Limitations
+                            </span>
+                            <p className="text-stone-800 dark:text-stone-200 leading-relaxed">
+                              {selectedPaper.structuredSummary.limitations}
+                            </p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+
+            {/* PANEL 4: MY NOTES & THOUGHTS (Accordion) */}
+            <div className="border border-stone-200/90 dark:border-stone-800 rounded-xl overflow-hidden shadow-2xs">
+              <button
+                type="button"
+                onClick={() => toggleInspectorPanel('notes')}
+                className="w-full p-3.5 bg-stone-50/80 dark:bg-stone-900/90 flex items-center justify-between gap-2 text-left cursor-pointer hover:bg-stone-100/80 dark:hover:bg-stone-850/80 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Edit3 className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400" />
+                  <span className="font-semibold text-xs text-stone-900 dark:text-stone-100">
+                    My Notes & Thoughts
+                  </span>
+                </div>
+                {inspectorPanels.notes ? (
+                  <ChevronDown className="w-4 h-4 text-stone-400" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-stone-400" />
+                )}
+              </button>
+
+              {inspectorPanels.notes && (
+                <div className="p-4 bg-white dark:bg-stone-900/60 border-t border-stone-200/80 dark:border-stone-800 space-y-2 animate-fadeIn">
+                  <textarea
+                    id="local-notes-textarea"
+                    value={selectedPaper.notes || ''}
+                    onChange={(e) => {
+                      const updated: Paper = { ...selectedPaper, notes: e.target.value };
+                      onUpdatePaper(updated);
+                      setSelectedPaper(updated);
+                    }}
+                    className="w-full font-sans text-xs p-3 border border-stone-200/90 dark:border-stone-800 rounded-xl bg-stone-50/50 dark:bg-stone-950 text-stone-800 dark:text-stone-200 h-28 focus:outline-none focus:ring-2 focus:ring-[#912A4A]/25 focus:border-[#912A4A] leading-relaxed"
+                    placeholder="Write your notes, important takeaways, or questions about this paper..."
+                  />
+                  <p className="text-[10px] text-stone-400 italic">Saved automatically on your device.</p>
+                </div>
+              )}
+            </div>
+
+            {/* PANEL 5: HIGHLIGHTS & EXCERPTS WORKBENCH (Accordion) */}
+            <div className="border border-stone-200/90 dark:border-stone-800 rounded-xl overflow-hidden shadow-2xs">
+              <button
+                type="button"
+                onClick={() => toggleInspectorPanel('highlights')}
+                className="w-full p-3.5 bg-stone-50/80 dark:bg-stone-900/90 flex items-center justify-between gap-2 text-left cursor-pointer hover:bg-stone-100/80 dark:hover:bg-stone-850/80 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <Bookmark className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400" />
+                  <span className="font-semibold text-xs text-stone-900 dark:text-stone-100">
+                    Highlights & Excerpts
+                  </span>
+                  <span className="text-[10px] font-mono bg-stone-200/60 dark:bg-stone-800 text-stone-600 dark:text-stone-300 px-2 py-0.5 rounded-md">
+                    {(selectedPaper.annotations || []).length} Recorded
+                  </span>
+                </div>
+                {inspectorPanels.highlights ? (
+                  <ChevronDown className="w-4 h-4 text-stone-400" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-stone-400" />
+                )}
+              </button>
+
+              {inspectorPanels.highlights && (
+                <div className="p-4 bg-white dark:bg-stone-900/60 border-t border-stone-200/80 dark:border-stone-800 space-y-3 animate-fadeIn">
+                  
+                  {/* Highlights list */}
+                  <div className="space-y-2 max-h-48 overflow-y-auto pr-1">
+                    {(selectedPaper.annotations || []).map((ann) => (
+                      <div key={ann.id} className="p-2.5 bg-amber-50/50 dark:bg-amber-950/20 border-l-2 border-amber-400 dark:border-amber-600 rounded-lg text-xs space-y-1 font-sans">
+                        <div className="flex justify-between items-start text-[10px] text-stone-400">
+                          <span className="font-semibold text-stone-600 dark:text-stone-400">Excerpt:</span>
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteAnnotation(ann.id)}
+                            className="text-stone-400 hover:text-rose-600 cursor-pointer rounded px-1"
+                            title="Delete highlight"
+                          >
+                            Delete
+                          </button>
+                        </div>
+                        <p className="italic text-stone-800 dark:text-stone-200">"{ann.text}"</p>
+                        {ann.comment && (
+                          <div className="pt-1 text-[11px] text-stone-600 dark:text-stone-400 border-t border-amber-200/50 dark:border-amber-900/30">
+                            <span className="font-semibold text-[#912A4A] dark:text-rose-400">Note:</span> {ann.comment}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+
+                    {(!selectedPaper.annotations || selectedPaper.annotations.length === 0) && (
+                      <p className="font-sans text-xs text-stone-400 italic">No quotes or excerpts recorded yet.</p>
+                    )}
+                  </div>
+
+                  {/* Add Excerpt Form */}
+                  <form onSubmit={handleAddAnnotation} className="space-y-2 border-t border-stone-150 dark:border-stone-800 pt-3">
+                    <input
+                      type="text"
+                      placeholder="Paste highlighted excerpt from paper..."
+                      value={newAnnotationText}
+                      onChange={(e) => setNewAnnotationText(e.target.value)}
+                      className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded-xl bg-stone-50/50 dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-[#912A4A]/25 focus:border-[#912A4A]"
+                      required
+                    />
+                    <input
+                      type="text"
+                      placeholder="Marginal annotation or comment (optional)..."
+                      value={newAnnotationComment}
+                      onChange={(e) => setNewAnnotationComment(e.target.value)}
+                      className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded-xl bg-stone-50/50 dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-[#912A4A]/25 focus:border-[#912A4A]"
+                    />
+                    <button
+                      type="submit"
+                      className="w-full font-sans text-xs bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-700 dark:text-stone-300 border border-stone-200 dark:border-stone-700 py-2 rounded-xl transition-colors cursor-pointer font-semibold"
+                    >
+                      Record Highlight
+                    </button>
+                  </form>
+                </div>
+              )}
+            </div>
+
+          </div>
+
+        </div>
+      ) : (
+        /* ----------------------------------------------------------------- */
+        /* VIEW: REFERENCES DIRECTORY (Full-Width Calm List View)            */
+        /* ----------------------------------------------------------------- */
+        <div className="space-y-4 animate-fadeIn">
+          
+          {/* Top Controls Toolbar: Clean Responsive Row */}
+          <div className="space-y-3">
+            
+            {/* Search Bar & Action Buttons */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5">
+              {/* Search input */}
+              <div className="relative flex-1 min-w-0">
+                <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" />
+                <label htmlFor="library-search" className="sr-only">Search Literature Library</label>
+                <input
+                  id="library-search"
+                  type="text"
+                  placeholder="Search references by title, author, journal, year, DOI..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full font-sans text-xs pl-9 pr-9 py-2.5 rounded-xl border border-stone-200/90 dark:border-stone-800 bg-white/90 dark:bg-stone-900/90 text-stone-800 dark:text-stone-200 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-[#912A4A]/25 focus:border-[#912A4A] transition-all shadow-2xs"
+                />
+                {searchTerm && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchTerm('')}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer"
+                    title="Clear search"
+                    aria-label="Clear search"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
                 )}
               </div>
 
-              {/* Add annotation form */}
-              <form onSubmit={handleAddAnnotation} className="space-y-2 border-t border-stone-100 dark:border-stone-800 pt-3">
-                <label htmlFor="new-annotation-text" className="sr-only">Highlighted text from paper</label>
-                <input
-                  id="new-annotation-text"
-                  type="text"
-                  placeholder="Paste highlighted text from paper..."
-                  value={newAnnotationText}
-                  onChange={(e) => setNewAnnotationText(e.target.value)}
-                  className="w-full font-sans text-[11px] p-2 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950"
-                  required
-                />
-                <label htmlFor="new-annotation-comment" className="sr-only">Marginal annotation comment (optional)</label>
-                <input
-                  id="new-annotation-comment"
-                  type="text"
-                  placeholder="Add marginal annotation comment (optional)..."
-                  value={newAnnotationComment}
-                  onChange={(e) => setNewAnnotationComment(e.target.value)}
-                  className="w-full font-sans text-[11px] p-2 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950"
-                />
+              {/* Action Buttons: Batch Import and Add Document */}
+              <div className="flex items-center gap-2 shrink-0">
                 <button
-                  type="submit"
-                  className="w-full font-sans text-[10px] bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 border py-1.5 rounded hover:bg-stone-250 transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950 cursor-pointer"
+                  type="button"
+                  onClick={() => {
+                    setShowIngestionModule(!showIngestionModule);
+                    setIsAdding(false);
+                  }}
+                  className={`font-sans text-xs px-3.5 py-2.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer border shadow-2xs font-semibold whitespace-nowrap ${
+                    showIngestionModule
+                      ? 'bg-stone-900 text-white border-stone-900 dark:bg-stone-100 dark:text-stone-900 dark:border-stone-100'
+                      : 'bg-white dark:bg-stone-900 text-stone-700 dark:text-stone-200 border-stone-200/90 dark:border-stone-800 hover:bg-stone-50 dark:hover:bg-stone-850'
+                  }`}
+                  title="Batch import articles from datasets or files"
+                  id="batch-import-dataset-btn"
                 >
-                  Record Highlight
+                  <FilePlus className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400" />
+                  <span>Batch Import</span>
                 </button>
-              </form>
+
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsAdding(!isAdding);
+                    setShowIngestionModule(false);
+                  }}
+                  className="font-sans text-xs bg-[#912A4A] hover:bg-[#78223d] text-white px-3.5 py-2.5 rounded-xl transition-all flex items-center gap-1.5 cursor-pointer shadow-2xs font-semibold whitespace-nowrap"
+                  title="Add new reference document"
+                  id="add-reference-doc-btn"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Add Document</span>
+                </button>
+              </div>
             </div>
 
+            {/* Row 2: Standardised Dropdowns & Expand All Controls */}
+            <div className="flex items-center justify-between gap-3 flex-wrap pt-0.5">
+              
+              <div className="flex items-center gap-2 flex-wrap">
+                {/* Collection Filter */}
+                <div className="flex items-center gap-1.5 bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-xl px-3 py-1.5 shadow-2xs">
+                  <Folder className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400 shrink-0" />
+                  <label htmlFor="collection-filter" className="sr-only">Filter by Collection</label>
+                  <select
+                    id="collection-filter"
+                    value={selectedCollection}
+                    onChange={(e) => setSelectedCollection(e.target.value)}
+                    className="font-sans text-xs bg-transparent text-stone-800 dark:text-stone-200 focus:outline-none cursor-pointer font-medium pr-1"
+                    title="Filter references by collection"
+                  >
+                    <option value="all" className="bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100">
+                      All Collections ({papers.length})
+                    </option>
+                    {collections.map((col) => {
+                      const count = papers.filter(p => p.collectionId === col.id).length;
+                      return (
+                        <option key={col.id} value={col.id} className="bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100">
+                          {col.name} ({count})
+                        </option>
+                      );
+                    })}
+                  </select>
+                </div>
+
+                {/* Citation Style Selector */}
+                <div className="flex items-center gap-1.5 bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-xl px-3 py-1.5 shadow-2xs">
+                  <Quote className="w-3.5 h-3.5 text-stone-500 dark:text-stone-400 shrink-0" />
+                  <label htmlFor="citation-style-global-select" className="sr-only">Citation Preview Style</label>
+                  <select
+                    id="citation-style-global-select"
+                    value={citationStyle}
+                    onChange={(e) => setCitationStyle(e.target.value as CommonCitationStyle)}
+                    className="font-sans text-xs bg-transparent text-stone-800 dark:text-stone-200 focus:outline-none cursor-pointer font-medium pr-1"
+                    title="Choose citation style format for reference previews"
+                  >
+                    <option value="Harvard" className="bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100">Harvard Style</option>
+                    <option value="APA" className="bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100">APA 7th Edition</option>
+                    <option value="MLA" className="bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100">MLA 9th Edition</option>
+                    <option value="Chicago" className="bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100">Chicago Author-Date</option>
+                    <option value="IEEE" className="bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100">IEEE Format</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* List count and Expand/Collapse All */}
+              <div className="flex items-center gap-3 text-xs">
+                <span className="text-[11px] font-semibold text-stone-500 dark:text-stone-400">
+                  {filteredPapers.length} {filteredPapers.length === 1 ? 'reference' : 'references'}
+                  {searchTerm && ` matching "${searchTerm}"`}
+                </span>
+                {filteredPapers.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={toggleExpandAll}
+                    className="flex items-center gap-1 text-[11px] text-[#912A4A] dark:text-rose-400 hover:text-[#78223d] dark:hover:text-rose-300 font-semibold cursor-pointer transition-colors px-2 py-1 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800"
+                    title="Toggle expand or collapse all reference entries"
+                  >
+                    <ChevronsUpDown className="w-3.5 h-3.5" />
+                    <span>
+                      {filteredPapers.length > 0 && filteredPapers.every((p) => expandedPaperIds[p.id])
+                        ? 'Collapse All'
+                        : 'Expand All'}
+                    </span>
+                  </button>
+                )}
+              </div>
+
+            </div>
           </div>
-        ) : (
-          <div className="text-left py-24 text-stone-400 dark:text-stone-500 font-sans text-xs">
-            <p>Select a document from the list to view its citation completeness, record notes, and manage marginal highlights.</p>
+
+          {/* Data Ingestion Module if active */}
+          {showIngestionModule && (
+            <div className="animate-fadeIn rounded-2xl overflow-hidden border border-stone-200/90 dark:border-stone-800 shadow-sm">
+              <DataIngestionModule
+                existingPapers={papers}
+                collections={collections}
+                onIngestPapers={(newPapers) => {
+                  newPapers.forEach((paper) => onAddPaper(paper));
+                  setShowIngestionModule(false);
+                }}
+                onClose={() => setShowIngestionModule(false)}
+              />
+            </div>
+          )}
+
+          {/* Paper Adding Form if active */}
+          {isAdding && (
+            <form
+              onSubmit={handleAddPaperSubmit}
+              className="p-5 border border-stone-200/90 dark:border-stone-800 bg-white/95 dark:bg-stone-900/95 rounded-2xl space-y-4 shadow-sm animate-fadeIn"
+            >
+              <div className="flex items-center justify-between pb-2 border-b border-stone-150 dark:border-stone-800">
+                <h3 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100">
+                  Add New Reference Material
+                </h3>
+                <button
+                  type="button"
+                  onClick={() => setIsAdding(false)}
+                  className="p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 rounded-lg"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                <div>
+                  <label className="text-[11px] font-semibold text-stone-500 dark:text-stone-400 mb-1 block">Paper Title *</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Attention Is All You Need"
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                    className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:ring-2 focus:ring-[#912A4A]/25 focus:border-[#912A4A] focus:outline-none"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-semibold text-stone-500 dark:text-stone-400 mb-1 block">Authors *</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Vaswani, A., Shazeer, N., Parmar, N."
+                    value={newAuthors}
+                    onChange={(e) => setNewAuthors(e.target.value)}
+                    className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:ring-2 focus:ring-[#912A4A]/25 focus:border-[#912A4A] focus:outline-none"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="text-[11px] font-semibold text-stone-500 dark:text-stone-400 mb-1 block">Journal or Conference</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. Advances in Neural Information Processing Systems"
+                    value={newJournal}
+                    onChange={(e) => setNewJournal(e.target.value)}
+                    className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:ring-2 focus:ring-[#912A4A]/25 focus:border-[#912A4A] focus:outline-none"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <label className="text-[11px] font-semibold text-stone-500 dark:text-stone-400 mb-1 block">Year</label>
+                    <input
+                      type="number"
+                      placeholder="Year"
+                      value={newYear}
+                      onChange={(e) => setNewYear(Number(e.target.value))}
+                      className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:ring-2 focus:ring-[#912A4A]/25 focus:border-[#912A4A] focus:outline-none"
+                    />
+                  </div>
+                  <div>
+                    <label className="text-[11px] font-semibold text-stone-500 dark:text-stone-400 mb-1 block">Collection</label>
+                    <select
+                      value={newCollectionId}
+                      onChange={(e) => setNewCollectionId(e.target.value)}
+                      className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:ring-2 focus:ring-[#912A4A]/25 focus:border-[#912A4A] focus:outline-none cursor-pointer"
+                    >
+                      <option value="all">Default / General</option>
+                      {collections.map(c => (
+                        <option key={c.id} value={c.id}>{c.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="md:col-span-2">
+                  <label className="text-[11px] font-semibold text-stone-500 dark:text-stone-400 mb-1 block">DOI Identifier or Link</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 10.48550/arXiv.1706.03762"
+                    value={newDoi}
+                    onChange={(e) => setNewDoi(e.target.value)}
+                    className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:ring-2 focus:ring-[#912A4A]/25 focus:border-[#912A4A] focus:outline-none font-mono"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="text-[11px] font-semibold text-stone-500 dark:text-stone-400 mb-1 block">Abstract or Core Hypothesis</label>
+                <textarea
+                  placeholder="Key excerpt, abstract, or methodology summary..."
+                  value={newAbstract}
+                  onChange={(e) => setNewAbstract(e.target.value)}
+                  className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 h-20 focus:ring-2 focus:ring-[#912A4A]/25 focus:border-[#912A4A] focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="text-[11px] font-semibold text-stone-500 dark:text-stone-400 mb-1 block">My Notes & Thoughts</label>
+                <textarea
+                  placeholder="Personal notes, key takeaways, or questions about this paper..."
+                  value={newNotes}
+                  onChange={(e) => setNewNotes(e.target.value)}
+                  className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 h-16 focus:ring-2 focus:ring-[#912A4A]/25 focus:border-[#912A4A] focus:outline-none"
+                />
+              </div>
+
+              <div className="flex gap-2 justify-end pt-2">
+                <button
+                  type="button"
+                  onClick={() => setIsAdding(false)}
+                  className="font-sans text-xs px-3.5 py-2 border border-stone-200 dark:border-stone-700 rounded-xl text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="font-sans text-xs bg-[#912A4A] hover:bg-[#78223d] text-white px-4 py-2 rounded-xl transition-colors font-semibold cursor-pointer shadow-2xs"
+                >
+                  Save Reference
+                </button>
+              </div>
+            </form>
+          )}
+
+          {/* Reference Items Listing */}
+          <div className="space-y-3 max-h-[640px] overflow-y-auto pr-1">
+            {filteredPapers.map((p) => {
+              const col = collections.find((c) => c.id === p.collectionId);
+              const isExpanded = !!expandedPaperIds[p.id];
+              const isSelected = selectedPaper?.id === p.id;
+
+              return (
+                <div
+                  key={p.id}
+                  className={`p-4 rounded-2xl border transition-all duration-150 shadow-2xs ${
+                    isSelected
+                      ? 'border-[#912A4A]/50 bg-stone-50/90 dark:bg-stone-850/90 ring-1 ring-[#912A4A]/25'
+                      : 'border-stone-200/90 dark:border-stone-800 bg-white/90 dark:bg-stone-900/90 hover:border-stone-300 dark:hover:border-stone-700'
+                  }`}
+                >
+                  {/* Collapsed View: Title, Author, Year, Tags & Inspect Action */}
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-2.5 flex-1 min-w-0">
+                      <button
+                        type="button"
+                        onClick={(e) => togglePaperExpand(p.id, e)}
+                        className="p-1 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 dark:text-stone-400 shrink-0 cursor-pointer transition-colors mt-0.5"
+                        title={isExpanded ? 'Collapse reference snippet' : 'Expand reference snippet'}
+                        aria-label={isExpanded ? 'Collapse reference snippet' : 'Expand reference snippet'}
+                      >
+                        {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                      </button>
+
+                      <div className="flex-1 min-w-0">
+                        <h4 className="font-serif font-bold text-stone-900 dark:text-stone-100 text-sm leading-snug">
+                          {p.title}
+                        </h4>
+                        <p className="font-sans text-xs text-stone-500 dark:text-stone-400 mt-0.5">
+                          {p.authors || 'Unknown Author'} · {p.year || 'n.d.'}
+                          {p.journal && ` · ${p.journal}`}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
+                      {col && (
+                        <span className="px-2 py-0.5 rounded-full border text-[10px] bg-stone-100 dark:bg-stone-800 border-stone-200/80 dark:border-stone-700 text-stone-600 dark:text-stone-300 font-medium">
+                          {col.name}
+                        </span>
+                      )}
+
+                      {p.verificationStatus === 'verified' ? (
+                        <span className="text-[10px] bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-200/50 font-medium">
+                          Verified
+                        </span>
+                      ) : (
+                        <span className="text-[10px] bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 px-2 py-0.5 rounded-full border border-amber-200/50 font-medium">
+                          Incomplete
+                        </span>
+                      )}
+
+                      {/* Open Full Inspector Button */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedPaper(p);
+                          setViewMode('inspector');
+                        }}
+                        className="text-[11px] font-sans font-semibold text-[#912A4A] dark:text-rose-400 hover:text-white hover:bg-[#912A4A] px-2.5 py-1 rounded-lg border border-[#912A4A]/30 dark:border-rose-400/30 transition-colors cursor-pointer ml-1"
+                        title="Open Document Inspector"
+                      >
+                        Inspect
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Progressive Disclosure: In-line Citation & Quick Actions */}
+                  {isExpanded && (
+                    <div className="mt-3.5 pt-3 border-t border-stone-150 dark:border-stone-800 space-y-2.5 animate-fadeIn font-sans">
+                      
+                      {/* Formatted Citation Preview Snippet */}
+                      <div className="p-3 rounded-xl bg-stone-50 dark:bg-stone-950/60 border border-stone-200/70 dark:border-stone-800 text-xs font-serif text-stone-800 dark:text-stone-200 leading-relaxed italic select-all">
+                        <span className="font-mono text-[10px] uppercase font-bold not-italic text-[#912A4A] dark:text-rose-400 mr-1.5">
+                          [{citationStyle}]:
+                        </span>
+                        {formatPaperPreview(p, citationStyle)}
+                      </div>
+
+                      {/* Progressive Disclosure: Paper Summary & Key Findings */}
+                      {(p.abstract || p.structuredSummary || p.notes) && (
+                        <div className="rounded-xl border border-stone-200/70 dark:border-stone-800 bg-stone-50/40 dark:bg-stone-950/40 overflow-hidden">
+                          <button
+                            type="button"
+                            onClick={(e) => toggleSummaryExpand(p.id, e)}
+                            className="w-full px-3 py-2 text-left flex items-center justify-between gap-2 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-100/60 dark:hover:bg-stone-800/60 transition-colors cursor-pointer"
+                          >
+                            <div className="flex items-center gap-1.5">
+                              <FileText className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400" />
+                              <span>Paper Summary & Key Takeaways</span>
+                            </div>
+                            <span className="text-[11px] font-normal text-[#912A4A] dark:text-rose-400 flex items-center gap-1">
+                              {expandedSummaryIds[p.id] ? 'Hide summary' : 'Read summary'}
+                              {expandedSummaryIds[p.id] ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                            </span>
+                          </button>
+
+                          {expandedSummaryIds[p.id] && (
+                            <div className="p-3 pt-2 text-xs space-y-2.5 border-t border-stone-200/60 dark:border-stone-800 animate-fadeIn">
+                              {p.abstract && (
+                                <p className="text-stone-700 dark:text-stone-300 leading-relaxed bg-white dark:bg-stone-900 p-2.5 rounded-lg border border-stone-200/60 dark:border-stone-800">
+                                  {p.abstract}
+                                </p>
+                              )}
+
+                              {p.structuredSummary && (
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] pt-1">
+                                  {p.structuredSummary.researchQuestion && (
+                                    <div className="p-2 bg-white dark:bg-stone-900 rounded-lg border border-stone-200/50 dark:border-stone-800">
+                                      <strong className="text-stone-900 dark:text-stone-100 block mb-0.5">Research Question:</strong>
+                                      <span className="text-stone-600 dark:text-stone-400">{p.structuredSummary.researchQuestion}</span>
+                                    </div>
+                                  )}
+                                  {p.structuredSummary.methods && (
+                                    <div className="p-2 bg-white dark:bg-stone-900 rounded-lg border border-stone-200/50 dark:border-stone-800">
+                                      <strong className="text-stone-900 dark:text-stone-100 block mb-0.5">Methodology:</strong>
+                                      <span className="text-stone-600 dark:text-stone-400">{p.structuredSummary.methods}</span>
+                                    </div>
+                                  )}
+                                  {p.structuredSummary.findings && (
+                                    <div className="p-2 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-lg border border-emerald-200/40 dark:border-emerald-900/30 sm:col-span-2">
+                                      <strong className="text-emerald-900 dark:text-emerald-300 block mb-0.5">Key Findings:</strong>
+                                      <span className="text-stone-700 dark:text-stone-300">{p.structuredSummary.findings}</span>
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+
+                              {!p.abstract && !p.structuredSummary && p.notes && (
+                                <p className="text-stone-600 dark:text-stone-400 italic bg-white dark:bg-stone-900 p-2.5 rounded-lg border border-stone-200/60 dark:border-stone-800">
+                                  "{p.notes}"
+                                </p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Actions in Expanded View */}
+                      <div className="flex items-center justify-between gap-2 pt-1 border-t border-stone-150 dark:border-stone-800 text-xs flex-wrap">
+                        <div className="flex items-center gap-2">
+                          {onInsertCitation && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const firstAuthor = (p.authors || 'Author').split(',')[0].trim();
+                                const citationSnippet = ` (${firstAuthor} et al., ${p.year || new Date().getFullYear()})`;
+                                onInsertCitation(citationSnippet);
+                              }}
+                              className="text-[11px] font-sans px-2.5 py-1 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 rounded-lg flex items-center gap-1 transition-colors cursor-pointer border border-stone-200/70 dark:border-stone-700 font-medium"
+                              title="Insert citation marker directly into manuscript"
+                            >
+                              <Plus className="w-3 h-3 text-[#912A4A] dark:text-rose-400" />
+                              <span>Insert in Draft</span>
+                            </button>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const text = formatPaperPreview(p, citationStyle);
+                              navigator.clipboard.writeText(text);
+                            }}
+                            className="text-[11px] font-sans px-2.5 py-1 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg flex items-center gap-1 transition-colors cursor-pointer border border-stone-200/70 dark:border-stone-700"
+                            title="Copy formatted citation"
+                          >
+                            <Copy className="w-3 h-3" />
+                            <span>Copy</span>
+                          </button>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setSelectedPaper(p);
+                              setViewMode('inspector');
+                            }}
+                            className="text-[11px] font-sans text-[#912A4A] dark:text-rose-400 hover:underline font-semibold cursor-pointer"
+                          >
+                            View Full Notes & Inspector →
+                          </button>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm(`Delete reference "${p.title}" permanently?`)) {
+                                onDeletePaper(p.id);
+                                if (selectedPaper?.id === p.id) {
+                                  setSelectedPaper(papers.find((item) => item.id !== p.id) || null);
+                                }
+                              }
+                            }}
+                            className="text-[11px] font-sans p-1 text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer rounded-lg ml-2"
+                            title="Delete reference"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+
+            {filteredPapers.length === 0 && (
+              <div className="text-center py-12 px-4 rounded-2xl border border-dashed border-stone-200 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/30">
+                <p className="font-serif font-bold text-stone-700 dark:text-stone-300 text-sm">
+                  No matching literature found
+                </p>
+                <p className="font-sans text-xs text-stone-500 mt-1">
+                  {searchTerm
+                    ? `No references matched "${searchTerm}". Try a different keyword or clear your filter.`
+                    : 'Your reference library is empty. Add a document or batch import a dataset to begin.'}
+                </p>
+                {searchTerm && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchTerm('')}
+                    className="mt-3 px-3.5 py-1.5 rounded-xl bg-stone-200 dark:bg-stone-800 hover:bg-stone-300 text-stone-800 dark:text-stone-200 text-xs font-semibold cursor-pointer transition-colors"
+                  >
+                    Clear Search
+                  </button>
+                )}
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
     </div>
   );
 }
+

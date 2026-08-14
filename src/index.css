@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100;200;300;400;500;600;700;800;900&family=Atkinson+Hyperlegible:ital,wght@0,400;0,700;1,400;1,700&display=swap');
 @import "tailwindcss";
 
 @variant dark (&:where(.dark, .dark *));
@@ -28,26 +28,35 @@ body {
   text-align: left;
   background-color: #FAF8F5;
   color: #1B0A3B;
+  font-size: 14px;
 }
 
-/* Global Typography & Accessibility Directives */
+/* Global Typography & Accessibility Directives - Minimum 12px font size */
 *, *::before, *::after {
   text-transform: none !important;
   font-style: normal !important;
+}
+
+/* Ensure smallest text on any element is at least 12px */
+p, h1, h2, h3, h4, h5, h6, span, div, label, input, button, select, textarea, th, td, a, li, small, badge {
+  min-font-size: 12px;
 }
 
 p, h1, h2, h3, h4, h5, h6, span, div, label, input, button, select, textarea, th, td, a, li {
   text-align: left !important;
 }
 
-/* Dyslexia-Friendly Accessibility Font Alternative: Helvetica */
+/* Dyslexia-Friendly Accessibility Font: Atkinson Hyperlegible */
 .font-dyslexic,
 .font-dyslexic *,
 body.font-dyslexic,
-body.font-dyslexic * {
-  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif !important;
-  letter-spacing: 0.02em;
-  word-spacing: 0.05em;
+body.font-dyslexic *,
+[data-font="dyslexic"],
+[data-font="dyslexic"] * {
+  font-family: 'Atkinson Hyperlegible', -apple-system, BlinkMacSystemFont, sans-serif !important;
+  letter-spacing: 0.03em;
+  word-spacing: 0.06em;
+  line-height: 1.65 !important;
 }
 
 /* Custom fade animation for seamless module transitions */

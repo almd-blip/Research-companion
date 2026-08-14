@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useRef } from 'react';
+import { X } from 'lucide-react';
 import { Paper, Collection } from '../types';
 
 interface DataIngestionModuleProps {
@@ -451,10 +452,13 @@ export default function DataIngestionModule({
           </span>
           {onClose && (
             <button
+              type="button"
               onClick={onClose}
-              className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1 cursor-pointer"
+              className="px-2.5 py-1 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-2xs border border-stone-200/80 dark:border-stone-700"
+              aria-label="Close Import Panel"
             >
-              
+              <X className="w-3.5 h-3.5" />
+              <span>Close</span>
             </button>
           )}
         </div>

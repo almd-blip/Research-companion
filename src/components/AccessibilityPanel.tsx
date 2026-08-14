@@ -4,6 +4,7 @@
  */
 
 import React, { useState } from 'react';
+import { X } from 'lucide-react';
 import { AccessibilitySettings, DEFAULT_ACCESSIBILITY_SETTINGS } from '../types';
 import { ICON_SEMANTIC, BRAND } from '../theme/tokens';
 
@@ -91,11 +92,13 @@ export default function AccessibilityPanel({
 
         {onClose && (
           <button
+            type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-lg border border-current/20 hover:border-current/60 text-xs font-semibold cursor-pointer shrink-0"
+            className="px-3 py-1.5 rounded-lg border border-current/20 hover:border-current/60 hover:bg-black/5 dark:hover:bg-white/5 text-xs font-semibold cursor-pointer shrink-0 flex items-center gap-1.5 transition-colors"
             aria-label="Close Accessibility Panel"
           >
-            Close
+            <X className="w-3.5 h-3.5" />
+            <span>Close</span>
           </button>
         )}
       </div>
@@ -133,7 +136,7 @@ export default function AccessibilityPanel({
                     <span className="text-xs font-medium">{opt.label}</span>
                     {isSelected }
                   </div>
-                  <span className="text-[10px] opacity-75">{opt.desc}</span>
+                  <span className="text-xs opacity-75">{opt.desc}</span>
                 </button>
               );
             })}
@@ -171,7 +174,7 @@ export default function AccessibilityPanel({
               >
                 <div className="mt-2 space-y-0.5">
                   <span className="text-xs font-medium block">{opt.label}</span>
-                  <span className="text-[10px] opacity-75 block leading-tight">{opt.desc}</span>
+                  <span className="text-xs opacity-75 block leading-tight">{opt.desc}</span>
                 </div>
               </button>
             );
@@ -189,9 +192,9 @@ export default function AccessibilityPanel({
         {/* Dyslexia-friendly font toggle */}
         <div className="p-3.5 rounded-xl border border-current/20 bg-current/[0.02] flex items-center justify-between gap-4" id="acc-dyslexia-box">
           <div className="space-y-0.5" id="acc-dyslexia-txt">
-            <span className="text-xs font-medium block" id="acc-dyslexia-lbl">Dyslexia-friendly font option</span>
-            <span className="text-[11px] opacity-75 block" id="acc-dyslexia-desc">
-              Switches text font to Helvetica with clean, highly readable letter shapes.
+            <span className="text-xs font-medium block" id="acc-dyslexia-lbl">Dyslexia-friendly font (Atkinson Hyperlegible)</span>
+            <span className="text-xs opacity-75 block" id="acc-dyslexia-desc">
+              Switches text font to Atkinson Hyperlegible with clean, distinguishable letter shapes.
             </span>
           </div>
 
@@ -208,7 +211,6 @@ export default function AccessibilityPanel({
             }`}
           >
             <span>{settings.dyslexiaFont ? 'Enabled' : 'Disabled'}</span>
-            
           </button>
         </div>
 
@@ -312,7 +314,7 @@ export default function AccessibilityPanel({
           <div className="p-3.5 rounded-xl border border-current/20 bg-current/[0.02] flex items-center justify-between gap-3" id="acc-motion-box">
             <div className="space-y-0.5">
               <span className="text-xs font-medium block" id="acc-motion-lbl">Reduced motion</span>
-              <span className="text-[11px] opacity-75 block">Turns off screen animations and slide transitions.</span>
+              <span className="text-xs opacity-75 block">Turns off screen animations and slide transitions.</span>
             </div>
             <button
               id="acc-toggle-motion"
@@ -335,7 +337,7 @@ export default function AccessibilityPanel({
           <div className="p-3.5 rounded-xl border border-current/20 bg-current/[0.02] flex items-center justify-between gap-3" id="acc-focus-box">
             <div className="space-y-0.5">
               <span className="text-xs font-medium block" id="acc-focus-lbl">Enhanced focus indicators</span>
-              <span className="text-[11px] opacity-75 block">Shows thick, clear borders around focused buttons.</span>
+              <span className="text-xs opacity-75 block">Shows thick, clear borders around focused buttons.</span>
             </div>
             <button
               id="acc-toggle-focus"
@@ -422,7 +424,7 @@ export default function AccessibilityPanel({
             
             Workspace modules
           </h4>
-          <p className="text-[11px] opacity-75">
+          <p className="text-xs opacity-75">
             Show or hide modules to keep your view simple.
           </p>
           <div className="flex flex-wrap gap-2 pt-1" id="acc-modules-list">

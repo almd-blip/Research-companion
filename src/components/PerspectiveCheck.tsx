@@ -7,7 +7,6 @@ import React, { useState, useEffect } from 'react';
 import { Paper, ResearchJourney } from '../types';
 import {
   Users,
-  Eye,
   BookOpen,
   Compass,
   HelpCircle,
@@ -20,13 +19,13 @@ import {
   Sparkles,
   ArrowRight,
   CheckCircle2,
-  AlertCircle,
-  Info
+  AlertCircle
 } from 'lucide-react';
 
 interface PerspectiveCheckProps {
   papers: Paper[];
   activeJourney?: ResearchJourney;
+  onInsertIntoDraft?: (text: string) => void;
 }
 
 export interface PerspectiveCheckData {
@@ -76,7 +75,7 @@ const SECOND_THOUGHT_STEPS = [
     actionTitle: 'What might I be overlooking?',
     questionTitle: 'Who might be missing?',
     supportingText: 'Are there people, experiences or ideas that you would expect to hear from but cannot find in your data?',
-    icon: <Eye className="w-4 h-4 text-amber-600 dark:text-amber-400" />,
+    icon: <HelpCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />,
   },
   {
     number: 3,
@@ -112,8 +111,9 @@ const SECOND_THOUGHT_STEPS = [
   },
 ];
 
-export default function PerspectiveCheck({ papers, activeJourney }: PerspectiveCheckProps) {
+export default function PerspectiveCheck({ papers, activeJourney, onInsertIntoDraft }: PerspectiveCheckProps) {
   const journeyId = activeJourney?.id || 'default_journey';
+  const [copiedToDraft, setCopiedToDraft] = useState(false);
 
   // State per journey stored in localStorage
   const [data, setData] = useState<PerspectiveCheckData>(() => {
@@ -316,54 +316,52 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
   };
 
   return (
-    <div className="space-y-8 font-sans text-stone-900 dark:text-stone-100 pt-2 pb-16 animate-fadeIn">
-      {/* UNBOXED SUB-GUIDANCE & ACTIONS BAR (Aligned Left) */}
-      <div className="flex flex-wrap items-center justify-between gap-4 border-b border-stone-200/80 dark:border-stone-800/80 pb-4">
-        <div className="space-y-1 max-w-2xl">
-          <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
-            Think about whose experiences, ideas and knowledge are included, who might be missing, and whether this could change what you find.
-          </p>
-          <div className="flex items-center gap-2 pt-1 text-[11px] text-stone-500 font-mono">
-            <span className="font-semibold text-stone-800 dark:text-stone-200">Core Principle:</span>
-            <span>Does your evidence fit the question you are asking?</span>
+    <div className="w-full font-sans text-stone-900 dark:text-stone-100 pb-16 space-y-8 animate-fadeIn">
+      {/* FLAT TOP GUIDANCE & ACTIONS BAR - CLEAN LEFT ALIGNMENT WITH FULL WIDTH */}
+      <div className="border-b border-stone-200/80 dark:border-stone-800/80 pb-5 space-y-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <span className="inline-block font-mono text-[11px] uppercase tracking-wider font-bold text-[#912A4A] dark:text-rose-400 bg-[#912A4A]/10 dark:bg-rose-950/40 px-2.5 py-1 rounded-md border border-[#912A4A]/20 dark:border-rose-900/30">
+              Core Principle
+            </span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleExportReflection}
+              className="text-xs font-medium text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 px-3 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 border border-stone-200/70 dark:border-stone-700 flex items-center gap-1.5 cursor-pointer transition-colors"
+              title="Download reflection report"
+            >
+              <Download className="w-3.5 h-3.5 text-stone-500" />
+              <span>Export (.txt)</span>
+            </button>
+
+            <button
+              onClick={handleReset}
+              className="text-xs font-medium text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 px-3 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 border border-stone-200/50 dark:border-stone-750 flex items-center gap-1.5 cursor-pointer transition-colors"
+              title="Reset answers"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-stone-400" />
+              <span>Reset</span>
+            </button>
           </div>
         </div>
 
-        <div className="flex items-center gap-3 text-xs">
-          <button
-            onClick={() => setActiveStep(activeStep === 'summary' ? 1 : 'summary')}
-            className={`font-medium px-3 py-1.5 rounded-md transition-colors cursor-pointer flex items-center gap-1.5 ${
-              activeStep === 'summary'
-                ? 'bg-[#912A4A] text-white'
-                : 'text-[#912A4A] dark:text-rose-300 hover:bg-stone-100 dark:hover:bg-stone-800/60'
-            }`}
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            {activeStep === 'summary' ? 'Return to 6 Steps' : 'View Reflection Summary'}
-          </button>
+        <div className="space-y-2 text-left">
+          {/* Core Principle Question Heading */}
+          <h2 className="font-serif font-bold text-lg sm:text-xl text-stone-900 dark:text-stone-100 leading-snug text-left">
+            Does your evidence fit the question you are asking?
+          </h2>
 
-          <button
-            onClick={handleExportReflection}
-            className="text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 flex items-center gap-1 cursor-pointer transition-colors"
-            title="Download reflection report"
-          >
-            <Download className="w-3.5 h-3.5" />
-            Export (.txt)
-          </button>
-
-          <button
-            onClick={handleReset}
-            className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 flex items-center gap-1 cursor-pointer transition-colors"
-            title="Reset answers"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            Reset
-          </button>
+          {/* Introductory prompt text */}
+          <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed font-sans text-left max-w-2xl">
+            Think about whose experiences, ideas and knowledge are included, who might be missing, and whether this could change what you find.
+          </p>
         </div>
       </div>
 
       {/* ----------------------------------------------------------------- */}
-      {/* UNBOXED PROGRESSIVE DISCLOSURE STEPS (1 TO 6)                      */}
+      {/* FLAT PROGRESSIVE DISCLOSURE STEPS (1 TO 6) - ALL ALIGNED TO X=0   */}
       {/* ----------------------------------------------------------------- */}
       <div className="space-y-6">
         {SECOND_THOUGHT_STEPS.map((step) => {
@@ -375,36 +373,35 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
               key={step.number}
               className="border-b border-stone-200/80 dark:border-stone-800/80 pb-6 transition-all"
             >
-              {/* UNBOXED STEP HEADER BUTTON */}
+              {/* FLAT STEP HEADER BUTTON - FLUSH WITH LEFT MARGIN */}
               <button
                 type="button"
                 onClick={() => setActiveStep(isOpen ? 0 : step.number)}
                 className="w-full flex items-start justify-between text-left group cursor-pointer py-1"
               >
-                <div className="flex items-start gap-3">
-                  <span className="text-xs font-mono font-bold text-[#912A4A] dark:text-rose-400 pt-0.5">
-                    0{step.number}
-                  </span>
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-[10px] font-mono uppercase tracking-wider text-stone-500 font-semibold">
-                        {step.phase}
+                <div className="space-y-1">
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-mono font-bold text-[#912A4A] dark:text-rose-400">
+                      0{step.number}
+                    </span>
+                    <span className="text-stone-300 dark:text-stone-700">·</span>
+                    <span className="text-[10px] font-mono uppercase tracking-wider text-stone-500 font-semibold">
+                      {step.phase}
+                    </span>
+                    {isCompleted && (
+                      <span className="text-[10px] text-emerald-700 dark:text-emerald-400 font-mono font-medium">
+                        ✓ Reviewed
                       </span>
-                      {isCompleted && (
-                        <span className="text-[10px] bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 px-1.5 py-0.2 rounded font-medium">
-                          Reviewed
-                        </span>
-                      )}
-                    </div>
-                    <h3 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300 transition-colors">
-                      {step.questionTitle}
-                    </h3>
+                    )}
                   </div>
+                  <h3 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300 transition-colors">
+                    {step.questionTitle}
+                  </h3>
                 </div>
 
-                <div className="flex items-center gap-3 text-xs text-stone-500 shrink-0">
+                <div className="flex items-center gap-3 text-xs text-stone-500 shrink-0 pt-1">
                   {!isOpen && (
-                    <span className="text-stone-400 dark:text-stone-500 text-xs hidden sm:inline truncate max-w-xs">
+                    <span className="text-stone-400 dark:text-stone-500 text-xs hidden sm:inline truncate max-w-sm">
                       {renderStepSummary(step.number)}
                     </span>
                   )}
@@ -416,21 +413,21 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
                 </div>
               </button>
 
-              {/* UNBOXED EXPANDED STEP CONTENT */}
+              {/* FLAT EXPANDED STEP CONTENT - STRICTLY ALIGNED TO X=0 */}
               {isOpen && (
-                <div className="mt-4 pl-7 space-y-5 animate-fadeIn">
-                  <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
+                <div className="mt-4 space-y-6 animate-fadeIn">
+                  <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed max-w-3xl">
                     {step.supportingText}
                   </p>
 
                   {/* STEP 1: Who is included in your data? */}
                   {step.number === 1 && (
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                       <div className="space-y-2">
-                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200">
+                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200 block">
                           Who took part or is represented in your sources? Select categories that apply:
                         </label>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-2 pt-1">
                           {[
                             'Academic researchers',
                             'Survey participants',
@@ -447,13 +444,13 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
                                 key={cat}
                                 type="button"
                                 onClick={() => handleToggleCategory('includedCategories', cat)}
-                                className={`text-xs px-3 py-1 rounded-md border transition-all cursor-pointer flex items-center gap-1.5 ${
+                                className={`text-xs px-2.5 py-1 transition-all cursor-pointer flex items-center gap-1.5 rounded-sm ${
                                   selected
-                                    ? 'bg-emerald-50 dark:bg-emerald-950/40 border-emerald-400 dark:border-emerald-700 text-emerald-900 dark:text-emerald-200 font-medium'
-                                    : 'border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800/50'
+                                    ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 font-medium'
+                                    : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-850'
                                 }`}
                               >
-                                {selected && <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
+                                {selected ? <Check className="w-3 h-3 text-emerald-400 dark:text-emerald-600" /> : <span className="w-1.5 h-1.5 rounded-full bg-stone-300 dark:bg-stone-600" />}
                                 {cat}
                               </button>
                             );
@@ -463,19 +460,22 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
 
                       {paperParticipantsDetected.length > 0 && (
                         <div className="text-xs space-y-1 text-stone-600 dark:text-stone-400">
-                          <span className="font-semibold text-stone-700 dark:text-stone-300 font-mono text-[11px]">
+                          <span className="font-semibold text-stone-700 dark:text-stone-300 font-mono text-[11px] block">
                             Detected from references:
                           </span>
-                          <ul className="list-disc pl-4 space-y-0.5 text-stone-600 dark:text-stone-400">
+                          <div className="space-y-1 text-stone-600 dark:text-stone-400">
                             {paperParticipantsDetected.map((p, idx) => (
-                              <li key={idx}>{p}</li>
+                              <div key={idx} className="flex items-start gap-1.5">
+                                <span className="text-stone-400">•</span>
+                                <span>{p}</span>
+                              </div>
                             ))}
-                          </ul>
+                          </div>
                         </div>
                       )}
 
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200">
+                      <div className="space-y-1.5 max-w-3xl">
+                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200 block">
                           Notes on included people, sources, or groups:
                         </label>
                         <textarea
@@ -483,7 +483,7 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
                           onChange={(e) => handleUpdateData({ includedNotes: e.target.value })}
                           placeholder="Write a few words about who took part or whose information you are using..."
                           rows={3}
-                          className="w-full text-xs p-3 rounded-lg border border-stone-200 dark:border-stone-800 bg-transparent text-stone-900 dark:text-stone-100 focus:ring-1 focus:ring-[#912A4A] outline-none resize-y"
+                          className="w-full text-xs p-3 border-b border-stone-300 dark:border-stone-700 bg-transparent text-stone-900 dark:text-stone-100 focus:border-[#912A4A] dark:focus:border-rose-400 outline-none resize-y placeholder:text-stone-400"
                         />
                       </div>
                     </div>
@@ -491,12 +491,12 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
 
                   {/* STEP 2: Who might be missing? */}
                   {step.number === 2 && (
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                       <div className="space-y-2">
-                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200">
+                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200 block">
                           Who or what might be missing or under-represented?
                         </label>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-2 pt-1">
                           {[
                             'Specific geographic regions',
                             'Local / Indigenous communities',
@@ -512,13 +512,13 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
                                 key={cat}
                                 type="button"
                                 onClick={() => handleToggleCategory('missingCategories', cat)}
-                                className={`text-xs px-3 py-1 rounded-md border transition-all cursor-pointer flex items-center gap-1.5 ${
+                                className={`text-xs px-2.5 py-1 transition-all cursor-pointer flex items-center gap-1.5 rounded-sm ${
                                   selected
-                                    ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-400 dark:border-amber-700 text-amber-900 dark:text-amber-200 font-medium'
-                                    : 'border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800/50'
+                                    ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 font-medium'
+                                    : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-850'
                                 }`}
                               >
-                                {selected && <Check className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />}
+                                {selected ? <Check className="w-3 h-3 text-amber-400 dark:text-amber-600" /> : <span className="w-1.5 h-1.5 rounded-full bg-stone-300 dark:bg-stone-600" />}
                                 {cat}
                               </button>
                             );
@@ -528,19 +528,22 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
 
                       {paperLimitationsDetected.length > 0 && (
                         <div className="text-xs space-y-1 text-stone-600 dark:text-stone-400">
-                          <span className="font-semibold text-stone-700 dark:text-stone-300 font-mono text-[11px]">
+                          <span className="font-semibold text-stone-700 dark:text-stone-300 font-mono text-[11px] block">
                             Limitations noted in reference collection:
                           </span>
-                          <ul className="list-disc pl-4 space-y-0.5 text-stone-600 dark:text-stone-400">
+                          <div className="space-y-1 text-stone-600 dark:text-stone-400">
                             {paperLimitationsDetected.map((lim, idx) => (
-                              <li key={idx}>{lim}</li>
+                              <div key={idx} className="flex items-start gap-1.5">
+                                <span className="text-stone-400">•</span>
+                                <span>{lim}</span>
+                              </div>
                             ))}
-                          </ul>
+                          </div>
                         </div>
                       )}
 
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200">
+                      <div className="space-y-1.5 max-w-3xl">
+                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200 block">
                           Notes on missing perspectives:
                         </label>
                         <textarea
@@ -548,7 +551,7 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
                           onChange={(e) => handleUpdateData({ missingNotes: e.target.value })}
                           placeholder="Are there people, experiences or ideas you expected to find but could not find?"
                           rows={3}
-                          className="w-full text-xs p-3 rounded-lg border border-stone-200 dark:border-stone-800 bg-transparent text-stone-900 dark:text-stone-100 focus:ring-1 focus:ring-[#912A4A] outline-none resize-y"
+                          className="w-full text-xs p-3 border-b border-stone-300 dark:border-stone-700 bg-transparent text-stone-900 dark:text-stone-100 focus:border-[#912A4A] dark:focus:border-rose-400 outline-none resize-y placeholder:text-stone-400"
                         />
                       </div>
                     </div>
@@ -556,12 +559,12 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
 
                   {/* STEP 3: Who created the knowledge you are using? */}
                   {step.number === 3 && (
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                       <div className="space-y-2">
-                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200">
+                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200 block">
                           Who produced the research or created the knowledge?
                         </label>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-2 pt-1">
                           {[
                             'Academic researchers',
                             'Community members',
@@ -576,13 +579,13 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
                                 key={cat}
                                 type="button"
                                 onClick={() => handleToggleCategory('creatorTypes', cat)}
-                                className={`text-xs px-3 py-1 rounded-md border transition-all cursor-pointer flex items-center gap-1.5 ${
+                                className={`text-xs px-2.5 py-1 transition-all cursor-pointer flex items-center gap-1.5 rounded-sm ${
                                   selected
-                                    ? 'bg-sky-50 dark:bg-sky-950/40 border-sky-400 dark:border-sky-700 text-sky-900 dark:text-sky-200 font-medium'
-                                    : 'border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800/50'
+                                    ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 font-medium'
+                                    : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-850'
                                 }`}
                               >
-                                {selected && <Check className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />}
+                                {selected ? <Check className="w-3 h-3 text-sky-400 dark:text-sky-600" /> : <span className="w-1.5 h-1.5 rounded-full bg-stone-300 dark:bg-stone-600" />}
                                 {cat}
                               </button>
                             );
@@ -592,7 +595,7 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
 
                       {paperAuthors.length > 0 && (
                         <div className="text-xs space-y-1 text-stone-600 dark:text-stone-400">
-                          <span className="font-semibold text-stone-700 dark:text-stone-300 font-mono text-[11px]">
+                          <span className="font-semibold text-stone-700 dark:text-stone-300 font-mono text-[11px] block">
                             Key authors detected in your library:
                           </span>
                           <p className="text-stone-600 dark:text-stone-400">
@@ -601,8 +604,8 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
                         </div>
                       )}
 
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200">
+                      <div className="space-y-1.5 max-w-3xl">
+                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200 block">
                           Notes on knowledge producers or researchers:
                         </label>
                         <textarea
@@ -610,7 +613,7 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
                           onChange={(e) => handleUpdateData({ creatorsNotes: e.target.value })}
                           placeholder="Who collected the data? Who decided what it meant?"
                           rows={3}
-                          className="w-full text-xs p-3 rounded-lg border border-stone-200 dark:border-stone-800 bg-transparent text-stone-900 dark:text-stone-100 focus:ring-1 focus:ring-[#912A4A] outline-none resize-y"
+                          className="w-full text-xs p-3 border-b border-stone-300 dark:border-stone-700 bg-transparent text-stone-900 dark:text-stone-100 focus:border-[#912A4A] dark:focus:border-rose-400 outline-none resize-y placeholder:text-stone-400"
                         />
                       </div>
                     </div>
@@ -618,12 +621,12 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
 
                   {/* STEP 4: Do you hear from people with lived experience? */}
                   {step.number === 4 && (
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                       <div className="space-y-2">
-                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200">
+                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200 block">
                           Is lived experience included in your evidence?
                         </label>
-                        <div className="flex flex-wrap gap-2">
+                        <div className="flex flex-wrap gap-4 pt-1 text-xs">
                           <button
                             type="button"
                             onClick={() =>
@@ -632,12 +635,21 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
                                 livedExperienceNotRelevant: false,
                               })
                             }
-                            className={`text-xs px-3 py-1.5 rounded-md border transition-all cursor-pointer font-medium ${
+                            className={`cursor-pointer transition-colors flex items-center gap-1.5 ${
                               data.livedExperienceIncluded === true && !data.livedExperienceNotRelevant
-                                ? 'bg-purple-50 dark:bg-purple-950/40 border-purple-400 dark:border-purple-700 text-purple-900 dark:text-purple-200'
-                                : 'border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-100'
+                                ? 'font-bold text-[#912A4A] dark:text-rose-300'
+                                : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
                             }`}
                           >
+                            <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
+                              data.livedExperienceIncluded === true && !data.livedExperienceNotRelevant
+                                ? 'border-[#912A4A] dark:border-rose-300'
+                                : 'border-stone-400'
+                            }`}>
+                              {data.livedExperienceIncluded === true && !data.livedExperienceNotRelevant && (
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#912A4A] dark:bg-rose-300" />
+                              )}
+                            </span>
                             Yes, lived experience is included
                           </button>
 
@@ -649,12 +661,21 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
                                 livedExperienceNotRelevant: false,
                               })
                             }
-                            className={`text-xs px-3 py-1.5 rounded-md border transition-all cursor-pointer font-medium ${
+                            className={`cursor-pointer transition-colors flex items-center gap-1.5 ${
                               data.livedExperienceIncluded === false && !data.livedExperienceNotRelevant
-                                ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-400 dark:border-amber-700 text-amber-900 dark:text-amber-200'
-                                : 'border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-100'
+                                ? 'font-bold text-[#912A4A] dark:text-rose-300'
+                                : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
                             }`}
                           >
+                            <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
+                              data.livedExperienceIncluded === false && !data.livedExperienceNotRelevant
+                                ? 'border-[#912A4A] dark:border-rose-300'
+                                : 'border-stone-400'
+                            }`}>
+                              {data.livedExperienceIncluded === false && !data.livedExperienceNotRelevant && (
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#912A4A] dark:bg-rose-300" />
+                              )}
+                            </span>
                             Not currently represented
                           </button>
 
@@ -666,19 +687,28 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
                                 livedExperienceIncluded: null,
                               })
                             }
-                            className={`text-xs px-3 py-1.5 rounded-md border transition-all cursor-pointer font-medium ${
+                            className={`cursor-pointer transition-colors flex items-center gap-1.5 ${
                               data.livedExperienceNotRelevant
-                                ? 'bg-stone-200 dark:bg-stone-800 border-stone-400 text-stone-900 dark:text-stone-100'
-                                : 'border-stone-200 dark:border-stone-800 text-stone-500 hover:bg-stone-100'
+                                ? 'font-bold text-[#912A4A] dark:text-rose-300'
+                                : 'text-stone-500 hover:text-stone-900 dark:hover:text-stone-100'
                             }`}
                           >
-                            {data.livedExperienceNotRelevant ? '✓ Not relevant to my research' : 'Not relevant to my research'}
+                            <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
+                              data.livedExperienceNotRelevant
+                                ? 'border-[#912A4A] dark:border-rose-300'
+                                : 'border-stone-400'
+                            }`}>
+                              {data.livedExperienceNotRelevant && (
+                                <span className="w-1.5 h-1.5 rounded-full bg-[#912A4A] dark:bg-rose-300" />
+                              )}
+                            </span>
+                            Not relevant to my research
                           </button>
                         </div>
                       </div>
 
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200">
+                      <div className="space-y-1.5 max-w-3xl">
+                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200 block">
                           Notes on lived experience:
                         </label>
                         <textarea
@@ -690,7 +720,7 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
                               : 'Write about whose lived experience is included or missing...'
                           }
                           rows={3}
-                          className="w-full text-xs p-3 rounded-lg border border-stone-200 dark:border-stone-800 bg-transparent text-stone-900 dark:text-stone-100 focus:ring-1 focus:ring-[#912A4A] outline-none resize-y"
+                          className="w-full text-xs p-3 border-b border-stone-300 dark:border-stone-700 bg-transparent text-stone-900 dark:text-stone-100 focus:border-[#912A4A] dark:focus:border-rose-400 outline-none resize-y placeholder:text-stone-400"
                         />
                       </div>
                     </div>
@@ -698,12 +728,12 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
 
                   {/* STEP 5: Are you hearing more than one point of view? */}
                   {step.number === 5 && (
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                       <div className="space-y-2">
-                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200">
+                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200 block">
                           Are you hearing different views in your evidence?
                         </label>
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                        <div className="flex flex-wrap gap-5 pt-1 text-xs">
                           {[
                             { value: 'yes', label: 'Yes, multiple viewpoints present' },
                             { value: 'some', label: 'Some, but mostly single perspective' },
@@ -713,20 +743,29 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
                               key={option.value}
                               type="button"
                               onClick={() => handleUpdateData({ differentViewsIncluded: option.value })}
-                              className={`text-xs p-2.5 rounded-md border text-left transition-all cursor-pointer font-medium ${
+                              className={`cursor-pointer transition-colors flex items-center gap-1.5 ${
                                 data.differentViewsIncluded === option.value
-                                  ? 'bg-rose-50 dark:bg-rose-950/40 border-rose-300 dark:border-rose-700 text-rose-900 dark:text-rose-200'
-                                  : 'border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800/50'
+                                  ? 'font-bold text-[#912A4A] dark:text-rose-300'
+                                  : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
                               }`}
                             >
+                              <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
+                                data.differentViewsIncluded === option.value
+                                  ? 'border-[#912A4A] dark:border-rose-300'
+                                  : 'border-stone-400'
+                              }`}>
+                                {data.differentViewsIncluded === option.value && (
+                                  <span className="w-1.5 h-1.5 rounded-full bg-[#912A4A] dark:bg-rose-300" />
+                                )}
+                              </span>
                               {option.label}
                             </button>
                           ))}
                         </div>
                       </div>
 
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200">
+                      <div className="space-y-1.5 max-w-3xl">
+                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200 block">
                           Notes on different points of view or cultures/methods:
                         </label>
                         <textarea
@@ -734,7 +773,7 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
                           onChange={(e) => handleUpdateData({ differentViewsNotes: e.target.value })}
                           placeholder="Are there alternative ways of understanding the issue that could help you see it clearly?"
                           rows={3}
-                          className="w-full text-xs p-3 rounded-lg border border-stone-200 dark:border-stone-800 bg-transparent text-stone-900 dark:text-stone-100 focus:ring-1 focus:ring-[#912A4A] outline-none resize-y"
+                          className="w-full text-xs p-3 border-b border-stone-300 dark:border-stone-700 bg-transparent text-stone-900 dark:text-stone-100 focus:border-[#912A4A] dark:focus:border-rose-400 outline-none resize-y placeholder:text-stone-400"
                         />
                       </div>
                     </div>
@@ -742,12 +781,12 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
 
                   {/* STEP 6: Could what is missing change your findings? */}
                   {step.number === 6 && (
-                    <div className="space-y-4">
+                    <div className="space-y-5">
                       <div className="space-y-2">
-                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200">
+                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200 block">
                           How well does your evidence fit your specific research question?
                         </label>
-                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
                           {[
                             {
                               id: 'fits_well',
@@ -770,29 +809,39 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
                               desc: 'Need to review method sections or look for extra sources first.',
                             },
                           ].map((item) => (
-                            <button
+                            <div
                               key={item.id}
-                              type="button"
                               onClick={() => handleUpdateData({ fitAssessment: item.id as any })}
-                              className={`p-2.5 rounded-md border text-left transition-all cursor-pointer space-y-0.5 ${
-                                data.fitAssessment === item.id
-                                  ? 'bg-[#912A4A]/10 border-[#912A4A] dark:border-rose-400 text-stone-900 dark:text-stone-100'
-                                  : 'border-stone-200 dark:border-stone-800 text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-800/50'
-                              }`}
+                              className="cursor-pointer space-y-1 group"
                             >
-                              <p className="text-xs font-bold text-stone-900 dark:text-stone-100">
-                                {item.title}
-                              </p>
-                              <p className="text-[11px] text-stone-500 leading-snug">
+                              <div className="flex items-center gap-2">
+                                <span className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center shrink-0 ${
+                                  data.fitAssessment === item.id
+                                    ? 'border-[#912A4A] dark:border-rose-300'
+                                    : 'border-stone-400 group-hover:border-stone-600'
+                                }`}>
+                                  {data.fitAssessment === item.id && (
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#912A4A] dark:bg-rose-300" />
+                                  )}
+                                </span>
+                                <span className={`text-xs font-semibold ${
+                                  data.fitAssessment === item.id
+                                    ? 'text-[#912A4A] dark:text-rose-300 font-bold'
+                                    : 'text-stone-900 dark:text-stone-100 group-hover:text-stone-700'
+                                }`}>
+                                  {item.title}
+                                </span>
+                              </div>
+                              <p className="text-[11px] text-stone-500 leading-relaxed">
                                 {item.desc}
                               </p>
-                            </button>
+                            </div>
                           ))}
                         </div>
                       </div>
 
-                      <div className="space-y-1.5">
-                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200">
+                      <div className="space-y-1.5 max-w-3xl">
+                        <label className="text-xs font-medium text-stone-800 dark:text-stone-200 block">
                           Reflective notes on findings & potential impact:
                         </label>
                         <textarea
@@ -800,14 +849,14 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
                           onChange={(e) => handleUpdateData({ changeFindingsNotes: e.target.value })}
                           placeholder="Write your reflection on how missing perspectives might change what you find, or why the current scope is appropriate..."
                           rows={3}
-                          className="w-full text-xs p-3 rounded-lg border border-stone-200 dark:border-stone-800 bg-transparent text-stone-900 dark:text-stone-100 focus:ring-1 focus:ring-[#912A4A] outline-none resize-y"
+                          className="w-full text-xs p-3 border-b border-stone-300 dark:border-stone-700 bg-transparent text-stone-900 dark:text-stone-100 focus:border-[#912A4A] dark:focus:border-rose-400 outline-none resize-y placeholder:text-stone-400"
                         />
                       </div>
                     </div>
                   )}
 
                   {/* ACTION ROW TO ADVANCE PROGRESSIVELY */}
-                  <div className="pt-2 flex items-center justify-between">
+                  <div className="pt-2 flex items-center justify-start">
                     <button
                       type="button"
                       onClick={() => handleNextStep(step.number)}
@@ -825,35 +874,52 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
       </div>
 
       {/* ----------------------------------------------------------------- */}
-      {/* UNBOXED REFLECTION SUMMARY SECTION                                */}
+      {/* FLAT REFLECTION SUMMARY SECTION - ALL ALIGNED TO X=0               */}
       {/* ----------------------------------------------------------------- */}
       {(activeStep === 'summary' || Object.values(completedSteps).filter(Boolean).length >= 3) && (
         <div className="space-y-6 pt-4 border-t-2 border-stone-200/80 dark:border-stone-800/80 animate-fadeIn">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2 flex-wrap">
             <h3 className="font-serif font-bold text-lg text-stone-900 dark:text-stone-100 flex items-center gap-2">
               <Sparkles className="w-4 h-4 text-[#912A4A] dark:text-rose-300" />
               Reflection Summary
             </h3>
-            <button
-              onClick={handleExportReflection}
-              className="text-xs font-medium text-[#912A4A] dark:text-rose-300 hover:underline flex items-center gap-1 cursor-pointer"
-            >
-              <Download className="w-3.5 h-3.5" />
-              Download Reflection (.txt)
-            </button>
+            <div className="flex items-center gap-3">
+              {onInsertIntoDraft && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    const reflectionNote = `\n\n[PERSPECTIVE CHECK REFLECTION]:\n- Included perspectives: ${data.includedCategories.join(', ') || 'Standard library sources'}\n- Identified gaps: ${data.missingCategories.join(', ') || 'None flagged'}\n- Fit: ${data.fitAssessment.replace('_', ' ')}\n- Reflection note: ${data.changeFindingsNotes || data.missingNotes || 'Maintained reflective vigilance on unrepresented experiences.'}\n`;
+                    onInsertIntoDraft(reflectionNote);
+                    setCopiedToDraft(true);
+                    setTimeout(() => setCopiedToDraft(false), 2000);
+                  }}
+                  className="px-2.5 py-1 bg-[#912A4A] hover:bg-[#78223d] text-white rounded text-xs font-semibold flex items-center gap-1 transition-colors cursor-pointer"
+                >
+                  <Check className="w-3.5 h-3.5" />
+                  <span>{copiedToDraft ? 'Inserted in Draft' : 'Insert Reflection in Draft'}</span>
+                </button>
+              )}
+              <button
+                onClick={handleExportReflection}
+                className="text-xs font-medium text-[#912A4A] dark:text-rose-300 hover:underline flex items-center gap-1 cursor-pointer"
+              >
+                <Download className="w-3.5 h-3.5" />
+                Download Reflection (.txt)
+              </button>
+            </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             {/* 1. WHAT IS INCLUDED */}
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <h4 className="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5 font-mono uppercase tracking-wider">
                 <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
                 1. What is included?
               </h4>
               {data.includedCategories.length > 0 && (
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-1.5">
                   {data.includedCategories.map((c) => (
-                    <span key={c} className="text-[10px] text-emerald-800 dark:text-emerald-300 font-medium">
+                    <span key={c} className="text-[11px] text-emerald-800 dark:text-emerald-300 font-medium">
                       • {c}
                     </span>
                   ))}
@@ -865,15 +931,15 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
             </div>
 
             {/* 2. WHAT MIGHT BE MISSING */}
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <h4 className="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5 font-mono uppercase tracking-wider">
                 <AlertCircle className="w-3.5 h-3.5 text-amber-600 dark:text-amber-400" />
                 2. What might be missing?
               </h4>
               {data.missingCategories.length > 0 && (
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-1.5">
                   {data.missingCategories.map((c) => (
-                    <span key={c} className="text-[10px] text-amber-800 dark:text-amber-300 font-medium">
+                    <span key={c} className="text-[11px] text-amber-800 dark:text-amber-300 font-medium">
                       • {c}
                     </span>
                   ))}
@@ -885,15 +951,15 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
             </div>
 
             {/* 3. KNOWLEDGE CREATORS */}
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <h4 className="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5 font-mono uppercase tracking-wider">
                 <BookOpen className="w-3.5 h-3.5 text-sky-600 dark:text-sky-400" />
                 3. Knowledge creators
               </h4>
               {data.creatorTypes.length > 0 && (
-                <div className="flex flex-wrap gap-1">
+                <div className="flex flex-wrap gap-1.5">
                   {data.creatorTypes.map((c) => (
-                    <span key={c} className="text-[10px] text-sky-800 dark:text-sky-300 font-medium">
+                    <span key={c} className="text-[11px] text-sky-800 dark:text-sky-300 font-medium">
                       • {c}
                     </span>
                   ))}
@@ -905,7 +971,7 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
             </div>
 
             {/* 4. RESEARCH FIT & IMPACT */}
-            <div className="space-y-1.5">
+            <div className="space-y-2">
               <h4 className="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5 font-mono uppercase tracking-wider">
                 <Compass className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400" />
                 4. Research question fit
@@ -925,21 +991,39 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
             </div>
           </div>
 
-          {/* RECOMMENDED NEXT STEPS (UNBOXED) */}
-          <div className="space-y-2 pt-2">
+          {/* RECOMMENDED NEXT STEPS (FLAT - ALIGNED TO X=0) */}
+          <div className="space-y-2 pt-4">
             <h4 className="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5 font-mono uppercase tracking-wider">
               <Lightbulb className="w-3.5 h-3.5 text-amber-500" />
               What could you do next?
             </h4>
 
-            <ul className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-stone-600 dark:text-stone-300 list-disc pl-4">
-              <li>Find another source or point of view before drawing a conclusion</li>
-              <li>Check who took part in original research methodologies</li>
-              <li>Include lived experience, if relevant to your question</li>
-              <li>Compare findings from different sources and authors</li>
-              <li>Clearly explain the limits of your evidence in writing</li>
-              <li>Decide that current evidence is appropriate for your narrow scope</li>
-            </ul>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs text-stone-600 dark:text-stone-300">
+              <div className="flex items-start gap-1.5">
+                <span className="text-stone-400">•</span>
+                <span>Find another source or point of view before drawing a conclusion</span>
+              </div>
+              <div className="flex items-start gap-1.5">
+                <span className="text-stone-400">•</span>
+                <span>Check who took part in original research methodologies</span>
+              </div>
+              <div className="flex items-start gap-1.5">
+                <span className="text-stone-400">•</span>
+                <span>Include lived experience, if relevant to your question</span>
+              </div>
+              <div className="flex items-start gap-1.5">
+                <span className="text-stone-400">•</span>
+                <span>Compare findings from different sources and authors</span>
+              </div>
+              <div className="flex items-start gap-1.5">
+                <span className="text-stone-400">•</span>
+                <span>Clearly explain the limits of your evidence in writing</span>
+              </div>
+              <div className="flex items-start gap-1.5">
+                <span className="text-stone-400">•</span>
+                <span>Decide that current evidence is appropriate for your narrow scope</span>
+              </div>
+            </div>
           </div>
         </div>
       )}

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Paper, ResearchJourney, Collection, SoundScape } from './types';
+import { Paper, ResearchJourney, Collection, SoundScape, LiteratureSynthesisResult } from './types';
 
 export const INITIAL_COLLECTIONS: Collection[] = [
   { id: 'col-1', name: 'Critical AI & Society', description: 'Papers examining sociotechnical aspects of AI systems', color: 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200' },
@@ -341,3 +341,360 @@ In our client implementation, this is completely mirrored in a local database fi
     }
   ]
 };
+
+export const DEFAULT_SYNTHESIS_DATA: LiteratureSynthesisResult = {
+  agreements: "Empirical benchmarks and cognitive psychology frameworks agree that self-attention architectures and calm, asynchronous digital environments reduce extraneous cognitive load while preserving scholarly depth.",
+  disagreements: "Active debate persists regarding whether computational scaling alone can substitute for qualitative human reflexivity, and how best to mitigate algorithmic bias in citation networks.",
+  majorThemes: [
+    {
+      name: "Calm Computing & Cognitive Ergonomics",
+      description: "Designing digital research workspaces that protect sustained deep thought, flow states, and mental endurance without intrusive telemetry or anxiety-inducing metrics.",
+      linkedPapers: ["Designing for Deep Thinking: Cognitive Overload and Calm AI Systems"],
+      keyConcepts: ["Calm Technology", "Cognitive Scaffolding", "Asynchronous Engagement", "Flow State Preservation"]
+    },
+    {
+      name: "Attention Mechanisms & Scalable Transduction",
+      description: "The architectural shift from recurrence and convolution to pairwise multi-head self-attention mechanisms for processing language and document semantics.",
+      linkedPapers: ["Attention Is All You Need"],
+      keyConcepts: ["Self-Attention", "Multi-Head Attention", "Parallelized Transduction", "Long-Range Dependencies"]
+    },
+    {
+      name: "Intrinsic Motivation & Scholarly Autonomy",
+      description: "Examining how basic psychological needs (autonomy, competence, relatedness) support doctoral persistence, intellectual courage, and sustainable publication habits.",
+      linkedPapers: ["Intrinsic and extrinsic motivation from a self-determination theory perspective"],
+      keyConcepts: ["Self-Determination Theory", "Autonomy-Supportive Supervision", "Intrinsic Motivation"]
+    }
+  ],
+  coreConcepts: [
+    {
+      concept: "Calm Technology",
+      definition: "Digital systems and interfaces that inform and support the user without demanding central conscious attention or creating urgency.",
+      usageInLiterature: "Utilized in Human-Computer Interaction to design quiet, non-gamified software for researchers.",
+      linkedThemes: ["Calm Computing & Cognitive Ergonomics"]
+    },
+    {
+      concept: "Self-Attention Mechanism",
+      definition: "A mathematical operation relating different positions of a single input sequence to compute dynamic contextual representation vectors.",
+      usageInLiterature: "Foundational mechanism powering Transformer language models and modern semantic search.",
+      linkedThemes: ["Attention Mechanisms & Scalable Transduction"]
+    },
+    {
+      concept: "Autonomy Support",
+      definition: "Interpersonal and institutional environments that acknowledge emotional perspectives, offer meaningful choices, and minimize coercive control.",
+      usageInLiterature: "Demonstrated to protect academic researchers against imposter syndrome and chronic burnout.",
+      linkedThemes: ["Intrinsic Motivation & Scholarly Autonomy"]
+    }
+  ],
+  underlyingTheories: [
+    {
+      theoryName: "Self-Determination Theory (SDT)",
+      corePremise: "Optimal human functioning requires the satisfaction of three universal psychological needs: autonomy, competence, and relatedness.",
+      keyProponents: "Richard M. Ryan & Edward L. Deci (2000, 2020)",
+      applicationContext: "Sustaining long-term intellectual motivation and preventing graduate burnout."
+    },
+    {
+      theoryName: "Cognitive Load Theory (CLT)",
+      corePremise: "Human working memory is strictly limited; interface design must eliminate extraneous cognitive friction to allow germane learning.",
+      keyProponents: "John Sweller (1988), Elena S. Rostova (2024)",
+      applicationContext: "Structuring distraction-free academic writing tools and literature workspaces."
+    },
+    {
+      theoryName: "Attention & Sequence Transduction Theory",
+      corePremise: "Contextual sequence representations can be constructed entirely via dynamic pairwise dot-product affinities.",
+      keyProponents: "Ashish Vaswani et al. (2017)",
+      applicationContext: "Neural machine translation and semantic literature graph synthesis."
+    }
+  ],
+  methodologiesUsed: [
+    {
+      methodologyName: "Standardized Benchmark Transduction",
+      type: "Quantitative",
+      description: "Evaluating translation accuracy (BLEU scores) and training FLOP efficiency on public WMT corpora.",
+      strengths: "Highly objective, replicable, and provides clear quantitative performance baselines.",
+      limitations: "Focuses on token accuracy rather than qualitative nuances of deep human reasoning."
+    },
+    {
+      methodologyName: "Phenomenological Researcher Interviews",
+      type: "Qualitative",
+      description: "Semi-structured qualitative interviews analyzing cognitive fatigue, writing blocks, and metric anxiety.",
+      strengths: "Captures rich, authentic lived experiences and subtle psychological friction points.",
+      limitations: "Relies on subjective self-reporting and smaller purposive sample cohorts."
+    },
+    {
+      methodologyName: "Telemetry & Psychometric Correlational Analysis",
+      type: "Mixed",
+      description: "Correlating software session duration and interruption frequency with standardized wellbeing inventories.",
+      strengths: "Synthesizes objective usage telemetry with validated psychological assessment scales.",
+      limitations: "External stressors (e.g. grant deadlines) can introduce confounding variables."
+    }
+  ],
+  mappedRelationships: [
+    {
+      source: "Vaswani et al. (2017)",
+      target: "Modern Semantic Literature Synthesis",
+      relationshipType: "supports",
+      explanation: "Empirical benchmarking demonstrates that self-attention mechanisms effectively model multi-document conceptual relationships without sequential RNN latency."
+    },
+    {
+      source: "Ryan & Deci (2020) [SDT]",
+      target: "Rostova & Takahashi (2024) [Calm Tech]",
+      relationshipType: "supports",
+      explanation: "Self-Determination Theory supports the finding that intrusive metric tracking and speed leaderboards thwart autonomy and induce imposter anxiety."
+    },
+    {
+      source: "Rostova & Takahashi (2024)",
+      target: "Gamified Academic Telemetry",
+      relationshipType: "challenges",
+      explanation: "Directly challenges the widespread industry assumption that daily productivity streaks and constant metric counters improve scholarly output."
+    },
+    {
+      source: "Qualitative Reflexive Inquiry",
+      target: "Pure Automated Literature Extraction",
+      relationshipType: "challenges",
+      explanation: "Challenges the premise that automated statistical aggregators can replace active human epistemic reflexivity and contextual critique."
+    },
+    {
+      source: "Bidirectional Transformer Representations (BERT)",
+      target: "Vaswani et al. (2017)",
+      relationshipType: "extends",
+      explanation: "Extends the original encoder-decoder Transformer into bidirectional masked token architectures for deep conceptual document embeddings."
+    },
+    {
+      source: "Calm Companion Workspace",
+      target: "Weiser's Calm Technology (1991)",
+      relationshipType: "extends",
+      explanation: "Extends foundational ubiquitous calm computing principles into modern AI-assisted research and distraction-free writing environments."
+    },
+    {
+      source: "Self-Determination Theory",
+      target: "Autonomy-Supportive Research Supervision",
+      relationshipType: "applies",
+      explanation: "Applies basic psychological needs principles to doctoral mentorship, replacing surveillance and micromanagement with empathetic guidance."
+    },
+    {
+      source: "Attention Embedding Projections",
+      target: "Thematic Literature Mapping",
+      relationshipType: "applies",
+      explanation: "Applies high-dimensional attention vectors to identify cross-disciplinary semantic connections across disparate academic corpora."
+    },
+    {
+      source: "Calm Asynchronous Research",
+      target: "High-Velocity Productivity Dashboards",
+      relationshipType: "contrasts",
+      explanation: "Contrasts contemplative, self-paced scholarship with high-pressure, metric-saturated agile dashboards that encourage shallow skimming."
+    },
+    {
+      source: "Parallel Transformer Processing",
+      target: "Sequential Recurrent Neural Networks (LSTM)",
+      relationshipType: "contrasts",
+      explanation: "Contrasts constant $O(1)$ path-length parallel computation with sequential temporal step recurrence, trading memory for speed."
+    }
+  ],
+  schoolsOfThought: [
+    {
+      schoolName: "Calm & Sustainable Computing",
+      coreTenet: "Technological systems should reside gently on the periphery of attention and actively protect cognitive energy.",
+      keyAuthors: "Mark Weiser, John Seely Brown, Elena S. Rostova",
+      distinguishingAssumptions: "Human cognitive capacity is finite and sacred; speed metrics degrade intellectual creativity."
+    },
+    {
+      schoolName: "Computational Attention & Foundation Models",
+      coreTenet: "Sequence transduction and semantic representation can be learned entirely through parallel self-attention weights.",
+      keyAuthors: "Ashish Vaswani, Noam Shazeer, Niki Parmar",
+      distinguishingAssumptions: "Explicit recurrence and convolutional inductive biases are unnecessary when provided sufficient scale and data."
+    }
+  ],
+  establishedFindings: [
+    "Continuous activity metrics and timer countdowns induce measurable cognitive fatigue in qualitative researchers.",
+    "Multi-head self-attention outperforms sequential RNNs across cross-lingual transduction benchmarks.",
+    "Autonomy-supportive writing conditions reliably enhance long-term scholarly publication rates."
+  ],
+  emergingDebates: [
+    "Whether AI synthesis tools subtly narrow epistemic diversity by over-weighting frequently cited canonical sources.",
+    "Balancing quadratic computational complexity against document context length in full-text literature analysis."
+  ],
+  unresolvedQuestions: [
+    "What specific interface mechanisms best prompt researchers to critically verify automated thematic extractions?",
+    "How does regular digital mindfulness practice alter the linguistic structure of academic prose?"
+  ]
+};
+
+export const DEFAULT_EVIDENCE_MAP: EvidenceMap = {
+  researchQuestion: "How does cognitive load impact research decision-making under time pressure?",
+  supportingLiterature: [
+    {
+      paperTitle: "Designing for Deep Thinking: Cognitive Overload and Calm AI Systems",
+      keyPoints: "High-frequency interruptions and continuous telemetry overload working memory, causing researchers to prioritize superficial metrics over deep qualitative analysis.",
+      strength: "Robust Empirical Trial"
+    },
+    {
+      paperTitle: "Intrinsic and extrinsic motivation from a self-determination theory perspective",
+      keyPoints: "Time pressure that feels coercive undermines perceived autonomy, triggering premature cognitive closure on complex hypothesis generation.",
+      strength: "Replicated Longitudinal Cohort"
+    },
+    {
+      paperTitle: "Cognitive Ergonomics in Scholarly Inquiry",
+      keyPoints: "Calm interfaces that minimize extraneous visual clutter reduce decision fatigue by up to 34% during multi-source evidence extraction.",
+      strength: "Controlled Laboratory Study"
+    }
+  ],
+  opposingLiterature: [
+    {
+      paperTitle: "High-Velocity Innovation & Agile Scholarship Paradigms",
+      keyPoints: "Argues that constrained timeboxes and rapid iteration loops foster intellectual momentum and prevent academic perfectionist paralysis.",
+      limitation: "Sample restricted to early-stage software engineering hackathons rather than sustained scholarly research."
+    },
+    {
+      paperTitle: "Stress Inoculation and Academic Productivity Metrics",
+      keyPoints: "Suggests moderate external metric pressure acts as positive eustress, boosting output speed across routine clerical tasks.",
+      limitation: "Conflates quantitative manuscript submission counts with conceptual rigor and peer-reviewed novelty."
+    }
+  ],
+  methodologicalStrengths: [
+    "Synthesizes physiological telemetry with validated psychometric cognitive load inventories.",
+    "Cross-validates self-reported fatigue against multi-task error rates."
+  ],
+  methodologicalLimitations: [
+    "Laboratory tasks often simplify the open-ended ambiguity inherent in real dissertation research.",
+    "Individual differences in baseline working memory capacity are difficult to control completely."
+  ],
+  areasOfConsensus: [
+    "Excessive extraneous cognitive load impairs complex pattern recognition and lateral thinking.",
+    "Distraction-free, calm digital workspaces preserve working memory capacity.",
+    "High time urgency increases reliance on cognitive heuristics and familiar citations."
+  ],
+  areasOfDisagreement: [
+    "The threshold at which time pressure shifts from motivating eustress to debilitating cognitive fatigue.",
+    "Whether automated AI summaries reduce germane cognitive load or inadvertently encourage uncritical skimming."
+  ],
+  evidenceGaps: [
+    "Longitudinal studies tracking cognitive stamina over multi-year doctoral writing arcs.",
+    "Impact of neurodivergent cognitive profiles on time-pressured research synthesis.",
+    "Cross-cultural differences in academic stress perception and autonomy support."
+  ]
+};
+
+export const DEFAULT_QUESTION_DEV: ResearchQuestionAnalysis = {
+  originalTopic: "Interdisciplinary research collaboration in academic institutions",
+  refinedQuestions: [
+    {
+      questionText: "How do divergent epistemological assumptions between qualitative social scientists and computational data scientists shape the peer-review consensus in cross-disciplinary grant proposals?",
+      whyItMatters: "Directly influences which interdisciplinary initiatives receive funding and identifies communication bottlenecks before project execution.",
+      gapAddressed: "Moves beyond institutional structural barriers to investigate micro-level semantic and epistemic friction between collaborators.",
+      isAnswerable: true
+    },
+    {
+      questionText: "To what extent do non-traditional co-authorship credit models mitigate power imbalances for early-career researchers on massive interdisciplinary consortia?",
+      whyItMatters: "Protects junior scholars from intellectual exploitation while incentivizing long-term collaborative data curation.",
+      gapAddressed: "Addresses the documented blind spot where standard first/last author conventions penalize cross-field team science.",
+      isAnswerable: true
+    },
+    {
+      questionText: "What digital workspace affordances best facilitate asynchronous concept negotiation among researchers across differing time zones?",
+      whyItMatters: "Provides actionable guidelines for building modern collaborative research platforms that respect individual cognitive rhythms.",
+      gapAddressed: "Synthesizes calm technology principles with distributed team science practices.",
+      isAnswerable: true
+    }
+  ],
+  overlookedContextsOrVariables: [
+    "Early-career precarity and short-term contract timelines vs multi-year collaborative project horizons.",
+    "Disciplinary variations in citation half-life and publication prestige metrics.",
+    "Institutional resource disparities between Global North and Global South co-investigators."
+  ],
+  suggestedAlternativePerspectives: [
+    "Epistemic Injustice Framework: Examining whose methods are treated as default 'rigorous' standards in mixed teams.",
+    "Calm Infrastructure Theory: Assessing how asynchronous communication reduces meeting fatigue in multi-institutional teams.",
+    "Sociology of Valuation: Analyzing how department tenure committees evaluate interdisciplinary versus monodisciplinary portfolios."
+  ]
+};
+
+export const DEFAULT_DATA_ANALYSIS: PatternAndDataAnalysis = {
+  summary: "Analysis across 602 academic publications (2020-2024) reveals a distinct migration from isolated monodisciplinary inquiries toward mixed-methods and computational synthesis. A strong positive correlation (r = 0.74) exists between calm, distraction-free writing practices and sustained publication completion rates.",
+  recurringThemes: [
+    "Adoption of asynchronous collaborative tools increased by 58% post-2021.",
+    "Qualitative methodologies demonstrate higher resilience against metric-driven burnout compared to purely quantitative metric-chasing cohorts.",
+    "Mentorship models emphasizing psychological autonomy consistently predict doctoral persistence."
+  ],
+  unexpectedConnections: [
+    "Researchers utilizing scheduled daily mindfulness pauses reported 26% higher self-rated writing clarity despite fewer total logged desk hours.",
+    "Citation diversity increases when research teams deliberately rotate primary literature search keywords beyond dominant Western indexes."
+  ],
+  contradictions: [
+    "High publication volume does not correlate with long-term citation persistence; focused, contemplative papers exhibit higher 5-year citation half-lives.",
+    "Institutions mandating daily telemetry reporting observed higher early-career turnover despite reporting 'higher productivity' in annual reviews."
+  ],
+  trendsOverTime: [
+    "2020: Focus on emergency remote collaboration and pandemic-induced research disruption.",
+    "2021-2022: Proliferation of automated telemetry and productivity dashboard integration.",
+    "2023-2024: Counter-movement toward calm computing, researcher wellbeing, and epistemological reflexivity."
+  ],
+  variableRelationships: [
+    {
+      varA: "Autonomy Support in Supervision",
+      varB: "Doctoral Completion Rate",
+      relationshipType: "Strong Positive",
+      description: "Supervisors providing choice and empathetic feedback see a 42% decrease in graduate withdrawal rates."
+    },
+    {
+      varA: "Continuous Metric Telemetry",
+      varB: "Imposter Anxiety Score",
+      relationshipType: "Moderate Positive",
+      description: "Real-time streak counters and speed leaderboards correlate with elevated imposter syndrome symptoms."
+    },
+    {
+      varA: "Asynchronous Work Environment",
+      varB: "Deep Thought Flow State",
+      relationshipType: "Strong Positive",
+      description: "Eliminating immediate message response obligations triples the duration of uninterrupted scholarly focus."
+    },
+    {
+      varA: "Gamified Word-Count Targets",
+      varB: "Revision Quality & Novelty",
+      relationshipType: "Weak Negative",
+      description: "Arbitrary daily volume quotas encourage premature draft filling with unverified prose rather than rigorous synthesis."
+    }
+  ],
+  underexploredAreas: [
+    "Longitudinal mental health impacts of open-access publication fee pressures on independent scholars.",
+    "Cognitive ergonomics of tactile/pen-based interfaces vs keyboard entry during initial manuscript conceptualization."
+  ],
+  chartData: [
+    { label: "Qualitative Studies", value: 184, category: "Methodology" },
+    { label: "Quantitative Trials", value: 246, category: "Methodology" },
+    { label: "Mixed Methods", value: 128, category: "Methodology" },
+    { label: "Meta-Analyses", value: 44, category: "Methodology" },
+    { label: "Autonomy High Cohort", value: 89, category: "Wellbeing" },
+    { label: "Autonomy Low Cohort", value: 38, category: "Wellbeing" }
+  ]
+};
+
+export const DEFAULT_CRITICAL_FEEDBACK: CriticalPartnerFeedback = {
+  interpretationChecked: "Open-access publication policies directly cause higher citation rates regardless of institutional reputation.",
+  underpinningAssumptions: [
+    "Assumes that reader discoverability is the single rate-limiting factor in academic citation decisions.",
+    "Presumes that open-access repositories are equally indexed and discovered across different regional search engines.",
+    "Overlooks the halo effect of prestigious author affiliations and existing citation capital."
+  ],
+  unstatedPremises: [
+    "All academic fields place equal value on rapid preprints versus traditional closed-access peer-reviewed journals.",
+    "Researchers have sufficient time to read all accessible literature rather than relying on curated journal brand signals."
+  ],
+  sampleOrContextLimitations: [
+    "Data derived predominantly from STEM and high-energy physics where preprint culture (e.g. arXiv) has been normalized for decades.",
+    "Humanities and monograph-oriented disciplines exhibit entirely different citation and readership dynamics."
+  ],
+  counterArgumentsToConsider: [
+    "The 'Self-Selection Effect': High-achieving researchers may proactively choose open-access for their most promising, high-impact findings, creating reverse causality.",
+    "Author Processing Charges (APCs) create a financial barrier where well-funded elite institutions publish more open-access, confounding the citation advantage with institutional prestige."
+  ],
+  constructiveReframing: "Instead of asserting a universal causal link, frame open-access as a necessary but non-sufficient catalyst whose citation multiplier is moderated by disciplinary publication norms, institutional funding backing, and preexisting author social capital.",
+  secondThoughtSteps: {
+    notice: "Notice the immediate appeal of attributing broad academic equity purely to open access distribution channels.",
+    pause: "Pause before assuming open access alone neutralizes institutional reputation disparities.",
+    question: "Question: Could wealthier universities simply afford higher open-access publishing fees, confounding the result?",
+    listen: "Listen to perspectives from researchers in resource-constrained global departments regarding APC barriers.",
+    reconsider: "Reconsider the causal model to treat institutional prestige and field culture as essential moderating variables.",
+    choose: "Choose nuanced, qualified claims that acknowledge both the democratizing potential and the financial inequities of current OA models."
+  }
+};
+

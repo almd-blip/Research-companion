@@ -4,20 +4,122 @@
  */
 
 import React, { useState } from 'react';
+import { 
+  ChevronDown, 
+  ChevronRight, 
+  ChevronsUpDown, 
+  FileText, 
+  Sparkles, 
+  Copy, 
+  Plus, 
+  Quote, 
+  BookOpen, 
+  Upload, 
+  Check, 
+  SlidersHorizontal,
+  Info,
+  Scale,
+  HelpCircle,
+  BarChart3,
+  TrendingUp,
+  GitCompare,
+  Layers,
+  Lightbulb,
+  AlertTriangle,
+  CheckCircle2,
+  Target,
+  Compass,
+  FileSpreadsheet,
+  Search,
+  Share2,
+  Database
+} from 'lucide-react';
 import { Paper, EvidenceMap, ResearchQuestionAnalysis, PatternAndDataAnalysis, CriticalPartnerFeedback, LiteratureSynthesisResult } from '../types';
 import { postWithAiRouting } from '../lib/localAiService';
+import { 
+  DEFAULT_SYNTHESIS_DATA, 
+  DEFAULT_EVIDENCE_MAP, 
+  DEFAULT_QUESTION_DEV, 
+  DEFAULT_DATA_ANALYSIS, 
+  DEFAULT_CRITICAL_FEEDBACK 
+} from '../data';
+
+const SAMPLE_DATASETS = [
+  {
+    name: 'Research Methodology & Effect Size Sample',
+    data: `Year,PublicationCategory,SampleCount,EffectSize,Methodology,Region
+2020,Qualitative Study,45,0.42,Semi-structured Interviews,Europe
+2021,Quantitative Trial,320,0.68,Randomized Control,North America
+2022,Mixed Methods,112,0.55,Survey & Ethnography,Asia-Pacific
+2023,Meta-Analysis,1400,0.71,Systematic Review,Global
+2024,Qualitative Study,60,0.38,Focus Groups,Latin America`
+  },
+  {
+    name: 'Doctoral Wellbeing & Telemetry Metrics',
+    data: `CohortYear,SupervisionModel,AutonomyScore,StressIndex,CompletionRate,AvgWeeklyDeskHours
+2020,Autonomous/Supportive,8.6,3.4,91%,32
+2021,Directives/Surveillance,4.2,8.1,58%,48
+2022,Autonomous/Supportive,8.9,3.1,94%,30
+2023,Mixed/Standard,6.5,5.9,76%,40
+2024,Autonomous/Supportive,9.2,2.8,96%,29`
+  },
+  {
+    name: 'Publication Citation Half-Life & Open Access',
+    data: `Field,AccessType,Avg5YrCitations,APCFeeUSD,InterdisciplinaryRatio,DataSharingRate
+Cognitive Science,Open Access,38.4,1800,0.62,84%
+Cognitive Science,Closed Subscription,24.1,0,0.38,42%
+Computational Linguistics,Open Access,64.2,1200,0.78,92%
+Social Anthropology,Open Access,21.8,900,0.49,61%
+Social Anthropology,Closed Subscription,18.5,0,0.31,28%`
+  }
+];
+
+const RELATIONSHIP_TYPES = [
+  { id: 'all', label: 'All' },
+  { id: 'supports', label: 'Supports' },
+  { id: 'challenges', label: 'Challenges' },
+  { id: 'extends', label: 'Extends' },
+  { id: 'applies', label: 'Applies' },
+  { id: 'contrasts', label: 'Contrasts' },
+] as const;
+
+const normalizeRelType = (t: string): 'supports' | 'challenges' | 'extends' | 'applies' | 'contrasts' | 'other' => {
+  const low = (t || '').toLowerCase().trim();
+  if (low.includes('support')) return 'supports';
+  if (low.includes('challenge') || low.includes('critic') || low.includes('oppose') || low.includes('contradict')) return 'challenges';
+  if (low.includes('extend') || low.includes('build') || low.includes('expand')) return 'extends';
+  if (low.includes('appl') || low.includes('adopt') || low.includes('use') || low.includes('employ')) return 'applies';
+  if (low.includes('contrast') || low.includes('differ') || low.includes('diverg') || low.includes('vs')) return 'contrasts';
+  return 'other';
+};
+
+const formatRelTypeSentenceCase = (t: string): string => {
+  const norm = normalizeRelType(t);
+  switch (norm) {
+    case 'supports': return 'Supports';
+    case 'challenges': return 'Challenges';
+    case 'extends': return 'Extends';
+    case 'applies': return 'Applies';
+    case 'contrasts': return 'Contrasts';
+    default:
+      if (!t) return 'Related';
+      return t.charAt(0).toUpperCase() + t.slice(1).toLowerCase();
+  }
+};
 
 
 interface ResearchIntelligenceLayerProps {
   papers: Paper[];
   onUpdatePaper?: (updated: Paper) => void;
   onAddPaper?: (paper: Paper) => void;
+  onInsertIntoDraft?: (text: string) => void;
 }
 
 export default function ResearchIntelligenceLayer({
   papers,
   onUpdatePaper,
-  onAddPaper
+  onAddPaper,
+  onInsertIntoDraft,
 }: ResearchIntelligenceLayerProps) {
   const [activeTab, setActiveTab] = useState<'synthesis' | 'evidence_map' | 'question_dev' | 'pattern_data' | 'critical_partner'>('synthesis');
 
@@ -25,9 +127,30 @@ export default function ResearchIntelligenceLayer({
   const [customUploadedPapers, setCustomUploadedPapers] = useState<Paper[]>([]);
   const allCorpusPapers = [...papers, ...customUploadedPapers];
   const [selectedPaperIds, setSelectedPaperIds] = useState<string[]>(allCorpusPapers.map(p => p.id));
+  const [expandedCorpusIds, setExpandedCorpusIds] = useState<Record<string, boolean>>({});
   const [loadingSynthesis, setLoadingSynthesis] = useState(false);
-  const [synthesisOutput, setSynthesisOutput] = useState<LiteratureSynthesisResult | null>(null);
+  const [synthesisOutput, setSynthesisOutput] = useState<LiteratureSynthesisResult | null>(DEFAULT_SYNTHESIS_DATA);
   const [synthesisSubTab, setSynthesisSubTab] = useState<'overview' | 'themes_concepts' | 'theories_methods' | 'relationships' | 'schools_of_thought'>('overview');
+
+  const toggleCorpusExpand = (id: string, e?: React.MouseEvent) => {
+    if (e) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
+    setExpandedCorpusIds(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
+  const toggleAllCorpusExpand = () => {
+    const allExpanded = allCorpusPapers.length > 0 && allCorpusPapers.every(p => expandedCorpusIds[p.id]);
+    const newState: Record<string, boolean> = {};
+    allCorpusPapers.forEach(p => {
+      newState[p.id] = !allExpanded;
+    });
+    setExpandedCorpusIds(newState);
+  };
 
   // Collection Upload Modal/Box state
   const [showUploadModal, setShowUploadModal] = useState(false);
@@ -43,13 +166,15 @@ export default function ResearchIntelligenceLayer({
   const [evidenceQuestion, setEvidenceQuestion] = useState('How does cognitive load impact research decision-making under time pressure?');
   const [evidenceQueryFilter, setEvidenceQueryFilter] = useState('');
   const [loadingEvidenceMap, setLoadingEvidenceMap] = useState(false);
-  const [evidenceMapResult, setEvidenceMapResult] = useState<EvidenceMap | null>(null);
+  const [evidenceMapResult, setEvidenceMapResult] = useState<EvidenceMap | null>(DEFAULT_EVIDENCE_MAP);
+  const [evidenceSubTab, setEvidenceSubTab] = useState<'overview' | 'supporting_opposing' | 'consensus_disagreement' | 'gaps_questions'>('overview');
 
   // 3. Research Question Dev state
   const [topicInput, setTopicInput] = useState('Interdisciplinary research collaboration in academic institutions');
   const [contextInput, setContextInput] = useState('Focusing on early-career researchers and non-traditional publication incentives');
   const [loadingQuestions, setLoadingQuestions] = useState(false);
-  const [questionDevResult, setQuestionDevResult] = useState<ResearchQuestionAnalysis | null>(null);
+  const [questionDevResult, setQuestionDevResult] = useState<ResearchQuestionAnalysis | null>(DEFAULT_QUESTION_DEV);
+  const [questionSubTab, setQuestionSubTab] = useState<'refined_questions' | 'feasibility_scope' | 'overlooked_perspectives' | 'alternative_angles'>('refined_questions');
 
   // 4. Pattern & Data Analysis state
   const [dataInputType, setDataInputType] = useState<'csv' | 'corpus'>('csv');
@@ -61,13 +186,15 @@ export default function ResearchIntelligenceLayer({
 2024,Qualitative Study,60,0.38,Focus Groups,Latin America`);
   const [datasetName, setDatasetName] = useState('Research Methodology & Effect Size Sample');
   const [loadingDataAnalysis, setLoadingDataAnalysis] = useState(false);
-  const [dataAnalysisResult, setDataAnalysisResult] = useState<PatternAndDataAnalysis | null>(null);
+  const [dataAnalysisResult, setDataAnalysisResult] = useState<PatternAndDataAnalysis | null>(DEFAULT_DATA_ANALYSIS);
+  const [dataSubTab, setDataSubTab] = useState<'overview' | 'charts_distributions' | 'correlations' | 'anomalies'>('overview');
 
   // 5. Critical Partner Mode state
   const [hypothesisInput, setHypothesisInput] = useState('Open-access publication policies directly cause higher citation rates regardless of institutional reputation.');
   const [criticalContext, setCriticalContext] = useState('Analysing European funding council mandates from 2018-2024.');
   const [loadingCriticalPartner, setLoadingCriticalPartner] = useState(false);
-  const [criticalResult, setCriticalResult] = useState<CriticalPartnerFeedback | null>(null);
+  const [criticalResult, setCriticalResult] = useState<CriticalPartnerFeedback | null>(DEFAULT_CRITICAL_FEEDBACK);
+  const [criticalSubTab, setCriticalSubTab] = useState<'overview' | 'second_thought' | 'assumptions_counter' | 'reframing'>('overview');
 
   // --- Handlers ---
 
@@ -467,81 +594,202 @@ export default function ResearchIntelligenceLayer({
             </div>
           )}
 
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Controls Side */}
-            <div className="lg:col-span-1 bg-stone-50/60 dark:bg-stone-900/40 border border-stone-200/80 dark:border-stone-800 p-5 rounded-xl space-y-4">
-              <div className="flex justify-between items-start">
+          <div className="space-y-6">
+            {/* Top Section: Selected Articles & Collection Setup */}
+            <div className="bg-stone-50/70 dark:bg-stone-900/40 border border-stone-200/80 dark:border-stone-800 p-5 sm:p-6 rounded-2xl space-y-4">
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-stone-200/70 dark:border-stone-800/80 pb-4">
                 <div>
-                  <h3 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                     Selected Articles ({selectedPaperIds.length}/{allCorpusPapers.length})
+                  <h3 className="font-sans font-semibold text-sm text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                    <BookOpen className="w-4 h-4 text-[#912A4A] dark:text-rose-400" />
+                    <span>Selected Articles ({selectedPaperIds.length}/{allCorpusPapers.length})</span>
                   </h3>
-                  <p className="font-sans text-[11px] text-stone-500 mt-1 leading-relaxed">
+                  <p className="font-sans text-xs text-stone-500 dark:text-stone-400 mt-1 leading-relaxed">
                     Choose articles to discover common topics, main ideas, key terms, and how they connect.
                   </p>
                 </div>
+
+                {/* Primary Action Button */}
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={handleRunLiteratureSynthesis}
+                    disabled={loadingSynthesis || selectedPaperIds.length === 0}
+                    className="font-sans text-xs font-semibold bg-[#912A4A] text-white px-5 py-2.5 rounded-xl hover:bg-[#78223d] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shadow-xs"
+                  >
+                    <Sparkles className="w-3.5 h-3.5 text-rose-200" />
+                    <span>{loadingSynthesis ? 'Finding Themes...' : 'Find Big Themes'}</span>
+                  </button>
+                </div>
               </div>
 
-              {/* Action buttons */}
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setShowUploadModal(true)}
-                  className="flex-1 font-sans text-xs bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 py-1.5 px-2.5 rounded-md transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
-                >
-                   Upload Collection
-                </button>
-                <button
-                  onClick={handleSelectAllPapers}
-                  className="font-sans text-[11px] text-stone-600 dark:text-stone-400 hover:underline px-2 py-1 cursor-pointer"
-                >
-                  {selectedPaperIds.length === allCorpusPapers.length ? 'Deselect All' : 'Select All'}
-                </button>
+              {/* Action Toolbar & Expand/Collapse Toggle */}
+              <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => setShowUploadModal(true)}
+                    className="font-sans text-xs bg-white dark:bg-stone-800 border border-stone-200 dark:border-stone-700 hover:bg-stone-100 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 py-1.5 px-3 rounded-lg transition-colors flex items-center justify-center gap-1.5 cursor-pointer font-medium"
+                  >
+                    <Upload className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400" />
+                    <span>Upload Collection</span>
+                  </button>
+
+                  <button
+                    onClick={handleSelectAllPapers}
+                    className="font-sans text-xs text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200 hover:underline px-2.5 py-1.5 cursor-pointer font-medium"
+                  >
+                    {selectedPaperIds.length === allCorpusPapers.length ? 'Deselect All' : 'Select All'}
+                  </button>
+                </div>
+
+                <div className="flex items-center gap-3 text-stone-500">
+                  <span className="text-xs">{selectedPaperIds.length} of {allCorpusPapers.length} selected</span>
+                  {allCorpusPapers.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={toggleAllCorpusExpand}
+                      className="text-[#912A4A] dark:text-rose-400 hover:underline flex items-center gap-1 font-medium cursor-pointer"
+                    >
+                      <ChevronsUpDown className="w-3.5 h-3.5" />
+                      <span>
+                        {allCorpusPapers.every(p => expandedCorpusIds[p.id]) ? 'Collapse all summaries' : 'Expand all summaries'}
+                      </span>
+                    </button>
+                  )}
+                </div>
               </div>
 
-              {/* Papers Checklist */}
-              <div className="space-y-2 max-h-[360px] overflow-y-auto pr-1">
+              {/* Papers Checklist in a Responsive Grid */}
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 max-h-[500px] overflow-y-auto pr-1">
                 {allCorpusPapers.map((p) => {
                   const isCustom = customUploadedPapers.some(cp => cp.id === p.id);
+                  const isExpanded = !!expandedCorpusIds[p.id];
+                  const isSelected = selectedPaperIds.includes(p.id);
+
                   return (
-                    <label
+                    <div
                       key={p.id}
-                      className={`flex items-start gap-2.5 p-2.5 bg-white dark:bg-stone-950 border rounded-lg text-xs font-sans cursor-pointer hover:bg-stone-50 dark:hover:bg-stone-900/50 transition-colors ${
-                        isCustom ? 'border-rose-900/20 dark:border-rose-500/30' : 'border-stone-200/80 dark:border-stone-800'
+                      className={`p-3 bg-white dark:bg-stone-950 border rounded-xl text-xs font-sans transition-all flex flex-col justify-between ${
+                        isExpanded ? 'ring-1 ring-[#912A4A]/30 shadow-xs md:col-span-2 lg:col-span-3' : ''
+                      } ${
+                        isCustom ? 'border-rose-900/30 dark:border-rose-500/30' : 'border-stone-200/80 dark:border-stone-800'
                       }`}
                     >
-                      <input
-                        type="checkbox"
-                        checked={selectedPaperIds.includes(p.id)}
-                        onChange={() => handleTogglePaper(p.id)}
-                        className="mt-0.5 rounded text-[#912A4A] focus:ring-[#912A4A]"
-                      />
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-1.5">
-                          <p className="font-medium text-stone-800 dark:text-stone-200 line-clamp-1 leading-snug">{p.title}</p>
-                          {isCustom && (
-                            <span className="text-[9px] bg-rose-50 dark:bg-rose-950 text-[#912A4A] dark:text-rose-300 font-semibold px-1.5 py-0.2 rounded shrink-0">
-                              Uploaded
-                            </span>
-                          )}
+                      {/* Top Row: Checkbox, Title, Badges & Chevron Toggle */}
+                      <div className="flex items-start gap-2.5">
+                        <input
+                          type="checkbox"
+                          checked={isSelected}
+                          onChange={() => handleTogglePaper(p.id)}
+                          className="mt-1 rounded text-[#912A4A] focus:ring-[#912A4A] cursor-pointer"
+                          id={`select-corpus-paper-${p.id}`}
+                        />
+                        
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-start justify-between gap-1.5">
+                            <label
+                              htmlFor={`select-corpus-paper-${p.id}`}
+                              className="font-medium text-stone-900 dark:text-stone-100 leading-snug cursor-pointer block hover:text-[#912A4A] dark:hover:text-rose-400 transition-colors"
+                            >
+                              {p.title}
+                            </label>
+                            
+                            <button
+                              type="button"
+                              onClick={(e) => toggleCorpusExpand(p.id, e)}
+                              className="p-1 rounded-md text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-850 shrink-0 cursor-pointer transition-colors"
+                              title={isExpanded ? 'Hide paper summary' : 'Read paper summary'}
+                              aria-label={isExpanded ? 'Hide paper summary' : 'Read paper summary'}
+                            >
+                              {isExpanded ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                            </button>
+                          </div>
+
+                          <div className="flex items-center gap-1.5 mt-1 flex-wrap">
+                            <p className="text-[11px] text-stone-500 dark:text-stone-400 font-normal">
+                              {p.authors || 'Unknown'} ({p.year || 'n.d.'})
+                              {p.journal && ` · ${p.journal}`}
+                            </p>
+                            {isCustom && (
+                              <span className="text-[10px] bg-rose-50 dark:bg-rose-950 text-[#912A4A] dark:text-rose-300 font-semibold px-1.5 py-0.2 rounded">
+                                Uploaded
+                              </span>
+                            )}
+                          </div>
                         </div>
-                        <p className="text-[10px] text-stone-400 truncate mt-0.5">{p.authors} ({p.year})</p>
                       </div>
-                    </label>
+
+                      {/* Progressive Disclosure Section: Full Summary & Analytical Takeaways */}
+                      {isExpanded && (
+                        <div className="mt-3 pt-3 border-t border-stone-150 dark:border-stone-800 space-y-2.5 animate-fadeIn text-xs">
+                          {p.abstract ? (
+                            <div className="bg-stone-50/80 dark:bg-stone-900/70 p-3 rounded-lg border border-stone-200/60 dark:border-stone-800 text-xs text-stone-700 dark:text-stone-300 leading-relaxed">
+                              <span className="font-semibold text-stone-900 dark:text-stone-100 block mb-1">Summary / Abstract:</span>
+                              "{p.abstract}"
+                            </div>
+                          ) : (
+                            <p className="text-xs text-stone-400 italic">No summary text available for this item.</p>
+                          )}
+
+                          {p.structuredSummary && (
+                            <div className="space-y-1.5 pt-1 text-xs">
+                              {p.structuredSummary.researchQuestion && (
+                                <div className="p-2.5 bg-stone-50 dark:bg-stone-900 rounded-lg border border-stone-200/50 dark:border-stone-800">
+                                  <strong className="text-stone-800 dark:text-stone-200 block text-[11px] uppercase font-mono">Aim:</strong>
+                                  <span className="text-stone-700 dark:text-stone-300">{p.structuredSummary.researchQuestion}</span>
+                                </div>
+                              )}
+                              {p.structuredSummary.findings && (
+                                <div className="p-2.5 bg-emerald-50/40 dark:bg-emerald-950/20 rounded-lg border border-emerald-200/40 dark:border-emerald-900/30">
+                                  <strong className="text-emerald-800 dark:text-emerald-300 block text-[11px] uppercase font-mono">Core Findings:</strong>
+                                  <span className="text-stone-700 dark:text-stone-300">{p.structuredSummary.findings}</span>
+                                </div>
+                              )}
+                              {p.structuredSummary.limitations && (
+                                <div className="p-2.5 bg-amber-50/40 dark:bg-amber-950/20 rounded-lg border border-amber-200/40 dark:border-amber-900/30">
+                                  <strong className="text-amber-800 dark:text-amber-300 block text-[11px] uppercase font-mono">Limitations:</strong>
+                                  <span className="text-stone-700 dark:text-stone-300">{p.structuredSummary.limitations}</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Quick Actions in expanded card */}
+                          <div className="flex items-center justify-between gap-2 pt-2 text-xs">
+                            {onInsertIntoDraft && (
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const authorFirst = (p.authors || 'Author').split(',')[0].trim();
+                                  onInsertIntoDraft(`(${authorFirst} et al., ${p.year})`);
+                                }}
+                                className="text-[#912A4A] dark:text-rose-400 hover:underline flex items-center gap-1 font-medium cursor-pointer"
+                              >
+                                <Plus className="w-3.5 h-3.5" />
+                                <span>Insert in Draft</span>
+                              </button>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const citation = `${p.authors || 'Author'} (${p.year || 'n.d.'}). "${p.title}". ${p.journal || ''}`;
+                                navigator.clipboard.writeText(citation);
+                              }}
+                              className="text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 flex items-center gap-1 ml-auto cursor-pointer"
+                              title="Copy citation"
+                            >
+                              <Copy className="w-3.5 h-3.5" />
+                              <span>Copy Citation</span>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
                   );
                 })}
               </div>
-
-              <button
-                onClick={handleRunLiteratureSynthesis}
-                disabled={loadingSynthesis || selectedPaperIds.length === 0}
-                className="w-full font-sans text-xs bg-[#1B0A3B] text-white py-2.5 rounded-lg hover:bg-[#2A1254] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 shadow-sm"
-              >
-                
-                {loadingSynthesis ? 'Finding Themes...' : 'Find Big Themes'}
-              </button>
             </div>
 
-            {/* Output Display */}
-            <div className="lg:col-span-2 space-y-6">
+            {/* Bottom Section: Themes Generated & Synthesis Output */}
+            <div className="space-y-6">
               {loadingSynthesis ? (
                 <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-xl p-12 text-center flex flex-col items-center justify-center space-y-3">
                   <div className="w-6 h-6 border-2 border-[#912A4A] border-t-transparent rounded-full animate-spin"></div>
@@ -753,62 +1001,102 @@ export default function ResearchIntelligenceLayer({
                   {/* 4. MAPPED RELATIONSHIPS SUB-TAB */}
                   {synthesisSubTab === 'relationships' && (
                     <div className="space-y-4">
-                      <div className="flex flex-wrap items-center justify-between gap-2 bg-stone-50 dark:bg-stone-900 p-3 rounded-lg border border-stone-200/60 dark:border-stone-800">
+                      <div className="flex flex-wrap items-center justify-between gap-3 bg-stone-50 dark:bg-stone-900 p-3.5 rounded-lg border border-stone-200/60 dark:border-stone-800">
                         <div className="flex items-center gap-2">
-                          
                           <span className="font-sans font-semibold text-xs text-stone-800 dark:text-stone-200">
                             Local Relationship Mapping Engine
                           </span>
                         </div>
 
-                        {/* Filter buttons */}
-                        <div className="flex flex-wrap gap-1 text-[11px] font-sans">
-                          {['all', 'supports', 'challenges', 'extends', 'applies', 'contrasts'].map((type) => (
-                            <button
-                              key={type}
-                              onClick={() => setRelationshipFilter(type)}
-                              className={`px-2.5 py-1 rounded capitalize transition-colors ${
-                                relationshipFilter === type
-                                  ? 'bg-amber-900 text-white font-bold'
-                                  : 'bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-400 border border-stone-200 dark:border-stone-800'
-                              }`}
-                            >
-                              {type}
-                            </button>
-                          ))}
+                        {/* Filter buttons - Sentence Case */}
+                        <div className="flex flex-wrap gap-1.5 text-[11px] font-sans">
+                          {RELATIONSHIP_TYPES.map((type) => {
+                            const count = type.id === 'all'
+                              ? (synthesisOutput.mappedRelationships?.length || 0)
+                              : (synthesisOutput.mappedRelationships?.filter(
+                                  (rel) => normalizeRelType(rel.relationshipType) === type.id
+                                ).length || 0);
+
+                            const isActive = relationshipFilter === type.id;
+
+                            return (
+                              <button
+                                key={type.id}
+                                onClick={() => setRelationshipFilter(type.id)}
+                                className={`px-3 py-1 rounded-md transition-all flex items-center gap-1.5 cursor-pointer text-xs ${
+                                  isActive
+                                    ? 'bg-[#912A4A] text-white font-medium shadow-xs'
+                                    : 'bg-white dark:bg-stone-950 text-stone-600 dark:text-stone-400 border border-stone-200 dark:border-stone-800 hover:text-stone-900 dark:hover:text-stone-200'
+                                }`}
+                              >
+                                <span>{type.label}</span>
+                                <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${
+                                  isActive
+                                    ? 'bg-white/20 text-white'
+                                    : 'bg-stone-100 dark:bg-stone-800 text-stone-500'
+                                }`}>
+                                  {count}
+                                </span>
+                              </button>
+                            );
+                          })}
                         </div>
                       </div>
 
                       {/* Interactive Visual Graph Nodes Grid */}
                       <div className="space-y-3">
-                        {synthesisOutput.mappedRelationships
-                          ?.filter((rel) => relationshipFilter === 'all' || rel.relationshipType.toLowerCase() === relationshipFilter)
-                          .map((rel, idx) => {
+                        {(() => {
+                          const filtered = synthesisOutput.mappedRelationships?.filter((rel) => {
+                            if (relationshipFilter === 'all') return true;
+                            return normalizeRelType(rel.relationshipType) === relationshipFilter;
+                          }) || [];
+
+                          if (filtered.length === 0) {
+                            const activeLabel = RELATIONSHIP_TYPES.find(r => r.id === relationshipFilter)?.label || 'Selected';
+                            return (
+                              <div className="p-8 text-center bg-stone-50/50 dark:bg-stone-900/40 border border-dashed border-stone-200 dark:border-stone-800 rounded-lg space-y-2">
+                                <p className="text-xs font-medium text-stone-600 dark:text-stone-300">
+                                  No relationships categorized under "{activeLabel}" found in this synthesis.
+                                </p>
+                                <button
+                                  onClick={() => setRelationshipFilter('all')}
+                                  className="text-xs text-[#912A4A] dark:text-rose-400 hover:underline font-medium cursor-pointer"
+                                >
+                                  View All ({synthesisOutput.mappedRelationships?.length || 0} mapped connections)
+                                </button>
+                              </div>
+                            );
+                          }
+
+                          return filtered.map((rel, idx) => {
+                            const normType = normalizeRelType(rel.relationshipType);
                             const typeColors: Record<string, string> = {
-                              supports: 'bg-emerald-100 text-emerald-900 border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300',
-                              challenges: 'bg-rose-100 text-rose-900 border-rose-300 dark:bg-rose-950 dark:text-rose-300',
-                              extends: 'bg-sky-100 text-sky-900 border-sky-300 dark:bg-sky-950 dark:text-sky-300',
-                              applies: 'bg-purple-100 text-purple-900 border-purple-300 dark:bg-purple-950 dark:text-purple-300',
-                              contrasts: 'bg-amber-100 text-amber-900 border-amber-300 dark:bg-amber-950 dark:text-amber-300'
+                              supports: 'bg-emerald-50 text-emerald-900 border-emerald-300 dark:bg-emerald-950/60 dark:text-emerald-300',
+                              challenges: 'bg-rose-50 text-rose-900 border-rose-300 dark:bg-rose-950/60 dark:text-rose-300',
+                              extends: 'bg-sky-50 text-sky-900 border-sky-300 dark:bg-sky-950/60 dark:text-sky-300',
+                              applies: 'bg-purple-50 text-purple-900 border-purple-300 dark:bg-purple-950/60 dark:text-purple-300',
+                              contrasts: 'bg-amber-50 text-amber-900 border-amber-300 dark:bg-amber-950/60 dark:text-amber-300',
+                              other: 'bg-stone-100 text-stone-800 border-stone-300 dark:bg-stone-800 dark:text-stone-300'
                             };
 
-                            const badgeStyle = typeColors[rel.relationshipType.toLowerCase()] || 'bg-stone-100 text-stone-800';
+                            const badgeStyle = typeColors[normType] || typeColors.other;
+                            const sentenceLabel = formatRelTypeSentenceCase(rel.relationshipType);
 
                             return (
                               <div
                                 key={idx}
-                                className="p-4 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg space-y-2 hover:shadow-md transition-shadow"
+                                className="p-4 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg space-y-2 hover:shadow-xs transition-shadow"
                               >
                                 <div className="flex flex-wrap items-center gap-2">
-                                  <span className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 bg-stone-100 dark:bg-stone-900 px-2.5 py-1 rounded border border-stone-200/60 dark:border-stone-800">
+                                  <span className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 bg-stone-100 dark:bg-stone-900 px-2.5 py-1 rounded border border-stone-200/60 dark:border-stone-800">
                                     {rel.source}
                                   </span>
                                   
-                                  <span className={`text-[10px] font-mono uppercase font-bold px-2 py-0.5 rounded border ${badgeStyle}`}>
-                                    {rel.relationshipType}
+                                  <span className={`text-[11px] font-sans font-medium px-2.5 py-0.5 rounded-full border ${badgeStyle}`}>
+                                    {sentenceLabel}
                                   </span>
                                   
-                                  <span className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 bg-stone-100 dark:bg-stone-900 px-2.5 py-1 rounded border border-stone-200/60 dark:border-stone-800">
+                                  <span className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 bg-stone-100 dark:bg-stone-900 px-2.5 py-1 rounded border border-stone-200/60 dark:border-stone-800">
                                     {rel.target}
                                   </span>
                                 </div>
@@ -817,7 +1105,8 @@ export default function ResearchIntelligenceLayer({
                                 </p>
                               </div>
                             );
-                          })}
+                          });
+                        })()}
                       </div>
                     </div>
                   )}

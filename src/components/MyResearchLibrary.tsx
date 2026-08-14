@@ -48,6 +48,11 @@ export default function MyResearchLibrary({
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTag, setSelectedTag] = useState<string>('all');
   const [activeTab, setActiveTab] = useState<'all' | 'attached'>('all');
+  const [expandedNotes, setExpandedNotes] = useState<Record<string, boolean>>({});
+
+  const toggleNoteExpand = (id: string) => {
+    setExpandedNotes(prev => ({ ...prev, [id]: !prev[id] }));
+  };
   
   // Upload modal state
   const [showUploadModal, setShowUploadModal] = useState(!!attachToInsightId);
@@ -367,9 +372,22 @@ export default function MyResearchLibrary({
                 </p>
 
                 {doc.notes && (
-                  <p className="text-xs text-stone-500 dark:text-stone-400 line-clamp-2 bg-stone-50 dark:bg-stone-900 p-2 rounded text-left italic">
-                    "{doc.notes}"
-                  </p>
+                  <div className="space-y-1">
+                    <p className={`text-xs text-stone-600 dark:text-stone-300 bg-stone-50 dark:bg-stone-900 p-2.5 rounded-lg text-left italic border border-stone-150 dark:border-stone-800 ${
+                      !expandedNotes[doc.id] && doc.notes.length > 90 ? 'line-clamp-2' : ''
+                    }`}>
+                      "{doc.notes}"
+                    </p>
+                    {doc.notes.length > 90 && (
+                      <button
+                        type="button"
+                        onClick={() => toggleNoteExpand(doc.id)}
+                        className="text-[10px] text-[#1d9e75] hover:underline font-medium cursor-pointer"
+                      >
+                        {expandedNotes[doc.id] ? 'Show less' : 'Read full note'}
+                      </button>
+                    )}
+                  </div>
                 )}
 
                 {/* Tags */}
@@ -472,13 +490,16 @@ export default function MyResearchLibrary({
                 </h3>
               </div>
               <button
+                type="button"
                 onClick={() => {
                   setShowUploadModal(false);
                   if (onCloseAttachModal) onCloseAttachModal();
                 }}
-                className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200"
+                className="px-2.5 py-1 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 rounded-lg cursor-pointer flex items-center gap-1 transition-colors shadow-2xs"
+                aria-label="Close Upload Modal"
               >
-                <X className="w-5 h-5" />
+                <X className="w-3.5 h-3.5" />
+                <span>Close</span>
               </button>
             </div>
 

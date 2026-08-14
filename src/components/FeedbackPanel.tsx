@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
 
 interface FeedbackLog {
   id: string;
@@ -112,11 +113,13 @@ _Generated locally via Research Companion feedback engine._`;
             <h2 className="text-xs font-bold">Feedback companion workspace</h2>
           </div>
           <button
+            type="button"
             onClick={onClose}
             aria-label="Close feedback panel"
-            className="px-2 py-1 text-xs text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 rounded cursor-pointer font-medium"
+            className="px-2.5 py-1 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white bg-white dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 border border-stone-200 dark:border-stone-700 rounded-lg cursor-pointer flex items-center gap-1 transition-colors shadow-2xs"
           >
-            Close
+            <X className="w-3.5 h-3.5" />
+            <span>Close</span>
           </button>
         </div>
 

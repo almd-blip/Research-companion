@@ -102,10 +102,11 @@ export const PrintModal: React.FC<PrintModalProps> = ({
             <button
               type="button"
               onClick={onClose}
-              className="p-1.5 rounded-md text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 hover:bg-stone-100 dark:hover:bg-stone-800 transition-colors cursor-pointer"
+              className="px-2.5 py-1.5 rounded-md text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 transition-colors cursor-pointer text-xs font-semibold flex items-center gap-1 border border-stone-200/80 dark:border-stone-700 shadow-2xs"
               aria-label="Close preview"
             >
-              <X className="w-4 h-4" />
+              <X className="w-3.5 h-3.5" />
+              <span>Close</span>
             </button>
           </div>
         </div>

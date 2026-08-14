@@ -470,8 +470,8 @@ export default function App() {
             </button>
           </div>
 
-          {/* Simple Search Input Field (18pts below logo, 18pts above Pause and Breathe) */}
-          <div className="mt-[18pt] mb-[18pt] px-1" id="sidebar-search-container">
+          {/* Simple Search Input Field (18pts below logo, 18pts above Accessibility) */}
+          <div className="mt-[18pt] mb-0 px-1" id="sidebar-search-container">
             <div className="relative flex items-center">
               <Search className="w-3.5 h-3.5 absolute left-2.5 text-stone-400 dark:text-stone-500 pointer-events-none" />
               <input
@@ -496,10 +496,34 @@ export default function App() {
             </div>
           </div>
 
+          {/* Accessibility Navigation: 18pts under search bar and 18pts above Pause & Breathe */}
+          <div className="mt-[18pt] mb-[18pt] px-1" id="sidebar-accessibility-container">
+            <button
+              role="tab"
+              aria-selected={activeTab === 'accessibility'}
+              onClick={() => handleNavigate('accessibility')}
+              className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-all cursor-pointer ${
+                activeTab === 'accessibility'
+                  ? 'bg-stone-100/90 text-stone-900 font-semibold border-r-2 border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
+                  : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a]'
+              }`}
+              id="sidebar-accessibility-nav-btn"
+            >
+              <Eye
+                className={`w-3.5 h-3.5 shrink-0 transition-colors ${
+                  activeTab === 'accessibility'
+                    ? 'text-[#1D9E75] dark:text-[#28c093]'
+                    : 'text-[#1B0A3B] dark:text-indigo-300'
+                }`}
+              />
+              <span>Accessibility</span>
+            </button>
+          </div>
+
           {/* Structured Parent Navigation Menu */}
           <nav className="space-y-4" role="tablist" aria-label="Calm Companion Menu">
             
-            {/* 1. PAUSE AND BREATHE (Parent 1) */}
+            {/* 1. PAUSE & BREATHE (Parent 1) */}
             <div className="space-y-1">
               <div className="flex items-center justify-between group">
                 <button
@@ -511,7 +535,7 @@ export default function App() {
                   className="flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-colors cursor-pointer text-stone-700 hover:text-stone-900 hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a]"
                 >
                   <Wind className="w-3.5 h-3.5 shrink-0 text-stone-500 dark:text-stone-400" />
-                  <span>Pause and breathe</span>
+                  <span>Pause & Breathe</span>
                 </button>
                 <button
                   type="button"
@@ -597,18 +621,6 @@ export default function App() {
                   >
                     About
                   </button>
-                  <button
-                    role="tab"
-                    aria-selected={activeTab === 'accessibility'}
-                    onClick={() => handleNavigate('accessibility')}
-                    className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-xs font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
-                      activeTab === 'accessibility'
-                        ? 'bg-stone-100/90 text-stone-900 font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
-                    }`}
-                  >
-                    Accessibility
-                  </button>
                 </div>
               )}
             </div>
@@ -662,6 +674,19 @@ export default function App() {
                   </div>
 
                   <div className="pl-1.5 space-y-0.5">
+                    <button
+                      role="tab"
+                      aria-selected={activeTab === 'research' && researchSubTab === 'plan'}
+                      onClick={() => handleNavigate('research', 'plan')}
+                      className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-[11px] font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
+                        activeTab === 'research' && researchSubTab === 'plan'
+                          ? 'bg-stone-100/90 text-stone-900 font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
+                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                      }`}
+                    >
+                      Roadmap and Plan
+                    </button>
+
                     <button
                       role="tab"
                       aria-selected={activeTab === 'research' && researchSubTab === 'references'}
@@ -902,7 +927,9 @@ export default function App() {
                 onDeletePaper={handleDeletePaper}
                 navKey={navKey}
                 initialActiveTool={
-                  researchSubTab === 'references'
+                  researchSubTab === 'plan'
+                    ? 'plan'
+                    : researchSubTab === 'references'
                     ? 'references'
                     : researchSubTab === 'literature'
                     ? 'lit_intelligence'

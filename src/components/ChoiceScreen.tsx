@@ -425,27 +425,24 @@ export default function ChoiceScreen({
                       </div>
 
                       <div
-                        className="flex items-center justify-end pt-8 mt-auto w-full shrink-0 gap-2"
+                        className="flex items-center justify-start pt-8 mt-auto w-full shrink-0 gap-2"
                         id={`choice-card-bot-${choice.id}`}
                         style={{
                           transform: iconYOffsets[choice.id] ? `translateY(${iconYOffsets[choice.id]}px)` : undefined
                         }}
                       >
-                        <span
-                          className="text-xs font-semibold text-[#912A4A] opacity-0 group-hover:opacity-100 transition-all transform translate-x-2 group-hover:translate-x-0"
-                          id={`choice-card-go-${choice.id}`}
-                          style={{
-                            marginRight: enterOffsets[choice.id] ? `${enterOffsets[choice.id]}px` : undefined
-                          }}
-                        >
-                          {cmsText('choice.enter', 'Enter')}
-                        </span>
                         {choice.icon && (
                           <choice.icon
                             id={`choice-card-icon-${choice.id}`}
                             className="w-5 h-5 text-[#912A4A] dark:text-rose-400 opacity-80 group-hover:opacity-100 transition-opacity"
                           />
                         )}
+                        <span
+                          className="text-xs font-semibold text-[#912A4A] opacity-0 group-hover:opacity-100 transition-all transform -translate-x-1 group-hover:translate-x-0"
+                          id={`choice-card-go-${choice.id}`}
+                        >
+                          {cmsText('choice.enter', 'Enter')}
+                        </span>
                       </div>
                     </motion.button>
                   </React.Fragment>

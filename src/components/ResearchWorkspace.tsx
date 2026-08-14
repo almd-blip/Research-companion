@@ -6,7 +6,42 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { ResearchJourney, Paper, Chapter, Task, TimelineEvent, Collection } from '../types';
 import { PrintModal } from './PrintModal';
-import { Plus, Trash2, AlertTriangle, Bookmark, Copy, Check, X } from 'lucide-react';
+import {
+  Plus,
+  Trash2,
+  AlertTriangle,
+  Bookmark,
+  Copy,
+  Check,
+  X,
+  BookOpen,
+  FileText,
+  Sparkles,
+  Compass,
+  Columns,
+  Maximize2,
+  Minimize2,
+  Clock,
+  Layers,
+  Upload,
+  ChevronDown,
+  ChevronRight,
+  PenTool,
+  Download,
+  Share2,
+  Printer,
+  Feather,
+  Scale,
+  Map,
+  ArrowLeft,
+  ListTree,
+  BookMarked,
+  CheckSquare,
+  History,
+  Search,
+  Link,
+  Unlink
+} from 'lucide-react';
 
 import LiteratureLibrary from './LiteratureLibrary';
 import KnowledgeGraph from './KnowledgeGraph';
@@ -36,15 +71,21 @@ interface ResearchWorkspaceProps {
   navKey?: number;
 }
 
-export type StudioToolCategory = 'research' | 'analysis' | 'data' | 'writing' | 'publishing';
-
-export interface StudioToolItem {
-  id: string;
-  label: string;
-  category: StudioToolCategory;
-  icon: React.ReactNode;
-  description: string;
-}
+export type CompanionToolId =
+  | 'none'
+  | 'references'
+  | 'lit_intelligence'
+  | 'writing_companion'
+  | 'perspective_check'
+  | 'outline'
+  | 'chapter_sources'
+  | 'tasks'
+  | 'history'
+  | 'knowledge_graph'
+  | 'publishing_export'
+  | 'grants_proposals'
+  | 'upload_docs'
+  | 'analysis';
 
 export default function ResearchWorkspace({
   journeys,
@@ -61,10 +102,23 @@ export default function ResearchWorkspace({
   initialActiveTool,
   navKey,
 }: ResearchWorkspaceProps) {
-  // Primary Navigation Mode in Writing Environment: 'write' | 'research' | 'plan'
-  const [navEnvironmentMode, setNavEnvironmentMode] = useState<'write' | 'research' | 'plan'>('write');
+  // Navigation mode: 'write' (Unified writing workspace) | 'plan' (Roadmap & timeline)
+  const [navEnvironmentMode, setNavEnvironmentMode] = useState<'write' | 'plan'>('write');
 
-  // Selected chapter
+  // Companion tool active in the writing area
+  const [activeCompanionTool, setActiveCompanionTool] = useState<CompanionToolId>(() => {
+    if (initialActiveTool) {
+      if (['references', 'lit_intelligence', 'writing_companion', 'writing', 'repetition_spotter', 'perspective_check', 'knowledge_graph', 'publishing_export', 'grants_proposals', 'upload_docs', 'analysis'].includes(initialActiveTool)) {
+        return (initialActiveTool === 'writing' || initialActiveTool === 'repetition_spotter') ? 'writing_companion' : (initialActiveTool as CompanionToolId);
+      }
+    }
+    return 'none';
+  });
+
+  // Companion Layout: 'split' (side-by-side with writing canvas) | 'full' (full-width tool view)
+  const [companionViewLayout, setCompanionViewLayout] = useState<'split' | 'full'>('split');
+
+  // Selected chapter in active journey
   const [selectedChapterId, setSelectedChapterId] = useState<string>('');
   const [isChapterDropdownOpen, setIsChapterDropdownOpen] = useState(false);
 
@@ -74,7 +128,7 @@ export default function ResearchWorkspace({
   // Print modal state
   const [isPrintModalOpen, setIsPrintModalOpen] = useState(false);
 
-  // Reflective Strip State ("Second Thought Signature") - Adaptive
+  // Reflective Strip State ("Second Thought Signature")
   const [showReflectiveStrip, setShowReflectiveStrip] = useState(true);
   const [pauseStripType, setPauseStripType] = useState<'initial' | 'stretch'>('initial');
   const [dismissedInitialStrip, setDismissedInitialStrip] = useState<boolean>(() => {
@@ -131,86 +185,23 @@ export default function ResearchWorkspace({
       try {
         setReflections(JSON.parse(cached));
       } catch (e) {}
-    } else {
-      setReflections([
-        {
-          id: `ref-default-1-${activeJourneyId}`,
-          text: 'Consider expanding the discussion on methodological limitations before concluding Section 3.',
-          tag: 'Research Insight',
-          timestamp: Date.now() - 3600000 * 3,
-          journeyId: activeJourneyId,
-        },
-        {
-          id: `ref-default-2-${activeJourneyId}`,
-          text: 'Should I reframe the core thesis around epistemic humility in automated systems?',
-          tag: 'Question',
-          timestamp: Date.now() - 3600000 * 18,
-          journeyId: activeJourneyId,
-        },
-      ]);
     }
   }, [activeJourneyId]);
 
-  const handleAddReflection = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newThoughtText.trim()) return;
-    const newItem: ReflectionItem = {
-      id: `ref-${Date.now()}`,
-      text: newThoughtText.trim(),
-      tag: newThoughtTag,
-      timestamp: Date.now(),
-      journeyId: activeJourneyId,
-    };
-    const updated = [newItem, ...reflections];
-    setReflections(updated);
-    localStorage.setItem(`scholar_reflections_${activeJourneyId}`, JSON.stringify(updated));
-    setNewThoughtText('');
-  };
-
-  const handleDeleteReflection = (id: string) => {
-    const updated = reflections.filter((r) => r.id !== id);
-    setReflections(updated);
-    localStorage.setItem(`scholar_reflections_${activeJourneyId}`, JSON.stringify(updated));
-  };
-
-  const handleCopyReflection = (id: string, text: string) => {
-    navigator.clipboard.writeText(text);
-    setCopiedReflectionId(id);
-    setTimeout(() => setCopiedReflectionId(null), 2000);
-  };
-
-  const formatReflectionTime = (timestamp: number): string => {
-    const diff = Date.now() - timestamp;
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return 'Just now';
-    if (mins < 60) return `${mins}m ago`;
-    const hours = Math.floor(mins / 60);
-    if (hours < 24) return `${hours}h ago`;
-    const days = Math.floor(hours / 24);
-    return `${days}d ago`;
-  };
-
-  // Research Tools Modal/Drawer state
-  const [activeResearchTool, setActiveResearchTool] = useState<string | null>(initialActiveTool || null);
-
-  // Contextual Drawer (appears on text selection)
+  // Contextual Selection Toolbar
   const [selectedText, setSelectedText] = useState('');
-  const [isContextDrawerOpen, setIsContextDrawerOpen] = useState(false);
-  const [activeContextTool, setActiveContextTool] = useState<string | null>(null);
   const [contextResult, setContextResult] = useState<string | null>(null);
   const [isGeneratingContext, setIsGeneratingContext] = useState(false);
 
   // Bottom Context Strip Drawer: 'outline' | 'sources' | 'tasks' | 'history' | null
   const [bottomContextDrawer, setBottomContextDrawer] = useState<'outline' | 'sources' | 'tasks' | 'history' | null>(null);
 
-  // Floating Menu ('○' Second Thought Circular Action Button)
+  // Floating Action Modals
   const [isFloatingMenuOpen, setIsFloatingMenuOpen] = useState(false);
   const [floatingActionModal, setFloatingActionModal] = useState<'note' | 'ai' | 'thought' | 'voice' | 'pause' | null>(null);
   const [quickThoughtText, setQuickThoughtText] = useState('');
-  const [quickAiPrompt, setQuickAiPrompt] = useState('');
-  const [quickAiResponse, setQuickAiResponse] = useState('');
 
-  // Modals
+  // Project Creation Modal
   const [isAddingProject, setIsAddingProject] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
   const [pTitle, setPTitle] = useState('');
@@ -221,14 +212,8 @@ export default function ResearchWorkspace({
   const [newQuestion, setNewQuestion] = useState('');
   const [newChapterTitle, setNewChapterTitle] = useState('');
   const [newTaskText, setNewTaskText] = useState('');
-  const [newTaskDueDate, setNewTaskDueDate] = useState('');
-  const [newTimelineDate, setNewTimelineDate] = useState('');
-  const [newTimelineTitle, setNewTimelineTitle] = useState('');
-  const [newTimelineDesc, setNewTimelineDesc] = useState('');
-  const [newTimelineType, setNewTimelineType] = useState<TimelineEvent['type']>('milestone');
-
-  // Ingestion modal for Upload Documents
-  const [showIngestionModal, setShowIngestionModal] = useState(false);
+  const [isLinkingChapterSources, setIsLinkingChapterSources] = useState(false);
+  const [chapterSourceSearch, setChapterSourceSearch] = useState('');
 
   // Save status indicator
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved'>('idle');
@@ -238,21 +223,84 @@ export default function ResearchWorkspace({
 
   // Sync selected chapter on load or active journey change
   useEffect(() => {
-    if (activeJourney && activeJourney.chapters.length > 0 && !selectedChapterId) {
-      setSelectedChapterId(activeJourney.chapters[0].id);
+    if (activeJourney && activeJourney.chapters.length > 0) {
+      if (!selectedChapterId || !activeJourney.chapters.some(c => c.id === selectedChapterId)) {
+        setSelectedChapterId(activeJourney.chapters[0].id);
+      }
     }
   }, [activeJourney, selectedChapterId]);
 
+  // Sync initialActiveTool from external routing
   useEffect(() => {
     if (initialActiveTool) {
-      setActiveResearchTool(initialActiveTool);
-      setNavEnvironmentMode('research');
+      if (initialActiveTool === 'plan') {
+        setNavEnvironmentMode('plan');
+      } else {
+        if (['writing', 'repetition_spotter'].includes(initialActiveTool)) {
+          setActiveCompanionTool('writing_companion');
+        } else {
+          setActiveCompanionTool(initialActiveTool as CompanionToolId);
+        }
+        setNavEnvironmentMode('write');
+      }
     }
   }, [initialActiveTool, navKey]);
 
+  // Writing session timer for adaptive gentle reminders
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setWritingSessionSeconds((prev) => {
+        const nextSec = prev + 1;
+        if (nextSec >= 2700 && !hasShownStretchReminder) {
+          setShowReflectiveStrip(true);
+          setPauseStripType('stretch');
+        }
+        return nextSec;
+      });
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [hasShownStretchReminder]);
+
+  // Escape key handler to close modals/drawers/focus mode
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        if (isFocusMode) setIsFocusMode(false);
+        if (isReflectionShelfOpen) setIsReflectionShelfOpen(false);
+        if (bottomContextDrawer) setBottomContextDrawer(null);
+        if (isAddingProject) setIsAddingProject(false);
+        if (isPrintModalOpen) setIsPrintModalOpen(false);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isFocusMode, isReflectionShelfOpen, bottomContextDrawer, isAddingProject, isPrintModalOpen]);
+
   const activeChapter = activeJourney?.chapters.find((ch) => ch.id === selectedChapterId) || activeJourney?.chapters[0];
 
-  // Project Creation
+  // Derive sources directly linked to the active chapter or section in the writing area
+  const chapterPaperIds: string[] = (activeChapter && activeChapter.linkedPaperIds)
+    ? activeChapter.linkedPaperIds
+    : (activeJourney?.linkedPaperIds || []);
+  const chapterLinkedPapers = papers.filter((p) => chapterPaperIds.includes(p.id));
+
+  // Check if a paper is cited in the active chapter draft text
+  const isPaperCitedInChapterDraft = (paper: Paper) => {
+    if (!activeContent) return false;
+    const firstAuthor = paper.authors.split(',')[0].trim().toLowerCase();
+    const yearStr = paper.year.toString();
+    const contentLower = activeContent.toLowerCase();
+    return contentLower.includes(firstAuthor) || contentLower.includes(yearStr);
+  };
+
+  // Compute Word, Character & Read stats
+  const activeContent = activeChapter?.content || '';
+  const wordCount = activeContent.trim() ? activeContent.trim().split(/\s+/).length : 0;
+  const characterCount = activeContent.length;
+  const readTimeMin = Math.max(1, Math.ceil(wordCount / 200));
+
+  // --- Handlers ---
+
   const handleCreateProject = (e: React.FormEvent) => {
     e.preventDefault();
     if (!pTitle.trim()) return;
@@ -285,7 +333,6 @@ export default function ResearchWorkspace({
     setPDesc('');
   };
 
-  // Chapter Content Update
   const handleUpdateChapterContent = (content: string) => {
     if (!activeJourney || !activeChapter) return;
     const updatedChs = activeJourney.chapters.map((ch) =>
@@ -303,18 +350,58 @@ export default function ResearchWorkspace({
     }, 2200);
   };
 
-  const handleUpdateChapterStatus = (status: Chapter['status']) => {
+  // Helper for inserting citations or text takeaways directly into the active chapter manuscript
+  const handleInsertIntoDraft = (textToInsert: string) => {
     if (!activeJourney || !activeChapter) return;
+    const current = activeChapter.content || '';
+    const needsSpace = current.length > 0 && !current.endsWith(' ') && !current.endsWith('\n') && !textToInsert.startsWith(' ') && !textToInsert.startsWith('\n');
+    const updated = `${current}${needsSpace ? ' ' : ''}${textToInsert}`;
+    handleUpdateChapterContent(updated);
+  };
+
+  // Toggle linking a paper directly to the active chapter
+  const handleTogglePaperLinkToChapter = (paperId: string) => {
+    if (!activeJourney || !activeChapter) return;
+    const currentChapterPaperIds = activeChapter.linkedPaperIds || activeJourney.linkedPaperIds || [];
+    const isLinked = currentChapterPaperIds.includes(paperId);
+    const newChapterPaperIds = isLinked
+      ? currentChapterPaperIds.filter((id) => id !== paperId)
+      : [...currentChapterPaperIds, paperId];
+
     const updatedChs = activeJourney.chapters.map((ch) =>
-      ch.id === activeChapter.id ? { ...ch, status } : ch
+      ch.id === activeChapter.id ? { ...ch, linkedPaperIds: newChapterPaperIds } : ch
     );
+
+    // Also ensure project includes the paper
+    const updatedJourneyPaperIds = activeJourney.linkedPaperIds.includes(paperId)
+      ? activeJourney.linkedPaperIds
+      : [...activeJourney.linkedPaperIds, paperId];
+
     onUpdateJourney({
       ...activeJourney,
       chapters: updatedChs,
+      linkedPaperIds: updatedJourneyPaperIds,
     });
   };
 
-  // Chapter Addition
+  // Helper for inserting paper citation directly into the active chapter manuscript & auto-linking
+  const handleInsertPaperCitation = (paper: Paper) => {
+    const citation = `(${paper.authors.split(',')[0]} et al., ${paper.year})`;
+    handleInsertIntoDraft(citation);
+    if (activeChapter) {
+      const currentChapterPaperIds = activeChapter.linkedPaperIds || activeJourney?.linkedPaperIds || [];
+      if (!currentChapterPaperIds.includes(paper.id)) {
+        const updatedChs = activeJourney!.chapters.map((ch) =>
+          ch.id === activeChapter.id ? { ...ch, linkedPaperIds: [...currentChapterPaperIds, paper.id] } : ch
+        );
+        onUpdateJourney({
+          ...activeJourney!,
+          chapters: updatedChs,
+        });
+      }
+    }
+  };
+
   const handleAddChapter = (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeJourney || !newChapterTitle.trim()) return;
@@ -350,20 +437,17 @@ export default function ResearchWorkspace({
     e.preventDefault();
     if (!activeJourney || !newTaskText.trim()) return;
 
-    const addedTask: Task = {
-      id: 'task-' + Math.random().toString(36).substr(2, 9),
+    const newTask: Task = {
+      id: 't-' + Math.random().toString(36).substr(2, 9),
       text: newTaskText.trim(),
       completed: false,
-      dueDate: newTaskDueDate || undefined,
     };
 
     onUpdateJourney({
       ...activeJourney,
-      tasks: [...activeJourney.tasks, addedTask],
+      tasks: [...activeJourney.tasks, newTask],
     });
-
     setNewTaskText('');
-    setNewTaskDueDate('');
   };
 
   const handleToggleTask = (taskId: string) => {
@@ -377,222 +461,94 @@ export default function ResearchWorkspace({
     });
   };
 
-  // Word count & read time helper
-  const wordCount = activeChapter?.content ? activeChapter.content.trim().split(/\s+/).filter(Boolean).length : 0;
-  const readTimeMin = Math.max(1, Math.ceil(wordCount / 200));
-
-  // ADAPTIVE PAUSE STRIP LOGIC:
-  // 1. Empty document (< 50 words): "Pause: What will you discover today?"
-  // 2. After 50–100 words (wordCount >= 50): Fade away automatically.
-  // 3. After 1 hour (3600s) of continuous writing session: Show gentle reminder ("Pause: Would stretching or a glass of water help?") ONCE only.
-  useEffect(() => {
-    if (pauseStripType === 'initial') {
-      if (wordCount >= 50 && showReflectiveStrip) {
-        setShowReflectiveStrip(false);
-      } else if (wordCount < 50 && !dismissedInitialStrip && !showReflectiveStrip) {
-        setShowReflectiveStrip(true);
-      }
-    }
-  }, [wordCount, pauseStripType, showReflectiveStrip, dismissedInitialStrip]);
-
-  // Continuous writing session timer
-  useEffect(() => {
-    let interval: any = null;
-    if (navEnvironmentMode === 'write') {
-      interval = setInterval(() => {
-        setWritingSessionSeconds((prev) => prev + 1);
-      }, 1000);
-    }
-    return () => clearInterval(interval);
-  }, [navEnvironmentMode]);
-
-  // Trigger 1-hour stretch reminder once
-  useEffect(() => {
-    if (writingSessionSeconds >= 3600 && !hasShownStretchReminder) {
-      setPauseStripType('stretch');
-      setShowReflectiveStrip(true);
-      setHasShownStretchReminder(true);
-      localStorage.setItem('scholar_pause_stretch_reminder_shown', 'true');
-    }
-  }, [writingSessionSeconds, hasShownStretchReminder]);
-
-  // Contextual Tool Trigger for Selected Text
-  const handleTriggerContextTool = (tool: string) => {
-    setActiveContextTool(tool);
-    setIsGeneratingContext(true);
-    setIsContextDrawerOpen(true);
-
-    setTimeout(() => {
-      setIsGeneratingContext(false);
-      if (tool === 'research') {
-        setContextResult(`Research Synthesis on "${selectedText.slice(0, 40)}...":\n\nThis passage connects with core literature on institutional epistemology and reflective practice. Key authors emphasize creating intentional pause intervals prior to drafting structural arguments.`);
-      } else if (tool === 'summarise') {
-        setContextResult(`Summary:\n\n"${selectedText}"\n\nCore takeaway: Reflective inquiry requires deliberate spacing and structured thematic clarity.`);
-      } else if (tool === 'compare') {
-        setContextResult(`Comparative View:\n\nPrimary Claim: Focuses on qualitative reflection.\nCounter Claim: Highlights empirical dataset validation.\nSynthesis: Both perspectives are complementary across iterative revision phases.`);
-      } else if (tool === 'citation') {
-        setContextResult(`Recommended Citations:\n1. Mercer, E. (2024). "Space Before Response: Epistemic Design in Creative Writing". Journal of Reflective Practice, 18(2), 104-118.\n2. Aris, L. (2023). "Mindful Drafting & Narrative Structure". Oxford University Press.`);
-      } else if (tool === 'outline') {
-        setContextResult(`Generated Outline Segment:\n\nI. Premise Introduction\nII. Foundational Literature & Perspectives\nIII. Critical Reflection & Evidence Synthesis\nIV. Concluding Implications`);
-      } else if (tool === 'ai') {
-        setContextResult(`Thoughtful AI Partner:\n\nConsider expanding on how this idea impacts your reader's perspective. Would adding a concrete narrative example strengthen the emotional resonance?`);
-      }
-    }, 600);
+  const handleAddReflection = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newThoughtText.trim()) return;
+    const newItem: ReflectionItem = {
+      id: `ref-${Date.now()}`,
+      text: newThoughtText.trim(),
+      tag: newThoughtTag,
+      timestamp: Date.now(),
+      journeyId: activeJourneyId,
+    };
+    const updated = [newItem, ...reflections];
+    setReflections(updated);
+    localStorage.setItem(`scholar_reflections_${activeJourneyId}`, JSON.stringify(updated));
+    setNewThoughtText('');
   };
 
-  // Empty state guard
-  if (!activeJourney || journeys.length === 0) {
-    return (
-      <div className="py-16 px-6 text-center font-sans max-w-lg mx-auto space-y-4">
-        <div className="w-12 h-12 rounded-full bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 flex items-center justify-center mx-auto">
-          
-        </div>
-        <div className="space-y-1">
-          <h3 className="font-serif font-bold text-lg text-stone-900 dark:text-stone-100">
-            No Active Projects
-          </h3>
-          <p className="font-sans text-xs text-stone-500 dark:text-stone-400 leading-relaxed">
-            Your writing studio is ready. Create a new writing or research project to begin structuring thoughts, drafting chapters, and exploring ideas.
-          </p>
-        </div>
-        <button
-          type="button"
-          onClick={() => setIsAddingProject(true)}
-          className="px-4 py-2 bg-[#912A4A] text-white hover:bg-[#78223d] rounded-md text-xs font-medium cursor-pointer transition-colors inline-flex items-center gap-2 shadow-xs"
-        >
-           Create New Project
-        </button>
+  const handleDeleteReflection = (id: string) => {
+    const updated = reflections.filter((r) => r.id !== id);
+    setReflections(updated);
+    localStorage.setItem(`scholar_reflections_${activeJourneyId}`, JSON.stringify(updated));
+  };
 
-        {isAddingProject && (
-          <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
-            <form onSubmit={handleCreateProject} className="max-w-xl w-full bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-6 rounded-xl space-y-4 shadow-xl text-left">
-              <div className="flex justify-between items-center border-b border-stone-150 dark:border-stone-850 pb-3">
-                <h2 className="font-serif font-bold text-lg text-stone-900 dark:text-stone-100 flex items-center gap-2">
-                   Create New Writing Project
-                </h2>
-                <button
-                  type="button"
-                  onClick={() => setIsAddingProject(false)}
-                  className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1 cursor-pointer"
-                >
-                  
-                </button>
-              </div>
+  const handleCopyReflection = (id: string, text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedReflectionId(id);
+    setTimeout(() => setCopiedReflectionId(null), 2000);
+  };
 
-              <div className="space-y-3">
-                <div>
-                  <label className="block font-sans text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">Project Title</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. The Quiet Architecture of Reflection..."
-                    value={pTitle}
-                    onChange={(e) => setPTitle(e.target.value)}
-                    className="w-full font-sans text-xs p-2.5 border border-stone-300 dark:border-stone-700 rounded bg-stone-50 dark:bg-stone-900 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#912A4A]"
-                    required
-                  />
-                </div>
-
-                <div>
-                  <label className="block font-sans text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">Project Type</label>
-                  <select
-                    value={pType}
-                    onChange={(e) => setPType(e.target.value as ResearchJourney['type'])}
-                    className="w-full font-sans text-xs p-2.5 border border-stone-300 dark:border-stone-700 rounded bg-stone-50 dark:bg-stone-900 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#912A4A] cursor-pointer"
-                  >
-                    <option value="book">Book & Novel Manuscript</option>
-                    <option value="journal">Essay & Journal Article</option>
-                    <option value="phd">Research Project & Dissertation</option>
-                    <option value="policy">Reflective Journaling & Notes</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block font-sans text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">Premise or Abstract</label>
-                  <textarea
-                    placeholder="Describe the central premise or vision of this writing project..."
-                    value={pDesc}
-                    onChange={(e) => setPDesc(e.target.value)}
-                    className="w-full font-sans text-xs p-2.5 border border-stone-300 dark:border-stone-700 rounded bg-stone-50 dark:bg-stone-900 text-stone-900 dark:text-stone-100 h-24 focus:outline-none focus:ring-1 focus:ring-[#912A4A]"
-                  />
-                </div>
-              </div>
-
-              <div className="flex justify-end gap-2 pt-2 border-t border-stone-150 dark:border-stone-850">
-                <button
-                  type="button"
-                  onClick={() => setIsAddingProject(false)}
-                  className="font-sans text-xs px-3 py-2 border border-stone-200 dark:border-stone-800 rounded text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900 cursor-pointer"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="font-sans text-xs bg-[#912A4A] text-white hover:bg-[#78223d] px-4 py-2 rounded transition-colors cursor-pointer font-medium"
-                >
-                  Create Workspace
-                </button>
-              </div>
-            </form>
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // =========================================================================
-  // FOCUS MODE: ULTRA-PURE DISTRACTION-FREE WRITING
-  // =========================================================================
+  // Focus mode view
   if (isFocusMode) {
     return (
-      <div className="fixed inset-0 z-50 bg-[#FAF8F5] dark:bg-stone-950 text-stone-900 dark:text-stone-100 flex flex-col p-6 md:p-12 overflow-y-auto animate-fadeIn" id="focus-mode-interface">
-        {/* Focus Top Bar */}
-        <div className="max-w-3xl w-full mx-auto flex items-center justify-between pb-6 border-b border-stone-200/60 dark:border-stone-850 shrink-0">
-          <button
-            type="button"
-            onClick={() => setIsFocusMode(false)}
-            className="font-sans text-xs px-3.5 py-2 rounded-md bg-[#912A4A] text-white hover:bg-[#78223d] transition-colors flex items-center gap-2 cursor-pointer font-semibold shadow-xs"
-            id="exit-focus-mode-btn"
-            title="Exit Focus Mode"
-          >
-            <span>Exit Focus</span>
-          </button>
+      <div className="fixed inset-0 z-50 bg-[#FAF8F5] dark:bg-stone-950 text-stone-900 dark:text-stone-100 flex flex-col h-screen overflow-hidden animate-fadeIn" id="focus-mode-interface">
+        {/* Fixed Non-Scrolling Top Header - Always visible without scrolling */}
+        <header className="shrink-0 z-50 bg-[#FAF8F5]/98 dark:bg-stone-950/98 backdrop-blur-md border-b border-stone-200/80 dark:border-stone-850 px-4 sm:px-8 py-3.5 shadow-2xs">
+          <div className="max-w-4xl w-full mx-auto flex items-center justify-between gap-4">
+            <button
+              type="button"
+              onClick={() => setIsFocusMode(false)}
+              className="font-sans text-xs px-4 py-2 rounded-lg bg-[#912A4A] text-white hover:bg-[#78223d] transition-all flex items-center gap-2 cursor-pointer font-semibold shadow-xs shrink-0"
+              id="exit-focus-mode-btn"
+              title="Exit Focus Mode (Esc)"
+            >
+              <span>Exit Focus</span>
+            </button>
 
-          <div className="flex items-center gap-3">
-            <span className="font-serif font-bold text-sm md:text-base text-stone-800 dark:text-stone-200">
-              {activeJourney.title}
-            </span>
-            <span className="text-stone-300 dark:text-stone-700">•</span>
-            <span className="font-sans text-xs text-[#912A4A] dark:text-rose-400 font-medium">
-              {activeChapter?.title}
+            <div className="flex items-center gap-2 sm:gap-3 truncate">
+              <span className="font-serif font-bold text-sm sm:text-base text-stone-800 dark:text-stone-200 truncate">
+                {activeJourney.title}
+              </span>
+              <span className="text-stone-300 dark:text-stone-700 hidden sm:inline">•</span>
+              <span className="font-sans text-xs text-[#912A4A] dark:text-rose-400 font-medium truncate hidden sm:inline">
+                {activeChapter?.title}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3 text-xs text-stone-500 dark:text-stone-400 font-mono shrink-0">
+              <span>Words: {wordCount} · Characters: {characterCount}</span>
+            </div>
+          </div>
+        </header>
+
+        {/* Scrollable Text Area Container */}
+        <main className="flex-grow overflow-y-auto px-4 sm:px-8 py-6 md:py-10">
+          <div className="max-w-4xl w-full mx-auto min-h-full flex flex-col">
+            <textarea
+              value={activeChapter?.content || ''}
+              onChange={(e) => handleUpdateChapterContent(e.target.value)}
+              placeholder="Begin writing your manuscript etc..."
+              autoFocus
+              className="w-full flex-grow min-h-[65vh] font-sans text-base md:text-lg text-stone-900 dark:text-stone-100 bg-transparent resize-none focus:outline-none leading-[1.85] tracking-[0.012em] placeholder:text-stone-400 dark:placeholder:text-stone-600 py-2"
+            />
+          </div>
+        </main>
+
+        {/* Fixed Non-Scrolling Bottom Status Bar */}
+        <footer className="shrink-0 bg-[#FAF8F5]/98 dark:bg-stone-950/98 border-t border-stone-200/60 dark:border-stone-850 px-4 sm:px-8 py-2.5">
+          <div className="max-w-4xl w-full mx-auto flex justify-between items-center text-xs text-stone-500 font-mono">
+            <span>Words: {wordCount} · Characters: {characterCount}</span>
+            <span className="text-emerald-600 dark:text-emerald-400 font-sans font-medium flex items-center gap-1">
+              <Check className="w-3.5 h-3.5" /> Draft safe · Offline first
             </span>
           </div>
-        </div>
-
-        {/* Focus Writing Canvas */}
-        <div className="max-w-3xl w-full mx-auto flex-grow my-8 space-y-4">
-          <textarea
-            value={activeChapter?.content || ''}
-            onChange={(e) => handleUpdateChapterContent(e.target.value)}
-            placeholder="Begin writing..."
-            autoFocus
-            className="w-full h-full min-h-[60vh] font-sans text-base md:text-lg text-stone-900 dark:text-stone-100 bg-transparent resize-none focus:outline-none leading-[1.85] tracking-[0.012em] placeholder:text-stone-300 dark:placeholder:text-stone-700 py-3"
-          />
-        </div>
-
-        {/* Focus Footer */}
-        <div className="max-w-3xl w-full mx-auto pt-4 border-t border-stone-200/60 dark:border-stone-850 flex justify-between items-center text-xs text-stone-400 font-mono shrink-0">
-          <span>{wordCount} Words</span>
-          <span>~{readTimeMin} min read</span>
-        </div>
+        </footer>
       </div>
     );
   }
 
-  // Handler for printing project notes & manuscript
-  const handlePrintNotes = () => {
-    setIsPrintModalOpen(true);
-  };
-
+  // Raw text for print view
   const rawNotesText = [
     `SECOND THOUGHT — PROJECT NOTES`,
     `Title: ${activeJourney?.title || 'Project Notes'}`,
@@ -600,16 +556,482 @@ export default function ResearchWorkspace({
     `Section: ${activeChapter?.title || 'Draft Notes'}`,
     `----------------------------------------`,
     activeChapter?.content || 'No content drafted in this note yet.',
-    activeJourney?.questions && activeJourney.questions.length > 0 ? `\nCENTRAL INQUIRY QUESTIONS:\n` + activeJourney.questions.map((q, i) => `${i + 1}. ${q}`).join('\n') : '',
-    activeJourney?.tasks && activeJourney.tasks.length > 0 ? `\nACTION PLAN & TASKS:\n` + activeJourney.tasks.map(t => `${t.completed ? '[✓]' : '[ ]'} ${t.text}`).join('\n') : ''
   ].filter(Boolean).join('\n\n');
 
-  // =========================================================================
-  // MAIN THREE-ZONE WRITING INTERFACE
-  // =========================================================================
+  // Render Companion Tool Component
+  const renderCompanionToolComponent = () => {
+    switch (activeCompanionTool) {
+      case 'references':
+        return (
+          <LiteratureLibrary
+            papers={papers}
+            collections={collections}
+            onUpdatePaper={onUpdatePaper}
+            onAddPaper={onAddPaper}
+            onDeletePaper={onDeletePaper}
+            onInsertCitation={(citation) => handleInsertIntoDraft(citation)}
+          />
+        );
+
+      case 'lit_intelligence':
+        return (
+          <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl p-4 shadow-xs">
+            <div className="mb-3 pb-2 border-b border-stone-200/60 dark:border-stone-800 flex justify-between items-center">
+              <div>
+                <h3 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100">
+                  Paper Summaries & Literature Synthesis
+                </h3>
+                <p className="text-xs text-stone-500">
+                  Cross-paper findings, empirical themes, and key takeaways connected to your library.
+                </p>
+              </div>
+            </div>
+            <ResearchIntelligenceLayer
+              papers={papers}
+              onUpdatePaper={onUpdatePaper}
+              onAddPaper={onAddPaper}
+              onInsertIntoDraft={(text) => handleInsertIntoDraft(text)}
+            />
+          </div>
+        );
+
+      case 'writing_companion':
+        return (
+          <WritingCompanion
+            papers={papers}
+            draftContent={activeChapter?.content || ''}
+            onUpdateDraftContent={handleUpdateChapterContent}
+            activeChapterTitle={activeChapter?.title}
+            journeyTitle={activeJourney?.title}
+            onInsertCitation={(citation) => handleInsertIntoDraft(citation)}
+          />
+        );
+
+      case 'perspective_check':
+        return (
+          <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl p-5 shadow-xs">
+            <PerspectiveCheck
+              papers={papers}
+              activeJourney={activeJourney}
+              onInsertIntoDraft={(text) => handleInsertIntoDraft(text)}
+            />
+          </div>
+        );
+
+      case 'outline':
+        return (
+          <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl p-5 shadow-xs space-y-4 text-xs font-sans">
+            <div className="flex justify-between items-center border-b border-stone-150 dark:border-stone-800 pb-3">
+              <div>
+                <h3 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100">
+                  Project Outline
+                </h3>
+                <p className="text-xs text-stone-500">
+                  Chapter structure for <strong className="text-stone-700 dark:text-stone-300 font-medium">{activeJourney.title}</strong>
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2 max-h-[55vh] overflow-y-auto pr-1">
+              {activeJourney.chapters.map((ch, idx) => (
+                <div
+                  key={ch.id}
+                  onClick={() => setSelectedChapterId(ch.id)}
+                  className={`p-3 rounded-lg border transition-all cursor-pointer flex items-center justify-between ${
+                    ch.id === activeChapter?.id
+                      ? 'bg-[#912A4A]/5 dark:bg-rose-950/20 border-[#912A4A]/40 dark:border-rose-800 text-stone-900 dark:text-stone-100 shadow-2xs'
+                      : 'bg-stone-50/70 dark:bg-stone-950/60 border-stone-200/70 dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-850'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="font-mono text-xs font-bold text-[#912A4A] dark:text-rose-400">
+                      {idx + 1}.
+                    </span>
+                    <div>
+                      <span className="font-semibold block">{ch.title}</span>
+                      <span className="text-[10px] text-stone-400 font-mono">
+                        {ch.content ? ch.content.trim().split(/\s+/).filter(Boolean).length : 0} words
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className="font-mono text-[10px] uppercase px-2 py-0.5 rounded bg-stone-200/60 dark:bg-stone-800 text-stone-600 dark:text-stone-400">
+                      {ch.status ? ch.status.replace('_', ' ') : 'drafting'}
+                    </span>
+                    {ch.id === activeChapter?.id && (
+                      <span className="text-[10px] font-bold text-[#912A4A] dark:text-rose-400">Active</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Add Chapter */}
+            <form onSubmit={handleAddChapter} className="pt-2 border-t border-stone-150 dark:border-stone-800 flex gap-2">
+              <input
+                type="text"
+                placeholder="New chapter or section title..."
+                value={newChapterTitle}
+                onChange={(e) => setNewChapterTitle(e.target.value)}
+                className="flex-grow font-sans text-xs p-2 border border-stone-300 dark:border-stone-700 rounded-lg bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#912A4A]"
+              />
+              <button
+                type="submit"
+                className="px-3.5 py-2 bg-[#912A4A] hover:bg-[#78223d] text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-2xs"
+              >
+                Add Chapter
+              </button>
+            </form>
+          </div>
+        );
+
+      case 'chapter_sources':
+        const unlinkedLibraryPapers = papers.filter((p) =>
+          !chapterPaperIds.includes(p.id) &&
+          (chapterSourceSearch.trim() === '' ||
+            p.title.toLowerCase().includes(chapterSourceSearch.toLowerCase()) ||
+            p.authors.toLowerCase().includes(chapterSourceSearch.toLowerCase()) ||
+            p.tags.some(t => t.toLowerCase().includes(chapterSourceSearch.toLowerCase())))
+        );
+
+        return (
+          <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl p-5 shadow-xs space-y-4 text-xs font-sans">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-150 dark:border-stone-800 pb-3">
+              <div>
+                <div className="flex items-center gap-2">
+                  <h3 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100">
+                    Chapter Sources
+                  </h3>
+                  <span className="px-2 py-0.5 rounded-full bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-400 font-mono text-[10px] font-semibold">
+                    {chapterLinkedPapers.length}
+                  </span>
+                </div>
+                <p className="text-xs text-stone-500 mt-0.5">
+                  Sources directly linked to <strong className="text-stone-800 dark:text-stone-200 font-medium">{activeChapter?.title || 'Current Section'}</strong>
+                </p>
+              </div>
+
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => setIsLinkingChapterSources(!isLinkingChapterSources)}
+                  className="px-2.5 py-1.5 bg-[#912A4A] hover:bg-[#78223d] text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 shadow-2xs shrink-0"
+                  id="link-more-sources-btn"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>{isLinkingChapterSources ? 'Done Linking' : 'Link Literature'}</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Quick search/picker to link literature directly to this chapter */}
+            {isLinkingChapterSources && (
+              <div className="p-3.5 bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-200/70 dark:border-stone-800 space-y-2.5 animate-fadeIn">
+                <div className="flex items-center justify-between">
+                  <span className="font-semibold text-stone-800 dark:text-stone-200 text-xs">
+                    Attach Literature from Library to this Chapter:
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setIsLinkingChapterSources(false)}
+                    className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 p-1 cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+
+                <div className="relative">
+                  <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-stone-400" />
+                  <input
+                    type="text"
+                    placeholder="Search library papers by title, author, or keyword..."
+                    value={chapterSourceSearch}
+                    onChange={(e) => setChapterSourceSearch(e.target.value)}
+                    className="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#912A4A]"
+                  />
+                </div>
+
+                <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1">
+                  {unlinkedLibraryPapers.length === 0 ? (
+                    <div className="text-center py-3 text-stone-400 text-xs">
+                      {chapterSourceSearch ? 'No matching unlinked literature found.' : 'All library literature is currently linked to this chapter.'}
+                    </div>
+                  ) : (
+                    unlinkedLibraryPapers.map((paper) => (
+                      <div
+                        key={paper.id}
+                        className="p-2 bg-white dark:bg-stone-900 rounded-lg border border-stone-200/60 dark:border-stone-800 flex items-center justify-between gap-2"
+                      >
+                        <div className="min-w-0 flex-1">
+                          <p className="font-medium text-stone-800 dark:text-stone-200 truncate">{paper.title}</p>
+                          <p className="text-[10px] text-stone-400">{paper.authors.split(',')[0]} ({paper.year})</p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => handleTogglePaperLinkToChapter(paper.id)}
+                          className="px-2 py-1 bg-stone-100 hover:bg-[#912A4A] hover:text-white dark:bg-stone-800 text-stone-700 dark:text-stone-200 rounded text-[11px] font-medium transition-colors cursor-pointer shrink-0 flex items-center gap-1"
+                        >
+                          <Plus className="w-3 h-3" />
+                          <span>Link</span>
+                        </button>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* List of currently linked sources for active chapter */}
+            {chapterLinkedPapers.length === 0 ? (
+              <div className="p-6 text-center bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-200/60 dark:border-stone-800 space-y-2">
+                <BookOpen className="w-6 h-6 mx-auto text-stone-400" />
+                <p className="text-stone-700 dark:text-stone-300 font-medium">No sources linked to this chapter yet.</p>
+                <p className="text-[11px] text-stone-500">
+                  Link relevant literature directly to <strong className="text-stone-800 dark:text-stone-200">{activeChapter?.title || 'this section'}</strong> or insert citations while drafting.
+                </p>
+                <div className="pt-2 flex justify-center gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsLinkingChapterSources(true)}
+                    className="px-3 py-1.5 bg-[#912A4A] text-white rounded-lg text-xs font-semibold cursor-pointer hover:bg-[#78223d]"
+                  >
+                    + Link Sources to Chapter
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2.5 max-h-[60vh] overflow-y-auto pr-1">
+                {chapterLinkedPapers.map((paper) => {
+                  const isCited = isPaperCitedInChapterDraft(paper);
+                  return (
+                    <div
+                      key={paper.id}
+                      className="p-3.5 bg-stone-50/80 dark:bg-stone-950/70 rounded-xl border border-stone-200/70 dark:border-stone-800 space-y-2 hover:border-stone-300 dark:hover:border-stone-700 transition-colors"
+                    >
+                      <div className="flex justify-between items-start gap-2">
+                        <div className="space-y-1">
+                          <span className="font-semibold text-stone-900 dark:text-stone-100 leading-snug block">
+                            {paper.title}
+                          </span>
+                          <div className="flex flex-wrap items-center gap-2 text-[11px] text-stone-500">
+                            <span>{paper.authors} ({paper.year})</span>
+                            <span className="text-stone-300 dark:text-stone-700">•</span>
+                            <span className="font-mono text-[10px]">{paper.journal || 'Academic publication'}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => handleInsertPaperCitation(paper)}
+                            className="text-[11px] px-2.5 py-1 bg-white dark:bg-stone-800 hover:bg-[#912A4A] hover:text-white dark:hover:bg-rose-900 text-stone-700 dark:text-stone-200 border border-stone-200 dark:border-stone-700 rounded-lg cursor-pointer transition-colors font-medium"
+                            title="Insert citation into active draft"
+                          >
+                            Cite
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => handleTogglePaperLinkToChapter(paper.id)}
+                            className="text-[11px] p-1 text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 rounded cursor-pointer transition-colors"
+                            title="Unlink source from this chapter"
+                          >
+                            <Unlink className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {isCited && (
+                        <div className="flex items-center gap-1 text-[10px] font-medium text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/40 px-2 py-0.5 rounded border border-teal-200/50 dark:border-teal-900/30 w-fit">
+                          <Check className="w-3 h-3" />
+                          <span>Cited in active draft</span>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+        );
+
+      case 'tasks':
+        const completedTasksCount = activeJourney.tasks.filter(t => t.completed).length;
+        const totalTasksCount = activeJourney.tasks.length;
+        return (
+          <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl p-5 shadow-xs space-y-4 text-xs font-sans">
+            <div className="flex justify-between items-center border-b border-stone-150 dark:border-stone-800 pb-3">
+              <div>
+                <h3 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100">
+                  Chapter Tasks ({completedTasksCount}/{totalTasksCount})
+                </h3>
+                <p className="text-xs text-stone-500">
+                  Research milestones & drafting to-dos for <strong className="text-stone-700 dark:text-stone-300 font-medium">{activeJourney.title}</strong>
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-1.5 max-h-[55vh] overflow-y-auto pr-1">
+              {activeJourney.tasks.map((task) => (
+                <div
+                  key={task.id}
+                  onClick={() => handleToggleTask(task.id)}
+                  className={`p-3 rounded-lg border cursor-pointer flex items-center justify-between transition-all ${
+                    task.completed
+                      ? 'bg-emerald-50/30 dark:bg-emerald-950/20 text-stone-400 border-emerald-200/60 dark:border-emerald-900/40'
+                      : 'bg-stone-50 dark:bg-stone-950 text-stone-800 dark:text-stone-200 border-stone-200/70 dark:border-stone-800 hover:border-[#912A4A]/40'
+                  }`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <input
+                      type="checkbox"
+                      checked={task.completed}
+                      onChange={() => {}}
+                      className="rounded accent-[#912A4A] cursor-pointer"
+                    />
+                    <span className={task.completed ? 'line-through text-stone-400' : 'font-medium'}>
+                      {task.text}
+                    </span>
+                  </div>
+                  {task.completed && <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
+                </div>
+              ))}
+            </div>
+
+            {/* Add Task Form */}
+            <form onSubmit={handleAddTask} className="flex gap-2 pt-2 border-t border-stone-150 dark:border-stone-800">
+              <input
+                type="text"
+                placeholder="Add research task or milestone..."
+                value={newTaskText}
+                onChange={(e) => setNewTaskText(e.target.value)}
+                className="flex-grow font-sans text-xs p-2 border border-stone-300 dark:border-stone-700 rounded-lg bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#912A4A]"
+              />
+              <button
+                type="submit"
+                className="px-3.5 py-2 bg-[#912A4A] hover:bg-[#78223d] text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors shadow-2xs"
+              >
+                Add Task
+              </button>
+            </form>
+          </div>
+        );
+
+      case 'history':
+        return (
+          <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl p-5 shadow-xs space-y-4 text-xs font-sans">
+            <div className="flex justify-between items-center border-b border-stone-150 dark:border-stone-800 pb-3">
+              <div>
+                <h3 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100">
+                  Version History & Snapshots
+                </h3>
+                <p className="text-xs text-stone-500">
+                  Auto-saved revisions for <strong className="text-stone-700 dark:text-stone-300 font-medium">{activeChapter?.title || 'Draft'}</strong>
+                </p>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <div className="p-3 bg-emerald-50/40 dark:bg-emerald-950/20 rounded-xl border border-emerald-200/60 dark:border-emerald-900/40 flex justify-between items-center">
+                <div className="flex items-center gap-2">
+                  <Clock className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
+                  <div>
+                    <span className="font-semibold text-stone-900 dark:text-stone-100 block">Current Live Working Draft</span>
+                    <span className="text-[11px] text-stone-500">{wordCount} words · Auto-saved to local browser storage</span>
+                  </div>
+                </div>
+                <span className="font-mono text-[10px] text-emerald-700 dark:text-emerald-400 font-bold uppercase px-2 py-0.5 rounded bg-emerald-100/60 dark:bg-emerald-900/60">
+                  Active
+                </span>
+              </div>
+
+              <div className="p-3 bg-stone-50/70 dark:bg-stone-950/60 rounded-xl border border-stone-200/60 dark:border-stone-800 flex justify-between items-center text-stone-600 dark:text-stone-400">
+                <div>
+                  <span className="font-medium text-stone-800 dark:text-stone-200 block">Session Checkpoint</span>
+                  <span className="text-[11px] text-stone-400">Draft integrity preserved · Offline first</span>
+                </div>
+                <span className="font-mono text-[10px] text-stone-400">Synced</span>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 'knowledge_graph':
+        return (
+          <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl p-4 shadow-xs">
+            <KnowledgeGraph papers={papers} journeys={journeys} />
+          </div>
+        );
+
+      case 'publishing_export':
+        return (
+          <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl p-4 shadow-xs">
+            <CreativePublishingWorkspace
+              papers={papers}
+              onAddPaper={onAddPaper}
+              onUpdatePaper={onUpdatePaper}
+            />
+          </div>
+        );
+
+      case 'grants_proposals':
+        return (
+          <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl p-4 shadow-xs">
+            <FundingWorkspace
+              journeys={journeys}
+              papers={papers}
+              onUpdateJourney={onUpdateJourney}
+            />
+          </div>
+        );
+
+      case 'upload_docs':
+        return (
+          <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl p-5 shadow-xs">
+            <DataIngestionModule
+              existingPapers={papers}
+              collections={collections}
+              onIngestPapers={(newPapers) => {
+                newPapers.forEach((paper) => {
+                  onAddPaper(paper);
+                  if (activeJourney) {
+                    onUpdateJourney({
+                      ...activeJourney,
+                      linkedPaperIds: [...activeJourney.linkedPaperIds, paper.id],
+                    });
+                  }
+                });
+              }}
+            />
+          </div>
+        );
+
+      case 'analysis':
+        return (
+          <div className="p-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl space-y-4 text-xs font-sans shadow-xs">
+            <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100">
+              Socratic Analysis & Research Gaps
+            </h4>
+            <p className="text-stone-600 dark:text-stone-300">
+              Analyzing active draft: <strong>{activeChapter?.title}</strong>
+            </p>
+            <div className="p-4 bg-stone-50 dark:bg-stone-950 rounded-lg space-y-2 border border-stone-200/60 dark:border-stone-800">
+              <p className="font-semibold text-[#912A4A] dark:text-rose-400">Critical Prompts:</p>
+              <ul className="list-disc pl-4 space-y-1.5 text-stone-700 dark:text-stone-300">
+                <li>What underlying assumptions govern your definition of institutional legitimacy?</li>
+                <li>How does your proposed methodology account for longitudinal policy shifts?</li>
+                <li>Gap identified: Empirical case studies from underrepresented groups are currently sparse in your reference library.</li>
+              </ul>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
   return (
     <div className="space-y-6 font-sans text-stone-850 dark:text-stone-100 max-w-7xl mx-auto" id="second-thought-writing-studio">
-      
       {/* Print Preview Modal */}
       <PrintModal
         isOpen={isPrintModalOpen}
@@ -628,162 +1050,70 @@ export default function ResearchWorkspace({
                 Status: {activeChapter?.status ? activeChapter.status.replace('_', ' ') : 'Drafting'}
               </span>
             </div>
-            
             <div className="whitespace-pre-wrap font-sans text-sm text-stone-900 leading-relaxed pt-2">
               {activeChapter?.content || 'No content drafted in this note yet.'}
             </div>
           </div>
-
-          {activeJourney?.questions && activeJourney.questions.length > 0 && (
-            <div className="pt-4 border-t border-stone-200">
-              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-stone-700 mb-2">
-                Central Inquiry Questions
-              </h3>
-              <ul className="list-disc pl-5 space-y-1 text-xs text-stone-700">
-                {activeJourney.questions.map((q, idx) => (
-                  <li key={idx}>{q}</li>
-                ))}
-              </ul>
-            </div>
-          )}
-
-          {activeJourney?.tasks && activeJourney.tasks.length > 0 && (
-            <div className="pt-4 border-t border-stone-200">
-              <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-stone-700 mb-2">
-                Action Plan & Tasks
-              </h3>
-              <div className="grid grid-cols-2 gap-2 text-xs text-stone-700">
-                {activeJourney.tasks.map((task) => (
-                  <div key={task.id} className="flex items-center gap-2">
-                    <span className="font-mono">{task.completed ? '[✓]' : '[ ]'}</span>
-                    <span className={task.completed ? 'line-through text-stone-400' : ''}>{task.text}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
       </PrintModal>
 
       {/* ----------------------------------------------------------------- */}
-      {/* PRINT-ONLY DOCUMENT LAYOUT FOR PROJECT NOTES & MANUSCRIPT         */}
+      {/* TOP CONTROLS & PROJECT SELECTOR BAR                              */}
+      {/* Layout Order: Quiet Drafting Desk -> Draft Editor                */}
+      {/* Project Header: Round rectangle box with Title, '+' and Bin symbol */}
+      {/* Chapter Selection Menu without 'writing workspace'                */}
       {/* ----------------------------------------------------------------- */}
-      <div className="hidden print:block space-y-6 text-stone-900 font-sans leading-relaxed" id="project-notes-print-view">
-        {/* Document Header */}
-        <div className="border-b-2 border-stone-900 pb-4">
-          <div className="flex justify-between items-start">
-            <div>
-              <span className="text-xs font-mono uppercase tracking-widest text-stone-500">Second Thought — Project Notes</span>
-              <h1 className="text-2xl font-serif font-bold text-stone-900 mt-1">{activeJourney?.title}</h1>
-              {activeJourney?.description && (
-                <p className="text-sm text-stone-600 italic mt-1">{activeJourney.description}</p>
-              )}
-            </div>
-            <div className="text-right text-xs font-mono text-stone-500">
-              <div>Type: {activeJourney?.type ? activeJourney.type.toUpperCase() : 'PROJECT'}</div>
-              <div>Date: {new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</div>
-            </div>
-          </div>
-        </div>
-
-        {/* Selected Chapter Notes / Manuscript Content */}
-        <div className="space-y-3">
-          <div className="flex justify-between items-center border-b border-stone-300 pb-2">
-            <h2 className="text-lg font-serif font-bold text-stone-800">
-              {activeChapter?.title || 'Draft Notes'}
+      <div className="pb-4 border-b border-stone-200/80 dark:border-stone-850 flex flex-col md:flex-row md:items-center justify-between gap-4">
+        {/* Left: Quiet Drafting Desk & Draft Editor Layout Header + Rounded Rectangle Project Box */}
+        <div className="flex items-center gap-3 flex-wrap">
+          {/* Main Title Order: Quiet Drafting Desk -> Draft Editor */}
+          <div className="flex items-center gap-2.5">
+            <h2 className="font-serif font-bold text-lg md:text-xl text-stone-900 dark:text-stone-100">
+              Quiet Drafting Desk
             </h2>
-            <span className="text-xs font-mono text-stone-500 uppercase">
-              Status: {activeChapter?.status ? activeChapter.status.replace('_', ' ') : 'Drafting'}
+            <span className="font-sans text-[11px] px-2.5 py-0.5 rounded-full bg-stone-100 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-semibold border border-stone-200 dark:border-stone-700 shadow-2xs">
+              Draft Editor
             </span>
           </div>
-          
-          <div className="whitespace-pre-wrap font-sans text-sm text-stone-900 leading-relaxed pt-2">
-            {activeChapter?.content || 'No content drafted in this note yet.'}
-          </div>
-        </div>
 
-        {/* Central Inquiries / Questions */}
-        {activeJourney?.questions && activeJourney.questions.length > 0 && (
-          <div className="pt-6 border-t border-stone-300 page-break-inside-avoid">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-stone-700 mb-2">
-              Central Inquiry Questions
-            </h3>
-            <ul className="list-disc pl-5 space-y-1 text-xs text-stone-700">
-              {activeJourney.questions.map((q, idx) => (
-                <li key={idx}>{q}</li>
-              ))}
-            </ul>
-          </div>
-        )}
-
-        {/* Action Plan & Tasks */}
-        {activeJourney?.tasks && activeJourney.tasks.length > 0 && (
-          <div className="pt-4 border-t border-stone-300 page-break-inside-avoid">
-            <h3 className="text-xs font-mono font-bold uppercase tracking-wider text-stone-700 mb-2">
-              Action Plan & Tasks
-            </h3>
-            <div className="grid grid-cols-2 gap-2 text-xs text-stone-700">
-              {activeJourney.tasks.map((task) => (
-                <div key={task.id} className="flex items-center gap-2">
-                  <span className="font-mono">{task.completed ? '[✓]' : '[ ]'}</span>
-                  <span className={task.completed ? 'line-through text-stone-500' : ''}>{task.text}</span>
-                </div>
-              ))}
+          {/* Project Title (seamless without rectangular box) + Delete button */}
+          <div className="flex items-center gap-1.5">
+            <div className="relative">
+              <select
+                value={activeJourney.id}
+                onChange={(e) => {
+                  onSetActiveJourneyId(e.target.value);
+                  const found = journeys.find(j => j.id === e.target.value);
+                  if (found && found.chapters[0]) {
+                    setSelectedChapterId(found.chapters[0].id);
+                  }
+                }}
+                className="font-serif font-semibold text-xs md:text-sm text-stone-800 dark:text-stone-200 bg-transparent focus:outline-none cursor-pointer pr-3 py-1 hover:text-[#912A4A] dark:hover:text-rose-300 transition-colors"
+                title="Switch Active Project"
+              >
+                {journeys.map((j) => (
+                  <option key={j.id} value={j.id} className="font-sans text-xs text-stone-900 bg-white dark:bg-stone-900">
+                    {j.title}
+                  </option>
+                ))}
+              </select>
             </div>
-          </div>
-        )}
-      </div>
-      
-      {/* ----------------------------------------------------------------- */}
-      {/* ZONE 1: TOP NAVIGATION & CONTROLS BAR                            */}
-      {/* ----------------------------------------------------------------- */}
-      <div className="pb-3 border-b border-stone-200/80 dark:border-stone-850 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        
-        {/* Left: Project Selector */}
-        <div className="flex items-center gap-2.5 flex-wrap">
-          <div className="relative">
-            <select
-              value={activeJourney.id}
-              onChange={(e) => {
-                onSetActiveJourneyId(e.target.value);
-                const found = journeys.find(j => j.id === e.target.value);
-                if (found && found.chapters[0]) {
-                  setSelectedChapterId(found.chapters[0].id);
-                }
-              }}
-              className="font-serif font-bold text-lg md:text-xl text-stone-900 dark:text-stone-100 bg-transparent focus:outline-none cursor-pointer pr-6 py-0.5"
-              title="Switch Active Project"
-            >
-              {journeys.map((j) => (
-                <option key={j.id} value={j.id} className="font-sans text-sm text-stone-900 bg-white dark:bg-stone-900">
-                  {j.title}
-                </option>
-              ))}
-            </select>
-          </div>
 
-          <button
-            onClick={() => setIsAddingProject(true)}
-            className="p-1 text-stone-400 hover:text-[#912A4A] dark:hover:text-rose-400 rounded transition-colors cursor-pointer"
-            title="Create New Project"
-            aria-label="Create New Project"
-          >
-            <Plus className="w-4 h-4" />
-          </button>
-
-          {onDeleteJourney && (
-            <button
-              onClick={() => setConfirmDeleteId(activeJourney.id)}
-              className="p-1 text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 rounded transition-colors cursor-pointer"
-              title="Delete Current Project"
-              aria-label="Delete Current Project"
-            >
-              <Trash2 className="w-4 h-4" />
-            </button>
-          )}
+            {onDeleteJourney && (
+              <button
+                type="button"
+                onClick={() => setConfirmDeleteId(activeJourney.id)}
+                className="p-1 text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 rounded transition-colors cursor-pointer"
+                title="Delete Current Project"
+                aria-label="Delete Current Project"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
         </div>
 
-        {/* Delete Project Confirmation Modal */}
+        {/* Delete Confirmation Modal */}
         {confirmDeleteId && (
           <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
             <div className="max-w-md w-full bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-6 rounded-xl space-y-4 shadow-xl text-left">
@@ -794,7 +1124,7 @@ export default function ResearchWorkspace({
                 </h3>
               </div>
               <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed font-sans">
-                Are you sure you want to delete <strong className="text-stone-800 dark:text-stone-200">"{journeys.find(j => j.id === confirmDeleteId)?.title}"</strong>? This will permanently remove all chapters, outlines, notes, and task lists associated with this project.
+                Are you sure you want to delete <strong className="text-stone-800 dark:text-stone-200">"{journeys.find(j => j.id === confirmDeleteId)?.title}"</strong>?
               </p>
               <div className="flex justify-end gap-2 pt-2 border-t border-stone-150 dark:border-stone-850">
                 <button
@@ -821,42 +1151,37 @@ export default function ResearchWorkspace({
           </div>
         )}
 
-        {/* Center / Right: Chapter Selector + Primary Environment Mode (Write | Research | Plan) + Focus Mode */}
+        {/* Right: Chapter Selector and Actions */}
         <div className="flex items-center gap-3 flex-wrap">
-          
-          {/* Chapter Controls: Chapter 1 ▼ \n Drafting (stacked) */}
+          {/* Chapter Selector */}
           <div className="relative group">
-            <div className="flex flex-col items-start px-2 py-1 rounded-lg hover:bg-stone-100/60 dark:hover:bg-stone-900/60 transition-colors">
-              <div className="flex items-center gap-1.5">
-                <button
-                  type="button"
-                  onClick={() => setIsChapterDropdownOpen(!isChapterDropdownOpen)}
-                  className="font-serif font-semibold text-stone-900 dark:text-stone-100 hover:text-[#912A4A] dark:hover:text-rose-300 flex items-center gap-1 cursor-pointer text-sm"
-                >
-                  <span>{activeChapter?.title || 'Chapter 1'}</span>
-                  
-                </button>
+            <div className="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border border-stone-200/60 dark:border-stone-800 bg-white/70 dark:bg-stone-900/70 hover:bg-stone-50 dark:hover:bg-stone-850 transition-colors shadow-2xs">
+              <button
+                type="button"
+                onClick={() => setIsChapterDropdownOpen(!isChapterDropdownOpen)}
+                className="font-serif font-semibold text-stone-900 dark:text-stone-100 hover:text-[#912A4A] dark:hover:text-rose-300 flex items-center gap-1.5 cursor-pointer text-xs"
+              >
+                <span>{activeChapter?.title || 'Chapter 1: Opening Reflections'}</span>
+                <ChevronDown className="w-3 h-3 text-stone-400" />
+              </button>
 
-                {/* Add Chapter button: revealed only on hover */}
-                <button
-                  type="button"
-                  onClick={() => setIsChapterDropdownOpen(true)}
-                  className="opacity-0 group-hover:opacity-100 transition-opacity p-0.5 text-stone-400 hover:text-[#912A4A] dark:hover:text-rose-300 cursor-pointer text-[11px] flex items-center gap-0.5 ml-1"
-                  title="Add Chapter"
-                >
-                  
-                  <span className="font-sans text-[10px]">Add</span>
-                </button>
-              </div>
-
-              <span className="font-sans text-[11px] text-stone-500 dark:text-stone-400 capitalize">
-                {activeChapter?.status ? activeChapter.status.replace('_', ' ') : 'Drafting'}
+              <span className="font-sans text-[10px] text-stone-400 border-l border-stone-200 dark:border-stone-700 pl-1.5 uppercase font-medium">
+                {activeChapter?.status ? activeChapter.status.replace('_', ' ') : 'drafting'}
               </span>
+
+              <button
+                type="button"
+                onClick={() => setIsChapterDropdownOpen(true)}
+                className="p-0.5 text-stone-400 hover:text-[#912A4A] dark:hover:text-rose-300 cursor-pointer text-[10px] font-sans flex items-center gap-0.5"
+                title="Add Chapter"
+              >
+                <span>+ Add</span>
+              </button>
             </div>
 
             {/* Chapter Dropdown Menu */}
             {isChapterDropdownOpen && (
-              <div className="absolute top-full left-0 mt-1 w-64 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg shadow-xl p-2.5 z-40 space-y-2 animate-fadeIn text-xs">
+              <div className="absolute top-full right-0 sm:left-0 mt-1 w-64 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-lg shadow-xl p-2.5 z-40 space-y-2 animate-fadeIn text-xs">
                 <div className="font-mono text-[10px] text-stone-400 uppercase tracking-wider px-2 py-1 flex justify-between items-center">
                   <span>Chapters</span>
                   <span className="text-[10px] text-stone-400 font-sans not-italic">Select or add</span>
@@ -877,12 +1202,12 @@ export default function ResearchWorkspace({
                       }`}
                     >
                       <span className="truncate">{ch.title}</span>
-                      {ch.id === activeChapter?.id }
+                      {ch.id === activeChapter?.id && <Check className="w-3 h-3 text-[#912A4A]" />}
                     </button>
                   ))}
                 </div>
 
-                {/* Add Chapter Form inside Dropdown */}
+                {/* Add Chapter Form */}
                 <form onSubmit={handleAddChapter} className="pt-2 border-t border-stone-100 dark:border-stone-800 flex gap-1.5">
                   <input
                     type="text"
@@ -891,100 +1216,61 @@ export default function ResearchWorkspace({
                     onChange={(e) => setNewChapterTitle(e.target.value)}
                     className="flex-grow font-sans text-xs p-1.5 border border-stone-200 dark:border-stone-700 rounded bg-stone-50 dark:bg-stone-950 text-stone-900 dark:text-stone-100"
                   />
-                  <button type="submit" className="px-2 py-1.5 bg-[#912A4A] text-white rounded text-xs cursor-pointer hover:bg-[#78223d] flex items-center gap-1 font-medium">
-                     Add
+                  <button type="submit" className="px-2.5 py-1.5 bg-[#912A4A] text-white rounded text-xs cursor-pointer hover:bg-[#78223d] flex items-center gap-1 font-medium">
+                    Add
                   </button>
                 </form>
               </div>
             )}
           </div>
 
-          {/* Primary Environment Modes: Write | Research | Plan */}
-          <div className="flex bg-stone-100 dark:bg-stone-900 p-1 rounded-lg border border-stone-200/60 dark:border-stone-800 text-xs font-medium">
+          {/* Quick Header Actions: Print Notes & Focus Mode */}
+          <div className="flex items-center gap-2">
             <button
-              onClick={() => {
-                setNavEnvironmentMode('write');
-                setActiveResearchTool(null);
-              }}
-              className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
-                navEnvironmentMode === 'write'
-                  ? 'bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-xs font-bold'
-                  : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
-              }`}
+              type="button"
+              onClick={() => setIsPrintModalOpen(true)}
+              className="px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-700 bg-stone-50 dark:bg-stone-800/80 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-200 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-2xs no-print"
+              id="desk-print-notes-btn"
+              title="Print Notes & Manuscript"
             >
-              Write
+              <Printer className="w-3.5 h-3.5 text-stone-500" />
+              <span>Print Notes</span>
             </button>
 
             <button
-              onClick={() => setNavEnvironmentMode('research')}
-              className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
-                navEnvironmentMode === 'research'
-                  ? 'bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-xs font-bold'
-                  : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
-              }`}
+              type="button"
+              onClick={() => setIsFocusMode(true)}
+              className="px-3 py-1.5 rounded-lg bg-[#912A4A] hover:bg-[#78223d] text-white text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
+              id="desk-focus-mode-btn"
+              title="Enter Distraction-Free Focus Mode"
             >
-              Research
-            </button>
-
-            <button
-              onClick={() => {
-                setNavEnvironmentMode('plan');
-                setActiveResearchTool(null);
-              }}
-              className={`px-3 py-1 rounded-md transition-all cursor-pointer ${
-                navEnvironmentMode === 'plan'
-                  ? 'bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 shadow-xs font-bold'
-                  : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
-              }`}
-            >
-              Plan
+              <Maximize2 className="w-3.5 h-3.5" />
+              <span>Focus Mode</span>
             </button>
           </div>
-
-          {/* Focus Mode Button */}
-          <button
-            type="button"
-            onClick={() => setIsFocusMode(true)}
-            className="px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
-            title="Enter Distraction-Free Focus Mode"
-          >
-            <span>Focus Mode</span>
-          </button>
-
-          {/* Print Notes Button */}
-          <button
-            type="button"
-            onClick={handlePrintNotes}
-            className="px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-900 hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-300 text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer no-print"
-            title="Print Project Notes & Manuscript for Offline Reading"
-            id="print-project-notes-btn"
-          >
-            <span>Print Notes</span>
-          </button>
         </div>
       </div>
 
       {/* ----------------------------------------------------------------- */}
-      {/* ZONE 2: MAIN WRITING CANVAS (WRITE MODE)                          */}
-      {/* Occupies 70-80% of screen, visually dominates the interface       */}
+      {/* UNIFIED WRITING WORKSPACE: QUIET DRAFTING DESK                    */}
+      {/* Contains the ONE and only writing canvas + Side Margin Tools Tabs   */}
       {/* ----------------------------------------------------------------- */}
       {navEnvironmentMode === 'write' && (
-        <div className="space-y-4">
-          
+        <div className="space-y-4" id="quiet-drafting-desk">
+
           {/* SECOND THOUGHT SIGNATURE FEATURE: Adaptive Reflective Pause Strip */}
           {showReflectiveStrip && (
-            <div className="p-3.5 bg-[#FAF8F5] dark:bg-stone-900/60 rounded-xl border-l-2 border-[#912A4A] text-stone-700 dark:text-stone-300 flex items-center justify-between text-xs font-serif italic shadow-xs animate-fadeIn transition-all duration-300">
-              <div className="flex items-center gap-2">
-                <span className="font-sans not-italic uppercase tracking-widest text-[10px] font-bold text-[#912A4A] dark:text-rose-400">
+            <div className="p-4 bg-[#FAF8F5] dark:bg-stone-900/60 rounded-xl border-l-3 border-[#912A4A] text-stone-800 dark:text-stone-200 flex items-center justify-between shadow-xs animate-fadeIn transition-all duration-300">
+              <div className="flex flex-col sm:flex-row sm:items-baseline gap-1.5 sm:gap-2.5">
+                <span className="font-sans not-italic uppercase tracking-widest text-xs font-bold text-[#912A4A] dark:text-rose-400 shrink-0">
                   Pause:
                 </span>
-                <span>
-                  {pauseStripType === 'stretch'
-                    ? 'Would stretching or a glass of water help?'
-                    : 'What will you discover today?'}
+                <span className="font-serif text-base sm:text-lg italic font-medium leading-tight text-stone-900 dark:text-stone-100">
+                  What will you discover today?
                 </span>
               </div>
               <button
+                type="button"
                 onClick={() => {
                   setShowReflectiveStrip(false);
                   if (pauseStripType === 'initial') {
@@ -995,640 +1281,449 @@ export default function ResearchWorkspace({
                     localStorage.setItem('scholar_pause_stretch_reminder_shown', 'true');
                   }
                 }}
-                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-[10px] font-sans not-italic cursor-pointer px-1.5 py-0.5 rounded hover:bg-stone-200/50 dark:hover:bg-stone-800 transition-colors"
+                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-xs font-sans not-italic cursor-pointer px-2 py-1 rounded hover:bg-stone-200/50 dark:hover:bg-stone-800 transition-colors shrink-0 flex items-center gap-1"
+                aria-label="Dismiss Pause Reminder"
               >
-                Dismiss
+                <X className="w-3.5 h-3.5" />
+                <span>Dismiss</span>
               </button>
             </div>
           )}
 
-          {/* Main Pristine Canvas Surface */}
-          <div className="relative p-3.5 sm:p-6 md:p-10 bg-white dark:bg-stone-900/80 rounded-2xl border border-stone-200/80 dark:border-stone-800 shadow-xs transition-all duration-200 min-h-[58vh]">
+          {/* --------------------------------------------------------------- */}
+          {/* MAIN WRITING CANVAS & COMPANION WORKSPACE (RESPONSIVE GRID)      */}
+          {/* --------------------------------------------------------------- */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             
-            {/* Canvas Header: Save Status */}
-            <div className="absolute top-4 right-6 flex items-center gap-3 z-10">
-              {saveStatus === 'saved' && (
-                <div className="text-[10px] font-mono text-stone-400 tracking-wider uppercase flex items-center gap-1">
-                   Saved
-                </div>
-              )}
-            </div>
-
-            {/* Tiny Bookmark Tab in Canvas Margin */}
-            <button
-              type="button"
-              onClick={() => setIsReflectionShelfOpen(!isReflectionShelfOpen)}
-              className="absolute -right-3.5 top-12 z-20 w-7 h-9 rounded-r-md bg-[#912A4A] hover:bg-[#78223d] text-white shadow-md flex items-center justify-center transition-transform hover:scale-110 cursor-pointer border border-l-0 border-white/20"
-              title="Toggle Reflection Shelf"
-              aria-label="Toggle Reflection Shelf"
-            >
-              <Bookmark className="w-3.5 h-3.5" />
-            </button>
-
-            {/* Quick Action (+) Button under Bookmark Icon in Canvas Margin */}
-            <div className="absolute -right-3.5 top-22 z-20">
-              <button
-                type="button"
-                onClick={() => setIsFloatingMenuOpen(!isFloatingMenuOpen)}
-                className="w-7 h-9 rounded-r-md bg-[#912A4A] hover:bg-[#78223d] text-white shadow-md flex items-center justify-center transition-transform hover:scale-110 cursor-pointer border border-l-0 border-white/20"
-                title="Quick Actions (+)"
-                aria-label="Quick Actions (+)"
+            {/* WRITING CANVAS COLUMN (Visible in Split View or when Companion is None) */}
+            {!(activeCompanionTool !== 'none' && companionViewLayout === 'full') && (
+              <div
+                className={`${
+                  activeCompanionTool === 'none'
+                    ? 'lg:col-span-12'
+                    : 'lg:col-span-6 xl:col-span-6'
+                } space-y-4 transition-all duration-200`}
               >
-                <Plus className={`w-3.5 h-3.5 transition-transform duration-200 ${isFloatingMenuOpen ? 'rotate-45' : ''}`} />
-              </button>
+                <div className="relative p-4 sm:p-6 md:p-8 bg-white dark:bg-stone-900/80 rounded-2xl border border-stone-200/80 dark:border-stone-800 shadow-xs min-h-[56vh]">
+                  
+                  {/* Subtle Top Auto-Saved Indicator */}
+                  {saveStatus === 'saved' && (
+                    <div className="flex justify-end pb-2 mb-1">
+                      <div className="text-[10px] font-mono text-emerald-600 dark:text-emerald-400 flex items-center gap-1 opacity-80">
+                        <Check className="w-3 h-3" /> Auto-saved
+                      </div>
+                    </div>
+                  )}
 
-              {isFloatingMenuOpen && (
-                <div className="absolute top-0 right-9 w-48 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl shadow-2xl p-2 space-y-1 text-xs font-sans animate-fadeIn z-50">
-                  <button
-                    onClick={() => {
-                      setFloatingActionModal('note');
-                      setIsFloatingMenuOpen(false);
-                    }}
-                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 cursor-pointer transition-colors"
-                  >
-                    <span>+ New Note</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setFloatingActionModal('ai');
-                      setIsFloatingMenuOpen(false);
-                    }}
-                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 cursor-pointer transition-colors"
-                  >
-                    <span>+ AI Assistant</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setFloatingActionModal('thought');
-                      setIsFloatingMenuOpen(false);
-                    }}
-                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 cursor-pointer transition-colors"
-                  >
-                    <span>+ Capture Thought</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setFloatingActionModal('voice');
-                      setIsFloatingMenuOpen(false);
-                    }}
-                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 cursor-pointer transition-colors"
-                  >
-                    <span>+ Voice</span>
-                  </button>
-
-                  <button
-                    onClick={() => {
-                      setFloatingActionModal('pause');
-                      setIsFloatingMenuOpen(false);
-                    }}
-                    className="w-full text-left px-3 py-2 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 flex items-center gap-2 cursor-pointer transition-colors border-t border-stone-100 dark:border-stone-800 pt-1.5"
-                  >
-                    <span>+ Pause</span>
-                  </button>
-                </div>
-              )}
-            </div>
-
-            {/* Contextual Selection Bar (revealed when text selected) */}
-            {selectedText && (
-              <div className="sticky top-2 z-30 mb-4 p-2 bg-[#1B0A3B]/95 dark:bg-stone-950 text-white rounded-xl shadow-xl backdrop-blur-md border border-[#912A4A]/40 flex flex-wrap items-center justify-between gap-2 animate-fadeIn">
-                <div className="font-sans text-xs text-stone-300 px-2 truncate max-w-xs">
-                  "{selectedText.length > 28 ? selectedText.slice(0, 28) + '…' : selectedText}"
-                </div>
-
-                <div className="flex items-center gap-1 flex-wrap">
-                  <button
-                    onClick={() => handleTriggerContextTool('research')}
-                    className="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded text-[11px] font-sans font-medium transition-colors cursor-pointer"
-                  >
-                    Research
-                  </button>
-                  <button
-                    onClick={() => handleTriggerContextTool('summarise')}
-                    className="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded text-[11px] font-sans font-medium transition-colors cursor-pointer"
-                  >
-                    Summarise
-                  </button>
-                  <button
-                    onClick={() => handleTriggerContextTool('compare')}
-                    className="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded text-[11px] font-sans font-medium transition-colors cursor-pointer"
-                  >
-                    Compare
-                  </button>
-                  <button
-                    onClick={() => handleTriggerContextTool('citation')}
-                    className="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded text-[11px] font-sans font-medium transition-colors cursor-pointer"
-                  >
-                    Find Citation
-                  </button>
-                  <button
-                    onClick={() => handleTriggerContextTool('outline')}
-                    className="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded text-[11px] font-sans font-medium transition-colors cursor-pointer"
-                  >
-                    Generate Outline
-                  </button>
-                  <button
-                    onClick={() => handleTriggerContextTool('ai')}
-                    className="px-2.5 py-1 bg-[#912A4A] hover:bg-[#78223d] text-white rounded text-[11px] font-sans font-bold flex items-center gap-1 transition-colors cursor-pointer"
-                  >
-                     Ask AI
-                  </button>
-                  <button
-                    onClick={() => setSelectedText('')}
-                    className="p-1 text-stone-400 hover:text-white cursor-pointer"
-                  >
+                  {/* SIDE MARGIN TABS (Shelf Tab Model with bookmark and text label, aligned at margin) */}
+                  <div className="absolute -right-3.5 top-12 z-20 flex flex-col gap-2 pointer-events-auto select-none">
                     
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {/* Writing Textarea */}
-            <textarea
-              value={activeChapter?.content || ''}
-              onChange={(e) => handleUpdateChapterContent(e.target.value)}
-              onSelect={(e) => {
-                const target = e.target as HTMLTextAreaElement;
-                const start = target.selectionStart;
-                const end = target.selectionEnd;
-                if (start !== end) {
-                  setSelectedText(target.value.substring(start, end));
-                } else {
-                  setSelectedText('');
-                }
-              }}
-              placeholder="Begin writing your manuscript, essay, novel, or reflective journal entry here... Highlight any text to reveal contextual tools."
-              className="w-full font-sans text-base md:text-lg text-stone-900 dark:text-stone-100 bg-transparent resize-y min-h-[460px] focus:outline-none leading-[1.85] tracking-[0.012em] placeholder:text-stone-400/70 placeholder:font-sans selection:bg-[#912A4A]/20 dark:selection:bg-rose-900/40 py-3"
-            />
-          </div>
-
-          {/* --------------------------------------------------------------- */}
-          {/* ZONE 3: CONTEXTUAL TOOLS BOTTOM STRIP                            */}
-          {/* Outline | Sources | Tasks | History                            */}
-          {/* --------------------------------------------------------------- */}
-          <div className="pt-2 border-t border-stone-200/60 dark:border-stone-850 flex items-center justify-between flex-wrap gap-3">
-            
-            {/* Contextual Quick Drawer Tabs */}
-            <div className="flex items-center gap-4 text-xs font-medium text-stone-600 dark:text-stone-400">
-              <button
-                onClick={() => setBottomContextDrawer(bottomContextDrawer === 'outline' ? null : 'outline')}
-                className={`hover:text-stone-900 dark:hover:text-stone-100 transition-colors cursor-pointer ${
-                  bottomContextDrawer === 'outline' ? 'text-[#912A4A] dark:text-rose-400 font-bold' : ''
-                }`}
-              >
-                Outline
-              </button>
-
-              <button
-                onClick={() => setBottomContextDrawer(bottomContextDrawer === 'sources' ? null : 'sources')}
-                className={`hover:text-stone-900 dark:hover:text-stone-100 transition-colors cursor-pointer ${
-                  bottomContextDrawer === 'sources' ? 'text-[#912A4A] dark:text-rose-400 font-bold' : ''
-                }`}
-              >
-                Sources ({papers.filter(p => activeJourney.linkedPaperIds.includes(p.id)).length})
-              </button>
-
-              <button
-                onClick={() => setBottomContextDrawer(bottomContextDrawer === 'tasks' ? null : 'tasks')}
-                className={`hover:text-stone-900 dark:hover:text-stone-100 transition-colors cursor-pointer ${
-                  bottomContextDrawer === 'tasks' ? 'text-[#912A4A] dark:text-rose-400 font-bold' : ''
-                }`}
-              >
-                Tasks ({activeJourney.tasks.filter(t => t.completed).length}/{activeJourney.tasks.length})
-              </button>
-
-              <button
-                onClick={() => setBottomContextDrawer(bottomContextDrawer === 'history' ? null : 'history')}
-                className={`hover:text-stone-900 dark:hover:text-stone-100 transition-colors cursor-pointer ${
-                  bottomContextDrawer === 'history' ? 'text-[#912A4A] dark:text-rose-400 font-bold' : ''
-                }`}
-              >
-                History
-              </button>
-            </div>
-
-            {/* Word Count Stats */}
-            <div className="font-mono text-[11px] text-stone-400 dark:text-stone-500 flex items-center gap-3">
-              <span>{wordCount} Words</span>
-              <span>•</span>
-              <span>~{readTimeMin} min read</span>
-            </div>
-          </div>
-
-          {/* Bottom Contextual Expandable Drawer */}
-          {bottomContextDrawer && (
-            <div className="p-4 bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl space-y-3 animate-fadeIn text-xs">
-              <div className="flex justify-end items-center border-b border-stone-200/60 dark:border-stone-800 pb-2">
-                <button
-                  onClick={() => setBottomContextDrawer(null)}
-                  className="p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer flex items-center gap-1 text-[11px]"
-                  aria-label="Close drawer"
-                >
-                  
-                </button>
-              </div>
-
-              {bottomContextDrawer === 'outline' && (
-                <div className="space-y-2">
-                  <p className="text-stone-600 dark:text-stone-300">Chapter hierarchy for <strong className="text-stone-900 dark:text-stone-100">{activeJourney.title}</strong>:</p>
-                  <div className="space-y-1">
-                    {activeJourney.chapters.map((ch, idx) => (
-                      <div key={ch.id} className="p-2 bg-white dark:bg-stone-950 rounded border border-stone-200/60 dark:border-stone-800 flex justify-between items-center">
-                        <span>{idx + 1}. {ch.title}</span>
-                        <span className="font-mono text-[10px] text-stone-400 uppercase">{ch.status}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {bottomContextDrawer === 'sources' && (
-                <div className="space-y-2">
-                  <p className="text-stone-600 dark:text-stone-300">Linked reference literature:</p>
-                  <div className="space-y-1.5">
-                    {papers.filter(p => activeJourney.linkedPaperIds.includes(p.id)).slice(0, 4).map((p) => (
-                      <div key={p.id} className="p-2 bg-white dark:bg-stone-950 rounded border border-stone-200/60 dark:border-stone-800">
-                        <span className="font-semibold text-stone-900 dark:text-stone-100 block">{p.title}</span>
-                        <span className="text-stone-400 text-[10px]">{p.authors} ({p.year})</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-
-              {bottomContextDrawer === 'tasks' && (
-                <div className="space-y-2">
-                  <div className="space-y-1">
-                    {activeJourney.tasks.map((task) => (
-                      <div
-                        key={task.id}
-                        onClick={() => handleToggleTask(task.id)}
-                        className={`p-2 rounded border cursor-pointer flex items-center justify-between transition-colors ${
-                          task.completed ? 'bg-emerald-50/20 text-stone-400 border-emerald-100' : 'bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 border-stone-200/60 dark:border-stone-800'
-                        }`}
-                      >
-                        <div className="flex items-center gap-2">
-                          {task.completed ? null : null}
-                          <span className={task.completed ? 'line-through' : ''}>{task.text}</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-
-                  <form onSubmit={handleAddTask} className="flex gap-2 pt-1">
-                    <input
-                      type="text"
-                      placeholder="Add new task..."
-                      value={newTaskText}
-                      onChange={(e) => setNewTaskText(e.target.value)}
-                      className="flex-grow font-sans text-xs p-1.5 border border-stone-300 dark:border-stone-700 rounded bg-white dark:bg-stone-950"
-                    />
-                    <button type="submit" className="px-3 py-1.5 bg-[#912A4A] text-white rounded text-xs cursor-pointer">
-                      Add
+                    {/* Tab 1: Reflection Shelf */}
+                    <button
+                      type="button"
+                      onClick={() => setIsReflectionShelfOpen(!isReflectionShelfOpen)}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-r-lg shadow-md border border-l-0 text-xs font-medium transition-all duration-150 cursor-pointer ${
+                        isReflectionShelfOpen
+                          ? 'bg-[#912A4A] text-white border-rose-900 font-semibold translate-x-0.5'
+                          : 'bg-white dark:bg-stone-850 hover:bg-[#FAF8F5] dark:hover:bg-stone-800 text-[#912A4A] dark:text-rose-300 border-stone-200 dark:border-stone-700 hover:translate-x-0.5'
+                      }`}
+                      title="Open Reflection Shelf"
+                      aria-label="Open Reflection Shelf"
+                      id="margin-tab-reflection-shelf"
+                    >
+                      <Bookmark className="w-3.5 h-3.5 shrink-0" />
+                      <span className="font-sans text-[11px] whitespace-nowrap font-medium">Reflection Shelf</span>
                     </button>
-                  </form>
-                </div>
-              )}
 
-              {bottomContextDrawer === 'history' && (
-                <div className="space-y-1 text-stone-600 dark:text-stone-300">
-                  <div className="p-2 bg-white dark:bg-stone-950 rounded border border-stone-200/60 dark:border-stone-800 flex justify-between">
-                    <span>Draft auto-saved to local session</span>
-                    <span className="font-mono text-[10px] text-stone-400">Just now</span>
+                    {/* Tab 2: Check References */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (activeCompanionTool === 'references') {
+                          setActiveCompanionTool('none');
+                        } else {
+                          setActiveCompanionTool('references');
+                          setCompanionViewLayout('split');
+                        }
+                      }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-r-lg shadow-md border border-l-0 text-xs font-medium transition-all duration-150 cursor-pointer ${
+                        activeCompanionTool === 'references'
+                          ? 'bg-[#912A4A] text-white border-rose-900 font-semibold translate-x-0.5'
+                          : 'bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-200 border-stone-200 dark:border-stone-700 hover:translate-x-0.5'
+                      }`}
+                      title="Browse and insert citations from your library"
+                      aria-label="References Library"
+                      id="margin-tab-references"
+                    >
+                      <BookOpen className="w-3.5 h-3.5 shrink-0 text-amber-600 dark:text-amber-400" />
+                      <span className="font-sans text-[11px] whitespace-nowrap font-medium">
+                        References ({papers.length})
+                      </span>
+                    </button>
+
+                    {/* Tab 3: Paper Summaries */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (activeCompanionTool === 'lit_intelligence') {
+                          setActiveCompanionTool('none');
+                        } else {
+                          setActiveCompanionTool('lit_intelligence');
+                          setCompanionViewLayout('split');
+                        }
+                      }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-r-lg shadow-md border border-l-0 text-xs font-medium transition-all duration-150 cursor-pointer ${
+                        activeCompanionTool === 'lit_intelligence'
+                          ? 'bg-[#912A4A] text-white border-rose-900 font-semibold translate-x-0.5'
+                          : 'bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-200 border-stone-200 dark:border-stone-700 hover:translate-x-0.5'
+                      }`}
+                      title="Literature synthesis & key paper takeaways"
+                      aria-label="Paper Summaries"
+                      id="margin-tab-paper-summaries"
+                    >
+                      <FileText className="w-3.5 h-3.5 shrink-0 text-blue-600 dark:text-blue-400" />
+                      <span className="font-sans text-[11px] whitespace-nowrap font-medium">Paper Summaries</span>
+                    </button>
+
+                    {/* Tab 4: Writing Assistant (Feather icon) */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (activeCompanionTool === 'writing_companion') {
+                          setActiveCompanionTool('none');
+                        } else {
+                          setActiveCompanionTool('writing_companion');
+                          setCompanionViewLayout('split');
+                        }
+                      }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-r-lg shadow-md border border-l-0 text-xs font-medium transition-all duration-150 cursor-pointer ${
+                        activeCompanionTool === 'writing_companion'
+                          ? 'bg-[#912A4A] text-white border-rose-900 font-semibold translate-x-0.5'
+                          : 'bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-200 border-stone-200 dark:border-stone-700 hover:translate-x-0.5'
+                      }`}
+                      title="Live draft feedback, claims grounding & suggestions"
+                      aria-label="Writing Assistant"
+                      id="margin-tab-writing-assistant"
+                    >
+                      <Feather className="w-3.5 h-3.5 shrink-0 text-purple-600 dark:text-purple-400" />
+                      <span className="font-sans text-[11px] whitespace-nowrap font-medium">Writing Assistant</span>
+                    </button>
+
+                    {/* Tab 5: Perspective Check (Scale icon) */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (activeCompanionTool === 'perspective_check') {
+                          setActiveCompanionTool('none');
+                        } else {
+                          setActiveCompanionTool('perspective_check');
+                          setCompanionViewLayout('split');
+                        }
+                      }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-r-lg shadow-md border border-l-0 text-xs font-medium transition-all duration-150 cursor-pointer ${
+                        activeCompanionTool === 'perspective_check'
+                          ? 'bg-[#912A4A] text-white border-rose-900 font-semibold translate-x-0.5'
+                          : 'bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-200 border-stone-200 dark:border-stone-700 hover:translate-x-0.5'
+                      }`}
+                      title="Reflect on epistemic perspectives & missing voices"
+                      aria-label="Perspective Check"
+                      id="margin-tab-perspective-check"
+                    >
+                      <Scale className="w-3.5 h-3.5 shrink-0 text-emerald-600 dark:text-emerald-400" />
+                      <span className="font-sans text-[11px] whitespace-nowrap font-medium">Perspective Check</span>
+                    </button>
+
+                    {/* Tab 6: Outline */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (activeCompanionTool === 'outline') {
+                          setActiveCompanionTool('none');
+                        } else {
+                          setActiveCompanionTool('outline');
+                          setCompanionViewLayout('split');
+                        }
+                      }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-r-lg shadow-md border border-l-0 text-xs font-medium transition-all duration-150 cursor-pointer ${
+                        activeCompanionTool === 'outline'
+                          ? 'bg-[#912A4A] text-white border-rose-900 font-semibold translate-x-0.5'
+                          : 'bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-200 border-stone-200 dark:border-stone-700 hover:translate-x-0.5'
+                      }`}
+                      title="View and organize chapter outline"
+                      aria-label="Outline"
+                      id="margin-tab-outline"
+                    >
+                      <ListTree className="w-3.5 h-3.5 shrink-0 text-indigo-600 dark:text-indigo-400" />
+                      <span className="font-sans text-[11px] whitespace-nowrap font-medium">Outline</span>
+                    </button>
+
+                    {/* Tab 7: Chapter sources */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (activeCompanionTool === 'chapter_sources') {
+                          setActiveCompanionTool('none');
+                        } else {
+                          setActiveCompanionTool('chapter_sources');
+                          setCompanionViewLayout('split');
+                        }
+                      }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-r-lg shadow-md border border-l-0 text-xs font-medium transition-all duration-150 cursor-pointer ${
+                        activeCompanionTool === 'chapter_sources'
+                          ? 'bg-[#912A4A] text-white border-rose-900 font-semibold translate-x-0.5'
+                          : 'bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-200 border-stone-200 dark:border-stone-700 hover:translate-x-0.5'
+                      }`}
+                      title="Chapter-specific sources and references"
+                      aria-label="Chapter sources"
+                      id="margin-tab-chapter-sources"
+                    >
+                      <BookMarked className="w-3.5 h-3.5 shrink-0 text-amber-700 dark:text-amber-300" />
+                      <span className="font-sans text-[11px] whitespace-nowrap font-medium">
+                        Chapter sources ({chapterLinkedPapers.length})
+                      </span>
+                    </button>
+
+                    {/* Tab 8: Tasks */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (activeCompanionTool === 'tasks') {
+                          setActiveCompanionTool('none');
+                        } else {
+                          setActiveCompanionTool('tasks');
+                          setCompanionViewLayout('split');
+                        }
+                      }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-r-lg shadow-md border border-l-0 text-xs font-medium transition-all duration-150 cursor-pointer ${
+                        activeCompanionTool === 'tasks'
+                          ? 'bg-[#912A4A] text-white border-rose-900 font-semibold translate-x-0.5'
+                          : 'bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-200 border-stone-200 dark:border-stone-700 hover:translate-x-0.5'
+                      }`}
+                      title="Research milestones and tasks"
+                      aria-label="Tasks"
+                      id="margin-tab-tasks"
+                    >
+                      <CheckSquare className="w-3.5 h-3.5 shrink-0 text-teal-600 dark:text-teal-400" />
+                      <span className="font-sans text-[11px] whitespace-nowrap font-medium">
+                        Tasks ({activeJourney.tasks.filter(t => t.completed).length}/{activeJourney.tasks.length})
+                      </span>
+                    </button>
+
+                    {/* Tab 9: History */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (activeCompanionTool === 'history') {
+                          setActiveCompanionTool('none');
+                        } else {
+                          setActiveCompanionTool('history');
+                          setCompanionViewLayout('split');
+                        }
+                      }}
+                      className={`flex items-center gap-1.5 px-3 py-1.5 rounded-r-lg shadow-md border border-l-0 text-xs font-medium transition-all duration-150 cursor-pointer ${
+                        activeCompanionTool === 'history'
+                          ? 'bg-[#912A4A] text-white border-rose-900 font-semibold translate-x-0.5'
+                          : 'bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-200 border-stone-200 dark:border-stone-700 hover:translate-x-0.5'
+                      }`}
+                      title="Draft history and auto-save snapshots"
+                      aria-label="History"
+                      id="margin-tab-history"
+                    >
+                      <History className="w-3.5 h-3.5 shrink-0 text-stone-500 dark:text-stone-400" />
+                      <span className="font-sans text-[11px] whitespace-nowrap font-medium">History</span>
+                    </button>
+
                   </div>
-                  <div className="p-2 bg-white dark:bg-stone-950 rounded border border-stone-200/60 dark:border-stone-800 flex justify-between">
-                    <span>Chapter created: {activeChapter?.title}</span>
-                    <span className="font-mono text-[10px] text-stone-400">Today</span>
+
+                  {/* Contextual Selection Toolbar */}
+                  {selectedText && (
+                    <div className="sticky top-2 z-30 mb-4 p-2 bg-[#1B0A3B]/95 dark:bg-stone-950 text-white rounded-xl shadow-xl backdrop-blur-md border border-[#912A4A]/40 flex flex-wrap items-center justify-between gap-2 animate-fadeIn">
+                      <div className="font-sans text-xs text-stone-300 px-2 truncate max-w-xs">
+                        "{selectedText.length > 28 ? selectedText.slice(0, 28) + '…' : selectedText}"
+                      </div>
+                      <div className="flex items-center gap-1 flex-wrap">
+                        <button
+                          onClick={() => {
+                            setActiveCompanionTool('references');
+                            setCompanionViewLayout('split');
+                          }}
+                          className="px-2.5 py-1 bg-white/10 hover:bg-white/20 text-white rounded text-[11px] font-sans font-medium transition-colors cursor-pointer"
+                        >
+                          Find Citation
+                        </button>
+                        <button
+                          onClick={() => {
+                            setActiveCompanionTool('writing_companion');
+                            setCompanionViewLayout('split');
+                          }}
+                          className="px-2.5 py-1 bg-[#912A4A] hover:bg-[#78223d] text-white rounded text-[11px] font-sans font-bold flex items-center gap-1 transition-colors cursor-pointer"
+                        >
+                          Check Evidence
+                        </button>
+                        <button
+                          onClick={() => setSelectedText('')}
+                          className="p-1 text-stone-400 hover:text-white cursor-pointer"
+                          aria-label="Close selection bar"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* The ONE Writing Area Textarea */}
+                  <textarea
+                    value={activeChapter?.content || ''}
+                    onChange={(e) => handleUpdateChapterContent(e.target.value)}
+                    onSelect={(e) => {
+                      const target = e.target as HTMLTextAreaElement;
+                      const start = target.selectionStart;
+                      const end = target.selectionEnd;
+                      if (start !== end) {
+                        setSelectedText(target.value.substring(start, end));
+                      } else {
+                        setSelectedText('');
+                      }
+                    }}
+                    placeholder="Write freely. Your work is saved locally in real-time."
+                    className="w-full font-sans text-base text-stone-900 dark:text-stone-100 bg-transparent resize-y min-h-[460px] focus:outline-none leading-[1.85] tracking-[0.012em] placeholder:text-stone-400/70 dark:placeholder:text-stone-600 placeholder:font-sans selection:bg-[#912A4A]/20 dark:selection:bg-rose-900/40 py-2"
+                  />
+                </div>
+
+                {/* BOTTOM STATUS BAR */}
+                <div className="pt-2 px-1">
+                  <div className="flex items-center justify-between flex-wrap gap-3 text-xs">
+                    {/* Word and Character Count */}
+                    <div className="font-mono text-xs text-stone-600 dark:text-stone-400 font-medium">
+                      Words: {wordCount} · Characters: {characterCount}
+                    </div>
+
+                    {/* Draft safe · Offline first */}
+                    <div className="flex items-center gap-1.5 text-xs font-semibold text-emerald-700 dark:text-emerald-400 font-sans">
+                      <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                      <span>Draft safe · Offline first</span>
+                    </div>
                   </div>
                 </div>
-              )}
-            </div>
-          )}
-
-        </div>
-      )}
-
-      {/* ----------------------------------------------------------------- */}
-      {/* RESEARCH ENVIRONMENT MODE                                         */}
-      {/* ----------------------------------------------------------------- */}
-      {navEnvironmentMode === 'research' && (
-        <div className="space-y-6 animate-fadeIn">
-          
-          <div className="flex justify-between items-center pb-2 border-b border-stone-200/80 dark:border-stone-850">
-            <div>
-              <h3 className="font-serif font-bold text-lg text-stone-900 dark:text-stone-100">
-                {activeResearchTool === 'references'
-                  ? 'References'
-                  : activeResearchTool === 'upload_docs'
-                  ? 'Upload Documents'
-                  : activeResearchTool === 'lit_intelligence'
-                  ? 'Paper Summaries & Key Ideas'
-                  : activeResearchTool === 'knowledge_graph'
-                  ? 'Idea Map & Connected Topics'
-                  : activeResearchTool === 'analysis'
-                  ? 'Questions & Missing Ideas'
-                  : activeResearchTool === 'writing_companion' || activeResearchTool === 'repetition_spotter' || activeResearchTool === 'writing'
-                  ? 'Writing Assistant'
-                  : activeResearchTool === 'publishing_export' || activeResearchTool === 'journal_requirements' || activeResearchTool === 'publishing'
-                  ? 'Publishing & Export'
-                  : activeResearchTool === 'grants_proposals' || activeResearchTool === 'export_workspace' || activeResearchTool === 'funding'
-                  ? 'Grants & Proposals'
-                  : activeResearchTool === 'perspective_check'
-                  ? 'Perspective Check'
-                  : 'Research Tools'}
-              </h3>
-              <p className="font-sans text-xs text-stone-500">
-                {activeResearchTool === 'references'
-                  ? 'Browse, search, and manage your saved reference list.'
-                  : activeResearchTool === 'upload_docs'
-                  ? 'Add PDF papers, spreadsheets, notes, or reference files directly.'
-                  : activeResearchTool === 'lit_intelligence'
-                  ? 'Find big ideas, main themes, and key takeaways across your articles.'
-                  : activeResearchTool === 'knowledge_graph'
-                  ? 'See how different articles and topics connect like a mind map.'
-                  : activeResearchTool === 'analysis'
-                  ? 'Ask smart questions, test your ideas, and spot what is missing in existing research.'
-                  : activeResearchTool === 'writing_companion' || activeResearchTool === 'repetition_spotter' || activeResearchTool === 'writing'
-                  ? 'Get helpful feedback on writing style, clarity, and flow.'
-                  : activeResearchTool === 'publishing_export' || activeResearchTool === 'journal_requirements' || activeResearchTool === 'publishing'
-                  ? 'Check your citations, review submission rules, and export your finished work.'
-                  : activeResearchTool === 'grants_proposals' || activeResearchTool === 'export_workspace' || activeResearchTool === 'funding'
-                  ? 'Find grants, organize project ideas, and track application rules.'
-                  : activeResearchTool === 'perspective_check'
-                  ? 'Is your data representative enough for the questions or stories you are exploring?'
-                  : 'Select a research tool below to explore articles, test ideas, or organize citations.'}
-              </p>
-            </div>
-
-            {activeResearchTool && (
-              <button
-                onClick={() => setActiveResearchTool(null)}
-                className="font-sans text-xs px-3 py-1.5 rounded-lg border border-stone-200 dark:border-stone-800 hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer"
-              >
-                ← Back to Research Tools
-              </button>
-            )}
-          </div>
-
-          {!activeResearchTool && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              <button
-                onClick={() => setActiveResearchTool('upload_docs')}
-                className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl text-left hover:border-[#912A4A] transition-all cursor-pointer space-y-2 group"
-              >
-                <div className="p-2 bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 rounded-lg w-fit">
-                  
-                </div>
-                <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300">
-                  Upload Documents
-                </h4>
-                <p className="text-xs text-stone-500 leading-relaxed">
-                  Add PDF papers, spreadsheets, notes, or reference files directly.
-                </p>
-              </button>
-
-              <button
-                onClick={() => setActiveResearchTool('references')}
-                className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl text-left hover:border-[#912A4A] transition-all cursor-pointer space-y-2 group"
-              >
-                <div className="p-2 bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 rounded-lg w-fit">
-                  
-                </div>
-                <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300">
-                  References
-                </h4>
-                <p className="text-xs text-stone-500 leading-relaxed">
-                  Browse, search, and manage your saved reference list.
-                </p>
-              </button>
-
-              <button
-                onClick={() => setActiveResearchTool('lit_intelligence')}
-                className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl text-left hover:border-[#912A4A] transition-all cursor-pointer space-y-2 group"
-              >
-                <div className="p-2 bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 rounded-lg w-fit">
-                  
-                </div>
-                <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300">
-                  Paper Summaries
-                </h4>
-                <p className="text-xs text-stone-500 leading-relaxed">
-                  Compare key findings and themes across your reading list.
-                </p>
-              </button>
-
-              <button
-                onClick={() => setActiveResearchTool('knowledge_graph')}
-                className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl text-left hover:border-[#912A4A] transition-all cursor-pointer space-y-2 group"
-              >
-                <div className="p-2 bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 rounded-lg w-fit">
-                  
-                </div>
-                <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300">
-                  Concept Map
-                </h4>
-                <p className="text-xs text-stone-500 leading-relaxed">
-                  Visually map how your ideas, topics, and citations connect.
-                </p>
-              </button>
-
-              <button
-                onClick={() => setActiveResearchTool('analysis')}
-                className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl text-left hover:border-[#912A4A] transition-all cursor-pointer space-y-2 group"
-              >
-                <div className="p-2 bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 rounded-lg w-fit">
-                  
-                </div>
-                <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300">
-                  Questions & Gaps
-                </h4>
-                <p className="text-xs text-stone-500 leading-relaxed">
-                  Explore deeper questions, counter-arguments, and missing ideas.
-                </p>
-              </button>
-
-              <button
-                onClick={() => setActiveResearchTool('writing_companion')}
-                className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl text-left hover:border-[#912A4A] transition-all cursor-pointer space-y-2 group"
-              >
-                <div className="p-2 bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 rounded-lg w-fit">
-                  
-                </div>
-                <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300">
-                  Writing Assistant
-                </h4>
-                <p className="text-xs text-stone-500 leading-relaxed">
-                  Get thoughtful feedback on tone, structure, and writing flow.
-                </p>
-              </button>
-
-              <button
-                onClick={() => setActiveResearchTool('publishing_export')}
-                className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl text-left hover:border-[#912A4A] transition-all cursor-pointer space-y-2 group"
-              >
-                <div className="p-2 bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 rounded-lg w-fit">
-                  
-                </div>
-                <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300">
-                  Publishing & Export
-                </h4>
-                <p className="text-xs text-stone-500 leading-relaxed">
-                  Prepare submissions, run citation audits, and format for target journals.
-                </p>
-              </button>
-
-              <button
-                onClick={() => setActiveResearchTool('grants_proposals')}
-                className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl text-left hover:border-[#912A4A] transition-all cursor-pointer space-y-2 group"
-              >
-                <div className="p-2 bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 rounded-lg w-fit">
-                  
-                </div>
-                <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300">
-                  Grants & Proposals
-                </h4>
-                <p className="text-xs text-stone-500 leading-relaxed">
-                  Track funding opportunities, reusable proposal snippets, and grant compliance.
-                </p>
-              </button>
-
-              <button
-                onClick={() => setActiveResearchTool('perspective_check')}
-                className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl text-left hover:border-[#912A4A] transition-all cursor-pointer space-y-2 group"
-              >
-                <div className="p-2 bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 rounded-lg w-fit">
-                  
-                </div>
-                <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 group-hover:text-[#912A4A] dark:group-hover:text-rose-300">
-                  Perspective Check
-                </h4>
-                <p className="text-xs text-stone-500 leading-relaxed">
-                  Think about whose experiences, ideas and knowledge are included, who might be missing, and whether this could change what you find.
-                </p>
-              </button>
-            </div>
-          )}
-
-          {/* Active Research Tool Render */}
-          {activeResearchTool === 'upload_docs' && (
-            <div className="p-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl space-y-4">
-              <DataIngestionModule
-                existingPapers={papers}
-                collections={collections}
-                onIngestPapers={(newPapers) => {
-                  newPapers.forEach((paper) => {
-                    onAddPaper(paper);
-                    if (activeJourney) {
-                      onUpdateJourney({
-                        ...activeJourney,
-                        linkedPaperIds: [...activeJourney.linkedPaperIds, paper.id],
-                      });
-                    }
-                  });
-                }}
-              />
-            </div>
-          )}
-
-          {activeResearchTool === 'references' && (
-            <LiteratureLibrary
-              papers={papers}
-              collections={collections}
-              onUpdatePaper={onUpdatePaper}
-              onAddPaper={onAddPaper}
-              onDeletePaper={onDeletePaper}
-            />
-          )}
-
-          {activeResearchTool === 'lit_intelligence' && (
-            <ResearchIntelligenceLayer
-              papers={papers}
-              onUpdatePaper={onUpdatePaper}
-              onAddPaper={onAddPaper}
-            />
-          )}
-
-          {activeResearchTool === 'knowledge_graph' && (
-            <KnowledgeGraph
-              papers={papers}
-              journeys={journeys}
-            />
-          )}
-
-          {activeResearchTool === 'analysis' && (
-            <div className="p-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl space-y-4 text-xs font-sans">
-              <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100">
-                Socratic Analysis & Research Gap
-              </h4>
-              <p className="text-stone-600 dark:text-stone-300">
-                Analyzing active draft: <strong>{activeChapter?.title}</strong>
-              </p>
-              <div className="p-4 bg-stone-50 dark:bg-stone-950 rounded-lg space-y-2 border border-stone-200/60 dark:border-stone-800">
-                <p className="font-semibold text-[#912A4A] dark:text-rose-400">Critical Prompts:</p>
-                <ul className="list-disc pl-4 space-y-1.5 text-stone-700 dark:text-stone-300">
-                  <li>What underlying assumptions govern your definition of institutional legitimacy?</li>
-                  <li>How does your proposed methodology account for longitudinal policy shifts?</li>
-                  <li>Gap identified: Empirical case studies from Global South jurisdictions are currently underrepresented in your reference library.</li>
-                </ul>
               </div>
-            </div>
-          )}
+            )}
 
-          {(activeResearchTool === 'writing_companion' || activeResearchTool === 'repetition_spotter' || activeResearchTool === 'writing') && (
-            <WritingCompanion
-              papers={papers}
-            />
-          )}
+            {/* COMPANION TOOL COLUMN (Visible in Split View or Full View) */}
+            {activeCompanionTool !== 'none' && (
+              <div
+                className={`${
+                  companionViewLayout === 'full'
+                    ? 'lg:col-span-12'
+                    : 'lg:col-span-6 xl:col-span-6'
+                } space-y-3 transition-all duration-200 ${
+                  companionViewLayout === 'split' ? 'max-h-[85vh] overflow-y-auto pr-1' : ''
+                }`}
+              >
+                {/* Full View Return Header */}
+                {companionViewLayout === 'full' && (
+                  <div className="flex items-center justify-between p-3 bg-stone-100 dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 text-xs">
+                    <button
+                      type="button"
+                      onClick={() => setCompanionViewLayout('split')}
+                      className="text-[#912A4A] dark:text-rose-400 font-semibold hover:underline flex items-center gap-1.5 cursor-pointer"
+                    >
+                      <span>← Return to Split View with Manuscript Draft</span>
+                    </button>
 
-          {(activeResearchTool === 'publishing_export' || activeResearchTool === 'journal_requirements' || activeResearchTool === 'publishing') && (
-            <CreativePublishingWorkspace
-              papers={papers}
-              onAddPaper={onAddPaper}
-              onUpdatePaper={onUpdatePaper}
-            />
-          )}
+                    <button
+                      type="button"
+                      onClick={() => setActiveCompanionTool('none')}
+                      className="px-2.5 py-1 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white bg-white dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-2xs border border-stone-200/80 dark:border-stone-700"
+                      aria-label="Close Tool"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                      <span>Close</span>
+                    </button>
+                  </div>
+                )}
 
-          {(activeResearchTool === 'grants_proposals' || activeResearchTool === 'export_workspace' || activeResearchTool === 'funding') && (
-            <FundingWorkspace
-              journeys={journeys}
-              papers={papers}
-              onUpdateJourney={onUpdateJourney}
-            />
-          )}
+                {/* Split View Header Bar with Close Button */}
+                {companionViewLayout === 'split' && (
+                  <div className="flex items-center justify-between px-3 py-2 bg-stone-50 dark:bg-stone-900/90 rounded-xl border border-stone-200/80 dark:border-stone-800 text-xs">
+                    <div className="flex items-center gap-2">
+                      <span className="font-semibold text-stone-800 dark:text-stone-200 text-xs capitalize">
+                        {activeCompanionTool === 'references' && 'References Library'}
+                        {activeCompanionTool === 'lit_intelligence' && 'Paper Summaries & Synthesis'}
+                        {activeCompanionTool === 'writing_companion' && 'Writing Assistant'}
+                        {activeCompanionTool === 'perspective_check' && 'Perspective Check'}
+                        {activeCompanionTool === 'outline' && 'Project Outline'}
+                        {activeCompanionTool === 'chapter_sources' && 'Chapter Sources'}
+                        {activeCompanionTool === 'tasks' && 'Chapter Tasks'}
+                        {activeCompanionTool === 'history' && 'Version History'}
+                        {activeCompanionTool === 'knowledge_graph' && 'Knowledge Graph'}
+                        {activeCompanionTool === 'publishing_export' && 'Publishing Studio'}
+                        {activeCompanionTool === 'grants_proposals' && 'Grants & Proposals'}
+                      </span>
+                    </div>
 
-          {activeResearchTool === 'perspective_check' && (
-            <PerspectiveCheck
-              papers={papers}
-              activeJourney={activeJourney}
-            />
-          )}
+                    <div className="flex items-center gap-2">
+                      <button
+                        type="button"
+                        onClick={() => setCompanionViewLayout('full')}
+                        className="text-[11px] text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 hover:underline cursor-pointer"
+                        title="Expand tool to full width"
+                      >
+                        Full view
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setActiveCompanionTool('none')}
+                        className="px-2.5 py-1 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white bg-white dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-2xs border border-stone-200/80 dark:border-stone-700"
+                        aria-label="Close Companion Tool"
+                      >
+                        <X className="w-3.5 h-3.5" />
+                        <span>Close</span>
+                      </button>
+                    </div>
+                  </div>
+                )}
 
+                {/* Render the Active Companion Tool */}
+                {renderCompanionToolComponent()}
+              </div>
+            )}
+
+          </div>
         </div>
       )}
 
       {/* ----------------------------------------------------------------- */}
-      {/* PLAN ENVIRONMENT MODE                                             */}
+      {/* ROADMAP & PLAN ENVIRONMENT MODE                                   */}
       {/* ----------------------------------------------------------------- */}
       {navEnvironmentMode === 'plan' && (
-        <div className="space-y-6 animate-fadeIn">
-          <div className="pb-2 border-b border-stone-200/80 dark:border-stone-850">
-            <h3 className="font-serif font-bold text-lg text-stone-900 dark:text-stone-100">
-              Project Plan & Roadmap
-            </h3>
-            <p className="font-sans text-xs text-stone-500">
-              Structure chapters, active research questions, tasks, and milestone timelines.
-            </p>
+        <div className="space-y-6 animate-fadeIn" id="roadmap-and-plan-view">
+          <div className="pb-3 border-b border-stone-200/80 dark:border-stone-850 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h3 className="font-serif font-bold text-lg text-stone-900 dark:text-stone-100">
+                Project Plan & Roadmap
+              </h3>
+              <p className="font-sans text-xs text-stone-500">
+                Structure chapters, active research questions, tasks, and milestone timelines.
+              </p>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setNavEnvironmentMode('write')}
+              className="self-start sm:self-center px-3.5 py-1.5 rounded-lg bg-stone-100 dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 text-xs font-semibold flex items-center gap-1.5 transition-colors cursor-pointer border border-stone-200/80 dark:border-stone-700 shadow-2xs"
+              id="exit-roadmap-and-plan-btn"
+              title="Return to Quiet Drafting Desk"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Exit Roadmap and Plan</span>
+            </button>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            
             {/* Questions Panel */}
             <div className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl space-y-3">
               <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                 Active Research Questions
+                Active Research Questions
               </h4>
               <div className="space-y-2">
                 {activeJourney.questions.map((q, idx) => (
@@ -1655,7 +1750,7 @@ export default function ResearchWorkspace({
             {/* Tasks & Deliverables */}
             <div className="p-5 bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl space-y-3">
               <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                 Deliverables & Tasks
+                Deliverables & Tasks
               </h4>
               <div className="space-y-2">
                 {activeJourney.tasks.map((task) => (
@@ -1667,13 +1762,13 @@ export default function ResearchWorkspace({
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      {task.completed ? null : null}
                       <span className={task.completed ? 'line-through' : ''}>{task.text}</span>
                     </div>
+                    {task.completed && <Check className="w-3.5 h-3.5 text-emerald-600" />}
                   </div>
                 ))}
               </div>
-              <form onSubmit={handleAddTask} className="flex gap-2 pt-2">
+              <form onSubmit={handleAddTask} className="flex gap-2 pt-1">
                 <input
                   type="text"
                   placeholder="New task..."
@@ -1688,10 +1783,8 @@ export default function ResearchWorkspace({
             </div>
           </div>
 
-          {/* Reflective Wins & Progress */}
           <ReflectiveWins />
 
-          {/* Timeline View */}
           <ResearchTimeline
             journeys={journeys}
             activeJourneyId={activeJourney.id}
@@ -1702,361 +1795,366 @@ export default function ResearchWorkspace({
       )}
 
       {/* ----------------------------------------------------------------- */}
-      {/* FLOATING ACTION MODALS (Quick Note, AI, Thought, Voice, Pause)    */}
-      {/* ----------------------------------------------------------------- */}
-      {floatingActionModal && (
-        <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
-          <div className="max-w-md w-full bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-6 rounded-2xl space-y-4 shadow-2xl text-left">
-            <div className="flex justify-between items-center border-b border-stone-150 dark:border-stone-850 pb-2">
-              <h3 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100 capitalize">
-                {floatingActionModal === 'note' && '+ New Note'}
-                {floatingActionModal === 'ai' && '+ AI Assistant'}
-                {floatingActionModal === 'thought' && '+ Capture Thought'}
-                {floatingActionModal === 'voice' && '+ Voice Dictation'}
-                {floatingActionModal === 'pause' && '+ Reflective Pause'}
-              </h3>
-              <button
-                onClick={() => setFloatingActionModal(null)}
-                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1 cursor-pointer"
-              >
-                
-              </button>
-            </div>
-
-            {floatingActionModal === 'note' && (
-              <div className="space-y-3">
-                <textarea
-                  placeholder="Jot down a quick note or outline point..."
-                  value={quickThoughtText}
-                  onChange={(e) => setQuickThoughtText(e.target.value)}
-                  className="w-full p-3 border border-stone-200 dark:border-stone-800 rounded-lg text-xs bg-stone-50 dark:bg-stone-900 h-28 focus:outline-none"
-                />
-                <button
-                  onClick={() => {
-                    if (quickThoughtText.trim()) {
-                      handleUpdateChapterContent((activeChapter?.content || '') + '\n\nNote: ' + quickThoughtText);
-                    }
-                    setQuickThoughtText('');
-                    setFloatingActionModal(null);
-                  }}
-                  className="w-full py-2 bg-[#912A4A] text-white rounded-lg text-xs font-medium cursor-pointer"
-                >
-                  Append Note to Draft
-                </button>
-              </div>
-            )}
-
-            {floatingActionModal === 'ai' && (
-              <div className="space-y-3 text-xs">
-                <p className="text-stone-600 dark:text-stone-300">Ask your AI Assistant for writing feedback or structural guidance:</p>
-                <input
-                  type="text"
-                  placeholder="e.g. How can I transition smoothly into chapter 2?"
-                  value={quickAiPrompt}
-                  onChange={(e) => setQuickAiPrompt(e.target.value)}
-                  className="w-full p-2.5 border border-stone-200 dark:border-stone-800 rounded-lg bg-stone-50 dark:bg-stone-900"
-                />
-                <button
-                  onClick={() => {
-                    setQuickAiResponse("Reflective Recommendation: Use a bridging question at the end of Chapter 1 that introduces the key inquiry of Chapter 2. This maintains narrative momentum.");
-                  }}
-                  className="w-full py-2 bg-[#912A4A] text-white rounded-lg font-medium cursor-pointer"
-                >
-                  Ask Assistant
-                </button>
-                {quickAiResponse && (
-                  <div className="p-3 bg-stone-50 dark:bg-stone-900 rounded-lg border border-stone-200/60 dark:border-stone-800 text-stone-800 dark:text-stone-200">
-                    {quickAiResponse}
-                  </div>
-                )}
-              </div>
-            )}
-
-            {floatingActionModal === 'thought' && (
-              <div className="space-y-3 text-xs">
-                <p className="text-stone-600 dark:text-stone-300">Capture a sudden idea before it fades:</p>
-                <textarea
-                  placeholder="Describe your thought..."
-                  value={quickThoughtText}
-                  onChange={(e) => setQuickThoughtText(e.target.value)}
-                  className="w-full p-3 border border-stone-200 dark:border-stone-800 rounded-lg bg-stone-50 dark:bg-stone-900 h-24"
-                />
-                <button
-                  onClick={() => {
-                    setQuickThoughtText('');
-                    setFloatingActionModal(null);
-                  }}
-                  className="w-full py-2 bg-[#912A4A] text-white rounded-lg font-medium cursor-pointer"
-                >
-                  Save Thought
-                </button>
-              </div>
-            )}
-
-            {floatingActionModal === 'voice' && (
-              <div className="py-6 text-center space-y-3 text-xs">
-                <div className="w-12 h-12 rounded-full bg-rose-100 dark:bg-rose-950 text-[#912A4A] flex items-center justify-center mx-auto animate-pulse">
-                  
-                </div>
-                <p className="text-stone-600 dark:text-stone-300">Speak naturally to dictate your draft or capture ideas.</p>
-                <button
-                  onClick={() => setFloatingActionModal(null)}
-                  className="px-4 py-2 bg-[#912A4A] text-white rounded-lg font-medium cursor-pointer"
-                >
-                  Done Dictating
-                </button>
-              </div>
-            )}
-
-            {floatingActionModal === 'pause' && (
-              <div className="py-8 text-center space-y-4 text-xs font-serif">
-                <div className="w-14 h-14 rounded-full bg-[#912A4A]/10 text-[#912A4A] flex items-center justify-center mx-auto animate-pulse">
-                  
-                </div>
-                <div className="space-y-1">
-                  <h4 className="font-bold text-base text-stone-900 dark:text-stone-100">Pause & Reflect</h4>
-                  <p className="text-stone-500 italic max-w-xs mx-auto">
-                    "Take a slow breath. Step back from the screen for a moment before continuing."
-                  </p>
-                </div>
-                <button
-                  onClick={() => setFloatingActionModal(null)}
-                  className="px-5 py-2 bg-[#912A4A] text-white rounded-lg font-sans text-xs cursor-pointer"
-                >
-                  Resume Writing
-                </button>
-              </div>
-            )}
-
-          </div>
-        </div>
-      )}
-
-      {/* ----------------------------------------------------------------- */}
-      {/* CONTEXTUAL SLIDE-OVER DRAWER FOR TEXT SELECTION                   */}
-      {/* ----------------------------------------------------------------- */}
-      {isContextDrawerOpen && (
-        <div className="fixed inset-y-0 right-0 w-full max-w-md bg-white dark:bg-stone-950 border-l border-stone-200 dark:border-stone-800 shadow-2xl p-6 z-50 flex flex-col justify-between animate-fadeIn">
-          <div className="space-y-4 overflow-y-auto">
-            <div className="flex justify-between items-center border-b border-stone-200/80 dark:border-stone-800 pb-3">
-              <span className="font-mono text-[10px] uppercase font-bold text-[#912A4A] dark:text-rose-400">
-                Contextual Tool: {activeContextTool}
-              </span>
-              <button
-                onClick={() => setIsContextDrawerOpen(false)}
-                className="p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 cursor-pointer"
-              >
-                
-              </button>
-            </div>
-
-            <div className="p-3 bg-stone-50 dark:bg-stone-900 rounded-lg border border-stone-200/60 dark:border-stone-800 text-xs italic text-stone-700 dark:text-stone-300">
-              "{selectedText}"
-            </div>
-
-            {isGeneratingContext ? (
-              <div className="py-12 text-center text-xs text-stone-400 space-y-2">
-                
-                <p>Generating thoughtful synthesis...</p>
-              </div>
-            ) : (
-              <div className="p-4 bg-stone-50 dark:bg-stone-900/60 rounded-xl border border-stone-200/80 dark:border-stone-800 text-xs font-sans text-stone-800 dark:text-stone-200 whitespace-pre-wrap leading-relaxed">
-                {contextResult}
-              </div>
-            )}
-          </div>
-
-          <div className="pt-4 border-t border-stone-200/80 dark:border-stone-800 flex gap-2">
-            <button
-              onClick={() => {
-                if (contextResult) {
-                  handleUpdateChapterContent((activeChapter?.content || '') + '\n\n' + contextResult);
-                }
-                setIsContextDrawerOpen(false);
-              }}
-              className="flex-grow py-2 bg-[#912A4A] text-white rounded-lg text-xs font-medium cursor-pointer hover:bg-[#78223d]"
-            >
-              Insert into Draft
-            </button>
-            <button
-              onClick={() => setIsContextDrawerOpen(false)}
-              className="px-4 py-2 border border-stone-200 dark:border-stone-800 rounded-lg text-xs text-stone-600 dark:text-stone-400 cursor-pointer"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* ----------------------------------------------------------------- */}
-      {/* REFLECTION SHELF NARROW SIDE PANEL                                */}
-      {/* Private thinking space accompanying manuscript                   */}
+      {/* REFLECTION SHELF ("PRIVATE THINKING SPACE") DRAWER                */}
       {/* ----------------------------------------------------------------- */}
       {isReflectionShelfOpen && (
-        <div className="fixed inset-0 z-50 overflow-hidden flex justify-end animate-fadeIn">
-          {/* Backdrop */}
+        <>
+          {/* Backdrop Overlay to close on outside click */}
           <div
-            className="fixed inset-0 bg-stone-900/40 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-stone-900/40 backdrop-blur-xs z-40 transition-opacity"
             onClick={() => setIsReflectionShelfOpen(false)}
+            aria-hidden="true"
           />
 
-          {/* Side Panel */}
-          <div className="relative w-80 sm:w-96 max-w-full bg-white dark:bg-stone-900 border-l border-stone-200 dark:border-stone-800 shadow-2xl h-full flex flex-col z-10 animate-slideInRight overflow-hidden">
-            
-            {/* Panel Header */}
-            <div className="p-4 sm:p-5 border-b border-stone-200/80 dark:border-stone-800 bg-[#FAF8F5] dark:bg-stone-950/60 flex items-start justify-between gap-2">
-              <div>
-                <h3 className="font-serif text-xl font-bold text-stone-900 dark:text-stone-100">
-                  Reflection Shelf
-                </h3>
-                <p className="text-xs text-stone-500 dark:text-stone-400 font-sans mt-1 leading-snug">
-                  Unlike comments, these are for the writer, not collaborators. A private thinking space accompanying your manuscript.
-                </p>
+          <div
+            className="fixed inset-y-0 right-0 z-50 w-80 sm:w-96 bg-white dark:bg-stone-950 border-l border-stone-200 dark:border-stone-800 p-5 shadow-2xl flex flex-col justify-between animate-fadeIn text-xs"
+            id="reflection-notes-drawer"
+          >
+            <div className="space-y-4 flex-grow overflow-y-auto pr-1">
+              <div className="flex justify-between items-center border-b border-stone-150 dark:border-stone-850 pb-2.5">
+                <div className="flex items-center gap-2">
+                  <Bookmark className="w-4 h-4 text-[#912A4A] dark:text-rose-400" />
+                  <h3 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100">
+                    Private Reflection Shelf
+                  </h3>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setIsReflectionShelfOpen(false)}
+                  className="px-2.5 py-1 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white bg-stone-100 dark:bg-stone-850 hover:bg-stone-200 dark:hover:bg-stone-800 rounded-md transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                  id="close-reflection-shelf-top-btn"
+                  title="Close Shelf (Esc)"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>Close</span>
+                </button>
               </div>
+
+              {/* Add Thought Form */}
+              <form onSubmit={handleAddReflection} className="space-y-2">
+                <textarea
+                  placeholder="Capture a private reflection, question, or thought..."
+                  value={newThoughtText}
+                  onChange={(e) => setNewThoughtText(e.target.value)}
+                  className="w-full p-2.5 border border-stone-200 dark:border-stone-800 rounded-lg text-xs bg-stone-50 dark:bg-stone-900 focus:outline-none focus:ring-1 focus:ring-[#912A4A] h-20"
+                />
+                <div className="flex justify-between items-center">
+                  <select
+                    value={newThoughtTag}
+                    onChange={(e) => setNewThoughtTag(e.target.value as any)}
+                    className="font-sans text-[11px] p-1 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-900"
+                  >
+                    <option value="Reflection">Reflection</option>
+                    <option value="Research Insight">Research Insight</option>
+                    <option value="Question">Question</option>
+                    <option value="Idea">Idea</option>
+                    <option value="Later">Later</option>
+                  </select>
+                  <button
+                    type="submit"
+                    className="px-3 py-1 bg-[#912A4A] text-white rounded text-xs font-medium cursor-pointer"
+                  >
+                    Save Thought
+                  </button>
+                </div>
+              </form>
+
+              {/* List of Reflections */}
+              <div className="space-y-2.5 pt-2">
+                {reflections.map((r) => (
+                  <div key={r.id} className="p-3 bg-stone-50 dark:bg-stone-900 border border-stone-200/60 dark:border-stone-800 rounded-lg space-y-1.5">
+                    <div className="flex justify-between items-center text-[10px]">
+                      <span className="font-semibold text-[#912A4A] dark:text-rose-400 uppercase tracking-wider">
+                        {r.tag}
+                      </span>
+                      <div className="flex items-center gap-1.5">
+                        <button
+                          onClick={() => handleCopyReflection(r.id, r.text)}
+                          className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 cursor-pointer"
+                          title="Copy to clipboard"
+                        >
+                          {copiedReflectionId === r.id ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                        </button>
+                        <button
+                          onClick={() => handleDeleteReflection(r.id)}
+                          className="text-stone-400 hover:text-rose-600 cursor-pointer"
+                          title="Delete thought"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                        </button>
+                      </div>
+                    </div>
+                    <p className="text-stone-800 dark:text-stone-200 leading-relaxed font-sans">
+                      {r.text}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom Close Button Footer */}
+            <div className="pt-3 border-t border-stone-150 dark:border-stone-850 mt-3 shrink-0">
               <button
+                type="button"
                 onClick={() => setIsReflectionShelfOpen(false)}
-                className="p-1 rounded-lg text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 hover:bg-stone-200/50 dark:hover:bg-stone-800 transition-colors cursor-pointer"
-                title="Close Reflection Shelf"
+                className="w-full py-2 bg-stone-100 hover:bg-stone-200 dark:bg-stone-850 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-200 font-semibold rounded-lg transition-colors text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                id="close-reflection-shelf-bottom-btn"
               >
-                <X className="w-5 h-5" />
+                <X className="w-3.5 h-3.5" />
+                <span>Close Window</span>
+              </button>
+            </div>
+          </div>
+        </>
+      )}
+
+      {/* Project Creation Modal */}
+      {isAddingProject && (
+        <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4 z-50 animate-fadeIn">
+          <form
+            onSubmit={handleCreateProject}
+            className="max-w-lg w-full bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-6 rounded-2xl space-y-4 shadow-2xl text-left"
+          >
+            <div className="flex justify-between items-center border-b border-stone-150 dark:border-stone-850 pb-3">
+              <h3 className="font-serif font-bold text-lg text-stone-900 dark:text-stone-100">
+                Create New Writing Workspace
+              </h3>
+              <button
+                type="button"
+                onClick={() => setIsAddingProject(false)}
+                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 p-1 cursor-pointer"
+              >
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Panel Body: Scrollable */}
-            <div className="flex-1 overflow-y-auto p-4 sm:p-5 space-y-5">
-              
-              {/* New Reflection Form */}
-              <form onSubmit={handleAddReflection} className="space-y-3 bg-stone-50 dark:bg-stone-950 p-3.5 rounded-xl border border-stone-200/80 dark:border-stone-800 shadow-xs">
-                <label className="block text-xs font-semibold text-stone-700 dark:text-stone-300">
-                  Capture Reflection
-                </label>
-                
-                <textarea
-                  value={newThoughtText}
-                  onChange={(e) => setNewThoughtText(e.target.value)}
-                  placeholder="💭 New thought..."
-                  rows={3}
-                  className="w-full font-sans text-xs p-3 rounded-lg border border-stone-250 dark:border-stone-750 bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100 placeholder:text-stone-400 focus:outline-none focus:ring-1 focus:ring-[#912A4A] resize-none leading-relaxed"
+            <div className="space-y-3">
+              <div>
+                <label className="block font-sans text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">Project Title</label>
+                <input
+                  type="text"
+                  placeholder="e.g. Epistemic Humility in Machine Reasoning"
+                  value={pTitle}
+                  onChange={(e) => setPTitle(e.target.value)}
+                  className="w-full font-sans text-xs p-2.5 border border-stone-300 dark:border-stone-700 rounded bg-stone-50 dark:bg-stone-900 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#912A4A]"
+                  required
                 />
-
-                {/* Category Tag Selector */}
-                <div className="space-y-1.5">
-                  <span className="text-[11px] font-sans text-stone-500 dark:text-stone-400 block font-medium">
-                    Category Tag
-                  </span>
-                  <div className="flex flex-wrap gap-1.5">
-                    {(['Research Insight', 'Reflection', 'Question', 'Idea', 'Later'] as const).map((tag) => {
-                      const isSelected = newThoughtTag === tag;
-                      return (
-                        <button
-                          key={tag}
-                          type="button"
-                          onClick={() => setNewThoughtTag(tag)}
-                          className={`px-2.5 py-1 rounded-full text-[11px] font-sans transition-all cursor-pointer ${
-                            isSelected
-                              ? 'bg-[#912A4A] text-white font-semibold shadow-xs'
-                              : 'bg-white dark:bg-stone-900 text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-750 hover:border-[#912A4A]/50'
-                          }`}
-                        >
-                          {tag}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
-
-                <button
-                  type="submit"
-                  disabled={!newThoughtText.trim()}
-                  className="w-full py-2 bg-[#912A4A] hover:bg-[#78223d] disabled:opacity-50 text-white rounded-lg text-xs font-sans font-semibold transition-colors cursor-pointer flex items-center justify-center gap-1.5 shadow-xs"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>Save Reflection</span>
-                </button>
-              </form>
-
-              {/* Divider */}
-              <div className="border-t border-stone-200 dark:border-stone-800" />
-
-              {/* Saved Reflections Header */}
-              <div className="flex items-center justify-between">
-                <h4 className="font-sans font-bold text-xs uppercase tracking-wider text-stone-700 dark:text-stone-300">
-                  Saved Reflections ({reflections.length})
-                </h4>
               </div>
 
-              {/* Reflections List */}
-              {reflections.length === 0 ? (
-                <div className="p-6 text-center text-stone-400 dark:text-stone-500 text-xs italic font-serif bg-stone-50/50 dark:bg-stone-950/30 rounded-xl border border-dashed border-stone-200 dark:border-stone-800">
-                  No private reflections saved yet. Capture thoughts, questions, or ideas as you draft.
+              <div>
+                <label className="block font-sans text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">Format Type</label>
+                <select
+                  value={pType}
+                  onChange={(e) => setPType(e.target.value as any)}
+                  className="w-full font-sans text-xs p-2.5 border border-stone-300 dark:border-stone-700 rounded bg-stone-50 dark:bg-stone-900 text-stone-900 dark:text-stone-100 focus:outline-none focus:ring-1 focus:ring-[#912A4A] cursor-pointer"
+                >
+                  <option value="book">Book & Novel Manuscript</option>
+                  <option value="journal">Essay & Journal Article</option>
+                  <option value="phd">Research Project & Dissertation</option>
+                  <option value="policy">Reflective Journaling & Notes</option>
+                </select>
+              </div>
+
+              <div>
+                <label className="block font-sans text-xs font-semibold text-stone-700 dark:text-stone-300 mb-1">Premise or Abstract</label>
+                <textarea
+                  placeholder="Describe the central premise or vision of this writing project..."
+                  value={pDesc}
+                  onChange={(e) => setPDesc(e.target.value)}
+                  className="w-full font-sans text-xs p-2.5 border border-stone-300 dark:border-stone-700 rounded bg-stone-50 dark:bg-stone-900 text-stone-900 dark:text-stone-100 h-24 focus:outline-none focus:ring-1 focus:ring-[#912A4A]"
+                />
+              </div>
+            </div>
+
+            <div className="flex justify-end gap-2 pt-2 border-t border-stone-150 dark:border-stone-850">
+              <button
+                type="button"
+                onClick={() => setIsAddingProject(false)}
+                className="font-sans text-xs px-3 py-2 border border-stone-200 dark:border-stone-800 rounded text-stone-600 dark:text-stone-400 hover:bg-stone-100 dark:hover:bg-stone-900 cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="font-sans text-xs bg-[#912A4A] text-white hover:bg-[#78223d] px-4 py-2 rounded transition-colors cursor-pointer font-medium"
+              >
+                Create Workspace
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      {/* ----------------------------------------------------------------- */}
+      {/* FLOATING PLUS SYMBOL MENU (+) & SPEED DIAL QUICK ACTIONS          */}
+      {/* ----------------------------------------------------------------- */}
+      <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end no-print">
+        {/* Floating Speed Dial Action Items */}
+        {isFloatingMenuOpen && (
+          <>
+            {/* Backdrop click dismiss */}
+            <div
+              className="fixed inset-0 z-30 bg-black/20 dark:bg-black/40 backdrop-blur-[1px]"
+              onClick={() => setIsFloatingMenuOpen(false)}
+              aria-hidden="true"
+            />
+
+            <div className="relative z-40 mb-3 flex flex-col items-end gap-2 animate-fadeIn">
+              {/* Option 1: New Note & Reflection */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsFloatingMenuOpen(false);
+                  setIsReflectionShelfOpen(true);
+                }}
+                className="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-full shadow-lg border border-stone-200 dark:border-stone-700 text-xs font-semibold transition-all duration-150 hover:scale-105 cursor-pointer"
+                id="fab-action-new-note"
+              >
+                <span>New Note / Reflection</span>
+                <div className="w-7 h-7 rounded-full bg-[#FAF8F5] dark:bg-stone-800 flex items-center justify-center text-[#912A4A] dark:text-rose-400 border border-[#912A4A]/20">
+                  <Bookmark className="w-3.5 h-3.5" />
                 </div>
-              ) : (
-                <div className="space-y-3">
-                  {reflections.map((item) => {
-                    let tagStyle = 'bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300 border-stone-200';
-                    if (item.tag === 'Research Insight') {
-                      tagStyle = 'bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 border-[#912A4A]/20';
-                    } else if (item.tag === 'Question') {
-                      tagStyle = 'bg-amber-500/10 text-amber-800 dark:text-amber-300 border-amber-500/20';
-                    } else if (item.tag === 'Idea') {
-                      tagStyle = 'bg-emerald-500/10 text-emerald-800 dark:text-emerald-300 border-emerald-500/20';
-                    } else if (item.tag === 'Reflection') {
-                      tagStyle = 'bg-indigo-500/10 text-indigo-800 dark:text-indigo-300 border-indigo-500/20';
-                    } else if (item.tag === 'Later') {
-                      tagStyle = 'bg-stone-500/10 text-stone-800 dark:text-stone-300 border-stone-500/20';
-                    }
+              </button>
 
-                    return (
-                      <div
-                        key={item.id}
-                        className="p-3.5 bg-white dark:bg-stone-900 rounded-xl border border-stone-200/80 dark:border-stone-800 shadow-xs space-y-2 hover:border-[#912A4A]/30 transition-colors group"
-                      >
-                        <div className="flex items-center justify-between gap-2">
-                          <span className={`px-2 py-0.5 rounded-md text-[10px] font-sans font-semibold border ${tagStyle}`}>
-                            {item.tag}
-                          </span>
-
-                          <div className="flex items-center gap-1.5">
-                            <span className="text-[10px] font-mono text-stone-400">
-                              {formatReflectionTime(item.timestamp)}
-                            </span>
-                            
-                            <button
-                              onClick={() => handleCopyReflection(item.id, item.text)}
-                              className="p-1 rounded hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 transition-colors cursor-pointer"
-                              title="Copy reflection"
-                            >
-                              {copiedReflectionId === item.id ? (
-                                <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
-                              ) : (
-                                <Copy className="w-3 h-3" />
-                              )}
-                            </button>
-
-                            <button
-                              onClick={() => handleDeleteReflection(item.id)}
-                              className="p-1 rounded hover:bg-rose-50 dark:hover:bg-rose-950/40 text-stone-400 hover:text-rose-600 transition-colors cursor-pointer"
-                              title="Delete reflection"
-                            >
-                              <Trash2 className="w-3 h-3" />
-                            </button>
-                          </div>
-                        </div>
-
-                        <p className="font-sans text-xs text-stone-800 dark:text-stone-200 whitespace-pre-wrap leading-relaxed">
-                          {item.text}
-                        </p>
-                      </div>
-                    );
-                  })}
+              {/* Option 2: Writing Assistant */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsFloatingMenuOpen(false);
+                  setActiveCompanionTool('writing_companion');
+                  setCompanionViewLayout('split');
+                }}
+                className="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-full shadow-lg border border-stone-200 dark:border-stone-700 text-xs font-semibold transition-all duration-150 hover:scale-105 cursor-pointer"
+                id="fab-action-writing-assistant"
+              >
+                <span>Writing Assistant</span>
+                <div className="w-7 h-7 rounded-full bg-purple-50 dark:bg-purple-950/40 flex items-center justify-center text-purple-600 dark:text-purple-400 border border-purple-200 dark:border-purple-800">
+                  <Sparkles className="w-3.5 h-3.5" />
                 </div>
-              )}
+              </button>
 
+              {/* Option 3: Check References */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsFloatingMenuOpen(false);
+                  setActiveCompanionTool('references');
+                  setCompanionViewLayout('split');
+                }}
+                className="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-full shadow-lg border border-stone-200 dark:border-stone-700 text-xs font-semibold transition-all duration-150 hover:scale-105 cursor-pointer"
+                id="fab-action-references"
+              >
+                <span>Check References ({papers.length})</span>
+                <div className="w-7 h-7 rounded-full bg-amber-50 dark:bg-amber-950/40 flex items-center justify-center text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
+                  <BookOpen className="w-3.5 h-3.5" />
+                </div>
+              </button>
+
+              {/* Option 4: Focus Mode */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsFloatingMenuOpen(false);
+                  setIsFocusMode(true);
+                }}
+                className="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-full shadow-lg border border-stone-200 dark:border-stone-700 text-xs font-semibold transition-all duration-150 hover:scale-105 cursor-pointer"
+                id="fab-action-focus"
+              >
+                <span>Focus Mode</span>
+                <div className="w-7 h-7 rounded-full bg-rose-50 dark:bg-rose-950/40 flex items-center justify-center text-[#912A4A] dark:text-rose-400 border border-rose-200 dark:border-rose-800">
+                  <Maximize2 className="w-3.5 h-3.5" />
+                </div>
+              </button>
+
+              {/* Option 5: Print Notes */}
+              <button
+                type="button"
+                onClick={() => {
+                  setIsFloatingMenuOpen(false);
+                  setIsPrintModalOpen(true);
+                }}
+                className="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-full shadow-lg border border-stone-200 dark:border-stone-700 text-xs font-semibold transition-all duration-150 hover:scale-105 cursor-pointer"
+                id="fab-action-print"
+              >
+                <span>Print Notes</span>
+                <div className="w-7 h-7 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700">
+                  <Printer className="w-3.5 h-3.5" />
+                </div>
+              </button>
+            </div>
+          </>
+        )}
+
+        {/* Primary Floating Plus Symbol Button (+) */}
+        <button
+          type="button"
+          onClick={() => setIsFloatingMenuOpen(!isFloatingMenuOpen)}
+          className={`relative z-40 w-12 h-12 rounded-full shadow-xl flex items-center justify-center transition-all duration-200 hover:scale-108 cursor-pointer ${
+            isFloatingMenuOpen
+              ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 rotate-45 ring-4 ring-black/10'
+              : 'bg-[#912A4A] hover:bg-[#78223d] text-white ring-4 ring-[#912A4A]/20'
+          }`}
+          title={isFloatingMenuOpen ? "Close Quick Actions Menu" : "Quick Actions (+)"}
+          aria-label={isFloatingMenuOpen ? "Close Quick Actions Menu" : "Quick Actions Menu"}
+          id="fab-plus-menu-btn"
+        >
+          <Plus className="w-6 h-6 transition-transform duration-200" />
+        </button>
+      </div>
+
+      {/* ----------------------------------------------------------------- */}
+      {/* DISTRACTION-FREE FULLSCREEN FOCUS MODE (ALWAYS VISIBLE EXIT BTN) */}
+      {/* ----------------------------------------------------------------- */}
+      {isFocusMode && (
+        <div className="fixed inset-0 z-50 bg-[#FAF8F5] dark:bg-stone-950 flex flex-col justify-between p-6 sm:p-10 animate-fadeIn">
+          {/* Top Bar: Always Visible Exit Focus Button */}
+          <div className="flex items-center justify-between pb-4 border-b border-stone-200 dark:border-stone-800 shrink-0">
+            <div className="flex items-center gap-3">
+              <span className="font-serif font-bold text-base md:text-lg text-stone-900 dark:text-stone-100">
+                {activeJourney?.title || 'Quiet Drafting Desk'}
+              </span>
+              <span className="font-sans text-[11px] px-2.5 py-0.5 rounded-full bg-stone-200/80 dark:bg-stone-800 text-stone-700 dark:text-stone-300 font-medium">
+                {activeChapter?.title || 'Draft Editor'}
+              </span>
+            </div>
+
+            <div className="flex items-center gap-3">
+              <span className="font-mono text-xs text-stone-400">
+                {wordCount} words · {characterCount} chars
+              </span>
+              <button
+                type="button"
+                onClick={() => setIsFocusMode(false)}
+                className="px-3.5 py-1.5 rounded-lg bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 text-xs font-semibold flex items-center gap-1.5 hover:opacity-90 transition-opacity cursor-pointer shadow-md"
+                id="exit-focus-mode-fullscreen-btn"
+                title="Exit Focus Mode (Esc)"
+              >
+                <X className="w-3.5 h-3.5" />
+                <span>Exit Focus</span>
+              </button>
+            </div>
+          </div>
+
+          {/* Centered Large Distraction-Free Canvas */}
+          <div className="flex-grow flex flex-col justify-center max-w-4xl w-full mx-auto py-6 overflow-y-auto">
+            <textarea
+              value={activeChapter?.content || ''}
+              onChange={(e) => handleUpdateChapterContent(e.target.value)}
+              placeholder="Write freely. Your work is saved locally in real-time."
+              autoFocus
+              className="w-full h-full min-h-[60vh] font-serif text-lg md:text-xl text-stone-900 dark:text-stone-100 bg-transparent resize-none focus:outline-none leading-relaxed tracking-wide placeholder:text-stone-400/60 selection:bg-[#912A4A]/20"
+            />
+          </div>
+
+          {/* Bottom Bar: Status */}
+          <div className="flex items-center justify-between pt-3 border-t border-stone-200 dark:border-stone-800 text-stone-400 text-xs shrink-0 font-sans">
+            <span>Focus Mode Active · Press <kbd className="px-1.5 py-0.5 bg-stone-200 dark:bg-stone-800 rounded text-[10px]">Esc</kbd> to exit</span>
+            <div className="flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 text-[11px] font-mono">
+              <Check className="w-3 h-3" /> Auto-saving locally
             </div>
           </div>
         </div>
       )}
-
     </div>
   );
 }

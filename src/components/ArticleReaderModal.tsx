@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { X } from 'lucide-react';
 import { EmbeddedArticle, ArticleHighlight } from '../types/wellbeingInsights';
 import { 
   getArticleBookmarks, 
@@ -209,11 +210,14 @@ export default function ArticleReaderModal({ article, onClose }: ArticleReaderMo
             </button>
 
             <button
+              type="button"
               onClick={onClose}
-              className="px-2 py-1 text-xs text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 rounded cursor-pointer ml-1"
+              className="px-2.5 py-1 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white bg-white dark:bg-stone-850 hover:bg-stone-200 dark:hover:bg-stone-750 border border-stone-200 dark:border-stone-700 rounded-lg cursor-pointer ml-1 flex items-center gap-1 transition-colors shadow-2xs"
               title="Close Reader"
+              aria-label="Close Reader"
             >
-              ✕
+              <X className="w-3.5 h-3.5" />
+              <span>Close</span>
             </button>
           </div>
         </div>

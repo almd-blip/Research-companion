@@ -551,7 +551,7 @@ Analyze this collection locally and identify:
 2. Core Concepts: Essential terms, frameworks, or constructs defined or utilized across sources.
 3. Underlying Theories: Foundational theoretical frameworks or models applied.
 4. Methodologies Used: Qualitative, quantitative, mixed, or theoretical methods employed (including strengths and limitations).
-5. Mapped Relationships: Directed connections between entities (authors, theories, concepts, evidence, or papers), e.g., Paper A supports Theory B, Author X challenges Paper Y.
+5. Mapped Relationships: Directed connections between entities (authors, theories, concepts, evidence, or papers). For each relationship, set relationshipType strictly to one of: 'supports', 'challenges', 'extends', 'applies', 'contrasts'. Generate multiple relationships for each relevant type across the corpus.
 6. Schools of Thought: Distinct academic paradigms or perspectives identified across authors.
 7. Agreements & Disagreements: Synthesis of consensus vs friction points.
 8. Distinguish between Established Findings, Emerging Debates, and Unresolved Questions.`;
