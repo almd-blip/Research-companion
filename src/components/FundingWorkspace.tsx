@@ -228,7 +228,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
         <div>
           <h1 className="font-sans font-medium text-2xl sm:text-3xl text-stone-900 dark:text-stone-100 tracking-tight">
-            Funding & Grants
+            Grants & Proposals
           </h1>
           <p className="font-sans text-xs sm:text-sm text-stone-500 mt-1">
             Assess draft responses against funder criteria, application questions, and compliance standards.
@@ -282,12 +282,15 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
       {activeTab === 'assessment' && (
         <div className="space-y-6">
           
-          {/* Input Configuration Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          {/* Burgundy Dividing Line 24pt above 1, 2, and 3 */}
+          <hr className="border-0 border-t border-[#912A4A]/30 dark:border-rose-900/40 my-8" style={{ marginTop: '24pt', marginBottom: '24pt' }} />
+
+          {/* Horizontal 3-Column Configuration Grid for 1, 2, and 3 */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
             
-            {/* Left: Criteria & Application Questions */}
-            <div className="space-y-5 bg-stone-50 dark:bg-stone-900/50 p-5 rounded-lg border border-stone-200 dark:border-stone-800">
-              <div className="space-y-1">
+            {/* 1. Funder Criteria & Evaluation Benchmarks */}
+            <div className="space-y-3 bg-stone-50 dark:bg-stone-900/50 p-5 rounded-lg border border-stone-200 dark:border-stone-800 flex flex-col justify-between">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="font-sans font-medium text-stone-900 dark:text-stone-100 text-sm">
                     1. Funder Criteria & Evaluation Benchmarks
@@ -295,10 +298,10 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
                   <button
                     type="button"
                     onClick={() => criteriaFileInputRef.current?.click()}
-                    className="text-[11px] font-sans text-[#912A4A] dark:text-rose-400 hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-[11px] font-sans text-[#912A4A] dark:text-rose-400 hover:underline flex items-center gap-1 cursor-pointer shrink-0 ml-2"
                   >
                     <Upload className="w-3 h-3" />
-                    Upload File
+                    Upload
                   </button>
                   <input
                     ref={criteriaFileInputRef}
@@ -308,16 +311,19 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
                     onChange={(e) => handleFileUpload(e, setCriteriaInput)}
                   />
                 </div>
-                <p className="text-[11px] text-stone-500">Paste or upload the funder’s call guidelines, scoring rubric, or core priorities.</p>
+                <p className="text-[11px] text-stone-500 min-h-[32px]">Paste or upload the funder’s call guidelines, scoring rubric, or core priorities.</p>
                 <textarea
                   value={criteriaInput}
                   onChange={(e) => setCriteriaInput(e.target.value)}
-                  className="w-full font-sans text-xs p-3 bg-white dark:bg-stone-950 border border-stone-300 dark:border-stone-700 rounded-md h-28 focus:outline-none focus:border-[#912A4A] leading-relaxed mt-1"
+                  className="w-full font-sans text-xs p-3 bg-white dark:bg-stone-950 border border-stone-300 dark:border-stone-700 rounded-md h-52 focus:outline-none focus:border-[#912A4A] leading-relaxed mt-1"
                   placeholder="e.g. 1. Scientific novelty 2. Methodological feasibility..."
                 />
               </div>
+            </div>
 
-              <div className="space-y-1 pt-2">
+            {/* 2. Application Form Questions */}
+            <div className="space-y-3 bg-stone-50 dark:bg-stone-900/50 p-5 rounded-lg border border-stone-200 dark:border-stone-800 flex flex-col justify-between">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="font-sans font-medium text-stone-900 dark:text-stone-100 text-sm">
                     2. Application Form Questions
@@ -325,10 +331,10 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
                   <button
                     type="button"
                     onClick={() => questionsFileInputRef.current?.click()}
-                    className="text-[11px] font-sans text-[#912A4A] dark:text-rose-400 hover:underline flex items-center gap-1 cursor-pointer"
+                    className="text-[11px] font-sans text-[#912A4A] dark:text-rose-400 hover:underline flex items-center gap-1 cursor-pointer shrink-0 ml-2"
                   >
                     <Upload className="w-3 h-3" />
-                    Upload File
+                    Upload
                   </button>
                   <input
                     ref={questionsFileInputRef}
@@ -338,83 +344,62 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
                     onChange={(e) => handleFileUpload(e, setQuestionsInput)}
                   />
                 </div>
-                <p className="text-[11px] text-stone-500">Enter the exact prompts or questions from the funder’s application portal.</p>
+                <p className="text-[11px] text-stone-500 min-h-[32px]">Enter the exact prompts or questions from the funder’s application portal.</p>
                 <textarea
                   value={questionsInput}
                   onChange={(e) => setQuestionsInput(e.target.value)}
-                  className="w-full font-sans text-xs p-3 bg-white dark:bg-stone-950 border border-stone-300 dark:border-stone-700 rounded-md h-28 focus:outline-none focus:border-[#912A4A] leading-relaxed mt-1"
+                  className="w-full font-sans text-xs p-3 bg-white dark:bg-stone-950 border border-stone-300 dark:border-stone-700 rounded-md h-52 focus:outline-none focus:border-[#912A4A] leading-relaxed mt-1"
                   placeholder="e.g. Question 1: Describe the primary objectives and target milestones..."
                 />
               </div>
             </div>
 
-            {/* Right: Candidate Response Document */}
-            <div className="space-y-4 bg-stone-50 dark:bg-stone-900/50 p-5 rounded-lg border border-stone-200 dark:border-stone-800 flex flex-col justify-between">
-              <div className="space-y-3">
+            {/* 3. Candidate Response Document / Draft */}
+            <div className="space-y-3 bg-stone-50 dark:bg-stone-900/50 p-5 rounded-lg border border-stone-200 dark:border-stone-800 flex flex-col justify-between">
+              <div className="space-y-2">
                 <div className="flex items-center justify-between">
                   <h3 className="font-sans font-medium text-stone-900 dark:text-stone-100 text-sm">
-                    3. Candidate Response Document / Draft
+                    3. Candidate Response Draft
                   </h3>
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-1.5 shrink-0 ml-2">
                     <button
                       type="button"
                       onClick={() => setSelectedDraftSource('journey_chapter')}
-                      className={`text-[11px] px-2 py-1 rounded transition-colors cursor-pointer ${
+                      className={`text-[10px] px-2 py-0.5 rounded transition-colors cursor-pointer ${
                         selectedDraftSource === 'journey_chapter'
                           ? 'bg-[#1B0A3B] text-white font-medium'
                           : 'text-stone-500 hover:text-stone-800'
                       }`}
                     >
-                      From Journey
+                      Journey
                     </button>
                     <button
                       type="button"
                       onClick={() => setSelectedDraftSource('custom_text')}
-                      className={`text-[11px] px-2 py-1 rounded transition-colors cursor-pointer ${
+                      className={`text-[10px] px-2 py-0.5 rounded transition-colors cursor-pointer ${
                         selectedDraftSource === 'custom_text'
                           ? 'bg-[#1B0A3B] text-white font-medium'
                           : 'text-stone-500 hover:text-stone-800'
                       }`}
                     >
-                      Custom Text
+                      Custom
                     </button>
                   </div>
                 </div>
 
-                {selectedDraftSource === 'journey_chapter' ? (
-                  <div className="space-y-2">
-                    <label className="text-[11px] text-stone-500 block">Select active draft chapter from journey:</label>
-                    <select
-                      value={selectedChapterId}
-                      onChange={(e) => setSelectedChapterId(e.target.value)}
-                      className="w-full font-sans text-xs p-2.5 bg-white dark:bg-stone-950 border border-stone-300 dark:border-stone-700 rounded-md text-stone-800 dark:text-stone-200 focus:outline-none focus:border-[#912A4A]"
-                    >
-                      {activeJourney?.chapters.map((ch) => (
-                        <option key={ch.id} value={ch.id}>
-                          {ch.title} ({ch.content.split(/\s+/).filter(Boolean).length} words)
-                        </option>
-                      ))}
-                    </select>
-
-                    <div className="p-3 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-md max-h-48 overflow-y-auto font-sans text-xs text-stone-700 dark:text-stone-300 leading-relaxed">
-                      {getDraftTextToEvaluate() ? (
-                        <p className="whitespace-pre-line">{getDraftTextToEvaluate()}</p>
-                      ) : (
-                        <p className="text-stone-400 italic">This chapter is currently empty. Add content or switch to custom text.</p>
-                      )}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="text-[11px] text-stone-500">Paste your proposal response draft:</span>
+                <div className="min-h-[32px] flex items-center justify-between text-[11px] text-stone-500">
+                  {selectedDraftSource === 'journey_chapter' ? (
+                    <span>Select draft chapter from current journey:</span>
+                  ) : (
+                    <>
+                      <span>Paste or upload proposal draft:</span>
                       <button
                         type="button"
                         onClick={() => draftFileInputRef.current?.click()}
                         className="text-[11px] font-sans text-[#912A4A] dark:text-rose-400 hover:underline flex items-center gap-1 cursor-pointer"
                       >
                         <Upload className="w-3 h-3" />
-                        Upload Document
+                        Upload
                       </button>
                       <input
                         ref={draftFileInputRef}
@@ -423,7 +408,34 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
                         className="hidden"
                         onChange={(e) => handleFileUpload(e, setCustomDraftText)}
                       />
+                    </>
+                  )}
+                </div>
+
+                {selectedDraftSource === 'journey_chapter' ? (
+                  <div className="space-y-2">
+                    <select
+                      value={selectedChapterId}
+                      onChange={(e) => setSelectedChapterId(e.target.value)}
+                      className="w-full font-sans text-xs p-2 bg-white dark:bg-stone-950 border border-stone-300 dark:border-stone-700 rounded-md text-stone-800 dark:text-stone-200 focus:outline-none focus:border-[#912A4A]"
+                    >
+                      {activeJourney?.chapters.map((ch) => (
+                        <option key={ch.id} value={ch.id}>
+                          {ch.title} ({ch.content.split(/\s+/).filter(Boolean).length} words)
+                        </option>
+                      ))}
+                    </select>
+
+                    <div className="p-3 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-md h-40 overflow-y-auto font-sans text-xs text-stone-700 dark:text-stone-300 leading-relaxed">
+                      {getDraftTextToEvaluate() ? (
+                        <p className="whitespace-pre-line">{getDraftTextToEvaluate()}</p>
+                      ) : (
+                        <p className="text-stone-400 italic">This chapter is currently empty. Add content or switch to custom text.</p>
+                      )}
                     </div>
+                  </div>
+                ) : (
+                  <div>
                     <textarea
                       value={customDraftText}
                       onChange={(e) => setCustomDraftText(e.target.value)}
@@ -433,30 +445,33 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
                   </div>
                 )}
               </div>
-
-              {/* Assessment Action Button */}
-              <div className="pt-4">
-                <button
-                  type="button"
-                  onClick={handleRunAssessment}
-                  disabled={isAssessing}
-                  className="w-full py-3 px-4 rounded-md bg-[#912A4A] hover:bg-[#78223d] text-white text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-60 cursor-pointer shadow-sm"
-                >
-                  {isAssessing ? (
-                    <>
-                      <RefreshCw className="w-4 h-4 animate-spin" />
-                      <span>Evaluating Adherence, Strength & Relevance...</span>
-                    </>
-                  ) : (
-                    <>
-                      <Sparkles className="w-4 h-4" />
-                      <span>Assess Proposal Adherence & Evidence</span>
-                    </>
-                  )}
-                </button>
-              </div>
             </div>
 
+          </div>
+
+          {/* Burgundy Dividing Line 24pt below 1, 2, and 3 */}
+          <hr className="border-0 border-b border-[#912A4A]/30 dark:border-rose-900/40 my-8" style={{ marginTop: '24pt', marginBottom: '24pt' }} />
+
+          {/* Assessment Action Button */}
+          <div>
+            <button
+              type="button"
+              onClick={handleRunAssessment}
+              disabled={isAssessing}
+              className="w-full py-3 px-4 rounded-md bg-[#912A4A] hover:bg-[#78223d] text-white text-xs sm:text-sm font-medium flex items-center justify-center gap-2 transition-colors disabled:opacity-60 cursor-pointer shadow-sm"
+            >
+              {isAssessing ? (
+                <>
+                  <RefreshCw className="w-4 h-4 animate-spin" />
+                  <span>Evaluating Adherence, Strength & Relevance...</span>
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4" />
+                  <span>Assess Proposal Adherence & Evidence</span>
+                </>
+              )}
+            </button>
           </div>
 
           {/* Assessment Error Banner */}

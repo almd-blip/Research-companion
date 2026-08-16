@@ -41,7 +41,7 @@ export const HorizontalDisclosureRow: React.FC<HorizontalDisclosureRowProps> = (
   return (
     <div
       id={id}
-      className={`w-full py-2.5 border-b border-stone-200/70 dark:border-stone-800 transition-colors ${className}`}
+      className={`w-full py-2.5 border-b border-[#912A4A]/20 dark:border-rose-900/30 transition-colors ${className}`}
     >
       {/* Top Line: Full horizontal line with Title + Prefix + Chevron, nothing blocking to the right */}
       <div

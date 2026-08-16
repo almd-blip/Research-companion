@@ -447,7 +447,7 @@ export default function App() {
       </header>
 
       {/* Sidebar - Structured by 3 Parent Choices and Submenus (Desktop sidebar, Mobile drawer overlay) */}
-      <aside className={`bg-[#FAF8F5] dark:bg-[#1B0A3B] text-stone-800 dark:text-stone-200 border-r border-stone-200 dark:border-[#2c135a] flex flex-col justify-between p-4 shrink-0 z-40 transition-all ${
+      <aside className={`bg-[#FAF8F5] dark:bg-[#1B0A3B] text-[#1B0A3B] dark:text-stone-200 border-r border-stone-200 dark:border-[#2c135a] flex flex-col justify-between p-4 shrink-0 z-40 transition-all ${
         mobileMenuOpen
           ? 'fixed inset-x-0 top-[53px] bottom-0 w-full overflow-y-auto block shadow-2xl animate-fadeIn'
           : 'hidden md:flex md:w-64 md:static md:max-h-screen md:overflow-y-auto md:shadow-md'
@@ -473,13 +473,13 @@ export default function App() {
           {/* Simple Search Input Field (18pts below logo, 18pts above Accessibility) */}
           <div className="mt-[18pt] mb-0 px-1" id="sidebar-search-container">
             <div className="relative flex items-center">
-              <Search className="w-3.5 h-3.5 absolute left-2.5 text-stone-400 dark:text-stone-500 pointer-events-none" />
+              <Search className="w-3.5 h-3.5 absolute left-2.5 text-[#1B0A3B]/60 dark:text-stone-500 pointer-events-none" />
               <input
                 type="text"
                 value={sidebarSearch}
                 onChange={(e) => setSidebarSearch(e.target.value)}
                 placeholder="Search..."
-                className="w-full pl-8 pr-7 py-1.5 text-xs rounded-md bg-stone-100/90 dark:bg-[#25114a] border border-stone-200/90 dark:border-[#351a67] text-stone-800 dark:text-stone-200 placeholder-stone-400 dark:placeholder-stone-500 focus:outline-none focus:ring-1 focus:ring-[#1D9E75] dark:focus:ring-[#28c093] transition-colors"
+                className="w-full pl-8 pr-7 py-1.5 text-xs rounded-md bg-stone-100/90 dark:bg-[#25114a] border border-stone-200/90 dark:border-[#351a67] text-[#1B0A3B] dark:text-stone-200 placeholder-[#1B0A3B]/60 dark:placeholder-stone-500 focus:outline-none focus:ring-1 focus:ring-[#1D9E75] dark:focus:ring-[#28c093] transition-colors"
                 id="sidebar-search-input"
                 aria-label="Search workspace"
               />
@@ -487,7 +487,7 @@ export default function App() {
                 <button
                   type="button"
                   onClick={() => setSidebarSearch('')}
-                  className="absolute right-2 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-xs cursor-pointer focus:outline-none"
+                  className="absolute right-2 text-[#1B0A3B]/60 hover:text-[#1B0A3B] dark:hover:text-stone-200 text-xs cursor-pointer focus:outline-none"
                   title="Clear search"
                 >
                   ✕
@@ -504,8 +504,8 @@ export default function App() {
               onClick={() => handleNavigate('accessibility')}
               className={`w-full text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-all cursor-pointer ${
                 activeTab === 'accessibility'
-                  ? 'bg-stone-100/90 text-stone-900 font-semibold border-r-2 border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                  : 'text-stone-700 hover:text-stone-900 hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a]'
+                  ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-2 border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
+                  : 'text-[#1B0A3B] hover:text-[#1B0A3B] hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a]'
               }`}
               id="sidebar-accessibility-nav-btn"
             >
@@ -532,15 +532,23 @@ export default function App() {
                     handleNavigate('wellbeing');
                     setOpenSections((prev) => ({ ...prev, pause: true }));
                   }}
-                  className="flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-colors cursor-pointer text-stone-700 hover:text-stone-900 hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a]"
+                  className={`flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-colors cursor-pointer ${
+                    activeTab === 'wellbeing' || activeTab === 'focus'
+                      ? 'text-[#1B0A3B] font-bold dark:text-white'
+                      : 'text-[#1B0A3B] hover:text-[#1B0A3B] hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a]'
+                  }`}
                 >
-                  <Wind className="w-3.5 h-3.5 shrink-0 text-stone-500 dark:text-stone-400" />
+                  <Wind className={`w-3.5 h-3.5 shrink-0 transition-colors ${
+                    activeTab === 'wellbeing' || activeTab === 'focus'
+                      ? 'text-[#1D9E75] dark:text-[#28c093]'
+                      : 'text-[#1B0A3B] dark:text-indigo-300'
+                  }`} />
                   <span>Pause & Breathe</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => toggleSection('pause')}
-                  className="p-1 text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200 rounded cursor-pointer"
+                  className="p-1 text-[#1B0A3B] hover:text-[#1B0A3B] dark:text-stone-400 dark:hover:text-stone-200 rounded cursor-pointer"
                   title="Toggle submenu"
                 >
                   {openSections.pause ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -548,15 +556,15 @@ export default function App() {
               </div>
 
               {openSections.pause && (
-                <div className="pl-4 space-y-0.5 border-l border-stone-300 dark:border-[#351a67] ml-3.5">
+                <div className="pl-3.5 space-y-0.5 ml-1">
                   <button
                     role="tab"
                     aria-selected={activeTab === 'wellbeing'}
                     onClick={() => handleNavigate('wellbeing')}
                     className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-xs font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                       activeTab === 'wellbeing'
-                        ? 'bg-stone-100/90 text-stone-900 font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                        ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
+                        : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                     }`}
                   >
                     Wellbeing centre
@@ -567,8 +575,8 @@ export default function App() {
                     onClick={() => handleNavigate('focus')}
                     className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-xs font-sans flex items-center justify-between transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                       activeTab === 'focus'
-                        ? 'bg-stone-100/90 text-stone-900 font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                        ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
+                        : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                     }`}
                   >
                     <span>Focus space</span>
@@ -592,15 +600,23 @@ export default function App() {
                     handleNavigate('about');
                     setOpenSections((prev) => ({ ...prev, explore: true }));
                   }}
-                  className="flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-colors cursor-pointer text-stone-700 hover:text-stone-900 hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a]"
+                  className={`flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-colors cursor-pointer ${
+                    activeTab === 'about'
+                      ? 'text-[#1B0A3B] font-bold dark:text-white'
+                      : 'text-[#1B0A3B] hover:text-[#1B0A3B] hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a]'
+                  }`}
                 >
-                  <Compass className="w-3.5 h-3.5 shrink-0 text-stone-500 dark:text-stone-400" />
+                  <Compass className={`w-3.5 h-3.5 shrink-0 transition-colors ${
+                    activeTab === 'about'
+                      ? 'text-[#1D9E75] dark:text-[#28c093]'
+                      : 'text-[#1B0A3B] dark:text-indigo-300'
+                  }`} />
                   <span>Explore</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => toggleSection('explore')}
-                  className="p-1 text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200 rounded cursor-pointer"
+                  className="p-1 text-[#1B0A3B] hover:text-[#1B0A3B] dark:text-stone-400 dark:hover:text-stone-200 rounded cursor-pointer"
                   title="Toggle submenu"
                 >
                   {openSections.explore ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -608,15 +624,15 @@ export default function App() {
               </div>
 
               {openSections.explore && (
-                <div className="pl-4 space-y-0.5 border-l border-stone-300 dark:border-[#351a67] ml-3.5">
+                <div className="pl-3.5 space-y-0.5 ml-1">
                   <button
                     role="tab"
                     aria-selected={activeTab === 'about'}
                     onClick={() => handleNavigate('about')}
                     className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-xs font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                       activeTab === 'about'
-                        ? 'bg-stone-100/90 text-stone-900 font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                        ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
+                        : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                     }`}
                   >
                     About
@@ -634,15 +650,23 @@ export default function App() {
                     handleNavigate('dashboard');
                     setOpenSections((prev) => ({ ...prev, ready: true }));
                   }}
-                  className="flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-colors cursor-pointer text-stone-700 hover:text-stone-900 hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a]"
+                  className={`flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-colors cursor-pointer ${
+                    activeTab === 'dashboard' || activeTab === 'research' || activeTab === 'ai_assistant'
+                      ? 'text-[#1B0A3B] font-bold dark:text-white'
+                      : 'text-[#1B0A3B] hover:text-[#1B0A3B] hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a]'
+                  }`}
                 >
-                  <Sparkles className="w-3.5 h-3.5 shrink-0 text-stone-500 dark:text-stone-400" />
+                  <Sparkles className={`w-3.5 h-3.5 shrink-0 transition-colors ${
+                    activeTab === 'dashboard' || activeTab === 'research' || activeTab === 'ai_assistant'
+                      ? 'text-[#1D9E75] dark:text-[#28c093]'
+                      : 'text-[#1B0A3B] dark:text-indigo-300'
+                  }`} />
                   <span>I'm ready</span>
                 </button>
                 <button
                   type="button"
                   onClick={() => toggleSection('ready')}
-                  className="p-1 text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200 rounded cursor-pointer"
+                  className="p-1 text-[#1B0A3B] hover:text-[#1B0A3B] dark:text-stone-400 dark:hover:text-stone-200 rounded cursor-pointer"
                   title="Toggle submenu"
                 >
                   {openSections.ready ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
@@ -650,7 +674,7 @@ export default function App() {
               </div>
 
               {openSections.ready && (
-                <div className="pl-4 space-y-0.5 border-l border-stone-300 dark:border-[#351a67] ml-3.5">
+                <div className="pl-3.5 space-y-0.5 ml-1">
                   
                   {/* Primary Landing View: Projects */}
                   <button
@@ -659,8 +683,8 @@ export default function App() {
                     onClick={() => handleNavigate('dashboard')}
                     className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-xs font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                       activeTab === 'dashboard'
-                        ? 'bg-stone-100/90 text-stone-900 font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                        : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                        ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
+                        : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                     }`}
                   >
                     Projects
@@ -668,7 +692,7 @@ export default function App() {
 
                   {/* Document Analytical, Referencing & Data Tools Submenu */}
                   <div className="pt-2.5 pb-1">
-                    <span className="text-[11.5px] font-sans font-semibold text-stone-800 dark:text-stone-200 block px-2">
+                    <span className="text-[11.5px] font-sans font-semibold text-[#1B0A3B] dark:text-stone-200 block px-2">
                       Research & writing tools
                     </span>
                   </div>
@@ -680,8 +704,8 @@ export default function App() {
                       onClick={() => handleNavigate('research', 'plan')}
                       className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-[11px] font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                         activeTab === 'research' && researchSubTab === 'plan'
-                          ? 'bg-stone-100/90 text-stone-900 font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                          ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
+                          : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                       }`}
                     >
                       Roadmap and Plan
@@ -693,8 +717,8 @@ export default function App() {
                       onClick={() => handleNavigate('research', 'references')}
                       className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-[11px] font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                         activeTab === 'research' && researchSubTab === 'references'
-                          ? 'bg-stone-100/90 text-stone-900 font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                          ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
+                          : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                       }`}
                     >
                       References
@@ -706,8 +730,8 @@ export default function App() {
                       onClick={() => handleNavigate('research', 'literature')}
                       className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-[11px] font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                         activeTab === 'research' && researchSubTab === 'literature'
-                          ? 'bg-stone-100/90 text-stone-900 font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                          ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
+                          : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                       }`}
                     >
                       Paper Summaries
@@ -719,8 +743,8 @@ export default function App() {
                       onClick={() => handleNavigate('research', 'analysis')}
                       className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-[11px] font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                         activeTab === 'research' && researchSubTab === 'analysis'
-                          ? 'bg-stone-100/90 text-stone-900 font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                          ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
+                          : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                       }`}
                     >
                       Concept Map
@@ -732,8 +756,8 @@ export default function App() {
                       onClick={() => handleNavigate('research', 'writing')}
                       className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-[11px] font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                         activeTab === 'research' && researchSubTab === 'writing'
-                          ? 'bg-stone-100/90 text-stone-900 font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                          ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
+                          : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                       }`}
                     >
                       Writing Assistant
@@ -745,8 +769,8 @@ export default function App() {
                       onClick={() => handleNavigate('research', 'publishing')}
                       className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-[11px] font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                         activeTab === 'research' && researchSubTab === 'publishing'
-                          ? 'bg-stone-100/90 text-stone-900 font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                          ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
+                          : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                       }`}
                     >
                       Publishing & Export
@@ -758,8 +782,8 @@ export default function App() {
                       onClick={() => handleNavigate('research', 'funding')}
                       className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-[11px] font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                         activeTab === 'research' && researchSubTab === 'funding'
-                          ? 'bg-stone-100/90 text-stone-900 font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                          ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
+                          : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                       }`}
                     >
                       Grants & Proposals
@@ -771,8 +795,8 @@ export default function App() {
                       onClick={() => handleNavigate('research', 'perspective_check')}
                       className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-[11px] font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                         activeTab === 'research' && researchSubTab === 'perspective_check'
-                          ? 'bg-stone-100/90 text-stone-900 font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                          ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
+                          : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                       }`}
                     >
                       Perspective Check
@@ -784,8 +808,8 @@ export default function App() {
                       onClick={() => handleNavigate('ai_assistant')}
                       className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-[11px] font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                         activeTab === 'ai_assistant'
-                          ? 'bg-stone-100/90 text-stone-900 font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                          : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                          ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
+                          : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                       }`}
                     >
                       Ask AI
@@ -806,8 +830,8 @@ export default function App() {
             onClick={() => handleNavigate('feedback')}
             className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-xs font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
               activeTab === 'feedback'
-                ? 'bg-stone-100/90 text-stone-900 font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] border-r-transparent'
+                ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
+                : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] border-r-transparent'
             }`}
           >
             Feedback
@@ -818,8 +842,8 @@ export default function App() {
             onClick={() => handleNavigate('settings')}
             className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-xs font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
               activeTab === 'settings'
-                ? 'bg-stone-100/90 text-stone-900 font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                : 'text-stone-600 hover:bg-stone-200/50 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-[#25114a] border-r-transparent'
+                ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
+                : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] border-r-transparent'
             }`}
           >
             Settings

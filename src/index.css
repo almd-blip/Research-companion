@@ -11,7 +11,7 @@
   --color-teal-brand: #1D9E75;
   --color-burgundy-brand: #912A4A;
   --color-indigo-brand: #1B0A3B;
-  --color-amber-brand: #912A4A;
+  --color-amber-brand: #C87D20;
   --color-light-brand: #FAF8F5;
 
   --color-black: #1B0A3B;
@@ -31,8 +31,21 @@
   --brand-teal: #1D9E75;
   --brand-burgundy: #912A4A;
   --brand-indigo: #1B0A3B;
-  --brand-amber: #912A4A;
+  --brand-amber: #C87D20;
   --brand-light: #FAF8F5;
+}
+
+/* Horizontal Dividers and Architectural Furniture in Burgundy */
+hr,
+.divider-burgundy,
+.furniture-divider {
+  border-color: rgba(145, 42, 74, 0.25) !important;
+}
+
+.dark hr,
+.dark .divider-burgundy,
+.dark .furniture-divider {
+  border-color: rgba(145, 42, 74, 0.4) !important;
 }
 
 body {
