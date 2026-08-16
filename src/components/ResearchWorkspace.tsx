@@ -40,10 +40,13 @@ import {
   History,
   Search,
   Link,
-  Unlink
+  Unlink,
+  ChevronsUpDown,
+  ExternalLink,
+  Eye
 } from 'lucide-react';
 
-import LiteratureLibrary from './LiteratureLibrary';
+import LiteratureLibrary, { CommonCitationStyle, formatPaperPreview, formatAuthorsShort } from './LiteratureLibrary';
 import KnowledgeGraph from './KnowledgeGraph';
 import ResearchIntelligenceLayer from './ResearchIntelligenceLayer';
 import WritingCompanion from './WritingCompanion';
@@ -196,11 +199,6 @@ export default function ResearchWorkspace({
   // Bottom Context Strip Drawer: 'outline' | 'sources' | 'tasks' | 'history' | null
   const [bottomContextDrawer, setBottomContextDrawer] = useState<'outline' | 'sources' | 'tasks' | 'history' | null>(null);
 
-  // Floating Action Modals
-  const [isFloatingMenuOpen, setIsFloatingMenuOpen] = useState(false);
-  const [floatingActionModal, setFloatingActionModal] = useState<'note' | 'ai' | 'thought' | 'voice' | 'pause' | null>(null);
-  const [quickThoughtText, setQuickThoughtText] = useState('');
-
   // Project Creation Modal
   const [isAddingProject, setIsAddingProject] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -214,6 +212,12 @@ export default function ResearchWorkspace({
   const [newTaskText, setNewTaskText] = useState('');
   const [isLinkingChapterSources, setIsLinkingChapterSources] = useState(false);
   const [chapterSourceSearch, setChapterSourceSearch] = useState('');
+  const [chapterLinkedSearch, setChapterLinkedSearch] = useState('');
+  const [chapterCitationStyle, setChapterCitationStyle] = useState<CommonCitationStyle>('Harvard');
+  const [expandedChapterPaperIds, setExpandedChapterPaperIds] = useState<Record<string, boolean>>({});
+  const [expandedChapterSummaryIds, setExpandedChapterSummaryIds] = useState<Record<string, boolean>>({});
+  const [expandedChapterInspectorIds, setExpandedChapterInspectorIds] = useState<Record<string, boolean>>({});
+  const [copiedCitationId, setCopiedCitationId] = useState<string | null>(null);
 
   // Save status indicator
   const [saveStatus, setSaveStatus] = useState<'idle' | 'saved'>('idle');
@@ -402,6 +406,46 @@ export default function ResearchWorkspace({
     }
   };
 
+  const toggleChapterPaperExpand = (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setExpandedChapterPaperIds((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
+  const toggleChapterSummaryExpand = (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setExpandedChapterSummaryIds((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
+  const toggleChapterInspectorExpand = (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setExpandedChapterInspectorIds((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
+  };
+
+  const toggleChapterExpandAll = (linkedPapers: Paper[]) => {
+    const allExpanded = linkedPapers.length > 0 && linkedPapers.every((p) => expandedChapterPaperIds[p.id]);
+    const nextState: Record<string, boolean> = {};
+    linkedPapers.forEach((p) => {
+      nextState[p.id] = !allExpanded;
+    });
+    setExpandedChapterPaperIds(nextState);
+  };
+
+  const handleCopyChapterCitation = (paper: Paper) => {
+    const text = formatPaperPreview(paper, chapterCitationStyle);
+    navigator.clipboard.writeText(text);
+    setCopiedCitationId(paper.id);
+    setTimeout(() => setCopiedCitationId(null), 2000);
+  };
+
   const handleAddChapter = (e: React.FormEvent) => {
     e.preventDefault();
     if (!activeJourney || !newChapterTitle.trim()) return;
@@ -558,33 +602,85 @@ export default function ResearchWorkspace({
     activeChapter?.content || 'No content drafted in this note yet.',
   ].filter(Boolean).join('\n\n');
 
+  // Reusable controls for Companion Tool (Full view / Split view and Close)
+  const renderCompanionHeaderControls = () => (
+    <div className="flex items-center gap-1.5 shrink-0">
+      <button
+        type="button"
+        onClick={() => setCompanionViewLayout(companionViewLayout === 'split' ? 'full' : 'split')}
+        className="px-2.5 py-1.5 text-xs font-medium text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white bg-white dark:bg-stone-800 hover:bg-stone-100 dark:hover:bg-stone-700 rounded-lg transition-colors cursor-pointer flex items-center gap-1.5 border border-stone-200/80 dark:border-stone-700 shadow-2xs"
+        title={companionViewLayout === 'split' ? 'Expand to Full View' : 'Return to Split View with Draft'}
+      >
+        {companionViewLayout === 'split' ? (
+          <>
+            <Maximize2 className="w-3.5 h-3.5" />
+            <span>Full View</span>
+          </>
+        ) : (
+          <>
+            <Minimize2 className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400" />
+            <span>Split View</span>
+          </>
+        )}
+      </button>
+
+      <button
+        type="button"
+        onClick={() => {
+          setActiveCompanionTool('none');
+          setCompanionViewLayout('split');
+        }}
+        className="px-2.5 py-1.5 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white bg-white dark:bg-stone-800 hover:bg-rose-50 dark:hover:bg-rose-950/40 hover:text-rose-700 dark:hover:text-rose-300 rounded-lg transition-colors cursor-pointer flex items-center gap-1 border border-stone-200/80 dark:border-stone-700 shadow-2xs"
+        aria-label="Close Tool"
+        title="Close Tool"
+      >
+        <X className="w-3.5 h-3.5" />
+        <span>Close</span>
+      </button>
+    </div>
+  );
+
   // Render Companion Tool Component
   const renderCompanionToolComponent = () => {
     switch (activeCompanionTool) {
       case 'references':
         return (
-          <LiteratureLibrary
-            papers={papers}
-            collections={collections}
-            onUpdatePaper={onUpdatePaper}
-            onAddPaper={onAddPaper}
-            onDeletePaper={onDeletePaper}
-            onInsertCitation={(citation) => handleInsertIntoDraft(citation)}
-          />
+          <div className="space-y-4">
+            <div className="flex items-center justify-between gap-3 pb-3 border-b border-stone-200/70 dark:border-stone-800">
+              <div className="flex items-center gap-2.5">
+                <h3 className="font-serif font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100">
+                  References Library
+                </h3>
+                <span className="font-mono text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-400">
+                  {papers.length} sources
+                </span>
+              </div>
+              {renderCompanionHeaderControls()}
+            </div>
+            <LiteratureLibrary
+              papers={papers}
+              collections={collections}
+              onUpdatePaper={onUpdatePaper}
+              onAddPaper={onAddPaper}
+              onDeletePaper={onDeletePaper}
+              onInsertCitation={(citation) => handleInsertIntoDraft(citation)}
+            />
+          </div>
         );
 
       case 'lit_intelligence':
         return (
           <div className="space-y-4">
-            <div className="pb-2 border-b border-stone-200/60 dark:border-stone-800 flex justify-between items-center">
-              <div>
-                <h3 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100">
+            <div className="pb-3 border-b border-stone-200/60 dark:border-stone-800 space-y-1">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="font-serif font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-none">
                   Paper Summaries & Literature Synthesis
                 </h3>
-                <p className="text-xs text-stone-500">
-                  Cross-paper findings, empirical themes, and key takeaways connected to your library.
-                </p>
+                {renderCompanionHeaderControls()}
               </div>
+              <p className="text-xs text-stone-500 dark:text-stone-400">
+                Cross-paper findings, empirical themes, and key takeaways connected to your library.
+              </p>
             </div>
             <ResearchIntelligenceLayer
               papers={papers}
@@ -604,32 +700,33 @@ export default function ResearchWorkspace({
             activeChapterTitle={activeChapter?.title}
             journeyTitle={activeJourney?.title}
             onInsertCitation={(citation) => handleInsertIntoDraft(citation)}
+            headerActions={renderCompanionHeaderControls()}
           />
         );
 
       case 'perspective_check':
         return (
-          <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl p-5 shadow-xs">
-            <PerspectiveCheck
-              papers={papers}
-              activeJourney={activeJourney}
-              onInsertIntoDraft={(text) => handleInsertIntoDraft(text)}
-            />
-          </div>
+          <PerspectiveCheck
+            papers={papers}
+            activeJourney={activeJourney}
+            onInsertIntoDraft={(text) => handleInsertIntoDraft(text)}
+            headerActions={renderCompanionHeaderControls()}
+          />
         );
 
       case 'outline':
         return (
-          <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl p-5 shadow-xs space-y-4 text-xs font-sans">
-            <div className="flex justify-between items-center border-b border-stone-150 dark:border-stone-800 pb-3">
-              <div>
-                <h3 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100">
+          <div className="w-full space-y-4 text-xs font-sans animate-fadeIn">
+            <div className="border-b border-stone-150 dark:border-stone-800 pb-3 space-y-1">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="font-serif font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-none">
                   Project Outline
                 </h3>
-                <p className="text-xs text-stone-500">
-                  Chapter structure for <strong className="text-stone-700 dark:text-stone-300 font-medium">{activeJourney.title}</strong>
-                </p>
+                {renderCompanionHeaderControls()}
               </div>
+              <p className="text-xs text-stone-500">
+                Chapter structure for <strong className="text-stone-700 dark:text-stone-300 font-medium">{activeJourney.title}</strong>
+              </p>
             </div>
 
             <div className="space-y-2 max-h-[55vh] overflow-y-auto pr-1">
@@ -639,12 +736,16 @@ export default function ResearchWorkspace({
                   onClick={() => setSelectedChapterId(ch.id)}
                   className={`p-3 rounded-lg border transition-all cursor-pointer flex items-center justify-between ${
                     ch.id === activeChapter?.id
-                      ? 'bg-[#912A4A]/5 dark:bg-rose-950/20 border-[#912A4A]/40 dark:border-rose-800 text-stone-900 dark:text-stone-100 shadow-2xs'
+                      ? 'bg-stone-100/90 dark:bg-stone-800/60 border-stone-200/90 dark:border-stone-700/80 border-r-[3px] border-r-[#1D9E75] dark:border-r-[#28c093] text-stone-900 dark:text-stone-100 font-semibold shadow-2xs'
                       : 'bg-stone-50/70 dark:bg-stone-950/60 border-stone-200/70 dark:border-stone-800 text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-850'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <span className="font-mono text-xs font-bold text-[#912A4A] dark:text-rose-400">
+                    <span className={`font-mono text-xs font-bold ${
+                      ch.id === activeChapter?.id
+                        ? 'text-[#1D9E75] dark:text-[#28c093]'
+                        : 'text-stone-500 dark:text-stone-400'
+                    }`}>
                       {idx + 1}.
                     </span>
                     <div>
@@ -659,7 +760,7 @@ export default function ResearchWorkspace({
                       {ch.status ? ch.status.replace('_', ' ') : 'drafting'}
                     </span>
                     {ch.id === activeChapter?.id && (
-                      <span className="text-[10px] font-bold text-[#912A4A] dark:text-rose-400">Active</span>
+                      <span className="text-[10px] font-bold text-[#1D9E75] dark:text-[#28c093]">Active</span>
                     )}
                   </div>
                 </div>
@@ -694,84 +795,112 @@ export default function ResearchWorkspace({
             p.tags.some(t => t.toLowerCase().includes(chapterSourceSearch.toLowerCase())))
         );
 
+        const filteredLinkedPapers = chapterLinkedPapers.filter((p) => {
+          if (!chapterLinkedSearch.trim()) return true;
+          const query = chapterLinkedSearch.toLowerCase();
+          return (
+            p.title.toLowerCase().includes(query) ||
+            p.authors.toLowerCase().includes(query) ||
+            (p.journal && p.journal.toLowerCase().includes(query)) ||
+            (p.year && p.year.toString().includes(query)) ||
+            p.tags.some(t => t.toLowerCase().includes(query))
+          );
+        });
+
         return (
-          <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl p-5 shadow-xs space-y-4 text-xs font-sans">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-150 dark:border-stone-800 pb-3">
-              <div>
-                <div className="flex items-center gap-2">
-                  <h3 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100">
+          <div className="w-full font-sans text-stone-850 dark:text-stone-100 space-y-0 animate-fadeIn" id="chapter-sources-module">
+            {/* Top Header & Header Controls Bar */}
+            <div className="space-y-2 pb-2">
+              <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <h3 className="font-serif font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-none">
                     Chapter Sources
                   </h3>
-                  <span className="px-2 py-0.5 rounded-full bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-400 font-mono text-[10px] font-semibold">
-                    {chapterLinkedPapers.length}
+                  <span className="font-mono text-[10px] font-semibold px-2 py-0.5 rounded-full bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-400 border border-[#912A4A]/20 dark:border-rose-900/30 shrink-0 whitespace-nowrap">
+                    {chapterLinkedPapers.length} {chapterLinkedPapers.length === 1 ? 'source' : 'sources'} linked
                   </span>
                 </div>
-                <p className="text-xs text-stone-500 mt-0.5">
-                  Sources directly linked to <strong className="text-stone-800 dark:text-stone-200 font-medium">{activeChapter?.title || 'Current Section'}</strong>
-                </p>
-              </div>
 
-              <div className="flex items-center gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsLinkingChapterSources(!isLinkingChapterSources)}
-                  className="px-2.5 py-1.5 bg-[#912A4A] hover:bg-[#78223d] text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 shadow-2xs shrink-0"
-                  id="link-more-sources-btn"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                  <span>{isLinkingChapterSources ? 'Done Linking' : 'Link Literature'}</span>
-                </button>
+                <div className="flex items-center gap-2 shrink-0">
+                  <button
+                    type="button"
+                    onClick={() => setIsLinkingChapterSources(!isLinkingChapterSources)}
+                    className="px-3 py-1.5 bg-[#912A4A] hover:bg-[#78223d] text-white rounded-lg text-xs font-semibold cursor-pointer transition-colors flex items-center gap-1.5 shadow-2xs shrink-0"
+                    id="link-more-sources-btn"
+                  >
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>{isLinkingChapterSources ? 'Done Linking' : 'Link Literature'}</span>
+                  </button>
+                  {renderCompanionHeaderControls()}
+                </div>
               </div>
+              <p className="text-xs text-stone-500 dark:text-stone-400 font-sans">
+                Literature explicitly linked to <strong className="text-stone-800 dark:text-stone-200 font-medium">{activeChapter?.title || 'Current Section'}</strong>
+              </p>
             </div>
 
             {/* Quick search/picker to link literature directly to this chapter */}
             {isLinkingChapterSources && (
-              <div className="p-3.5 bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-200/70 dark:border-stone-800 space-y-2.5 animate-fadeIn">
+              <div className="mt-3 p-4 bg-stone-50/90 dark:bg-stone-900/90 rounded-2xl border border-stone-200/90 dark:border-stone-800 space-y-3 shadow-2xs animate-fadeIn">
                 <div className="flex items-center justify-between">
-                  <span className="font-semibold text-stone-800 dark:text-stone-200 text-xs">
-                    Attach Literature from Library to this Chapter:
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <BookMarked className="w-4 h-4 text-[#912A4A] dark:text-rose-400" />
+                    <span className="font-semibold text-stone-800 dark:text-stone-200 text-xs">
+                      Attach Literature from Library to this Chapter:
+                    </span>
+                  </div>
                   <button
                     type="button"
                     onClick={() => setIsLinkingChapterSources(false)}
-                    className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 p-1 cursor-pointer"
+                    className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-300 p-1 cursor-pointer rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800"
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
                 </div>
 
                 <div className="relative">
-                  <Search className="w-3.5 h-3.5 absolute left-2.5 top-2.5 text-stone-400" />
+                  <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
                   <input
                     type="text"
-                    placeholder="Search library papers by title, author, or keyword..."
+                    placeholder="Search library literature by title, author, keyword, or tag..."
                     value={chapterSourceSearch}
                     onChange={(e) => setChapterSourceSearch(e.target.value)}
-                    className="w-full pl-8 pr-3 py-1.5 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-700 rounded-lg text-xs focus:outline-none focus:ring-1 focus:ring-[#912A4A]"
+                    className="w-full pl-8 pr-3 py-2 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-700 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#912A4A]/25 focus:border-[#912A4A]"
                   />
+                  {chapterSourceSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setChapterSourceSearch('')}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 p-1 text-stone-400 hover:text-stone-600 cursor-pointer"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  )}
                 </div>
 
-                <div className="max-h-48 overflow-y-auto space-y-1.5 pr-1">
+                <div className="max-h-52 overflow-y-auto space-y-2 pr-1 divide-y divide-stone-200/60 dark:divide-stone-800/80">
                   {unlinkedLibraryPapers.length === 0 ? (
-                    <div className="text-center py-3 text-stone-400 text-xs">
-                      {chapterSourceSearch ? 'No matching unlinked literature found.' : 'All library literature is currently linked to this chapter.'}
+                    <div className="text-center py-4 text-stone-400 text-xs">
+                      {chapterSourceSearch ? 'No matching unlinked literature found.' : 'All references in your library are already linked to this chapter.'}
                     </div>
                   ) : (
                     unlinkedLibraryPapers.map((paper) => (
                       <div
                         key={paper.id}
-                        className="p-2 bg-white dark:bg-stone-900 rounded-lg border border-stone-200/60 dark:border-stone-800 flex items-center justify-between gap-2"
+                        className="pt-2 first:pt-0 flex items-center justify-between gap-3"
                       >
                         <div className="min-w-0 flex-1">
-                          <p className="font-medium text-stone-800 dark:text-stone-200 truncate">{paper.title}</p>
-                          <p className="text-[10px] text-stone-400">{paper.authors.split(',')[0]} ({paper.year})</p>
+                          <p className="font-medium text-stone-800 dark:text-stone-200 truncate text-xs">{paper.title}</p>
+                          <p className="text-[10px] text-stone-500 dark:text-stone-400">
+                            {paper.authors.split(',')[0]} ({paper.year || 'n.d.'}){paper.journal && ` · ${paper.journal}`}
+                          </p>
                         </div>
                         <button
                           type="button"
                           onClick={() => handleTogglePaperLinkToChapter(paper.id)}
-                          className="px-2 py-1 bg-stone-100 hover:bg-[#912A4A] hover:text-white dark:bg-stone-800 text-stone-700 dark:text-stone-200 rounded text-[11px] font-medium transition-colors cursor-pointer shrink-0 flex items-center gap-1"
+                          className="px-2.5 py-1 bg-stone-100 hover:bg-[#912A4A] hover:text-white dark:bg-stone-800 text-stone-700 dark:text-stone-200 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer shrink-0 flex items-center gap-1 border border-stone-200/80 dark:border-stone-700"
                         >
-                          <Plus className="w-3 h-3" />
+                          <Plus className="w-3.5 h-3.5" />
                           <span>Link</span>
                         </button>
                       </div>
@@ -781,81 +910,379 @@ export default function ResearchWorkspace({
               </div>
             )}
 
-            {/* List of currently linked sources for active chapter */}
+            {/* References Directory Toolbar: Filter Search + Citation Style + Expand/Collapse */}
+            {chapterLinkedPapers.length > 0 && (
+              <div className="space-y-3 mt-3">
+                {/* Search input */}
+                <div className="relative flex-1 min-w-0">
+                  <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none" />
+                  <input
+                    type="text"
+                    placeholder="Search chapter sources by title, author, year, tag..."
+                    value={chapterLinkedSearch}
+                    onChange={(e) => setChapterLinkedSearch(e.target.value)}
+                    className="w-full font-sans text-xs pl-9 pr-9 py-2.5 rounded-xl border border-stone-200/90 dark:border-stone-800 bg-white/90 dark:bg-stone-900/90 text-stone-800 dark:text-stone-200 placeholder:text-stone-400 focus:outline-none focus:ring-2 focus:ring-[#912A4A]/25 focus:border-[#912A4A] transition-all shadow-2xs"
+                  />
+                  {chapterLinkedSearch && (
+                    <button
+                      type="button"
+                      onClick={() => setChapterLinkedSearch('')}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 rounded-full hover:bg-stone-100 dark:hover:bg-stone-800 cursor-pointer"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+
+                {/* Sub-row: Citation style + Count & Expand/Collapse All */}
+                <div className="flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="text-[11px] font-semibold text-stone-500 dark:text-stone-400">Citation Style:</span>
+                    <select
+                      value={chapterCitationStyle}
+                      onChange={(e) => setChapterCitationStyle(e.target.value as CommonCitationStyle)}
+                      className="font-sans text-xs px-2.5 py-1 rounded-lg border border-stone-200 dark:border-stone-700 bg-white dark:bg-stone-800 text-stone-700 dark:text-stone-200 focus:outline-none focus:ring-1 focus:ring-[#912A4A] cursor-pointer"
+                    >
+                      <option value="Harvard">Harvard</option>
+                      <option value="APA">APA 7th</option>
+                      <option value="MLA">MLA 9th</option>
+                      <option value="Chicago">Chicago</option>
+                      <option value="IEEE">IEEE</option>
+                      <option value="Vancouver">Vancouver</option>
+                    </select>
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <span className="text-[11px] font-semibold text-stone-500 dark:text-stone-400">
+                      {filteredLinkedPapers.length} {filteredLinkedPapers.length === 1 ? 'source' : 'sources'}
+                      {chapterLinkedSearch && ` matching "${chapterLinkedSearch}"`}
+                    </span>
+                    {filteredLinkedPapers.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => toggleChapterExpandAll(filteredLinkedPapers)}
+                        className="flex items-center gap-1 text-[11px] text-[#912A4A] dark:text-rose-400 hover:text-[#78223d] dark:hover:text-rose-300 font-semibold cursor-pointer transition-colors px-2 py-1 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800"
+                        title="Toggle expand or collapse all source entries"
+                      >
+                        <ChevronsUpDown className="w-3.5 h-3.5" />
+                        <span>
+                          {filteredLinkedPapers.length > 0 && filteredLinkedPapers.every((p) => expandedChapterPaperIds[p.id])
+                            ? 'Collapse All'
+                            : 'Expand All'}
+                        </span>
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* List of currently linked sources for active chapter with 2px Burgundy Horizontal Divider */}
             {chapterLinkedPapers.length === 0 ? (
-              <div className="p-6 text-center bg-stone-50 dark:bg-stone-950 rounded-xl border border-stone-200/60 dark:border-stone-800 space-y-2">
-                <BookOpen className="w-6 h-6 mx-auto text-stone-400" />
-                <p className="text-stone-700 dark:text-stone-300 font-medium">No sources linked to this chapter yet.</p>
-                <p className="text-[11px] text-stone-500">
-                  Link relevant literature directly to <strong className="text-stone-800 dark:text-stone-200">{activeChapter?.title || 'this section'}</strong> or insert citations while drafting.
-                </p>
-                <div className="pt-2 flex justify-center gap-2">
+              <div className="p-8 text-center bg-stone-50/50 dark:bg-stone-900/40 rounded-2xl border border-stone-200/80 dark:border-stone-800 space-y-3 font-sans mt-4">
+                <BookOpen className="w-8 h-8 mx-auto text-stone-400" />
+                <div className="space-y-1">
+                  <p className="text-stone-800 dark:text-stone-200 font-serif font-bold text-base">No sources linked to this chapter yet</p>
+                  <p className="text-xs text-stone-500 max-w-md mx-auto">
+                    Link literature from your references library directly to <strong className="text-stone-800 dark:text-stone-200">{activeChapter?.title || 'this section'}</strong> to keep your citations organized.
+                  </p>
+                </div>
+                <div className="pt-2">
                   <button
                     type="button"
                     onClick={() => setIsLinkingChapterSources(true)}
-                    className="px-3 py-1.5 bg-[#912A4A] text-white rounded-lg text-xs font-semibold cursor-pointer hover:bg-[#78223d]"
+                    className="px-4 py-2 bg-[#912A4A] text-white rounded-xl text-xs font-semibold cursor-pointer hover:bg-[#78223d] shadow-2xs inline-flex items-center gap-1.5 transition-colors"
                   >
-                    + Link Sources to Chapter
+                    <Plus className="w-3.5 h-3.5" />
+                    <span>Link Sources to Chapter</span>
                   </button>
                 </div>
               </div>
+            ) : filteredLinkedPapers.length === 0 ? (
+              <div className="p-6 text-center text-stone-500 text-xs mt-4">
+                No linked sources match "{chapterLinkedSearch}".
+              </div>
             ) : (
-              <div className="space-y-2.5 max-h-[60vh] overflow-y-auto pr-1">
-                {chapterLinkedPapers.map((paper) => {
+              <div className="divide-y-2 divide-[#912A4A] dark:divide-[#912A4A] max-h-[640px] overflow-y-auto pr-1 mt-4">
+                {filteredLinkedPapers.map((paper, idx) => {
                   const isCited = isPaperCitedInChapterDraft(paper);
+                  const isExpanded = !!expandedChapterPaperIds[paper.id];
+                  const col = collections.find((c) => c.id === paper.collectionId);
+
                   return (
                     <div
                       key={paper.id}
-                      className="p-3.5 bg-stone-50/80 dark:bg-stone-950/70 rounded-xl border border-stone-200/70 dark:border-stone-800 space-y-2 hover:border-stone-300 dark:hover:border-stone-700 transition-colors"
+                      className={`transition-all duration-150 font-sans ${idx === 0 ? 'pt-2 pb-6' : ''}`}
+                      style={idx !== 0 ? { paddingTop: '24pt', paddingBottom: '24pt' } : { paddingBottom: '24pt' }}
                     >
-                      <div className="flex justify-between items-start gap-2">
-                        <div className="space-y-1 flex-1 min-w-0">
-                          <span className="font-semibold text-stone-900 dark:text-stone-100 leading-snug block">
+                      {/* 1st Layer: Title on left, Actions & Chevron at top right */}
+                      <div className="space-y-2">
+                        <div
+                          onClick={(e) => toggleChapterPaperExpand(paper.id, e)}
+                          className="flex items-start justify-between gap-3 cursor-pointer group"
+                        >
+                          <h4 className="font-serif font-bold text-stone-900 dark:text-stone-100 text-sm sm:text-base leading-snug flex-1 transition-colors group-hover:text-[#912A4A] dark:group-hover:text-rose-300">
                             {paper.title}
-                          </span>
-                          <div className="flex flex-wrap items-center gap-2 text-[11px] text-stone-500">
-                            <span>{paper.authors} ({paper.year})</span>
-                            <span className="text-stone-300 dark:text-stone-700">•</span>
-                            <span className="font-mono text-[10px]">{paper.journal || 'Academic publication'}</span>
+                          </h4>
+
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleInsertPaperCitation(paper);
+                              }}
+                              className="text-[11px] font-sans font-semibold text-white bg-[#912A4A] hover:bg-[#78223d] px-2.5 py-1 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-2xs"
+                              title="Insert citation into active draft"
+                            >
+                              Cite
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleTogglePaperLinkToChapter(paper.id);
+                              }}
+                              className="p-1 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 cursor-pointer transition-colors"
+                              title="Unlink source from this chapter"
+                            >
+                              <Unlink className="w-3.5 h-3.5" />
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={(e) => toggleChapterPaperExpand(paper.id, e)}
+                              className="p-1 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-400 group-hover:text-stone-700 dark:group-hover:text-stone-200 cursor-pointer transition-colors"
+                              title={isExpanded ? 'Collapse source details' : 'Expand source details'}
+                              aria-label={isExpanded ? 'Collapse source details' : 'Expand source details'}
+                            >
+                              {isExpanded ? (
+                                <ChevronUp className="w-4 h-4 text-[#912A4A] dark:text-rose-400" />
+                              ) : (
+                                <ChevronDown className="w-4 h-4 text-stone-400 group-hover:text-stone-700 dark:group-hover:text-stone-200" />
+                              )}
+                            </button>
                           </div>
-                          {paper.tags && paper.tags.length > 0 && (
-                            <div className="flex flex-wrap items-center gap-1 pt-0.5">
-                              {paper.tags.map((tag) => (
-                                <span
-                                  key={tag}
-                                  className="text-[9px] font-mono px-1.5 py-0.5 bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 rounded"
-                                >
-                                  #{tag}
-                                </span>
-                              ))}
-                            </div>
-                          )}
                         </div>
 
-                        <div className="flex items-center gap-1.5 shrink-0">
-                          <button
-                            type="button"
-                            onClick={() => handleInsertPaperCitation(paper)}
-                            className="text-[11px] px-2.5 py-1 bg-white dark:bg-stone-800 hover:bg-[#912A4A] hover:text-white dark:hover:bg-rose-900 text-stone-700 dark:text-stone-200 border border-stone-200 dark:border-stone-700 rounded-lg cursor-pointer transition-colors font-medium"
-                            title="Insert citation into active draft"
-                          >
-                            Cite
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => handleTogglePaperLinkToChapter(paper.id)}
-                            className="text-[11px] p-1 text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 rounded cursor-pointer transition-colors"
-                            title="Unlink source from this chapter"
-                          >
-                            <Unlink className="w-3.5 h-3.5" />
-                          </button>
+                        {/* Metadata & Tags Row (Strictly Below Title, Sharing Exact Same X Position) */}
+                        <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+                          <div className="flex flex-wrap items-center gap-2 text-xs">
+                            <span className="font-sans text-xs text-stone-600 dark:text-stone-300 font-medium">
+                              {formatAuthorsShort(paper.authors, paper.year)}
+                            </span>
+
+                            {/* Collection Pill */}
+                            {col && (
+                              <span className="px-2 py-0.5 rounded-full border text-[10px] bg-stone-100 dark:bg-stone-800 border-stone-200/80 dark:border-stone-700 text-stone-600 dark:text-stone-300 font-medium">
+                                {col.name}
+                              </span>
+                            )}
+
+                            {/* Citation Status in active draft */}
+                            {isCited ? (
+                              <span className="text-[10px] bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-200/50 font-medium flex items-center gap-1">
+                                <Check className="w-3 h-3" />
+                                <span>Cited in draft</span>
+                              </span>
+                            ) : (
+                              <span className="text-[10px] bg-stone-100 dark:bg-stone-800 text-stone-500 dark:text-stone-400 px-2 py-0.5 rounded-full border border-stone-200/80 dark:border-stone-700 font-medium">
+                                Linked to chapter
+                              </span>
+                            )}
+
+                            {/* Tags below title */}
+                            {paper.tags && paper.tags.length > 0 && (
+                              <div className="flex flex-wrap items-center gap-1">
+                                {paper.tags.map((tag) => (
+                                  <span
+                                    key={tag}
+                                    className="text-[10px] font-mono px-2 py-0.5 bg-[#912A4A]/5 dark:bg-rose-950/30 text-[#912A4A] dark:text-rose-300 rounded-md border border-[#912A4A]/15 dark:border-rose-900/30"
+                                  >
+                                    #{tag}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
 
-                      {isCited && (
-                        <div className="flex items-center gap-1 text-[10px] font-medium text-teal-700 dark:text-teal-400 bg-teal-50 dark:bg-teal-950/40 px-2 py-0.5 rounded border border-teal-200/50 dark:border-teal-900/30 w-fit">
-                          <Check className="w-3 h-3" />
-                          <span>Cited in active draft</span>
+                      {/* Progressive Disclosure: In-line Citation Snippet & Summaries */}
+                      {isExpanded && (
+                        <div className="mt-3.5 pt-3 border-t border-stone-200/60 dark:border-stone-800 space-y-2.5 animate-fadeIn font-sans">
+                          {/* Formatted Citation Preview Snippet (Unboxed with Left Burgundy Accent Aligned with Title X) */}
+                          <div className="pl-3.5 border-l-2 border-[#912A4A] text-xs font-serif text-stone-800 dark:text-stone-200 leading-relaxed italic select-all py-1">
+                            <span className="font-mono text-[10px] uppercase font-bold not-italic text-[#912A4A] dark:text-rose-400 mr-1.5">
+                              [{chapterCitationStyle}]:
+                            </span>
+                            {formatPaperPreview(paper, chapterCitationStyle)}
+                          </div>
+
+                          {/* Action Buttons: Copy & Insert to Draft (Aligned with Title X Position) */}
+                          <div className="flex items-center gap-2 pt-0.5 pb-1 text-xs">
+                            <button
+                              type="button"
+                              onClick={() => handleCopyChapterCitation(paper)}
+                              className="text-[11px] font-sans px-2.5 py-1 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg flex items-center gap-1 transition-colors cursor-pointer border border-stone-200/70 dark:border-stone-700 font-medium"
+                              title="Copy citation to clipboard"
+                            >
+                              {copiedCitationId === paper.id ? (
+                                <>
+                                  <Check className="w-3 h-3 text-emerald-600 dark:text-emerald-400" />
+                                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">Copied</span>
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-3 h-3" />
+                                  <span>Copy</span>
+                                </>
+                              )}
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleInsertPaperCitation(paper)}
+                              className="text-[11px] font-sans px-2.5 py-1 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 rounded-lg flex items-center gap-1 transition-colors cursor-pointer border border-stone-200/70 dark:border-stone-700 font-medium"
+                              title="Insert formatted citation into draft"
+                            >
+                              <Plus className="w-3 h-3 text-[#912A4A] dark:text-rose-400" />
+                              <span>Insert to Draft</span>
+                            </button>
+                          </div>
+
+                          {/* Paper Summary & Key Takeaways Accordion */}
+                          {(paper.abstract || paper.structuredSummary || paper.notes) && (
+                            <div className="pt-1">
+                              <button
+                                type="button"
+                                onClick={(e) => toggleChapterSummaryExpand(paper.id, e)}
+                                className="w-full py-1 text-left flex items-center justify-between gap-2 text-xs font-semibold text-stone-700 dark:text-stone-300 transition-colors cursor-pointer"
+                              >
+                                <div className="flex items-center gap-1.5">
+                                  <FileText className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400" />
+                                  <span>Paper Summary & Key Takeaways</span>
+                                </div>
+                                <span className="text-[#912A4A] dark:text-rose-400 flex items-center">
+                                  {expandedChapterSummaryIds[paper.id] ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                                </span>
+                              </button>
+
+                              {expandedChapterSummaryIds[paper.id] && (
+                                <div className="pt-2 text-xs space-y-2.5 animate-fadeIn">
+                                  <div className="space-y-3 pt-1">
+                                    {paper.abstract && (
+                                      <div className="space-y-1">
+                                        <span className="text-[11px] font-semibold text-stone-700 dark:text-stone-300 block">
+                                          Abstract
+                                        </span>
+                                        <p className="text-stone-700 dark:text-stone-300 leading-relaxed italic text-xs pl-3.5 border-l-2 border-stone-300 dark:border-stone-700">
+                                          "{paper.abstract}"
+                                        </p>
+                                      </div>
+                                    )}
+
+                                    {paper.structuredSummary && (
+                                      <div className="space-y-2.5 pt-1">
+                                        {paper.structuredSummary.researchQuestion && (
+                                          <div className="pl-3.5 border-l-2 border-[#1B0A3B]/40 dark:border-purple-400/40 space-y-0.5">
+                                            <span className="text-[11px] font-semibold text-stone-800 dark:text-stone-200 block">
+                                              Research aim & question
+                                            </span>
+                                            <p className="text-stone-600 dark:text-stone-400 leading-relaxed text-xs">
+                                              {paper.structuredSummary.researchQuestion}
+                                            </p>
+                                          </div>
+                                        )}
+
+                                        {paper.structuredSummary.methods && (
+                                          <div className="pl-3.5 border-l-2 border-stone-400 dark:border-stone-600 space-y-0.5">
+                                            <span className="text-[11px] font-semibold text-stone-800 dark:text-stone-200 block">
+                                              Methodology & design
+                                            </span>
+                                            <p className="text-stone-600 dark:text-stone-400 leading-relaxed text-xs">
+                                              {paper.structuredSummary.methods}
+                                            </p>
+                                          </div>
+                                        )}
+
+                                        {paper.structuredSummary.findings && (
+                                          <div className="pl-3.5 border-l-2 border-emerald-600/60 space-y-0.5">
+                                            <span className="text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 block">
+                                              Core findings & key takeaways
+                                            </span>
+                                            <p className="text-stone-700 dark:text-stone-300 leading-relaxed text-xs">
+                                              {paper.structuredSummary.findings}
+                                            </p>
+                                          </div>
+                                        )}
+
+                                        {paper.structuredSummary.limitations && (
+                                          <div className="pl-3.5 border-l-2 border-amber-500/60 space-y-0.5">
+                                            <span className="text-[11px] font-semibold text-amber-800 dark:text-amber-300 block">
+                                              Stated scope & limitations
+                                            </span>
+                                            <p className="text-stone-600 dark:text-stone-400 leading-relaxed text-xs">
+                                              {paper.structuredSummary.limitations}
+                                            </p>
+                                          </div>
+                                        )}
+                                      </div>
+                                    )}
+
+                                    {paper.notes && (
+                                      <div className="space-y-1 pt-1">
+                                        <span className="text-[11px] font-semibold text-stone-700 dark:text-stone-300 block">
+                                          Personal Notes & Takeaways
+                                        </span>
+                                        <p className="text-stone-600 dark:text-stone-400 leading-relaxed text-xs pl-3.5 border-l-2 border-[#912A4A]/60">
+                                          {paper.notes}
+                                        </p>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          )}
+
+                          {/* Progressive Disclosure: View Full Notes */}
+                          <div className="pt-1">
+                            <button
+                              type="button"
+                              onClick={(e) => toggleChapterInspectorExpand(paper.id, e)}
+                              className="w-full py-1 text-left flex items-center justify-between gap-2 text-xs font-semibold text-stone-700 dark:text-stone-300 transition-colors cursor-pointer"
+                            >
+                              <div className="flex items-center gap-1.5">
+                                <BookOpen className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400" />
+                                <span>View full notes</span>
+                              </div>
+                              <span className="text-[#912A4A] dark:text-rose-400 flex items-center">
+                                {expandedChapterInspectorIds[paper.id] ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                              </span>
+                            </button>
+
+                            {expandedChapterInspectorIds[paper.id] && (
+                              <div className="pt-2 text-xs space-y-2.5 animate-fadeIn">
+                                {/* Personal Notes */}
+                                {paper.notes ? (
+                                  <div className="space-y-1">
+                                    <span className="text-[11px] font-semibold text-stone-700 dark:text-stone-300 block">
+                                      Personal Notes & Annotations
+                                    </span>
+                                    <p className="text-stone-700 dark:text-stone-300 leading-relaxed italic text-xs pl-3.5 border-l-2 border-[#912A4A]">
+                                      "{paper.notes}"
+                                    </p>
+                                  </div>
+                                ) : (
+                                  <div className="text-[11px] text-stone-400 dark:text-stone-500 italic pl-3.5 border-l-2 border-stone-200 dark:border-stone-800">
+                                    No personal notes recorded for this source.
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       )}
                     </div>
@@ -870,16 +1297,17 @@ export default function ResearchWorkspace({
         const completedTasksCount = activeJourney.tasks.filter(t => t.completed).length;
         const totalTasksCount = activeJourney.tasks.length;
         return (
-          <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl p-5 shadow-xs space-y-4 text-xs font-sans">
-            <div className="flex justify-between items-center border-b border-stone-150 dark:border-stone-800 pb-3">
-              <div>
-                <h3 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100">
+          <div className="w-full space-y-4 text-xs font-sans animate-fadeIn">
+            <div className="pb-1 space-y-1">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="font-serif font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-none">
                   Chapter Tasks ({completedTasksCount}/{totalTasksCount})
                 </h3>
-                <p className="text-xs text-stone-500">
-                  Research milestones & drafting to-dos for <strong className="text-stone-700 dark:text-stone-300 font-medium">{activeJourney.title}</strong>
-                </p>
+                {renderCompanionHeaderControls()}
               </div>
+              <p className="text-xs text-stone-500">
+                Research milestones & drafting to-dos for <strong className="text-stone-700 dark:text-stone-300 font-medium">{activeJourney.title}</strong>
+              </p>
             </div>
 
             <div className="space-y-1.5 max-h-[55vh] overflow-y-auto pr-1">
@@ -889,28 +1317,31 @@ export default function ResearchWorkspace({
                   onClick={() => handleToggleTask(task.id)}
                   className={`p-3 rounded-lg border cursor-pointer flex items-center justify-between transition-all ${
                     task.completed
-                      ? 'bg-emerald-50/30 dark:bg-emerald-950/20 text-stone-400 border-emerald-200/60 dark:border-emerald-900/40'
-                      : 'bg-stone-50 dark:bg-stone-950 text-stone-800 dark:text-stone-200 border-stone-200/70 dark:border-stone-800 hover:border-[#912A4A]/40'
+                      ? 'bg-teal-50/30 dark:bg-teal-950/20 text-stone-400 border-teal-200/60 dark:border-teal-900/40'
+                      : 'bg-stone-50 dark:bg-stone-950 text-stone-800 dark:text-stone-200 border-stone-200/70 dark:border-stone-800 hover:border-[#1D9E75]/40'
                   }`}
                 >
                   <div className="flex items-center gap-2.5">
-                    <input
-                      type="checkbox"
-                      checked={task.completed}
-                      onChange={() => {}}
-                      className="rounded text-teal-600 focus:ring-teal-500 accent-teal-600 dark:accent-teal-500 cursor-pointer"
-                    />
+                    <div
+                      className={`w-4 h-4 rounded border flex items-center justify-center transition-colors shrink-0 ${
+                        task.completed
+                          ? 'border-[#1D9E75] bg-[#1D9E75] dark:border-[#28c093] dark:bg-[#28c093] text-white'
+                          : 'border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900'
+                      }`}
+                    >
+                      {task.completed && <Check className="w-3 h-3 stroke-[2.5]" />}
+                    </div>
                     <span className={task.completed ? 'line-through text-stone-400' : 'font-medium'}>
                       {task.text}
                     </span>
                   </div>
-                  {task.completed && <Check className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />}
+                  {task.completed && <Check className="w-4 h-4 text-[#1D9E75] dark:text-[#28c093]" />}
                 </div>
               ))}
             </div>
 
             {/* Add Task Form */}
-            <form onSubmit={handleAddTask} className="flex gap-2 pt-2 border-t border-stone-150 dark:border-stone-800">
+            <form onSubmit={handleAddTask} className="flex gap-2 pt-2">
               <input
                 type="text"
                 placeholder="Add research task or milestone..."
@@ -930,16 +1361,17 @@ export default function ResearchWorkspace({
 
       case 'history':
         return (
-          <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl p-5 shadow-xs space-y-4 text-xs font-sans">
-            <div className="flex justify-between items-center border-b border-stone-150 dark:border-stone-800 pb-3">
-              <div>
-                <h3 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100">
+          <div className="w-full space-y-4 text-xs font-sans animate-fadeIn">
+            <div className="border-b border-stone-150 dark:border-stone-800 pb-3 space-y-1">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="font-serif font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-none">
                   Version History & Snapshots
                 </h3>
-                <p className="text-xs text-stone-500">
-                  Auto-saved revisions for <strong className="text-stone-700 dark:text-stone-300 font-medium">{activeChapter?.title || 'Draft'}</strong>
-                </p>
+                {renderCompanionHeaderControls()}
               </div>
+              <p className="text-xs text-stone-500">
+                Auto-saved revisions for <strong className="text-stone-700 dark:text-stone-300 font-medium">{activeChapter?.title || 'Draft'}</strong>
+              </p>
             </div>
 
             <div className="space-y-2">
@@ -969,14 +1401,36 @@ export default function ResearchWorkspace({
 
       case 'knowledge_graph':
         return (
-          <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl p-4 shadow-xs">
+          <div className="w-full space-y-4 animate-fadeIn">
+            <div className="border-b border-stone-150 dark:border-stone-800 pb-2.5 space-y-1">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="font-serif font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-none">
+                  Knowledge Graph
+                </h3>
+                {renderCompanionHeaderControls()}
+              </div>
+              <p className="text-xs text-stone-500">
+                Visual map of connections across library literature and research journeys.
+              </p>
+            </div>
             <KnowledgeGraph papers={papers} journeys={journeys} />
           </div>
         );
 
       case 'publishing_export':
         return (
-          <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl p-4 shadow-xs">
+          <div className="w-full space-y-4 animate-fadeIn">
+            <div className="border-b border-stone-150 dark:border-stone-800 pb-2.5 space-y-1">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="font-serif font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-none">
+                  Publishing Studio
+                </h3>
+                {renderCompanionHeaderControls()}
+              </div>
+              <p className="text-xs text-stone-500">
+                Format, export, and generate camera-ready manuscripts & creative summaries.
+              </p>
+            </div>
             <CreativePublishingWorkspace
               papers={papers}
               onAddPaper={onAddPaper}
@@ -987,7 +1441,18 @@ export default function ResearchWorkspace({
 
       case 'grants_proposals':
         return (
-          <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl p-4 shadow-xs">
+          <div className="w-full space-y-4 animate-fadeIn">
+            <div className="border-b border-stone-150 dark:border-stone-800 pb-2.5 space-y-1">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="font-serif font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-none">
+                  Grants & Proposals
+                </h3>
+                {renderCompanionHeaderControls()}
+              </div>
+              <p className="text-xs text-stone-500">
+                Funding opportunities, grant draft alignment, and budget tracking.
+              </p>
+            </div>
             <FundingWorkspace
               journeys={journeys}
               papers={papers}
@@ -998,7 +1463,18 @@ export default function ResearchWorkspace({
 
       case 'upload_docs':
         return (
-          <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-xl p-5 shadow-xs">
+          <div className="w-full space-y-4 animate-fadeIn">
+            <div className="border-b border-stone-150 dark:border-stone-800 pb-2.5 space-y-1">
+              <div className="flex items-center justify-between gap-3">
+                <h3 className="font-serif font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-none">
+                  Import Literature & Data
+                </h3>
+                {renderCompanionHeaderControls()}
+              </div>
+              <p className="text-xs text-stone-500">
+                Batch import PDFs, BibTeX files, or CSV/JSON research datasets.
+              </p>
+            </div>
             <DataIngestionModule
               existingPapers={papers}
               collections={collections}
@@ -1019,10 +1495,13 @@ export default function ResearchWorkspace({
 
       case 'analysis':
         return (
-          <div className="p-6 bg-white dark:bg-stone-900 border border-stone-200 dark:border-stone-800 rounded-xl space-y-4 text-xs font-sans shadow-xs">
-            <h4 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100">
-              Socratic Analysis & Research Gaps
-            </h4>
+          <div className="w-full space-y-4 text-xs font-sans animate-fadeIn">
+            <div className="flex items-center justify-between border-b border-stone-150 dark:border-stone-800 pb-2.5 gap-3">
+              <h4 className="font-serif font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-none">
+                Socratic Analysis & Research Gaps
+              </h4>
+              {renderCompanionHeaderControls()}
+            </div>
             <p className="text-stone-600 dark:text-stone-300">
               Analyzing active draft: <strong>{activeChapter?.title}</strong>
             </p>
@@ -1211,14 +1690,14 @@ export default function ResearchWorkspace({
                         setSelectedChapterId(ch.id);
                         setIsChapterDropdownOpen(false);
                       }}
-                      className={`w-full text-left px-2.5 py-1.5 rounded flex items-center justify-between cursor-pointer transition-colors ${
+                      className={`w-full text-left px-2.5 py-1.5 rounded flex items-center justify-between cursor-pointer transition-colors border-r-2 ${
                         ch.id === activeChapter?.id
-                          ? 'bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 font-semibold'
-                          : 'text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800'
+                          ? 'bg-stone-100/90 dark:bg-stone-800/60 text-stone-900 dark:text-white font-semibold border-r-[#1D9E75] dark:border-r-[#28c093]'
+                          : 'text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 border-r-transparent'
                       }`}
                     >
                       <span className="truncate">{ch.title}</span>
-                      {ch.id === activeChapter?.id && <Check className="w-3 h-3 text-[#912A4A]" />}
+                      {ch.id === activeChapter?.id && <Check className="w-3 h-3 text-[#1D9E75] dark:text-[#28c093]" />}
                     </button>
                   ))}
                 </div>
@@ -1276,9 +1755,9 @@ export default function ResearchWorkspace({
 
           {/* SECOND THOUGHT SIGNATURE FEATURE: Adaptive Reflective Pause Strip */}
           {showReflectiveStrip && (
-            <div className="p-4 bg-[#FAF8F5] dark:bg-stone-900/60 rounded-xl border-l-3 border-[#912A4A] text-stone-800 dark:text-stone-200 flex items-center justify-between shadow-xs animate-fadeIn transition-all duration-300">
+            <div className="p-4 bg-stone-100/90 dark:bg-stone-800/60 rounded-xl border border-stone-200/90 dark:border-stone-700/80 border-r-[3px] border-r-[#1D9E75] dark:border-r-[#28c093] text-stone-800 dark:text-stone-200 flex items-center justify-between shadow-2xs animate-fadeIn transition-all duration-300">
               <div className="flex flex-col sm:flex-row sm:items-baseline gap-1.5 sm:gap-2.5">
-                <span className="font-sans not-italic uppercase tracking-widest text-xs font-bold text-[#912A4A] dark:text-rose-400 shrink-0">
+                <span className="font-sans not-italic uppercase tracking-widest text-xs font-bold text-[#1D9E75] dark:text-[#28c093] shrink-0">
                   Pause:
                 </span>
                 <span className="font-serif text-base sm:text-lg italic font-medium leading-tight text-stone-900 dark:text-stone-100">
@@ -1297,7 +1776,7 @@ export default function ResearchWorkspace({
                     localStorage.setItem('scholar_pause_stretch_reminder_shown', 'true');
                   }
                 }}
-                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-xs font-sans not-italic cursor-pointer px-2 py-1 rounded hover:bg-stone-200/50 dark:hover:bg-stone-800 transition-colors shrink-0 flex items-center gap-1"
+                className="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-xs font-sans not-italic cursor-pointer px-2 py-1 rounded hover:bg-stone-200/50 dark:hover:bg-stone-700 transition-colors shrink-0 flex items-center gap-1"
                 aria-label="Dismiss Pause Reminder"
               >
                 <X className="w-3.5 h-3.5" />
@@ -1340,15 +1819,15 @@ export default function ResearchWorkspace({
                       onClick={() => setIsReflectionShelfOpen(!isReflectionShelfOpen)}
                       className={`flex items-center gap-1.5 px-3 py-1.5 rounded-r-lg shadow-md border border-l-0 text-xs font-medium transition-all duration-150 cursor-pointer ${
                         isReflectionShelfOpen
-                          ? 'bg-[#912A4A] text-white border-rose-900 font-semibold translate-x-0.5'
-                          : 'bg-white dark:bg-stone-850 hover:bg-[#FAF8F5] dark:hover:bg-stone-800 text-[#912A4A] dark:text-rose-300 border-stone-200 dark:border-stone-700 hover:translate-x-0.5'
+                          ? 'bg-[#1B0A3B] text-white border-[#1B0A3B] font-semibold translate-x-0.5'
+                          : 'bg-white dark:bg-stone-850 hover:bg-[#FAF8F5] dark:hover:bg-stone-800 text-[#1B0A3B] dark:text-indigo-200 border-stone-200 dark:border-stone-700 hover:translate-x-0.5'
                       }`}
                       title="Open Reflection Shelf"
                       aria-label="Open Reflection Shelf"
                       id="margin-tab-reflection-shelf"
                     >
-                      <Bookmark className="w-3.5 h-3.5 shrink-0" />
-                      <span className="font-sans text-[11px] whitespace-nowrap font-medium">Reflection Shelf</span>
+                      <Bookmark className="w-3.5 h-3.5 shrink-0 text-[#1D9E75] dark:text-[#28c093]" />
+                      <span className="font-sans text-[11px] whitespace-nowrap font-medium text-[#1B0A3B] dark:text-indigo-200">Reflection Shelf</span>
                     </button>
 
                     {/* Tab 2: Check References */}
@@ -1635,70 +2114,6 @@ export default function ResearchWorkspace({
                   companionViewLayout === 'split' ? 'max-h-[85vh] overflow-y-auto pr-1' : ''
                 }`}
               >
-                {/* Full View Return Header */}
-                {companionViewLayout === 'full' && (
-                  <div className="flex items-center justify-between p-3 bg-stone-100 dark:bg-stone-900 rounded-xl border border-stone-200 dark:border-stone-800 text-xs">
-                    <button
-                      type="button"
-                      onClick={() => setCompanionViewLayout('split')}
-                      className="text-[#912A4A] dark:text-rose-400 font-semibold hover:underline flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <span>← Return to Split View with Manuscript Draft</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setActiveCompanionTool('none')}
-                      className="px-2.5 py-1 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white bg-white dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-2xs border border-stone-200/80 dark:border-stone-700"
-                      aria-label="Close Tool"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                      <span>Close</span>
-                    </button>
-                  </div>
-                )}
-
-                {/* Split View Header Bar with Close Button */}
-                {companionViewLayout === 'split' && (
-                  <div className="flex items-center justify-between px-3 py-2 bg-stone-50 dark:bg-stone-900/90 rounded-xl border border-stone-200/80 dark:border-stone-800 text-xs">
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold text-stone-800 dark:text-stone-200 text-xs capitalize">
-                        {activeCompanionTool === 'references' && 'References Library'}
-                        {activeCompanionTool === 'lit_intelligence' && 'Paper Summaries & Synthesis'}
-                        {activeCompanionTool === 'writing_companion' && 'Writing Assistant'}
-                        {activeCompanionTool === 'perspective_check' && 'Perspective Check'}
-                        {activeCompanionTool === 'outline' && 'Project Outline'}
-                        {activeCompanionTool === 'chapter_sources' && 'Chapter Sources'}
-                        {activeCompanionTool === 'tasks' && 'Chapter Tasks'}
-                        {activeCompanionTool === 'history' && 'Version History'}
-                        {activeCompanionTool === 'knowledge_graph' && 'Knowledge Graph'}
-                        {activeCompanionTool === 'publishing_export' && 'Publishing Studio'}
-                        {activeCompanionTool === 'grants_proposals' && 'Grants & Proposals'}
-                      </span>
-                    </div>
-
-                    <div className="flex items-center gap-2">
-                      <button
-                        type="button"
-                        onClick={() => setCompanionViewLayout('full')}
-                        className="text-[11px] text-stone-500 hover:text-stone-900 dark:hover:text-stone-100 hover:underline cursor-pointer"
-                        title="Expand tool to full width"
-                      >
-                        Full view
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => setActiveCompanionTool('none')}
-                        className="px-2.5 py-1 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white bg-white dark:bg-stone-800 hover:bg-stone-200 dark:hover:bg-stone-700 rounded-lg transition-colors cursor-pointer flex items-center gap-1 shadow-2xs border border-stone-200/80 dark:border-stone-700"
-                        aria-label="Close Companion Tool"
-                      >
-                        <X className="w-3.5 h-3.5" />
-                        <span>Close</span>
-                      </button>
-                    </div>
-                  </div>
-                )}
-
                 {/* Render the Active Companion Tool */}
                 {renderCompanionToolComponent()}
               </div>
@@ -1774,13 +2189,22 @@ export default function ResearchWorkspace({
                     key={task.id}
                     onClick={() => handleToggleTask(task.id)}
                     className={`p-2.5 rounded-lg border text-xs cursor-pointer flex justify-between items-center transition-colors ${
-                      task.completed ? 'bg-emerald-50/10 text-stone-400 border-emerald-200/40 dark:border-emerald-900/30' : 'bg-white/60 dark:bg-stone-900/60 text-stone-800 dark:text-stone-200 border-stone-200/60 dark:border-stone-800'
+                      task.completed ? 'bg-teal-50/10 text-stone-400 border-teal-200/40 dark:border-teal-900/30' : 'bg-white/60 dark:bg-stone-900/60 text-stone-800 dark:text-stone-200 border-stone-200/60 dark:border-stone-800'
                     }`}
                   >
                     <div className="flex items-center gap-2">
+                      <div
+                        className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-colors shrink-0 ${
+                          task.completed
+                            ? 'border-[#1D9E75] bg-[#1D9E75] dark:border-[#28c093] dark:bg-[#28c093] text-white'
+                            : 'border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900'
+                        }`}
+                      >
+                        {task.completed && <Check className="w-2.5 h-2.5 stroke-[2.5]" />}
+                      </div>
                       <span className={task.completed ? 'line-through' : ''}>{task.text}</span>
                     </div>
-                    {task.completed && <Check className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />}
+                    {task.completed && <Check className="w-3.5 h-3.5 text-[#1D9E75] dark:text-[#28c093]" />}
                   </div>
                 ))}
               </div>
@@ -1823,25 +2247,25 @@ export default function ResearchWorkspace({
           />
 
           <div
-            className="fixed inset-y-0 right-0 z-50 w-80 sm:w-96 bg-white dark:bg-stone-950 border-l border-stone-200 dark:border-stone-800 p-5 shadow-2xl flex flex-col justify-between animate-fadeIn text-xs"
+            className="fixed inset-y-0 right-0 z-50 w-80 sm:w-96 bg-white dark:bg-stone-950 border-l border-stone-200 dark:border-stone-800 p-5 shadow-2xl flex flex-col justify-between animate-fadeIn text-xs text-[#1B0A3B] dark:text-stone-200"
             id="reflection-notes-drawer"
           >
             <div className="space-y-4 flex-grow overflow-y-auto pr-1">
               <div className="flex justify-between items-center border-b border-stone-150 dark:border-stone-850 pb-2.5">
                 <div className="flex items-center gap-2">
-                  <Bookmark className="w-4 h-4 text-[#912A4A] dark:text-rose-400" />
-                  <h3 className="font-serif font-bold text-sm text-stone-900 dark:text-stone-100">
+                  <Bookmark className="w-4 h-4 text-[#1D9E75] dark:text-[#28c093]" />
+                  <h3 className="font-serif font-bold text-sm text-[#1B0A3B] dark:text-indigo-200">
                     Private Reflection Shelf
                   </h3>
                 </div>
                 <button
                   type="button"
                   onClick={() => setIsReflectionShelfOpen(false)}
-                  className="px-2.5 py-1 text-xs font-semibold text-stone-600 dark:text-stone-300 hover:text-stone-900 dark:hover:text-white bg-stone-100 dark:bg-stone-850 hover:bg-stone-200 dark:hover:bg-stone-800 rounded-md transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
+                  className="px-2.5 py-1 text-xs font-semibold text-[#1B0A3B] dark:text-stone-300 hover:text-[#1B0A3B] dark:hover:text-white bg-stone-100 dark:bg-stone-850 hover:bg-stone-200 dark:hover:bg-stone-800 rounded-md transition-colors cursor-pointer flex items-center gap-1.5 shadow-2xs"
                   id="close-reflection-shelf-top-btn"
                   title="Close Shelf (Esc)"
                 >
-                  <X className="w-3.5 h-3.5" />
+                  <X className="w-3.5 h-3.5 text-[#1D9E75] dark:text-[#28c093]" />
                   <span>Close</span>
                 </button>
               </div>
@@ -1852,13 +2276,13 @@ export default function ResearchWorkspace({
                   placeholder="Capture a private reflection, question, or thought..."
                   value={newThoughtText}
                   onChange={(e) => setNewThoughtText(e.target.value)}
-                  className="w-full p-2.5 border border-stone-200 dark:border-stone-800 rounded-lg text-xs bg-stone-50 dark:bg-stone-900 focus:outline-none focus:ring-1 focus:ring-[#912A4A] h-20"
+                  className="w-full p-2.5 border border-stone-200 dark:border-stone-800 rounded-lg text-xs bg-stone-50 dark:bg-stone-900 text-[#1B0A3B] dark:text-stone-200 focus:outline-none focus:ring-1 focus:ring-[#1D9E75] h-20"
                 />
                 <div className="flex justify-between items-center">
                   <select
                     value={newThoughtTag}
                     onChange={(e) => setNewThoughtTag(e.target.value as any)}
-                    className="font-sans text-[11px] p-1 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-900"
+                    className="font-sans text-[11px] p-1 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-900 text-[#1B0A3B] dark:text-stone-200"
                   >
                     <option value="Reflection">Reflection</option>
                     <option value="Research Insight">Research Insight</option>
@@ -1868,7 +2292,7 @@ export default function ResearchWorkspace({
                   </select>
                   <button
                     type="submit"
-                    className="px-3 py-1 bg-[#912A4A] text-white rounded text-xs font-medium cursor-pointer"
+                    className="px-3 py-1 bg-[#1D9E75] hover:bg-[#168260] text-white rounded text-xs font-medium cursor-pointer transition-colors shadow-2xs"
                   >
                     Save Thought
                   </button>
@@ -1880,27 +2304,27 @@ export default function ResearchWorkspace({
                 {reflections.map((r) => (
                   <div key={r.id} className="p-3 bg-stone-50 dark:bg-stone-900 border border-stone-200/60 dark:border-stone-800 rounded-lg space-y-1.5">
                     <div className="flex justify-between items-center text-[10px]">
-                      <span className="font-semibold text-[#912A4A] dark:text-rose-400 uppercase tracking-wider">
+                      <span className="font-semibold text-[#1B0A3B] dark:text-indigo-300 uppercase tracking-wider">
                         {r.tag}
                       </span>
                       <div className="flex items-center gap-1.5">
                         <button
                           onClick={() => handleCopyReflection(r.id, r.text)}
-                          className="text-stone-400 hover:text-stone-700 dark:hover:text-stone-200 cursor-pointer"
+                          className="text-[#1D9E75] hover:text-[#168260] dark:text-[#28c093] dark:hover:text-[#38e6b3] cursor-pointer p-0.5 rounded transition-colors"
                           title="Copy to clipboard"
                         >
-                          {copiedReflectionId === r.id ? <Check className="w-3 h-3 text-emerald-600" /> : <Copy className="w-3 h-3" />}
+                          {copiedReflectionId === r.id ? <Check className="w-3 h-3 text-[#1D9E75] dark:text-[#28c093]" /> : <Copy className="w-3 h-3 text-[#1D9E75] dark:text-[#28c093]" />}
                         </button>
                         <button
                           onClick={() => handleDeleteReflection(r.id)}
-                          className="text-stone-400 hover:text-rose-600 cursor-pointer"
+                          className="text-[#1D9E75] hover:text-rose-600 dark:text-[#28c093] dark:hover:text-rose-400 cursor-pointer p-0.5 rounded transition-colors"
                           title="Delete thought"
                         >
-                          <Trash2 className="w-3 h-3" />
+                          <Trash2 className="w-3 h-3 text-[#1D9E75] dark:text-[#28c093]" />
                         </button>
                       </div>
                     </div>
-                    <p className="text-stone-800 dark:text-stone-200 leading-relaxed font-sans">
+                    <p className="text-[#1B0A3B] dark:text-stone-200 leading-relaxed font-sans">
                       {r.text}
                     </p>
                   </div>
@@ -1913,10 +2337,10 @@ export default function ResearchWorkspace({
               <button
                 type="button"
                 onClick={() => setIsReflectionShelfOpen(false)}
-                className="w-full py-2 bg-stone-100 hover:bg-stone-200 dark:bg-stone-850 dark:hover:bg-stone-800 text-stone-700 dark:text-stone-200 font-semibold rounded-lg transition-colors text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
+                className="w-full py-2 bg-stone-100 hover:bg-stone-200 dark:bg-stone-850 dark:hover:bg-stone-800 text-[#1B0A3B] dark:text-stone-200 font-semibold rounded-lg transition-colors text-xs flex items-center justify-center gap-1.5 cursor-pointer shadow-2xs"
                 id="close-reflection-shelf-bottom-btn"
               >
-                <X className="w-3.5 h-3.5" />
+                <X className="w-3.5 h-3.5 text-[#1D9E75] dark:text-[#28c093]" />
                 <span>Close Window</span>
               </button>
             </div>
@@ -2000,123 +2424,6 @@ export default function ResearchWorkspace({
           </form>
         </div>
       )}
-
-      {/* ----------------------------------------------------------------- */}
-      {/* FLOATING PLUS SYMBOL MENU (+) & SPEED DIAL QUICK ACTIONS          */}
-      {/* ----------------------------------------------------------------- */}
-      <div className="fixed bottom-6 right-6 z-40 flex flex-col items-end no-print">
-        {/* Floating Speed Dial Action Items */}
-        {isFloatingMenuOpen && (
-          <>
-            {/* Backdrop click dismiss */}
-            <div
-              className="fixed inset-0 z-30 bg-black/20 dark:bg-black/40 backdrop-blur-[1px]"
-              onClick={() => setIsFloatingMenuOpen(false)}
-              aria-hidden="true"
-            />
-
-            <div className="relative z-40 mb-3 flex flex-col items-end gap-2 animate-fadeIn">
-              {/* Option 1: New Note & Reflection */}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsFloatingMenuOpen(false);
-                  setIsReflectionShelfOpen(true);
-                }}
-                className="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-full shadow-lg border border-stone-200 dark:border-stone-700 text-xs font-semibold transition-all duration-150 hover:scale-105 cursor-pointer"
-                id="fab-action-new-note"
-              >
-                <span>New Note / Reflection</span>
-                <div className="w-7 h-7 rounded-full bg-[#FAF8F5] dark:bg-stone-800 flex items-center justify-center text-[#912A4A] dark:text-rose-400 border border-[#912A4A]/20">
-                  <Bookmark className="w-3.5 h-3.5" />
-                </div>
-              </button>
-
-              {/* Option 2: Writing Assistant */}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsFloatingMenuOpen(false);
-                  setActiveCompanionTool('writing_companion');
-                  setCompanionViewLayout('split');
-                }}
-                className="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-full shadow-lg border border-stone-200 dark:border-stone-700 text-xs font-semibold transition-all duration-150 hover:scale-105 cursor-pointer"
-                id="fab-action-writing-assistant"
-              >
-                <span>Writing Assistant</span>
-                <div className="w-7 h-7 rounded-full bg-[#1B0A3B]/10 dark:bg-[#1B0A3B] flex items-center justify-center text-[#1B0A3B] dark:text-stone-200 border border-[#1B0A3B]/20 dark:border-[#351a67]">
-                  <Sparkles className="w-3.5 h-3.5" />
-                </div>
-              </button>
-
-              {/* Option 3: Check References */}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsFloatingMenuOpen(false);
-                  setActiveCompanionTool('references');
-                  setCompanionViewLayout('split');
-                }}
-                className="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-full shadow-lg border border-stone-200 dark:border-stone-700 text-xs font-semibold transition-all duration-150 hover:scale-105 cursor-pointer"
-                id="fab-action-references"
-              >
-                <span>Check References ({papers.length})</span>
-                <div className="w-7 h-7 rounded-full bg-amber-50 dark:bg-amber-950/40 flex items-center justify-center text-amber-600 dark:text-amber-400 border border-amber-200 dark:border-amber-800">
-                  <BookOpen className="w-3.5 h-3.5" />
-                </div>
-              </button>
-
-              {/* Option 4: Focus Mode */}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsFloatingMenuOpen(false);
-                  setIsFocusMode(true);
-                }}
-                className="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-full shadow-lg border border-stone-200 dark:border-stone-700 text-xs font-semibold transition-all duration-150 hover:scale-105 cursor-pointer"
-                id="fab-action-focus"
-              >
-                <span>Focus Mode</span>
-                <div className="w-7 h-7 rounded-full bg-rose-50 dark:bg-rose-950/40 flex items-center justify-center text-[#912A4A] dark:text-rose-400 border border-rose-200 dark:border-rose-800">
-                  <Maximize2 className="w-3.5 h-3.5" />
-                </div>
-              </button>
-
-              {/* Option 5: Print Notes */}
-              <button
-                type="button"
-                onClick={() => {
-                  setIsFloatingMenuOpen(false);
-                  setIsPrintModalOpen(true);
-                }}
-                className="flex items-center gap-2.5 px-3.5 py-2 bg-white dark:bg-stone-850 hover:bg-stone-50 dark:hover:bg-stone-800 text-stone-800 dark:text-stone-100 rounded-full shadow-lg border border-stone-200 dark:border-stone-700 text-xs font-semibold transition-all duration-150 hover:scale-105 cursor-pointer"
-                id="fab-action-print"
-              >
-                <span>Print Notes</span>
-                <div className="w-7 h-7 rounded-full bg-stone-100 dark:bg-stone-800 flex items-center justify-center text-stone-600 dark:text-stone-300 border border-stone-200 dark:border-stone-700">
-                  <Printer className="w-3.5 h-3.5" />
-                </div>
-              </button>
-            </div>
-          </>
-        )}
-
-        {/* Primary Floating Plus Symbol Button (+) */}
-        <button
-          type="button"
-          onClick={() => setIsFloatingMenuOpen(!isFloatingMenuOpen)}
-          className={`relative z-40 w-12 h-12 rounded-full shadow-xl flex items-center justify-center transition-all duration-200 hover:scale-108 cursor-pointer ${
-            isFloatingMenuOpen
-              ? 'bg-stone-900 text-white dark:bg-stone-100 dark:text-stone-900 rotate-45 ring-4 ring-black/10'
-              : 'bg-[#912A4A] hover:bg-[#78223d] text-white ring-4 ring-[#912A4A]/20'
-          }`}
-          title={isFloatingMenuOpen ? "Close Quick Actions Menu" : "Quick Actions (+)"}
-          aria-label={isFloatingMenuOpen ? "Close Quick Actions Menu" : "Quick Actions Menu"}
-          id="fab-plus-menu-btn"
-        >
-          <Plus className="w-6 h-6 transition-transform duration-200" />
-        </button>
-      </div>
 
       {/* ----------------------------------------------------------------- */}
       {/* DISTRACTION-FREE FULLSCREEN FOCUS MODE (ALWAYS VISIBLE EXIT BTN) */}

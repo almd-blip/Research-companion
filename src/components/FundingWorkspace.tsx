@@ -51,10 +51,10 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
   // Active view tab: 'overview' | 'assessment'
   const [activeTab, setActiveTab] = useState<'assessment' | 'overview'>('assessment');
 
-  // Progressive disclosure states (+ / - expand and collapse)
-  const [openFunder, setOpenFunder] = useState(true);
-  const [openImpact, setOpenImpact] = useState(true);
-  const [openBio, setOpenBio] = useState(true);
+  // Progressive disclosure states (+ / - expand and collapse, collapsed by default)
+  const [openFunder, setOpenFunder] = useState(false);
+  const [openImpact, setOpenImpact] = useState(false);
+  const [openBio, setOpenBio] = useState(false);
 
   // New reusable snippet states
   const [newSnippet, setNewSnippet] = useState('');

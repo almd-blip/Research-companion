@@ -26,6 +26,7 @@ interface PerspectiveCheckProps {
   papers: Paper[];
   activeJourney?: ResearchJourney;
   onInsertIntoDraft?: (text: string) => void;
+  headerActions?: React.ReactNode;
 }
 
 export interface PerspectiveCheckData {
@@ -111,7 +112,7 @@ const SECOND_THOUGHT_STEPS = [
   },
 ];
 
-export default function PerspectiveCheck({ papers, activeJourney, onInsertIntoDraft }: PerspectiveCheckProps) {
+export default function PerspectiveCheck({ papers, activeJourney, onInsertIntoDraft, headerActions }: PerspectiveCheckProps) {
   const journeyId = activeJourney?.id || 'default_journey';
   const [copiedToDraft, setCopiedToDraft] = useState(false);
 
@@ -126,8 +127,8 @@ export default function PerspectiveCheck({ papers, activeJourney, onInsertIntoDr
     return DEFAULT_DATA;
   });
 
-  // Track expanded step (1..6) or 'summary'
-  const [activeStep, setActiveStep] = useState<number | 'summary'>(1);
+  // Track expanded step (1..6) or 'summary' (0 for all collapsed by default)
+  const [activeStep, setActiveStep] = useState<number | 'summary'>(0);
   
   // Track which steps have been completed / reviewed
   const [completedSteps, setCompletedSteps] = useState<Record<number, boolean>>({
@@ -319,17 +320,17 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
     <div className="w-full font-sans text-stone-900 dark:text-stone-100 pb-16 space-y-8 animate-fadeIn">
       {/* FLAT TOP GUIDANCE & ACTIONS BAR - CLEAN LEFT ALIGNMENT WITH FULL WIDTH */}
       <div className="border-b border-stone-200/80 dark:border-stone-800/80 pb-5 space-y-4">
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex items-center gap-2">
-            <span className="inline-block font-mono text-[11px] uppercase tracking-wider font-bold text-[#912A4A] dark:text-rose-400 bg-[#912A4A]/10 dark:bg-rose-950/40 px-2.5 py-1 rounded-md border border-[#912A4A]/20 dark:border-rose-900/30">
-              Core Principle
-            </span>
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <h3 className="font-serif font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 leading-none">
+              Perspective Check
+            </h3>
           </div>
 
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 shrink-0">
             <button
               onClick={handleExportReflection}
-              className="text-xs font-medium text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 px-3 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 border border-stone-200/70 dark:border-stone-700 flex items-center gap-1.5 cursor-pointer transition-colors"
+              className="text-xs font-medium text-stone-700 dark:text-stone-300 hover:text-stone-900 dark:hover:text-stone-100 px-3 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 border border-stone-200/70 dark:border-stone-700 flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
               title="Download reflection report"
             >
               <Download className="w-3.5 h-3.5 text-stone-500" />
@@ -338,25 +339,32 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
 
             <button
               onClick={handleReset}
-              className="text-xs font-medium text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 px-3 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 border border-stone-200/50 dark:border-stone-750 flex items-center gap-1.5 cursor-pointer transition-colors"
+              className="text-xs font-medium text-stone-500 hover:text-stone-800 dark:hover:text-stone-200 px-3 py-1.5 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 border border-stone-200/50 dark:border-stone-750 flex items-center gap-1.5 cursor-pointer transition-colors shrink-0 shadow-2xs"
               title="Reset answers"
             >
               <RotateCcw className="w-3.5 h-3.5 text-stone-400" />
               <span>Reset</span>
             </button>
+
+            {headerActions}
           </div>
         </div>
 
         <div className="space-y-2 text-left">
-          {/* Core Principle Question Heading */}
-          <h2 className="font-serif font-bold text-lg sm:text-xl text-stone-900 dark:text-stone-100 leading-snug text-left">
+          {/* Question Sub-heading - Smaller size */}
+          <h4 className="font-sans text-xs sm:text-sm font-medium text-stone-700 dark:text-stone-300 text-left">
             Does your evidence fit the question you are asking?
-          </h2>
+          </h4>
 
-          {/* Introductory prompt text */}
-          <p className="text-xs sm:text-sm text-stone-600 dark:text-stone-300 leading-relaxed font-sans text-left max-w-2xl">
-            Think about whose experiences, ideas and knowledge are included, who might be missing, and whether this could change what you find.
-          </p>
+          {/* Core Principle placed below the question */}
+          <div className="flex items-start gap-2 pt-0.5 flex-col sm:flex-row sm:items-baseline">
+            <span className="font-mono text-[10px] uppercase font-bold text-[#912A4A] dark:text-rose-400 bg-[#912A4A]/10 dark:bg-rose-950/40 px-2 py-0.5 rounded border border-[#912A4A]/20 dark:border-rose-900/30 whitespace-nowrap">
+              Core Principle
+            </span>
+            <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed font-sans text-left max-w-2xl">
+              Think about whose experiences, ideas and knowledge are included, who might be missing, and whether this could change what you find.
+            </p>
+          </div>
         </div>
       </div>
 
@@ -450,7 +458,7 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
                                     : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-850'
                                 }`}
                               >
-                                {selected ? <Check className="w-3 h-3 text-emerald-400 dark:text-emerald-600" /> : <span className="w-1.5 h-1.5 rounded-full bg-stone-300 dark:bg-stone-600" />}
+                                {selected ? <Check className="w-3 h-3 text-[#1D9E75] dark:text-[#28c093]" /> : <span className="w-1.5 h-1.5 rounded-full bg-stone-300 dark:bg-stone-600" />}
                                 {cat}
                               </button>
                             );
@@ -518,7 +526,7 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
                                     : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-850'
                                 }`}
                               >
-                                {selected ? <Check className="w-3 h-3 text-amber-400 dark:text-amber-600" /> : <span className="w-1.5 h-1.5 rounded-full bg-stone-300 dark:bg-stone-600" />}
+                                {selected ? <Check className="w-3 h-3 text-[#1D9E75] dark:text-[#28c093]" /> : <span className="w-1.5 h-1.5 rounded-full bg-stone-300 dark:bg-stone-600" />}
                                 {cat}
                               </button>
                             );
@@ -585,7 +593,7 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
                                     : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100 hover:bg-stone-100 dark:hover:bg-stone-850'
                                 }`}
                               >
-                                {selected ? <Check className="w-3 h-3 text-sky-400 dark:text-sky-600" /> : <span className="w-1.5 h-1.5 rounded-full bg-stone-300 dark:bg-stone-600" />}
+                                {selected ? <Check className="w-3 h-3 text-[#1D9E75] dark:text-[#28c093]" /> : <span className="w-1.5 h-1.5 rounded-full bg-stone-300 dark:bg-stone-600" />}
                                 {cat}
                               </button>
                             );
@@ -913,7 +921,7 @@ ${data.changeFindingsNotes || '(No reflective notes entered)'}
             {/* 1. WHAT IS INCLUDED */}
             <div className="space-y-2">
               <h4 className="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5 font-mono uppercase tracking-wider">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-[#1D9E75] dark:text-[#28c093]" />
                 1. What is included?
               </h4>
               {data.includedCategories.length > 0 && (

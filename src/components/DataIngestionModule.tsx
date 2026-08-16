@@ -430,7 +430,7 @@ export default function DataIngestionModule({
     .reduce((sum, item) => sum + item.ragChunksCount, 0);
 
   return (
-    <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-5 sm:p-6 space-y-6 shadow-sm">
+    <div className="w-full space-y-6 animate-fadeIn">
       
       {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-stone-100 dark:border-stone-800 pb-4">

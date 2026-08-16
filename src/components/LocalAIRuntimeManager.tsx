@@ -330,7 +330,7 @@ export default function LocalAIRuntimeManager({
                       <span className={`text-xs font-bold ${isSelected ? 'text-[#912A4A] dark:text-rose-300' : 'text-stone-800 dark:text-stone-200'}`}>
                         {preset.name}
                       </span>
-                      {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400" />}
+                      {isSelected && <CheckCircle2 className="w-3.5 h-3.5 text-[#1D9E75] dark:text-[#28c093]" />}
                     </div>
                     <p className="text-[11px] text-stone-500 dark:text-stone-400 leading-snug">
                       {preset.description}
@@ -626,7 +626,7 @@ export default function LocalAIRuntimeManager({
                   type="checkbox"
                   checked={config.strictOffline}
                   onChange={(e) => setConfig((prev) => ({ ...prev, strictOffline: e.target.checked }))}
-                  className="w-4 h-4 accent-[#912A4A] rounded cursor-pointer"
+                  className="w-4 h-4 accent-[#1D9E75] dark:accent-[#28c093] rounded cursor-pointer"
                 />
               </div>
 
@@ -643,7 +643,7 @@ export default function LocalAIRuntimeManager({
                   type="checkbox"
                   checked={config.autoFallback}
                   onChange={(e) => setConfig((prev) => ({ ...prev, autoFallback: e.target.checked }))}
-                  className="w-4 h-4 accent-[#912A4A] rounded cursor-pointer"
+                  className="w-4 h-4 accent-[#1D9E75] dark:accent-[#28c093] rounded cursor-pointer"
                 />
               </div>
             </div>

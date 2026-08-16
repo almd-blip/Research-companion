@@ -13,6 +13,18 @@
   --color-indigo-brand: #1B0A3B;
   --color-amber-brand: #912A4A;
   --color-light-brand: #FAF8F5;
+
+  --color-black: #1B0A3B;
+  --color-stone-900: #1B0A3B;
+  --color-stone-950: #1B0A3B;
+  --color-gray-900: #1B0A3B;
+  --color-gray-950: #1B0A3B;
+  --color-zinc-900: #1B0A3B;
+  --color-zinc-950: #1B0A3B;
+  --color-neutral-900: #1B0A3B;
+  --color-neutral-950: #1B0A3B;
+  --color-slate-900: #1B0A3B;
+  --color-slate-950: #1B0A3B;
 }
 
 :root {
@@ -99,11 +111,25 @@ body.font-dyslexic *,
   background: rgba(120, 110, 90, 0.3);
 }
 
+/* Checkboxes */
+input[type="checkbox"] {
+  accent-color: #1D9E75;
+}
+
+input[type="checkbox"]:checked {
+  accent-color: #1D9E75;
+}
+
+.dark input[type="checkbox"],
+.dark input[type="checkbox"]:checked {
+  accent-color: #28c093;
+}
+
 /* High Contrast Mode CSS Rules */
 .high-contrast {
-  --border-primary: #000000 !important;
-  --text-main: #000000 !important;
-  --text-muted: #1c1917 !important;
+  --border-primary: #1B0A3B !important;
+  --text-main: #1B0A3B !important;
+  --text-muted: #1B0A3B !important;
 }
 
 .dark.high-contrast,
@@ -188,7 +214,7 @@ body.font-dyslexic *,
 .dark .high-contrast button[aria-selected="true"],
 .dark .high-contrast button[role="tab"][aria-selected="true"] {
   background-color: #ffffff !important;
-  color: #000000 !important;
+  color: #1B0A3B !important;
 }
 
 /* Enhance SVGs stroke and fill for perfect readability */
@@ -228,6 +254,23 @@ body.font-dyslexic *,
 .dark [class*="text-neutral-"] svg {
   color: #ffffff !important;
   stroke: #ffffff !important;
+}
+
+/* All black and deep neutral text overridden to Indigo #1B0A3B in light mode */
+:root:not(.dark) .text-black,
+html:not(.dark) .text-black,
+body:not(.dark) .text-black,
+:root:not(.dark) .text-stone-900,
+:root:not(.dark) .text-stone-950,
+:root:not(.dark) .text-gray-900,
+:root:not(.dark) .text-gray-950,
+:root:not(.dark) .text-zinc-900,
+:root:not(.dark) .text-zinc-950,
+:root:not(.dark) .text-neutral-900,
+:root:not(.dark) .text-neutral-950,
+:root:not(.dark) .text-slate-900,
+:root:not(.dark) .text-slate-950 {
+  color: #1B0A3B !important;
 }
 
 /* ==========================================================================

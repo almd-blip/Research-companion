@@ -25,14 +25,8 @@ export default function ResearchWellbeingInsights() {
   const [activeTab, setActiveTab] = useState<'insights' | 'my_library'>('insights');
   const [evidenceTab, setEvidenceTab] = useState<'academic' | 'creative' | 'additional'>('academic');
 
-  // Progressive disclosure states (matching About page layout)
-  const [openInsights, setOpenInsights] = useState<Record<string, boolean>>(() => {
-    const initial: Record<string, boolean> = {};
-    if (INITIAL_WELLBEING_INSIGHTS[0]) {
-      initial[INITIAL_WELLBEING_INSIGHTS[0].id] = true;
-    }
-    return initial;
-  });
+  // Progressive disclosure states (collapsed by default)
+  const [openInsights, setOpenInsights] = useState<Record<string, boolean>>({});
 
   const toggleInsight = (id: string) => {
     setOpenInsights((prev) => ({ ...prev, [id]: !prev[id] }));

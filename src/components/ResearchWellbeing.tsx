@@ -68,9 +68,9 @@ export default function ResearchWellbeing({
     'home'
   );
 
-  // Progressive disclosure states for self-care topics
+  // Progressive disclosure states for self-care topics (all collapsed by default)
   const [openTopics, setOpenTopics] = useState<Record<string, boolean>>({
-    self_care_principles: true,
+    self_care_principles: false,
     overwhelm: false,
     imposter_feelings: false,
     writing_avoidance: false,

@@ -688,11 +688,11 @@ Open publishing preparation empowers scholars, open-access journals, and public 
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => setOutline((prev) => prev.map((o) => (o.id === item.id ? { ...o, completed: !o.completed } : o)))}
-                      className={`w-4 h-4 rounded flex items-center justify-center border cursor-pointer ${
-                        item.completed ? 'bg-emerald-600 border-emerald-600 text-white' : 'border-stone-300'
+                      className={`w-4 h-4 rounded flex items-center justify-center border cursor-pointer transition-colors ${
+                        item.completed ? 'bg-[#1D9E75] border-[#1D9E75] dark:bg-[#28c093] dark:border-[#28c093] text-white' : 'border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900'
                       }`}
                     >
-                      {item.completed && <Check className="w-3 h-3" />}
+                      {item.completed && <Check className="w-3 h-3 stroke-[2.5]" />}
                     </button>
                     <span className={item.completed ? 'line-through text-stone-400 font-medium' : 'text-stone-900 dark:text-stone-100 font-medium'}>
                       {item.title}

@@ -292,7 +292,7 @@ export default function Settings({
                 type="checkbox"
                 checked={breakReminders}
                 onChange={(e) => setBreakReminders(e.target.checked)}
-                className="w-4 h-4 accent-amber-950 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="w-4 h-4 accent-[#1D9E75] dark:accent-[#28c093] rounded focus:outline-none focus:ring-2 focus:ring-[#1D9E75] cursor-pointer"
               />
             </div>
 
@@ -307,7 +307,7 @@ export default function Settings({
                 type="checkbox"
                 checked={dailyEncouragements}
                 onChange={(e) => setDailyEncouragements(e.target.checked)}
-                className="w-4 h-4 accent-amber-950 rounded focus:outline-none focus:ring-2 focus:ring-amber-500"
+                className="w-4 h-4 accent-[#1D9E75] dark:accent-[#28c093] rounded focus:outline-none focus:ring-2 focus:ring-[#1D9E75] cursor-pointer"
               />
             </div>
           </div>

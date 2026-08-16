@@ -400,7 +400,7 @@ export default function App() {
   };
 
   const getHighContrastClass = () => {
-    return highContrast ? 'border-stone-400 dark:border-stone-500 text-black dark:text-white' : '';
+    return highContrast ? 'border-stone-400 dark:border-stone-500 text-[#1B0A3B] dark:text-white' : '';
   };
 
   return (

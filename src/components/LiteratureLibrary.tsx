@@ -20,48 +20,200 @@ import {
   Copy,
   AlertCircle,
   ArrowLeft,
+  ArrowRight,
   ChevronLeft,
   Edit3,
   FileText,
   Bookmark,
   Sparkles,
   SlidersHorizontal,
-  ExternalLink
+  ExternalLink,
+  BookOpen
 } from 'lucide-react';
 import { Paper, Collection, Annotation } from '../types';
 import DataIngestionModule from './DataIngestionModule';
 
-export type CommonCitationStyle = 'Harvard' | 'APA' | 'MLA' | 'Chicago' | 'IEEE';
+export type CommonCitationStyle = 'Harvard' | 'APA' | 'MLA' | 'Chicago' | 'IEEE' | 'Vancouver';
 
-export const formatPaperPreview = (paper: Paper, style: CommonCitationStyle): string => {
-  const authors = paper.authors || 'Unknown Author';
+export interface ParsedAuthor {
+  surname: string;
+  initials: string;
+  fullName: string;
+}
+
+/**
+ * Robust author parser for academic citations.
+ * Handles "First Last, First Last", "Last, First, Last, First", and "Last, Initial."
+ */
+export const parseAuthors = (rawAuthors: string): ParsedAuthor[] => {
+  if (!rawAuthors || !rawAuthors.trim()) {
+    return [{ surname: 'Unknown Author', initials: '', fullName: 'Unknown Author' }];
+  }
+
+  // Normalize 'and' & semicolons into commas
+  const normalized = rawAuthors.replace(/\s+and\s+/gi, ', ').replace(/;/g, ', ');
+  const rawParts = normalized.split(',').map((p) => p.trim()).filter(Boolean);
+
+  if (rawParts.length === 0) {
+    return [{ surname: 'Unknown Author', initials: '', fullName: 'Unknown Author' }];
+  }
+
+  // Check if structure is alternating "Surname, First" or "Surname, Initial"
+  let isAlternatingLastFirst = false;
+  if (rawParts.length >= 2 && rawParts.length % 2 === 0) {
+    const secondIsInitialOrShort = rawParts.every((part, idx) => {
+      if (idx % 2 === 1) {
+        return part.length <= 4 || /^[A-Z](\.|\s|$)/i.test(part);
+      }
+      return true;
+    });
+    if (secondIsInitialOrShort) {
+      isAlternatingLastFirst = true;
+    }
+  }
+
+  const authors: ParsedAuthor[] = [];
+
+  if (isAlternatingLastFirst) {
+    for (let i = 0; i < rawParts.length; i += 2) {
+      const surname = rawParts[i];
+      const firstName = rawParts[i + 1] || '';
+      const initials = firstName
+        .split(/[\s.-]+/)
+        .filter(Boolean)
+        .map((w) => `${w[0].toUpperCase()}.`)
+        .join('');
+      authors.push({
+        surname,
+        initials: initials || (firstName ? `${firstName[0].toUpperCase()}.` : ''),
+        fullName: `${surname}, ${initials || firstName}`,
+      });
+    }
+  } else {
+    for (const part of rawParts) {
+      // If part contains "et al.", strip or handle
+      const cleanPart = part.replace(/\s+et\s+al\.?/i, '');
+      const tokens = cleanPart.split(/\s+/).filter(Boolean);
+
+      if (tokens.length === 1) {
+        authors.push({
+          surname: tokens[0],
+          initials: '',
+          fullName: tokens[0],
+        });
+      } else {
+        // e.g. "Ashish Vaswani" -> Surname: "Vaswani", Initial: "A."
+        // "Aidan N. Gomez" -> Surname: "Gomez", Initial: "A."
+        const surname = tokens[tokens.length - 1];
+        const firstTokens = tokens.slice(0, -1);
+        const initials = firstTokens
+          .map((t) => {
+            const clean = t.replace(/[^a-zA-Z]/g, '');
+            return clean ? `${clean[0].toUpperCase()}.` : '';
+          })
+          .filter(Boolean)
+          .join('');
+
+        authors.push({
+          surname,
+          initials: initials || `${firstTokens[0][0].toUpperCase()}.`,
+          fullName: `${surname}, ${initials || `${firstTokens[0][0].toUpperCase()}.`}`,
+        });
+      }
+    }
+  }
+
+  return authors.length > 0 ? authors : [{ surname: rawAuthors, initials: '', fullName: rawAuthors }];
+};
+
+/**
+ * 1st Layer Author Formatter:
+ * Authors Surname, Initial. et al. if more than three (year)
+ * E.g.,
+ * 1 author: Vaswani, A. (2017)
+ * 2 authors: Vaswani, A., Shazeer, N. (2017)
+ * 3 authors: Vaswani, A., Shazeer, N., Parmar, N. (2017)
+ * >3 authors: Vaswani, A. et al. (2017)
+ */
+export const formatAuthorsShort = (rawAuthors: string, year?: number | string): string => {
+  const parsed = parseAuthors(rawAuthors);
+  const yearStr = year ? ` (${year})` : '';
+
+  if (parsed.length === 0 || (parsed.length === 1 && parsed[0].surname === 'Unknown Author')) {
+    return `Unknown Author${yearStr}`;
+  }
+
+  const formatOne = (a: ParsedAuthor) => (a.initials ? `${a.surname}, ${a.initials}` : a.surname);
+
+  if (parsed.length > 3) {
+    return `${formatOne(parsed[0])} et al.${yearStr}`;
+  }
+
+  const formattedList = parsed.map(formatOne).join(', ');
+  return `${formattedList}${yearStr}`;
+};
+
+/**
+ * 2nd Layer Full Reference Formatter:
+ * [referencing style selected]: All author's names formatted as Surname, Initial. year, 'Attention Is All You Need' in Advances in Neural Information Processing Systems, Available from: doi:10.48550/arXiv.1706.03762
+ */
+export const formatPaperPreview = (paper: Paper, style: CommonCitationStyle = 'Harvard'): string => {
+  const parsed = parseAuthors(paper.authors || '');
   const year = paper.year || 'n.d.';
   const title = paper.title || 'Untitled';
   const journal = paper.journal && paper.journal !== 'Unspecified' ? paper.journal : '';
   const doi = paper.doi ? paper.doi.replace(/^https?:\/\/doi\.org\//i, '') : '';
+  const doiStr = doi ? `doi:${doi}` : '';
+
+  // All authors formatted as Surname, Initial.
+  const formatOne = (a: ParsedAuthor) => (a.initials ? `${a.surname}, ${a.initials}` : a.surname);
+  const allAuthorsList = parsed.map(formatOne).join(', ');
 
   switch (style) {
     case 'Harvard': {
-      const parts = authors.split(',').map(a => a.trim());
-      const authorFormatted = parts.length > 2 ? `${parts[0]} et al.` : parts.length === 2 ? `${parts[0]} and ${parts[1]}` : parts[0];
-      return `${authorFormatted} ${year}, '${title}', ${journal ? `${journal}, ` : ''}${doi ? `Available from: doi:${doi}` : ''}`.trim();
+      // Harvard style:
+      // Single quotes for articles, conference papers, and book chapters
+      // The word 'in' before conference proceedings, edited collections, or journals
+      const inJournal = journal ? ` in ${journal}` : '';
+      const availableFrom = doi ? `, Available from: ${doiStr}` : '';
+      return `${allAuthorsList} ${year}, '${title}'${inJournal}${availableFrom}`.trim();
     }
     case 'APA': {
-      const parts = authors.split(',').map(a => a.trim());
-      const authorFormatted = parts.length > 2 ? `${parts[0]} et al.` : parts.length === 2 ? `${parts[0]} & ${parts[1]}` : parts[0];
-      return `${authorFormatted} (${year}). ${title}. ${journal ? `${journal}. ` : ''}${doi ? `https://doi.org/${doi}` : ''}`.trim();
+      // APA 7th style
+      let apaAuthors = allAuthorsList;
+      if (parsed.length === 2) {
+        apaAuthors = `${formatOne(parsed[0])} & ${formatOne(parsed[1])}`;
+      } else if (parsed.length > 2) {
+        apaAuthors = `${parsed.slice(0, -1).map(formatOne).join(', ')}, & ${formatOne(parsed[parsed.length - 1])}`;
+      }
+      return `${apaAuthors} (${year}). ${title}.${journal ? ` ${journal}.` : ''}${doi ? ` https://doi.org/${doi}` : ''}`.trim();
     }
     case 'MLA': {
-      return `${authors}. "${title}." ${journal ? `${journal}, ` : ''}${year}.${doi ? ` doi:${doi}.` : ''}`.trim();
+      return `${allAuthorsList}. "${title}."${journal ? ` ${journal},` : ''} ${year}.${doi ? ` ${doiStr}.` : ''}`.trim();
     }
     case 'Chicago': {
-      return `${authors}. ${year}. "${title}." ${journal ? `${journal}. ` : ''}${doi ? `https://doi.org/${doi}` : ''}`.trim();
+      // Chicago style: uses double quotes and 'in' for conference proceedings / book chapters
+      const inJournal = journal ? ` in ${journal}` : '';
+      return `${allAuthorsList}. ${year}. "${title}."${inJournal ? `${inJournal}.` : ''}${doi ? ` https://doi.org/${doi}` : ''}`.trim();
     }
     case 'IEEE': {
-      return `[1] ${authors}, "${title}," ${journal ? `${journal}, ` : ''}${year}.${doi ? ` doi: ${doi}.` : ''}`.trim();
+      // IEEE style: uses 'in' before journals and conference proceedings
+      const inJournal = journal ? ` in ${journal},` : '';
+      return `[1] ${allAuthorsList}, "${title},"${inJournal} ${year}.${doi ? ` ${doiStr}.` : ''}`.trim();
+    }
+    case 'Vancouver': {
+      // Vancouver style: initials without dots, 'In:' for edited collections / proceedings
+      const formatVancouver = (a: ParsedAuthor) => {
+        const cleanInitials = a.initials.replace(/\./g, '');
+        return cleanInitials ? `${a.surname} ${cleanInitials}` : a.surname;
+      };
+      const vancAuthors = parsed.map(formatVancouver).join(', ');
+      const inJournal = journal ? ` In: ${journal}.` : '';
+      const availableFrom = doi ? ` Available from: ${doiStr}` : '';
+      return `${vancAuthors}. ${title}.${inJournal} ${year};${availableFrom}`.trim();
     }
     default:
-      return `${authors} (${year}). ${title}.`;
+      return `${allAuthorsList} ${year}, '${title}'${journal ? ` in ${journal}` : ''}${doi ? `, Available from: ${doiStr}` : ''}`;
   }
 };
 
@@ -90,7 +242,7 @@ export default function LiteratureLibrary({
   // View state: 'list' (shows reference directory) or 'inspector' (shows detailed document inspector)
   const [viewMode, setViewMode] = useState<'list' | 'inspector'>('list');
 
-  // Progressive Disclosure states for Document Inspector panels
+  // Progressive Disclosure states for Document Inspector panels (All collapsed by default)
   const [inspectorPanels, setInspectorPanels] = useState<{
     citation: boolean;
     metadata: boolean;
@@ -98,18 +250,28 @@ export default function LiteratureLibrary({
     notes: boolean;
     highlights: boolean;
   }>({
-    citation: true, // Formatted citation & quick insert open by default
+    citation: false, // Collapsed by default
     metadata: false, // Collapsed by default
-    abstract: true, // Abstract & summary open by default
-    notes: true, // Notes open by default
-    highlights: false, // Highlights collapsed by default
+    abstract: false, // Collapsed by default
+    notes: false, // Collapsed by default
+    highlights: false, // Collapsed by default
   });
 
-  // State to track expanded summaries in the reference list items
+  // State to track expanded summaries in the reference list items (collapsed by default)
   const [expandedSummaryIds, setExpandedSummaryIds] = useState<Record<string, boolean>>({});
   const toggleSummaryExpand = (id: string, e?: React.MouseEvent) => {
     if (e) e.stopPropagation();
     setExpandedSummaryIds(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
+  // State to track expanded Notes & Inspector progressive disclosure in reference list items (collapsed by default)
+  const [expandedInspectorIds, setExpandedInspectorIds] = useState<Record<string, boolean>>({});
+  const toggleInspectorExpand = (id: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    setExpandedInspectorIds(prev => ({
       ...prev,
       [id]: !prev[id]
     }));
@@ -329,7 +491,7 @@ export default function LiteratureLibrary({
       {/* VIEW: DOCUMENT INSPECTOR (Focused Single-View with Progressive Disclosure) */}
       {/* ----------------------------------------------------------------- */}
       {viewMode === 'inspector' && selectedPaper ? (
-        <div className="bg-white dark:bg-stone-900 border border-stone-200/90 dark:border-stone-800 rounded-2xl p-4 sm:p-5 space-y-5 shadow-2xs animate-fadeIn">
+        <div className="w-full space-y-5 animate-fadeIn">
           
           {/* Top Inspector Header: Navigation Breadcrumb & Actions */}
           <div className="flex items-center justify-between gap-3 pb-3.5 border-b border-stone-150 dark:border-stone-800 flex-wrap">
@@ -494,6 +656,7 @@ export default function LiteratureLibrary({
                       <option value="MLA">MLA 9th Edition</option>
                       <option value="Chicago">Chicago Author-Date</option>
                       <option value="IEEE">IEEE Format</option>
+                      <option value="Vancouver">Vancouver</option>
                     </select>
                   </div>
 
@@ -872,7 +1035,7 @@ export default function LiteratureLibrary({
         /* ----------------------------------------------------------------- */
         /* VIEW: REFERENCES DIRECTORY (Full-Width Calm List View)            */
         /* ----------------------------------------------------------------- */
-        <div className="space-y-4 animate-fadeIn">
+        <div className="space-y-0 animate-fadeIn">
           
           {/* Top Controls Toolbar: Clean Responsive Row */}
           <div className="space-y-3">
@@ -985,6 +1148,7 @@ export default function LiteratureLibrary({
                     <option value="MLA" className="bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100">MLA 9th Edition</option>
                     <option value="Chicago" className="bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100">Chicago Author-Date</option>
                     <option value="IEEE" className="bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100">IEEE Format</option>
+                    <option value="Vancouver" className="bg-white dark:bg-stone-900 text-stone-900 dark:text-stone-100">Vancouver</option>
                   </select>
                 </div>
               </div>
@@ -1162,8 +1326,8 @@ export default function LiteratureLibrary({
           )}
 
           {/* Reference Items Listing (Unboxed on Background with 2px Burgundy Horizontal Divider) */}
-          <div className="divide-y-2 divide-[#912A4A] dark:divide-[#912A4A] max-h-[640px] overflow-y-auto pr-1">
-            {filteredPapers.map((p) => {
+          <div className="divide-y-2 divide-[#912A4A] dark:divide-[#912A4A] max-h-[640px] overflow-y-auto pr-1 mt-4">
+            {filteredPapers.map((p, idx) => {
               const col = collections.find((c) => c.id === p.collectionId);
               const isExpanded = !!expandedPaperIds[p.id];
               const isSelected = selectedPaper?.id === p.id;
@@ -1171,7 +1335,8 @@ export default function LiteratureLibrary({
               return (
                 <div
                   key={p.id}
-                  className="py-4 transition-all duration-150 font-sans"
+                  className={`transition-all duration-150 font-sans ${idx === 0 ? 'pt-2 pb-6' : ''}`}
+                  style={idx !== 0 ? { paddingTop: '24pt', paddingBottom: '24pt' } : { paddingBottom: '24pt' }}
                 >
                   {/* 1st Layer (Primary View): Full-Width Title on top, with chevron at top right, and tags/metadata sharing exact X position */}
                   <div className="space-y-2">
@@ -1218,16 +1383,8 @@ export default function LiteratureLibrary({
                     <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
                       <div className="flex flex-wrap items-center gap-2 text-xs">
                         <span className="font-sans text-xs text-stone-600 dark:text-stone-300 font-medium">
-                          {p.authors || 'Unknown Author'} ({p.year || 'n.d.'})
+                          {formatAuthorsShort(p.authors, p.year)}
                         </span>
-                        {p.journal && (
-                          <>
-                            <span className="text-stone-300 dark:text-stone-700">•</span>
-                            <span className="font-sans text-xs text-stone-500 dark:text-stone-400 italic">
-                              {p.journal}
-                            </span>
-                          </>
-                        )}
 
                         {/* Collection Pill */}
                         {col && (
@@ -1268,12 +1425,64 @@ export default function LiteratureLibrary({
                   {isExpanded && (
                     <div className="mt-3.5 pt-3 border-t border-stone-200/60 dark:border-stone-800 space-y-2.5 animate-fadeIn font-sans">
                       
-                      {/* Formatted Citation Preview Snippet (Unboxed with Left Burgundy Accent) */}
+                      {/* Formatted Citation Preview Snippet (Unboxed with Left Burgundy Accent Aligned to Title X) */}
                       <div className="pl-3.5 border-l-2 border-[#912A4A] text-xs font-serif text-stone-800 dark:text-stone-200 leading-relaxed italic select-all py-1">
                         <span className="font-mono text-[10px] uppercase font-bold not-italic text-[#912A4A] dark:text-rose-400 mr-1.5">
                           [{citationStyle}]:
                         </span>
                         {formatPaperPreview(p, citationStyle)}
+                      </div>
+
+                      {/* Actions in Expanded View (Aligned with Title X Position) */}
+                      <div className="flex items-center justify-between gap-2 pt-0.5 pb-1 text-xs flex-wrap">
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              const text = formatPaperPreview(p, citationStyle);
+                              navigator.clipboard.writeText(text);
+                            }}
+                            className="text-[11px] font-sans px-2.5 py-1 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg flex items-center gap-1 transition-colors cursor-pointer border border-stone-200/70 dark:border-stone-700 font-medium"
+                            title="Copy formatted citation"
+                          >
+                            <Copy className="w-3 h-3" />
+                            <span>Copy</span>
+                          </button>
+
+                          {onInsertCitation && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const firstAuthor = (p.authors || 'Author').split(',')[0].trim();
+                                const citationSnippet = ` (${firstAuthor} et al., ${p.year || new Date().getFullYear()})`;
+                                onInsertCitation(citationSnippet);
+                              }}
+                              className="text-[11px] font-sans px-2.5 py-1 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 rounded-lg flex items-center gap-1 transition-colors cursor-pointer border border-stone-200/70 dark:border-stone-700 font-medium"
+                              title="Insert citation marker directly into manuscript"
+                            >
+                              <Plus className="w-3 h-3 text-[#912A4A] dark:text-rose-400" />
+                              <span>Insert to Draft</span>
+                            </button>
+                          )}
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm(`Delete reference "${p.title}" permanently?`)) {
+                                onDeletePaper(p.id);
+                                if (selectedPaper?.id === p.id) {
+                                  setSelectedPaper(papers.find((item) => item.id !== p.id) || null);
+                                }
+                              }
+                            }}
+                            className="text-[11px] font-sans p-1 text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer rounded-lg ml-2"
+                            title="Delete reference"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
                       </div>
 
                       {/* Progressive Disclosure: Paper Summary & Key Findings */}
@@ -1288,8 +1497,7 @@ export default function LiteratureLibrary({
                               <FileText className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400" />
                               <span>Paper Summary & Key Takeaways</span>
                             </div>
-                            <span className="text-[11px] font-normal text-[#912A4A] dark:text-rose-400 flex items-center gap-1">
-                              {expandedSummaryIds[p.id] ? 'Hide summary' : 'Read summary'}
+                            <span className="text-[#912A4A] dark:text-rose-400 flex items-center">
                               {expandedSummaryIds[p.id] ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                             </span>
                           </button>
@@ -1386,67 +1594,41 @@ export default function LiteratureLibrary({
                         </div>
                       )}
 
-                      {/* Actions in Expanded View */}
-                      <div className="flex items-center justify-between gap-2 pt-2 text-xs flex-wrap">
-                        <div className="flex items-center gap-2">
-                          {onInsertCitation && (
-                            <button
-                              type="button"
-                              onClick={() => {
-                                const firstAuthor = (p.authors || 'Author').split(',')[0].trim();
-                                const citationSnippet = ` (${firstAuthor} et al., ${p.year || new Date().getFullYear()})`;
-                                onInsertCitation(citationSnippet);
-                              }}
-                              className="text-[11px] font-sans px-2.5 py-1 bg-stone-100 hover:bg-stone-200 dark:bg-stone-800 dark:hover:bg-stone-700 text-stone-800 dark:text-stone-200 rounded-lg flex items-center gap-1 transition-colors cursor-pointer border border-stone-200/70 dark:border-stone-700 font-medium"
-                              title="Insert citation marker directly into manuscript"
-                            >
-                              <Plus className="w-3 h-3 text-[#912A4A] dark:text-rose-400" />
-                              <span>Insert in Draft</span>
-                            </button>
-                          )}
+                      {/* Progressive Disclosure: View Full Notes */}
+                      <div className="pt-1">
+                        <button
+                          type="button"
+                          onClick={(e) => toggleInspectorExpand(p.id, e)}
+                          className="w-full py-1 text-left flex items-center justify-between gap-2 text-xs font-semibold text-stone-700 dark:text-stone-300 transition-colors cursor-pointer"
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <BookOpen className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400" />
+                            <span>View full notes</span>
+                          </div>
+                          <span className="text-[#912A4A] dark:text-rose-400 flex items-center">
+                            {expandedInspectorIds[p.id] ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+                          </span>
+                        </button>
 
-                          <button
-                            type="button"
-                            onClick={() => {
-                              const text = formatPaperPreview(p, citationStyle);
-                              navigator.clipboard.writeText(text);
-                            }}
-                            className="text-[11px] font-sans px-2.5 py-1 text-stone-600 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-800 rounded-lg flex items-center gap-1 transition-colors cursor-pointer border border-stone-200/70 dark:border-stone-700"
-                            title="Copy formatted citation"
-                          >
-                            <Copy className="w-3 h-3" />
-                            <span>Copy</span>
-                          </button>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setSelectedPaper(p);
-                              setViewMode('inspector');
-                            }}
-                            className="text-[11px] font-sans text-[#912A4A] dark:text-rose-400 hover:underline font-semibold cursor-pointer"
-                          >
-                            View Full Notes & Inspector →
-                          </button>
-
-                          <button
-                            type="button"
-                            onClick={() => {
-                              if (confirm(`Delete reference "${p.title}" permanently?`)) {
-                                onDeletePaper(p.id);
-                                if (selectedPaper?.id === p.id) {
-                                  setSelectedPaper(papers.find((item) => item.id !== p.id) || null);
-                                }
-                              }
-                            }}
-                            className="text-[11px] font-sans p-1 text-stone-400 hover:text-rose-600 dark:hover:text-rose-400 transition-colors cursor-pointer rounded-lg ml-2"
-                            title="Delete reference"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
+                        {expandedInspectorIds[p.id] && (
+                          <div className="pt-2 text-xs space-y-2.5 animate-fadeIn">
+                            {/* Personal Notes */}
+                            {p.notes ? (
+                              <div className="space-y-1">
+                                <span className="text-[11px] font-semibold text-stone-700 dark:text-stone-300 block">
+                                  Personal Notes & Annotations
+                                </span>
+                                <p className="text-stone-700 dark:text-stone-300 leading-relaxed italic text-xs pl-3.5 border-l-2 border-[#912A4A]">
+                                  "{p.notes}"
+                                </p>
+                              </div>
+                            ) : (
+                              <div className="text-[11px] text-stone-400 dark:text-stone-500 italic pl-3.5 border-l-2 border-stone-200 dark:border-stone-800">
+                                No personal notes added yet.
+                              </div>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </div>
                   )}

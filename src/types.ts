@@ -149,7 +149,7 @@ export interface SoundScape {
   src: string;
 }
 
-export type CitationStyle = 'APA7' | 'Harvard' | 'Chicago' | 'IEEE' | 'MLA9';
+export type CitationStyle = 'APA7' | 'Harvard' | 'Chicago' | 'IEEE' | 'MLA9' | 'Vancouver';
 
 export interface GraphNode {
   id: string;

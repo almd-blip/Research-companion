@@ -6,6 +6,7 @@
 import React, { useState } from 'react';
 import { Trash2, ChevronDown, ChevronUp, ChevronsUpDown, Search, Quote, X, BookOpen, Download, Copy, FileText, Check } from 'lucide-react';
 import { Paper, CitationStyle, Collection } from '../types';
+import { parseAuthors, formatAuthorsShort, ParsedAuthor } from './LiteratureLibrary';
 
 interface CitationEngineProps {
   papers: Paper[];
@@ -75,46 +76,54 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
 
   // Citation Formatting Helpers
   const formatCitation = (paper: Paper, style: CitationStyle): string => {
-    const authorsList = paper.authors;
+    const parsed = parseAuthors(paper.authors || '');
     const yearStr = paper.year ? `(${paper.year})` : '';
     const journalStr = paper.journal ? `${paper.journal}` : '';
-    const doiStr = paper.doi ? `doi:${paper.doi}` : '';
+    const doiClean = paper.doi ? paper.doi.replace(/^https?:\/\/doi\.org\//i, '') : '';
+    const doiStr = doiClean ? `doi:${doiClean}` : '';
+
+    const formatOne = (a: ParsedAuthor) => (a.initials ? `${a.surname}, ${a.initials}` : a.surname);
+    const allAuthors = parsed.map(formatOne).join(', ');
 
     switch (style) {
       case 'APA7': {
-        const formattedAuthors = formatAPAAuthors(authorsList);
-        return `${formattedAuthors} ${yearStr}. ${paper.title}. ${journalStr ? `*${journalStr}*` : ''}.${doiStr ? ` https://doi.org/${paper.doi}` : ''}`;
+        let apaAuthors = allAuthors;
+        if (parsed.length === 2) {
+          apaAuthors = `${formatOne(parsed[0])} & ${formatOne(parsed[1])}`;
+        } else if (parsed.length > 2) {
+          apaAuthors = `${parsed.slice(0, -1).map(formatOne).join(', ')}, & ${formatOne(parsed[parsed.length - 1])}`;
+        }
+        return `${apaAuthors} ${yearStr}. ${paper.title}.${journalStr ? ` *${journalStr}*.` : ''}${doiClean ? ` https://doi.org/${doiClean}` : ''}`;
       }
       case 'Harvard': {
-        const hAuthors = formatHarvardAuthors(authorsList);
-        return `${hAuthors} ${paper.year}, '${paper.title}', ${journalStr ? `*${journalStr}*` : ''}.${doiStr ? ` Available from: doi:${paper.doi}` : ''}`;
+        const inJournal = journalStr ? ` in *${journalStr}*` : '';
+        const availableFrom = doiClean ? `, Available from: ${doiStr}` : '';
+        return `${allAuthors} ${paper.year || 'n.d.'}, '${paper.title}'${inJournal}${availableFrom}`;
       }
       case 'Chicago': {
-        return `${authorsList}. "${paper.title}." ${journalStr ? `*${journalStr}*` : ''} (${paper.year}).${doiStr ? ` https://doi.org/${paper.doi}` : ''}`;
+        const inJournal = journalStr ? ` in *${journalStr}*` : '';
+        return `${allAuthors}. ${paper.year || 'n.d.'}. "${paper.title}."${inJournal ? `${inJournal}.` : ''}${doiClean ? ` https://doi.org/${doiClean}` : ''}`;
       }
       case 'IEEE': {
-        return `[1] ${authorsList}, "${paper.title}," ${journalStr ? `*${journalStr}*` : ''}, vol. XX, no. XX, ${paper.year}.${doiStr ? ` doi: ${paper.doi}` : ''}`;
+        const inJournal = journalStr ? ` in *${journalStr}*,` : '';
+        return `[1] ${allAuthors}, "${paper.title},"${inJournal} ${paper.year || 'n.d.'}.${doiClean ? ` ${doiStr}.` : ''}`;
       }
       case 'MLA9': {
-        return `${authorsList}. "${paper.title}." ${journalStr ? `*${journalStr}*` : ''}, vol. XX, no. XX, ${paper.year}.${doiStr ? ` doi:${paper.doi}` : ''}`;
+        return `${allAuthors}. "${paper.title}."${journalStr ? ` *${journalStr}*,` : ''} ${paper.year || 'n.d.'}.${doiClean ? ` ${doiStr}.` : ''}`;
+      }
+      case 'Vancouver': {
+        const formatVancouver = (a: ParsedAuthor) => {
+          const cleanInitials = a.initials.replace(/\./g, '');
+          return cleanInitials ? `${a.surname} ${cleanInitials}` : a.surname;
+        };
+        const vancAuthors = parsed.map(formatVancouver).join(', ');
+        const inJournal = journalStr ? ` In: *${journalStr}*.` : '';
+        const availableFrom = doiClean ? ` Available from: ${doiStr}` : '';
+        return `${vancAuthors}. ${paper.title}.${inJournal} ${paper.year || 'n.d.'};${availableFrom}`;
       }
       default:
-        return `${authorsList} (${paper.year}). ${paper.title}.`;
+        return `${allAuthors} ${yearStr}. ${paper.title}.`;
     }
-  };
-
-  const formatAPAAuthors = (authors: string): string => {
-    const parts = authors.split(',').map((a) => a.trim());
-    if (parts.length === 1) return parts[0];
-    if (parts.length === 2) return `${parts[0]} & ${parts[1]}`;
-    return `${parts[0]} et al.`;
-  };
-
-  const formatHarvardAuthors = (authors: string): string => {
-    const parts = authors.split(',').map((a) => a.trim());
-    if (parts.length === 1) return parts[0];
-    if (parts.length === 2) return `${parts[0]} and ${parts[1]}`;
-    return `${parts[0]} et al.`;
   };
 
   // BibTeX Generation Helpers
@@ -229,13 +238,13 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
             </div>
 
             {/* Single Unified Segmented Style Picker */}
-            <div className="flex items-center gap-1 bg-stone-100 dark:bg-stone-900 p-1 rounded-xl">
-              {(['Harvard', 'APA7', 'MLA9', 'Chicago', 'IEEE'] as CitationStyle[]).map((st) => (
+            <div className="flex items-center gap-1 bg-stone-100 dark:bg-stone-900 p-1 rounded-xl flex-wrap">
+              {(['Harvard', 'APA7', 'MLA9', 'Chicago', 'IEEE', 'Vancouver'] as CitationStyle[]).map((st) => (
                 <button
                   key={st}
                   type="button"
                   onClick={() => setSelectedStyle(st)}
-                  className={`px-3 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
+                  className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-colors cursor-pointer ${
                     selectedStyle === st
                       ? 'bg-white dark:bg-stone-800 text-stone-900 dark:text-stone-100 font-semibold shadow-2xs'
                       : 'text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200'
@@ -355,15 +364,16 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
           </div>
 
           {/* References List (Unboxed on Background with 2px Burgundy Horizontal Divider) */}
-          <div className="divide-y-2 divide-[#912A4A] dark:divide-[#912A4A] max-h-[480px] overflow-y-auto pr-1">
-            {filteredPapers.map((p) => {
+          <div className="divide-y-2 divide-[#912A4A] dark:divide-[#912A4A] max-h-[480px] overflow-y-auto pr-1 mt-4">
+            {filteredPapers.map((p, idx) => {
               const cite = formatCitation(p, selectedStyle);
               const isExpanded = !!expandedPaperIds[p.id];
 
               return (
                 <div
                   key={p.id}
-                  className="py-4 transition-all font-sans"
+                  className={`transition-all font-sans ${idx === 0 ? 'pt-2 pb-6' : ''}`}
+                  style={idx !== 0 ? { paddingTop: '24pt', paddingBottom: '24pt' } : { paddingBottom: '24pt' }}
                 >
                   {/* 1st Layer: Full-Width Title on top with chevron at top right, author, year, and tags placed cleanly below */}
                   <div className="space-y-1.5">
@@ -406,16 +416,8 @@ export default function CitationEngine({ papers, collections = [], onVerifyMetad
                     <div className="flex flex-wrap items-center justify-between gap-1.5 text-xs pt-0.5">
                       <div className="flex flex-wrap items-center gap-1.5">
                         <span className="font-sans text-[11px] text-stone-500 dark:text-stone-400">
-                          {p.authors || 'Unknown Author'} ({p.year || 'n.d.'})
+                          {formatAuthorsShort(p.authors, p.year)}
                         </span>
-                        {p.journal && (
-                          <>
-                            <span className="text-stone-300 dark:text-stone-700">•</span>
-                            <span className="font-sans text-[11px] text-stone-400 italic">
-                              {p.journal}
-                            </span>
-                          </>
-                        )}
                         {p.tags && p.tags.length > 0 && (
                           <div className="flex flex-wrap items-center gap-1 ml-1">
                             {p.tags.map((tag) => (

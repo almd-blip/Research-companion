@@ -10,9 +10,9 @@ export function useThemeClasses(settings: AccessibilitySettings) {
   const isWarm = settings.contrast === 'warm';
 
   if (settings.colorPreference === 'grayscale') {
-    if (isHigh) return 'bg-black text-white border-white';
-    if (isWarm) return 'bg-stone-100 text-stone-900 border-stone-300';
-    return 'bg-stone-50 text-stone-900 border-stone-200';
+    if (isHigh) return 'bg-[#1B0A3B] text-white border-white';
+    if (isWarm) return 'bg-stone-100 text-[#1B0A3B] border-stone-300';
+    return 'bg-stone-50 text-[#1B0A3B] border-stone-200';
   }
 
   if (settings.colorPreference === 'amber') {
@@ -22,9 +22,9 @@ export function useThemeClasses(settings: AccessibilitySettings) {
   }
 
   if (settings.colorPreference === 'cream') {
-    if (isHigh) return 'bg-[#1c1917] text-[#fafaf9] border-[#d6d3d1]';
-    if (isWarm) return 'bg-[#f4ebd0] text-[#292524] border-[#d6c59d]';
-    return 'bg-[#faf8f5] text-[#1c1917] border-[#e7e5e4]';
+    if (isHigh) return 'bg-[#1B0A3B] text-[#fafaf9] border-[#d6d3d1]';
+    if (isWarm) return 'bg-[#f4ebd0] text-[#1B0A3B] border-[#d6c59d]';
+    return 'bg-[#faf8f5] text-[#1B0A3B] border-[#e7e5e4]';
   }
 
   // Default

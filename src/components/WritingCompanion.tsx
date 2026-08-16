@@ -16,6 +16,7 @@ interface WritingCompanionProps {
   activeChapterTitle?: string;
   journeyTitle?: string;
   onInsertCitation?: (citation: string) => void;
+  headerActions?: React.ReactNode;
 }
 
 export default function WritingCompanion({
@@ -25,6 +26,7 @@ export default function WritingCompanion({
   activeChapterTitle = 'Active Draft',
   journeyTitle,
   onInsertCitation,
+  headerActions,
 }: WritingCompanionProps) {
   const [loadingAnalysis, setLoadingAnalysis] = useState(false);
   const [analysisResult, setAnalysisResult] = useState<any>(null);
@@ -97,35 +99,38 @@ export default function WritingCompanion({
   };
 
   return (
-    <div className="bg-white dark:bg-stone-900 border border-stone-200/80 dark:border-stone-800 rounded-2xl p-5 space-y-5 font-sans text-stone-850 dark:text-stone-100 shadow-2xs" id="writing-assistant-module">
-      {/* Calm Unified Header */}
-      <div className="space-y-4 pb-4 border-b border-stone-150 dark:border-stone-800/80">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3.5">
-          <div className="space-y-1">
-            <div className="flex items-center gap-2 flex-wrap">
-              <h3 className="font-serif font-bold text-base text-stone-900 dark:text-stone-100">
-                Writing Assistant
-              </h3>
-              <span className="text-[10px] font-mono px-2 py-0.5 bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 font-semibold rounded-md">
-                Linked to Draft
-              </span>
-            </div>
-            <p className="text-xs text-stone-500 dark:text-stone-400">
-              Analyzing <strong className="text-stone-700 dark:text-stone-300 font-medium">{activeChapterTitle}</strong> ({wordCount} words · ~{readTimeMin}m read)
-            </p>
+    <div className="w-full font-sans text-stone-850 dark:text-stone-100 space-y-6 animate-fadeIn" id="writing-assistant-module">
+      {/* Calm Flat Top Header & Actions Bar */}
+      <div className="border-b border-stone-200/80 dark:border-stone-800/80 pb-4 space-y-3">
+        <div className="flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2.5 min-w-0">
+            <h3 className="font-serif font-bold text-base sm:text-lg text-stone-900 dark:text-stone-100 truncate leading-none">
+              Writing Assistant
+            </h3>
+            <span className="text-[10px] font-mono px-2 py-0.5 bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 font-semibold rounded-md border border-[#912A4A]/20 dark:border-rose-900/30 shrink-0 whitespace-nowrap">
+              Linked to Draft
+            </span>
           </div>
 
-          <button
-            type="button"
-            onClick={handleAnalyzeDraft}
-            disabled={loadingAnalysis || wordCount === 0}
-            className="px-4 py-2 bg-[#912A4A] hover:bg-[#78223d] text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-40 shadow-xs shrink-0 self-start sm:self-auto"
-            id="analyze-active-draft-btn"
-          >
-            <Sparkles className={`w-3.5 h-3.5 ${loadingAnalysis ? 'animate-spin' : ''}`} />
-            <span>{loadingAnalysis ? 'Analyzing Draft...' : 'Check Draft'}</span>
-          </button>
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              type="button"
+              onClick={handleAnalyzeDraft}
+              disabled={loadingAnalysis || wordCount === 0}
+              className="px-3 py-1.5 bg-[#912A4A] hover:bg-[#78223d] text-white rounded-lg text-xs font-semibold flex items-center justify-center gap-1.5 transition-all cursor-pointer disabled:opacity-40 shadow-2xs shrink-0"
+              id="analyze-active-draft-btn"
+            >
+              <Sparkles className={`w-3.5 h-3.5 ${loadingAnalysis ? 'animate-spin' : ''}`} />
+              <span>{loadingAnalysis ? 'Analyzing Draft...' : 'Check Draft'}</span>
+            </button>
+            {headerActions}
+          </div>
         </div>
+
+        {/* Full-width metadata info row */}
+        <p className="text-xs text-stone-500 dark:text-stone-400 w-full">
+          Analyzing <strong className="text-stone-700 dark:text-stone-300 font-medium">{activeChapterTitle}</strong> ({wordCount} words · ~{readTimeMin}m read)
+        </p>
 
         {/* Research Integrity Boundary Active - Calm Inline Row */}
         <div>
@@ -133,69 +138,71 @@ export default function WritingCompanion({
         </div>
       </div>
 
-      {/* Analysis Tabs & Content */}
-      <div className="space-y-4">
-        <div className="flex items-center gap-1 border-b border-stone-150 dark:border-stone-800 pb-2 overflow-x-auto text-xs">
-          <button
-            type="button"
-            onClick={() => setActiveAnalysisTab('unsupported')}
-            className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer whitespace-nowrap font-medium ${
-              activeAnalysisTab === 'unsupported'
-                ? 'bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 font-bold'
-                : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'
-            }`}
-          >
-            Unsupported Claims {analysisResult?.unsupportedClaims?.length ? `(${analysisResult.unsupportedClaims.length})` : ''}
-          </button>
-          
-          <button
-            type="button"
-            onClick={() => setActiveAnalysisTab('supported')}
-            className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer whitespace-nowrap font-medium ${
-              activeAnalysisTab === 'supported'
-                ? 'bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 font-bold'
-                : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'
-            }`}
-          >
-            Supported by Library {analysisResult?.supportedByLibrary?.length ? `(${analysisResult.supportedByLibrary.length})` : ''}
-          </button>
+      {/* Analysis Tabs & Content - Horizontal Flat Tabs with lowered scrollbar */}
+      <div className="space-y-5">
+        <div className="overflow-x-auto pb-3.5 pt-1" role="tablist">
+          <div className="flex items-center gap-6 text-xs font-medium border-b border-stone-200/80 dark:border-stone-800 pb-0 min-w-max">
+            <button
+              type="button"
+              onClick={() => setActiveAnalysisTab('unsupported')}
+              className={`pb-2.5 -mb-px border-b-2 transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                activeAnalysisTab === 'unsupported'
+                  ? 'border-[#912A4A] text-[#912A4A] dark:text-rose-400 font-semibold'
+                  : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+              }`}
+            >
+              Unsupported Claims {analysisResult?.unsupportedClaims?.length ? `(${analysisResult.unsupportedClaims.length})` : ''}
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => setActiveAnalysisTab('supported')}
+              className={`pb-2.5 -mb-px border-b-2 transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                activeAnalysisTab === 'supported'
+                  ? 'border-[#912A4A] text-[#912A4A] dark:text-rose-400 font-semibold'
+                  : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+              }`}
+            >
+              Supported by Library {analysisResult?.supportedByLibrary?.length ? `(${analysisResult.supportedByLibrary.length})` : ''}
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveAnalysisTab('contradictions')}
-            className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer whitespace-nowrap font-medium ${
-              activeAnalysisTab === 'contradictions'
-                ? 'bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 font-bold'
-                : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'
-            }`}
-          >
-            Debates & Nuance {analysisResult?.contradictoryEvidence?.length ? `(${analysisResult.contradictoryEvidence.length})` : ''}
-          </button>
+            <button
+              type="button"
+              onClick={() => setActiveAnalysisTab('contradictions')}
+              className={`pb-2.5 -mb-px border-b-2 transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                activeAnalysisTab === 'contradictions'
+                  ? 'border-[#912A4A] text-[#912A4A] dark:text-rose-400 font-semibold'
+                  : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+              }`}
+            >
+              Debates & Nuance {analysisResult?.contradictoryEvidence?.length ? `(${analysisResult.contradictoryEvidence.length})` : ''}
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveAnalysisTab('suggestions')}
-            className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer whitespace-nowrap font-medium ${
-              activeAnalysisTab === 'suggestions'
-                ? 'bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 font-bold'
-                : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'
-            }`}
-          >
-            Structure & Flow
-          </button>
+            <button
+              type="button"
+              onClick={() => setActiveAnalysisTab('suggestions')}
+              className={`pb-2.5 -mb-px border-b-2 transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                activeAnalysisTab === 'suggestions'
+                  ? 'border-[#912A4A] text-[#912A4A] dark:text-rose-400 font-semibold'
+                  : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
+              }`}
+            >
+              Structure & Flow
+            </button>
 
-          <button
-            type="button"
-            onClick={() => setActiveAnalysisTab('repetition')}
-            className={`px-3 py-1.5 rounded-lg transition-colors cursor-pointer whitespace-nowrap font-medium ${
-              activeAnalysisTab === 'repetition'
-                ? 'bg-[#912A4A]/10 text-[#912A4A] dark:text-rose-300 font-bold'
-                : 'text-stone-600 dark:text-stone-400 hover:text-stone-900'
+            <button
+              type="button"
+              onClick={() => setActiveAnalysisTab('repetition')}
+              className={`pb-2.5 -mb-px border-b-2 transition-all cursor-pointer whitespace-nowrap flex items-center gap-1.5 ${
+                activeAnalysisTab === 'repetition'
+                  ? 'border-[#912A4A] text-[#912A4A] dark:text-rose-400 font-semibold'
+              : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
             Repetition & Vocabulary
           </button>
         </div>
+      </div>
 
         {/* Tab Contents */}
         <div className="space-y-3 min-h-[160px]">

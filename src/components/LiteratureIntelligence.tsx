@@ -4,7 +4,7 @@
  */
 
 import { useState } from 'react';
-import { Sparkles, BookOpen, Layers } from 'lucide-react';
+import { Sparkles, BookOpen, Layers, Check } from 'lucide-react';
 import { Paper } from '../types';
 import { postWithAiRouting } from '../lib/localAiService';
 import HorizontalDisclosureRow from './HorizontalDisclosureRow';
@@ -152,13 +152,13 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
                     onToggle={() => setSelectedPaperId(p.id)}
                     prefix={
                       <div
-                        className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
+                        className={`w-4 h-4 rounded border flex items-center justify-center transition-colors ${
                           isSelected
-                            ? 'border-teal-600 bg-teal-600 dark:border-teal-500 dark:bg-teal-500'
-                            : 'border-stone-300 dark:border-stone-600'
+                            ? 'border-[#1D9E75] bg-[#1D9E75] dark:border-[#28c093] dark:bg-[#28c093] text-white'
+                            : 'border-stone-300 dark:border-stone-600 bg-white dark:bg-stone-900'
                         }`}
                       >
-                        {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                        {isSelected && <Check className="w-2.5 h-2.5 stroke-[3]" />}
                       </div>
                     }
                     title={p.title}
@@ -334,7 +334,7 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
                         type="checkbox"
                         checked={isChecked}
                         onChange={() => handleToggleSynthesisPaper(p.id)}
-                        className="rounded text-teal-600 focus:ring-teal-500 accent-teal-600 dark:accent-teal-500 cursor-pointer"
+                        className="w-4 h-4 rounded text-[#1D9E75] focus:ring-[#1D9E75] accent-[#1D9E75] dark:accent-[#28c093] cursor-pointer"
                       />
                     }
                     title={p.title}

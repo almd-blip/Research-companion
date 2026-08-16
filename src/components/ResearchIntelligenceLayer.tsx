@@ -30,8 +30,7 @@ import {
   FileSpreadsheet,
   Search,
   Share2,
-  Database,
-  Eye
+  Database
 } from 'lucide-react';
 import { Paper, EvidenceMap, ResearchQuestionAnalysis, PatternAndDataAnalysis, CriticalPartnerFeedback, LiteratureSynthesisResult } from '../types';
 import { postWithAiRouting } from '../lib/localAiService';
@@ -403,7 +402,7 @@ export default function ResearchIntelligenceLayer({
 
       {/* ----------------- TAB 1: LITERATURE ANALYSIS & SYNTHESIS ----------------- */}
       {activeTab === 'synthesis' && (
-        <div className="space-y-6 animate-fadeIn">
+        <div className="space-y-0 animate-fadeIn">
           {/* Upload Collection Modal */}
           {showUploadModal && (
             <div className="fixed inset-0 z-50 bg-stone-900/60 backdrop-blur-xs flex items-center justify-center p-4">
@@ -607,7 +606,7 @@ export default function ResearchIntelligenceLayer({
                           type="checkbox"
                           checked={isSelected}
                           onChange={() => handleTogglePaper(p.id)}
-                          className="rounded text-teal-600 focus:ring-teal-500 accent-teal-600 dark:accent-teal-500 cursor-pointer"
+                          className="w-4 h-4 rounded text-[#1D9E75] focus:ring-[#1D9E75] accent-[#1D9E75] dark:accent-[#28c093] cursor-pointer"
                           id={`select-corpus-paper-${p.id}`}
                         />
                       }
@@ -689,8 +688,20 @@ export default function ResearchIntelligenceLayer({
             </div>
           </div>
 
+          {/* Burgundy Divider Line: Exactly 24pts of whitespace above and below */}
+          <div
+            className="w-full block"
+            style={{
+              height: '2px',
+              backgroundColor: '#912A4A',
+              marginTop: '24pt',
+              marginBottom: '24pt',
+            }}
+            id="synthesis-burgundy-divider"
+          />
+
           {/* Bottom Section: Themes Generated & Synthesis Output - Unboxed on cream background */}
-          <div className="space-y-4 pt-2">
+          <div>
             {loadingSynthesis ? (
               <div className="py-12 text-center flex flex-col items-center justify-center space-y-3">
                 <div className="w-6 h-6 border-2 border-[#912A4A] border-t-transparent rounded-full animate-spin"></div>
@@ -786,27 +797,56 @@ export default function ResearchIntelligenceLayer({
                       }
                     />
 
-                    {synthesisOutput.unresolvedQuestions?.map((q, idx) => (
+                    {synthesisOutput.unresolvedQuestions && synthesisOutput.unresolvedQuestions.length > 0 && (
                       <HorizontalDisclosureRow
-                        key={idx}
-                        title={`Unresolved Question ${idx + 1}: ${q}`}
-                        keywords={['Open Question', 'Research Horizon', 'Future Work']}
-                        summary="This question remains active across the literature corpus and offers opportunities for primary investigation."
-                        defaultExpanded={false}
+                        title="Unresolved Questions"
+                        keywords={['Open Questions', 'Research Horizons', 'Future Work']}
+                        summary="These questions remain active across the literature corpus and offer opportunities for primary investigation."
+                        defaultExpanded={true}
+                        children={
+                          <ul className="space-y-2.5 pl-2">
+                            {synthesisOutput.unresolvedQuestions.map((q, idx) => (
+                              <li key={idx} className="font-sans text-xs text-stone-700 dark:text-stone-300 flex items-start justify-between gap-3">
+                                <div className="flex items-start gap-2 flex-1">
+                                  <span className="text-[#912A4A] dark:text-rose-400 font-bold shrink-0">•</span>
+                                  <span className="font-sans font-normal text-stone-800 dark:text-stone-200 leading-relaxed">
+                                    {q}
+                                  </span>
+                                </div>
+                                {onInsertIntoDraft && (
+                                  <button
+                                    type="button"
+                                    onClick={() => onInsertIntoDraft(`Research Question: ${q}`)}
+                                    className="text-[11px] text-[#912A4A] dark:text-rose-400 hover:underline flex items-center gap-1 font-medium cursor-pointer shrink-0"
+                                    title="Insert question into draft"
+                                  >
+                                    <Plus className="w-3 h-3" />
+                                    <span>Insert</span>
+                                  </button>
+                                )}
+                              </li>
+                            ))}
+                          </ul>
+                        }
                         actions={
                           onInsertIntoDraft && (
                             <button
                               type="button"
-                              onClick={() => onInsertIntoDraft(`Research Question: ${q}`)}
+                              onClick={() =>
+                                onInsertIntoDraft(
+                                  `Unresolved Research Questions:\n` +
+                                    synthesisOutput.unresolvedQuestions.map((q, i) => `${i + 1}. ${q}`).join('\n')
+                                )
+                              }
                               className="text-[#912A4A] dark:text-rose-400 hover:underline flex items-center gap-1 font-medium cursor-pointer"
                             >
                               <Plus className="w-3.5 h-3.5" />
-                              <span>Insert question into draft</span>
+                              <span>Insert questions into draft</span>
                             </button>
                           )
                         }
                       />
-                    ))}
+                    )}
                   </div>
                 )}
 
@@ -1057,9 +1097,9 @@ export default function ResearchIntelligenceLayer({
 
       {/* ----------------- TAB 2: EVIDENCE MAPPING ----------------- */}
       {activeTab === 'evidence_map' && (
-        <div className="space-y-6 animate-fadeIn">
+        <div className="space-y-0 animate-fadeIn">
           {/* Question & Query Bar - Unboxed on cream background */}
-          <div className="space-y-3 pb-3 border-b border-stone-200/80 dark:border-stone-800">
+          <div className="space-y-3">
             <h3 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
               <Compass className="w-4 h-4 text-[#912A4A]" />
               <span>Main research question to map evidence</span>
@@ -1113,6 +1153,18 @@ export default function ResearchIntelligenceLayer({
               </button>
             </div>
           </div>
+
+          {/* Burgundy Divider Line: Exactly 24pts of whitespace above and below */}
+          <div
+            className="w-full block"
+            style={{
+              height: '2px',
+              backgroundColor: '#912A4A',
+              marginTop: '24pt',
+              marginBottom: '24pt',
+            }}
+            id="evidence-map-burgundy-divider"
+          />
 
           {/* Evidence Map Content */}
           {loadingEvidenceMap ? (
@@ -1321,9 +1373,9 @@ export default function ResearchIntelligenceLayer({
 
       {/* ----------------- TAB 3: RESEARCH QUESTION DEVELOPMENT ----------------- */}
       {activeTab === 'question_dev' && (
-        <div className="space-y-6 animate-fadeIn">
+        <div className="space-y-0 animate-fadeIn">
           {/* Question Builder Form - Unboxed on cream background */}
-          <div className="space-y-3 pb-4 border-b border-stone-200/80 dark:border-stone-800">
+          <div className="space-y-3">
             <h3 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
               <HelpCircle className="w-4 h-4 text-[#912A4A]" />
               <span>Turn broad topics into refined research questions</span>
@@ -1346,15 +1398,29 @@ export default function ResearchIntelligenceLayer({
               />
             </div>
 
-            <button
-              onClick={handleRunQuestionDevelopment}
-              disabled={loadingQuestions || !topicInput.trim()}
-              className="font-sans text-xs bg-[#912A4A] text-white px-5 py-2.5 rounded-lg hover:bg-[#78223d] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 font-semibold shadow-xs"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-rose-200" />
-              <span>{loadingQuestions ? 'Building Questions...' : 'Make research questions'}</span>
-            </button>
+            <div>
+              <button
+                onClick={handleRunQuestionDevelopment}
+                disabled={loadingQuestions || !topicInput.trim()}
+                className="font-sans text-xs bg-[#912A4A] text-white px-5 py-2.5 rounded-lg hover:bg-[#78223d] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 font-semibold shadow-xs"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-rose-200" />
+                <span>{loadingQuestions ? 'Building Questions...' : 'Make research questions'}</span>
+              </button>
+            </div>
           </div>
+
+          {/* Burgundy Divider Line: Exactly 24pts of whitespace above and below */}
+          <div
+            className="w-full block"
+            style={{
+              height: '2px',
+              backgroundColor: '#912A4A',
+              marginTop: '24pt',
+              marginBottom: '24pt',
+            }}
+            id="question-dev-burgundy-divider"
+          />
 
           {/* Question Development Results */}
           {loadingQuestions ? (
@@ -1478,9 +1544,9 @@ export default function ResearchIntelligenceLayer({
 
       {/* ----------------- TAB 4: PATTERN & DATA ANALYTICS ----------------- */}
       {activeTab === 'pattern_data' && (
-        <div className="space-y-6 animate-fadeIn">
+        <div className="space-y-0 animate-fadeIn">
           {/* Data Input Form - Unboxed on cream background */}
-          <div className="space-y-3 pb-4 border-b border-stone-200/80 dark:border-stone-800">
+          <div className="space-y-3">
             <h3 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
               <TrendingUp className="w-4 h-4 text-[#912A4A]" />
               <span>Data patterns, metric distributions & variable relationships</span>
@@ -1533,15 +1599,29 @@ export default function ResearchIntelligenceLayer({
               </p>
             )}
 
-            <button
-              onClick={handleRunDataAnalysis}
-              disabled={loadingDataAnalysis}
-              className="font-sans text-xs bg-[#912A4A] text-white px-5 py-2.5 rounded-lg hover:bg-[#78223d] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 font-semibold shadow-xs"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-rose-200" />
-              <span>{loadingDataAnalysis ? 'Finding Patterns...' : 'Find patterns in data'}</span>
-            </button>
+            <div>
+              <button
+                onClick={handleRunDataAnalysis}
+                disabled={loadingDataAnalysis}
+                className="font-sans text-xs bg-[#912A4A] text-white px-5 py-2.5 rounded-lg hover:bg-[#78223d] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 font-semibold shadow-xs"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-rose-200" />
+                <span>{loadingDataAnalysis ? 'Finding Patterns...' : 'Find patterns in data'}</span>
+              </button>
+            </div>
           </div>
+
+          {/* Burgundy Divider Line: Exactly 24pts of whitespace above and below */}
+          <div
+            className="w-full block"
+            style={{
+              height: '2px',
+              backgroundColor: '#912A4A',
+              marginTop: '24pt',
+              marginBottom: '24pt',
+            }}
+            id="data-pattern-burgundy-divider"
+          />
 
           {/* Pattern Analysis Results */}
           {loadingDataAnalysis ? (
@@ -1699,12 +1779,11 @@ export default function ResearchIntelligenceLayer({
 
       {/* ----------------- TAB 5: CRITICAL RESEARCH PARTNER MODE ----------------- */}
       {activeTab === 'critical_partner' && (
-        <div className="space-y-6 animate-fadeIn">
+        <div className="space-y-0 animate-fadeIn">
           {/* Statement Input Form - Unboxed on cream background */}
-          <div className="space-y-3 pb-4 border-b border-stone-200/80 dark:border-stone-800">
-            <h3 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-              <Eye className="w-4 h-4 text-[#912A4A]" />
-              <span>Check assumptions, claims, and blindspots</span>
+          <div className="space-y-3">
+            <h3 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100">
+              Check assumptions, claims, and blindspots
             </h3>
 
             <div className="space-y-2">
@@ -1724,15 +1803,29 @@ export default function ResearchIntelligenceLayer({
               />
             </div>
 
-            <button
-              onClick={handleRunCriticalPartner}
-              disabled={loadingCriticalPartner || !hypothesisInput.trim()}
-              className="font-sans text-xs bg-[#912A4A] text-white px-5 py-2.5 rounded-lg hover:bg-[#78223d] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 font-semibold shadow-xs"
-            >
-              <Sparkles className="w-3.5 h-3.5 text-rose-200" />
-              <span>{loadingCriticalPartner ? 'Checking Assumptions...' : 'Check my assumptions'}</span>
-            </button>
+            <div>
+              <button
+                onClick={handleRunCriticalPartner}
+                disabled={loadingCriticalPartner || !hypothesisInput.trim()}
+                className="font-sans text-xs bg-[#912A4A] text-white px-5 py-2.5 rounded-lg hover:bg-[#78223d] transition-all flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50 font-semibold shadow-xs"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-rose-200" />
+                <span>{loadingCriticalPartner ? 'Checking Assumptions...' : 'Check my assumptions'}</span>
+              </button>
+            </div>
           </div>
+
+          {/* Burgundy Divider Line: Exactly 24pts of whitespace above and below */}
+          <div
+            className="w-full block"
+            style={{
+              height: '2px',
+              backgroundColor: '#912A4A',
+              marginTop: '24pt',
+              marginBottom: '24pt',
+            }}
+            id="critical-partner-burgundy-divider"
+          />
 
           {/* Critical Feedback Results */}
           {loadingCriticalPartner ? (

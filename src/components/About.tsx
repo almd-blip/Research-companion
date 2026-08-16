@@ -79,9 +79,9 @@ const ABOUT_SECTIONS: SectionData[] = [
 export default function About() {
   const [showSpec, setShowSpec] = useState(false);
 
-  // Track individual section collapse states (Philosophy open by default, others collapsible)
+  // Track individual section collapse states (all collapsed by default)
   const [openSections, setOpenSections] = useState<Record<string, boolean>>({
-    philosophy: true,
+    philosophy: false,
     purpose: false,
     howItWorks: false,
     growth: false,
