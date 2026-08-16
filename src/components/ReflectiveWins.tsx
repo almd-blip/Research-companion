@@ -43,12 +43,12 @@ export default function ReflectiveWins() {
   };
 
   return (
-    <div className="py-5 px-0 sm:py-6 bg-white dark:bg-stone-900 border-0 rounded-xl space-y-5 text-left" id="reflective-wins-module">
+    <div className="py-2 pl-4 border-l-2 border-[#1d9e75]/50 space-y-4 text-left" id="reflective-wins-module">
       <div className="space-y-1">
-        <h3 className="font-sans font-semibold text-base sm:text-lg text-stone-900 dark:text-stone-100 flex items-center gap-2">
-          <span>Reflective wins & progress</span>
+        <h3 className="font-sans font-semibold text-xs uppercase tracking-wider text-stone-900 dark:text-stone-100 flex items-center gap-2">
+          <span>Reflective wins and progress</span>
         </h3>
-        <p className="font-sans text-xs sm:text-sm text-stone-600 dark:text-stone-400 leading-relaxed">
+        <p className="font-sans text-xs text-stone-500 dark:text-stone-400 leading-relaxed font-light">
           Research contains almost no instant feedback loops. Track small micro-wins to foster momentum and acknowledge your project progression.
         </p>
       </div>
@@ -58,7 +58,7 @@ export default function ReflectiveWins() {
         {smallWins.map((win, idx) => (
           <div
             key={idx}
-            className="p-3 bg-stone-50 dark:bg-stone-950 border border-stone-200/70 dark:border-stone-800 rounded-lg flex justify-between items-center text-xs sm:text-sm"
+            className="p-3 bg-white/60 dark:bg-stone-900/60 border border-stone-200/70 dark:border-stone-800 rounded-lg flex justify-between items-center text-xs"
           >
             <div className="flex items-center gap-2.5">
               <span className="text-[#1d9e75] dark:text-[#28c093] font-bold">•</span>
@@ -76,14 +76,14 @@ export default function ReflectiveWins() {
         ))}
 
         {smallWins.length === 0 && (
-          <div className="py-6 px-3 text-stone-400 dark:text-stone-500 text-xs sm:text-sm italic text-left border border-dashed border-stone-200 dark:border-stone-800 rounded-lg">
-            No micro-wins logged yet today. Simply checking in and moving a idea forward is progress.
+          <div className="py-4 px-3 text-stone-400 dark:text-stone-500 text-xs italic text-left border border-dashed border-stone-200 dark:border-stone-800 rounded-lg">
+            No micro-wins logged yet today. Simply checking in and moving an idea forward is progress.
           </div>
         )}
       </div>
 
       {/* Form */}
-      <form onSubmit={handleAddWin} className="flex gap-2.5 pt-2">
+      <form onSubmit={handleAddWin} className="flex gap-2.5 pt-1">
         <label htmlFor="project-micro-win-input" className="sr-only">Record a micro win</label>
         <input
           id="project-micro-win-input"
@@ -91,12 +91,12 @@ export default function ReflectiveWins() {
           placeholder="Record a win (e.g., wrote paragraph 1, found an article, organized outline)..."
           value={newWin}
           onChange={(e) => setNewWin(e.target.value)}
-          className="flex-grow font-sans text-xs sm:text-sm p-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1d9e75]"
+          className="flex-grow font-sans text-xs p-2.5 border border-stone-300 dark:border-stone-700 bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 rounded-lg focus:outline-none focus:ring-1 focus:ring-[#1d9e75]"
           required
         />
         <button
           type="submit"
-          className="font-sans text-xs sm:text-sm bg-[#1d9e75] hover:bg-[#168260] dark:bg-[#28c093] dark:hover:bg-[#1e9a75] text-white dark:text-stone-950 px-4 py-2.5 rounded-lg font-semibold shadow-xs transition-colors cursor-pointer shrink-0"
+          className="font-sans text-xs bg-[#1d9e75] hover:bg-[#168260] dark:bg-[#28c093] dark:hover:bg-[#1e9a75] text-white dark:text-stone-950 px-4 py-2.5 rounded-lg font-semibold shadow-xs transition-colors cursor-pointer shrink-0"
         >
           Log win
         </button>

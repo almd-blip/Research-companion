@@ -108,9 +108,9 @@ export default function DataIngestionModule({
           journal: 'Cognitive Systems Research Review',
           year: 2025,
           doi: '10.1016/j.cogsys.2025.101099',
-          abstract: 'Introducing Second Thought pause loops into AI-assisted decision making to systematically prompt human researchers to evaluate counter-hypotheses.',
-          notes: 'Theoretical groundwork for Second Thought reasoning architecture.',
-          tags: ['second-thought', 'metacognition', 'bias-reduction']
+          abstract: 'Introducing reflective pause loops into AI-assisted decision making to systematically prompt human researchers to evaluate counter-hypotheses.',
+          notes: 'Theoretical groundwork for reflective cognitive architecture.',
+          tags: ['epistemic-pause', 'metacognition', 'bias-reduction']
         },
         {
           title: 'Reproducibility Metrics in Qualitative Research Synthesis',
@@ -727,7 +727,7 @@ export default function DataIngestionModule({
                   <tr
                     key={item.id}
                     className={`hover:bg-stone-50 dark:hover:bg-stone-900/50 transition-colors ${
-                      item.selected ? 'bg-[#912A4A]/10 dark:bg-[#912A4A]/20' : 'opacity-60'
+                      item.selected ? 'bg-teal-50/60 dark:bg-teal-950/30' : 'opacity-60'
                     }`}
                   >
                     <td className="p-2.5 text-center">
@@ -735,7 +735,7 @@ export default function DataIngestionModule({
                         type="checkbox"
                         checked={item.selected}
                         onChange={() => toggleSelectItem(item.id)}
-                        className="rounded border-stone-300 text-[#912A4A] focus:ring-[#912A4A] cursor-pointer"
+                        className="rounded border-stone-300 text-teal-600 focus:ring-teal-500 accent-teal-600 dark:accent-teal-500 cursor-pointer"
                       />
                     </td>
                     <td className="p-2.5">

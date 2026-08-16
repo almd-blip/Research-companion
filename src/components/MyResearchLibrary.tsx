@@ -264,31 +264,31 @@ export default function MyResearchLibrary({
       </div>
 
       {/* Filter and Search Bar */}
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-b border-stone-200 dark:border-stone-800 pb-4">
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 border-b border-stone-200 dark:border-stone-800 pb-px">
         
         {/* Tabs */}
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-6 text-xs font-medium" role="tablist">
           <button
             type="button"
             onClick={() => setActiveTab('all')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+            className={`pb-2.5 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'all' 
-                ? 'bg-stone-200 dark:bg-stone-800 text-stone-900 dark:text-stone-100 font-bold' 
-                : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-300'
+                ? 'border-[#912A4A] text-[#912A4A] dark:text-rose-400 font-semibold' 
+                : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
-            All Papers ({docs.length})
+            <span>All Papers ({docs.length})</span>
           </button>
           <button
             type="button"
             onClick={() => setActiveTab('attached')}
-            className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors cursor-pointer ${
+            className={`pb-2.5 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'attached' 
-                ? 'bg-stone-200 dark:bg-stone-800 text-stone-900 dark:text-stone-100 font-bold' 
-                : 'text-stone-500 hover:text-stone-800 dark:hover:text-stone-300'
+                ? 'border-[#912A4A] text-[#912A4A] dark:text-rose-400 font-semibold' 
+                : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
-            Attached to Insights ({docs.filter(d => d.attachedInsightIds?.length > 0).length})
+            <span>Attached to Insights ({docs.filter(d => d.attachedInsightIds?.length > 0).length})</span>
           </button>
         </div>
 

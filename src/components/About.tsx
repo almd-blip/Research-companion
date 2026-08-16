@@ -127,11 +127,11 @@ export default function About() {
   ).join('\n\n----------------------------------------\n\n');
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 font-sans px-4 sm:px-6 py-6 animate-fadeIn text-left" id="about-module">
+    <div className="w-full space-y-8 font-sans pb-16 animate-fadeIn text-left" id="about-module">
       <PrintModal
         isOpen={isPrintModalOpen}
         onClose={() => setIsPrintModalOpen(false)}
-        title="Second Thought — Principles & Ethos"
+        title="Pessoa — Principles & Ethos"
         subtitle="Platform Philosophy, Human-Centric Design & Research Boundaries"
         rawTextToCopy={rawAboutText}
       >
@@ -149,7 +149,7 @@ export default function About() {
       <div className="hidden print:block mb-8 pb-4 border-b-2 border-stone-900" id="about-print-header">
         <div className="flex justify-between items-start">
           <div>
-            <h1 className="font-serif font-bold text-2xl text-stone-900">Second Thought — Research Companion</h1>
+            <h1 className="font-serif font-bold text-2xl text-stone-900">Pessoa — Research & Writing Companion</h1>
             <h2 className="font-sans font-semibold text-stone-700 text-sm mt-1">Platform Core Principles, Philosophy & Ethos</h2>
           </div>
           <div className="text-right text-xs font-mono text-stone-500">
@@ -163,7 +163,7 @@ export default function About() {
       <div className="border-b border-stone-200/80 dark:border-stone-800 pb-6 mb-8 text-left print:hidden" id="about-header-container">
         <div className="space-y-1.5" id="about-header-text">
           <h1 className="font-sans font-medium tracking-tight text-2xl sm:text-3xl text-stone-900 dark:text-stone-100 flex items-center gap-3" id="about-page-title">
-            About Research Companion
+            About Pessoa
           </h1>
           <p className="font-sans text-stone-500 dark:text-stone-400 text-xs sm:text-sm leading-relaxed" id="about-page-subtitle">
             A gentle, human-centric space designed to support you through the emotional and intellectual journeys of research.

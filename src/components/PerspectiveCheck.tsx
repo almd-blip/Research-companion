@@ -91,7 +91,7 @@ const SECOND_THOUGHT_STEPS = [
     actionTitle: 'What other experiences or ideas could I learn from?',
     questionTitle: 'Do you hear from people who have lived through what you are studying?',
     supportingText: 'If lived experience matters to your question, is it included in the evidence?',
-    icon: <Compass className="w-4 h-4 text-purple-600 dark:text-purple-400" />,
+    icon: <Compass className="w-4 h-4 text-[#1D9E75] dark:text-emerald-400" />,
   },
   {
     number: 5,

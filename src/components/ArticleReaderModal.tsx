@@ -351,34 +351,80 @@ export default function ArticleReaderModal({ article, onClose }: ArticleReaderMo
             </div>
           )}
 
-          {/* Full Text Content Body */}
-          <div className={`prose dark:prose-invert max-w-none font-sans text-stone-800 dark:text-stone-200 ${fontClassMap[fontSize]} space-y-4`}>
-            {article.fullText.split('\n\n').map((paragraph, pIdx) => {
+          {/* Full Text Content Body with Numbered Paragraphs & Sentence Citation Marking */}
+          <div className={`prose dark:prose-invert max-w-none font-sans text-stone-850 dark:text-stone-200 ${fontClassMap[fontSize]} space-y-6`}>
+            {article.fullText.split('\n\n').filter(Boolean).map((paragraph, pIdx) => {
+              const paraNum = pIdx + 1;
               if (paragraph.startsWith('# ')) {
                 return (
-                  <h1 key={pIdx} className="text-2xl font-bold font-serif text-stone-900 dark:text-stone-100 border-b border-stone-200 dark:border-stone-800 pb-2 mt-6">
+                  <h1 key={pIdx} className="text-xl sm:text-2xl font-bold font-serif text-stone-900 dark:text-stone-100 border-b border-stone-200 dark:border-stone-800 pb-2 mt-6">
                     {renderHighlightedSearch(paragraph.replace('# ', ''))}
                   </h1>
                 );
               }
               if (paragraph.startsWith('## ')) {
                 return (
-                  <h2 key={pIdx} className="text-lg font-bold font-serif text-stone-800 dark:text-stone-200 mt-5">
+                  <h2 key={pIdx} className="text-base sm:text-lg font-bold font-serif text-stone-800 dark:text-stone-200 mt-5">
                     {renderHighlightedSearch(paragraph.replace('## ', ''))}
                   </h2>
                 );
               }
               if (paragraph.startsWith('### ')) {
                 return (
-                  <h3 key={pIdx} className="text-base font-semibold text-stone-800 dark:text-stone-200 mt-4">
+                  <h3 key={pIdx} className="text-sm sm:text-base font-semibold text-stone-800 dark:text-stone-200 mt-4">
                     {renderHighlightedSearch(paragraph.replace('### ', ''))}
                   </h3>
                 );
               }
+
+              // Split paragraph into sentences for sentence-level citation marking
+              const sentences = paragraph.match(/[^.!?]+[.!?]+(\s|$)|[^.!?]+$/g) || [paragraph];
+
               return (
-                <p key={pIdx} className="whitespace-pre-wrap leading-relaxed">
-                  {renderHighlightedSearch(paragraph)}
-                </p>
+                <div key={pIdx} className="group relative pl-7 border-l-2 border-transparent hover:border-[#912A4A]/60 transition-colors">
+                  {/* Paragraph Number Indicator (when page number is missing) */}
+                  <span className="absolute left-0 top-0 font-mono text-[10px] font-semibold text-stone-400 dark:text-stone-500 select-none group-hover:text-[#912A4A] dark:group-hover:text-rose-400">
+                    ¶{paraNum}
+                  </span>
+
+                  <p className="whitespace-pre-wrap leading-relaxed inline">
+                    {sentences.map((sent, sIdx) => {
+                      const trimmedSent = sent.trim();
+                      const firstAuthor = article.authors.split(',')[0].trim();
+                      const paraCitation = `(${firstAuthor} et al., ${article.year}, para. ${paraNum})`;
+
+                      return (
+                        <span
+                          key={sIdx}
+                          onClick={() => {
+                            setSelectedText(trimmedSent);
+                            setShowHighlightForm(true);
+                          }}
+                          className="hover:bg-amber-100/50 dark:hover:bg-stone-800/80 cursor-pointer transition-colors rounded-xs px-0.5"
+                          title={`Click to cite or highlight: ${paraCitation}`}
+                        >
+                          {renderHighlightedSearch(sent)}
+                        </span>
+                      );
+                    })}
+                  </p>
+
+                  <div className="mt-1 opacity-0 group-hover:opacity-100 transition-opacity flex items-center gap-2 text-[10px]">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const firstAuthor = article.authors.split(',')[0].trim();
+                        const paraCitation = `(${firstAuthor} et al., ${article.year}, para. ${paraNum})`;
+                        navigator.clipboard.writeText(paraCitation);
+                        setCopyStatus(true);
+                        setTimeout(() => setCopyStatus(false), 2000);
+                      }}
+                      className="text-[#912A4A] dark:text-rose-400 hover:underline font-medium cursor-pointer"
+                    >
+                      Copy Citation (para. {paraNum})
+                    </button>
+                  </div>
+                </div>
               );
             })}
           </div>

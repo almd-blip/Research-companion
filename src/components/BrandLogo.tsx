@@ -15,7 +15,7 @@ export default function BrandLogo({ className = "w-28 md:w-32" }: BrandLogoProps
   return (
     <img 
       src="/assets/logo_transparent.png" 
-      alt="Second Thought Publishing Logo" 
+      alt="Pessoa Logo" 
       className={`${className} h-auto object-contain`}
       referrerPolicy="no-referrer"
     />

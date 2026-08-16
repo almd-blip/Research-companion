@@ -117,34 +117,54 @@ export default function AIAssistant() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto flex flex-col h-[calc(100vh-120px)] font-sans" id="ai-assistant-module">
+    <div className="w-full flex flex-col h-[calc(100vh-120px)] font-sans space-y-6 text-left" id="ai-assistant-module">
       
-      {/* Header Panel */}
-      <div className="border-b border-stone-200 dark:border-stone-800 pb-4 mb-3 flex justify-between items-center shrink-0">
-        <div className="text-left">
-          <h1 className="font-sans font-medium text-2xl tracking-tight text-stone-900 dark:text-stone-100 flex items-center gap-2">
-            AI Assistant
-          </h1>
-          <p className="font-sans text-xs text-stone-500 mt-1">
-            Consult your dedicated guide for writing methods, structures, and mental clarity.
-          </p>
+      {/* Header Panel - Unboxed and aligned to X value of title */}
+      <div className="shrink-0 space-y-3">
+        <div className="flex justify-between items-start">
+          <div>
+            <h1 className="font-sans font-medium text-2xl sm:text-3xl tracking-tight text-stone-900 dark:text-stone-100" id="ai-page-title">
+              Ask AI
+            </h1>
+            <p className="font-sans text-xs sm:text-sm text-stone-500 dark:text-stone-400 mt-1">
+              Consult your dedicated guide for writing methods, structures, and mental clarity.
+            </p>
+          </div>
+          
+          <button
+            onClick={handleClearHistory}
+            className="text-[11px] font-sans text-stone-500 hover:text-stone-900 dark:text-stone-400 dark:hover:text-stone-100 transition-colors cursor-pointer border border-stone-200 dark:border-stone-800 px-3 py-1.5 rounded-md hover:bg-stone-100 dark:hover:bg-stone-900"
+            title="Clear active session"
+          >
+            Clear History
+          </button>
         </div>
-        
-        <button
-          onClick={handleClearHistory}
-          className="text-[10px] font-mono text-stone-400 hover:text-red-600 dark:hover:text-red-400 transition-colors cursor-pointer border border-stone-200 dark:border-stone-850 px-2.5 py-1 rounded hover:bg-stone-50 dark:hover:bg-stone-900"
-          title="Clear active session"
-        >
-          Clear History
-        </button>
+
+        {/* Starting points placed directly under 'Consult your...' subtitle */}
+        <div className="pt-2">
+          <span className="text-xs font-medium text-stone-600 dark:text-stone-400 block mb-2">
+            Starting points:
+          </span>
+          <div className="flex flex-wrap gap-2">
+            {starterPrompts.map((prompt) => (
+              <button
+                key={prompt}
+                onClick={() => handleSendMessage(prompt)}
+                className="font-sans text-xs border border-stone-200 dark:border-stone-800 bg-stone-50 dark:bg-stone-900/60 hover:border-[#912A4A] text-stone-700 dark:text-stone-300 px-3.5 py-1.5 rounded-md transition-all cursor-pointer text-left"
+              >
+                {prompt}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="pt-2">
+          <ResearchIntegrityBanner compact />
+        </div>
       </div>
 
-      <div className="mb-3">
-        <ResearchIntegrityBanner compact />
-      </div>
-
-      {/* Main chat log */}
-      <div className="flex-1 overflow-y-auto pr-2 space-y-4 mb-4 min-h-0">
+      {/* Main chat log - Unboxed and aligned with title */}
+      <div className="flex-1 overflow-y-auto pr-1 space-y-5 min-h-0">
         {messages.map((m) => (
           <div
             key={m.id}
@@ -153,26 +173,26 @@ export default function AIAssistant() {
             }`}
           >
             {/* Role indicator */}
-            <div className={`px-2 py-0.5 rounded text-[10px] font-semibold shrink-0 ${
+            <div className={`px-2 py-0.5 rounded text-[11px] font-semibold shrink-0 ${
               m.role === 'user' 
-                ? 'bg-amber-900/10 text-amber-900 dark:bg-stone-800 dark:text-stone-300' 
-                : 'bg-stone-100 text-stone-600 dark:bg-stone-900 dark:text-stone-400 border border-stone-200 dark:border-stone-800'
+                ? 'bg-[#1B0A3B] text-white' 
+                : 'bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300 border border-stone-200 dark:border-stone-700'
             }`}>
               {m.role === 'user' ? 'You' : 'AI'}
             </div>
 
             {/* Bubble */}
-            <div className={`p-4 rounded-xl text-left ${
+            <div className={`p-4 rounded-lg text-left ${
               m.role === 'user'
-                ? 'bg-amber-900/15 dark:bg-stone-800/80 text-stone-900 dark:text-stone-100 rounded-tr-none border border-amber-900/5 dark:border-stone-750'
-                : 'bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 rounded-tl-none border border-stone-200 dark:border-stone-850 shadow-sm'
+                ? 'bg-[#1B0A3B]/10 dark:bg-stone-800 text-stone-900 dark:text-stone-100 border border-stone-200 dark:border-stone-700'
+                : 'bg-stone-50 dark:bg-stone-900 text-stone-800 dark:text-stone-200 border border-stone-200 dark:border-stone-800'
             }`}>
-              <p className="text-xs leading-relaxed whitespace-pre-line font-sans font-light">
+              <p className="text-xs sm:text-sm leading-relaxed whitespace-pre-line font-sans">
                 {m.text}
               </p>
               
-              <div className="mt-2.5 pt-1.5 border-t border-stone-100 dark:border-stone-900 flex justify-end">
-                <span className="text-[9px] font-mono text-stone-400">
+              <div className="mt-2 pt-1 flex justify-end">
+                <span className="text-[10px] font-mono text-stone-400">
                   {new Date(m.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </span>
               </div>
@@ -182,17 +202,17 @@ export default function AIAssistant() {
 
         {isLoading && (
           <div className="flex items-start gap-3.5 mr-auto animate-fadeIn">
-            <div className="px-2 py-0.5 rounded text-[10px] font-semibold bg-stone-100 text-stone-600 dark:bg-stone-900 dark:text-stone-400 border border-stone-200 dark:border-stone-850 shrink-0">
+            <div className="px-2 py-0.5 rounded text-[11px] font-semibold bg-stone-100 text-stone-700 dark:bg-stone-800 dark:text-stone-300 border border-stone-200 dark:border-stone-700 shrink-0">
               AI
             </div>
-            <div className="p-4 rounded-xl rounded-tl-none bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-850 text-stone-500 dark:text-stone-400 italic text-xs shadow-xs flex items-center gap-2">
-              Your advisor is drafting a reply, checking structured evidence...
+            <div className="p-4 rounded-lg bg-stone-50 dark:bg-stone-900 border border-stone-200 dark:border-stone-800 text-stone-500 dark:text-stone-400 italic text-xs flex items-center gap-2">
+              Your advisor is synthesizing structured guidance...
             </div>
           </div>
         )}
 
         {error && (
-          <div className="p-3.5 bg-red-50/10 dark:bg-red-950/10 border border-red-200 dark:border-red-900/40 rounded-lg text-xs text-red-700 dark:text-red-400 flex items-start gap-2 max-w-xl animate-fadeIn">
+          <div className="p-3.5 bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-900 rounded-lg text-xs text-red-700 dark:text-red-400 flex items-start gap-2 max-w-xl animate-fadeIn">
             <div>
               <p className="font-semibold">Unable to consult advisor</p>
               <p className="mt-0.5 leading-relaxed">{error}</p>
@@ -203,28 +223,8 @@ export default function AIAssistant() {
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Preset Starters & Inputs container */}
-      <div className="shrink-0 space-y-3.5">
-        {messages.length === 1 && !isLoading && (
-          <div className="space-y-1.5 text-left">
-            <span className="text-[10px] font-mono text-stone-400 flex items-center gap-1">
-              Need a starting point? Ask one of these:
-            </span>
-            <div className="flex flex-wrap gap-2">
-              {starterPrompts.map((prompt) => (
-                <button
-                  key={prompt}
-                  onClick={() => handleSendMessage(prompt)}
-                  className="font-sans text-[11px] border border-stone-200 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/50 hover:bg-amber-50/20 hover:border-amber-900/10 text-stone-600 dark:text-stone-300 px-3 py-1.5 rounded-full transition-all cursor-pointer text-left"
-                >
-                  {prompt}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Text Area Input */}
+      {/* Input container */}
+      <div className="shrink-0 pt-2">
         <form
           onSubmit={(e) => {
             e.preventDefault();
@@ -238,17 +238,17 @@ export default function AIAssistant() {
           <input
             id="ai-chat-input"
             type="text"
-            placeholder="Ask your PhD mentor anything about your project, chapters, blockages..."
+            placeholder="Ask your mentor anything about your writing, research methods, chapters, or blockages..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
             disabled={isLoading}
-            className="w-full font-sans text-xs p-3.5 pr-20 border border-stone-200 dark:border-stone-800 rounded-xl bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-1 focus:ring-amber-500 disabled:opacity-60"
+            className="w-full font-sans text-xs sm:text-sm p-3.5 pr-24 border border-stone-300 dark:border-stone-700 rounded-lg bg-white dark:bg-stone-900 text-stone-850 dark:text-stone-100 focus:outline-none focus:border-[#912A4A] disabled:opacity-60"
             required
           />
           <button
             type="submit"
             disabled={isLoading || !input.trim()}
-            className="absolute right-2 px-3 py-1.5 rounded-lg bg-stone-900 dark:bg-stone-800 text-white text-xs font-semibold hover:bg-stone-800 disabled:opacity-40 transition-colors cursor-pointer"
+            className="absolute right-2 px-4 py-2 rounded-md bg-[#912A4A] hover:bg-[#78223d] text-white text-xs font-medium disabled:opacity-40 transition-colors cursor-pointer"
             title="Send query"
           >
             Send

@@ -64,7 +64,7 @@ export default function LandingPage({ onNavigate }: LandingPageProps) {
             >
               <ChoiceScreen
                 onSelect={handleChoiceSelect}
-                appName="Second Thought"
+                appName="Pessoa"
                 reducedMotion={accessibilitySettings.reducedMotion}
                 settings={accessibilitySettings}
                 onSettingsChange={setAccessibilitySettings}

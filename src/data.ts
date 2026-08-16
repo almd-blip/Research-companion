@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Paper, ResearchJourney, Collection, SoundScape, LiteratureSynthesisResult } from './types';
+import { Paper, ResearchJourney, Collection, SoundScape, LiteratureSynthesisResult, EvidenceMap, ResearchQuestionAnalysis, PatternAndDataAnalysis, CriticalPartnerFeedback } from './types';
 
 export const INITIAL_COLLECTIONS: Collection[] = [
   { id: 'col-1', name: 'Critical AI & Society', description: 'Papers examining sociotechnical aspects of AI systems', color: 'bg-emerald-100 dark:bg-emerald-950/40 text-emerald-800 dark:text-emerald-300 border-emerald-200' },

@@ -318,11 +318,11 @@ export default function ResearchWellbeingInsights() {
               </p>
             </div>
 
-            {/* Second Thought Plain-English Summary */}
+            {/* Reflective Plain-English Summary */}
             <div className="p-4 sm:p-5 bg-[#1B0A3B]/5 border border-[#1B0A3B]/15 rounded-md space-y-3">
               <div className="flex items-center justify-between">
                 <h3 className="font-sans font-semibold text-sm text-[#1B0A3B] flex items-center gap-2">
-                  <span>Second Thought Plain-English Summary</span>
+                  <span>Reflective Plain-English Summary</span>
                 </h3>
                 
                 {!editingSummary ? (

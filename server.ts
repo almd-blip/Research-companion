@@ -1418,6 +1418,116 @@ Provide your output in JSON format:
   }
 });
 
+// 16. Funding & Grants - AI Criteria & Proposal Assessment Endpoint
+app.post('/api/gemini/funding/assess-proposal', async (req, res) => {
+  try {
+    const { criteria, questions, documentResponse, funderName } = req.body;
+    if (!documentResponse || typeof documentResponse !== 'string' || !documentResponse.trim()) {
+      return res.status(400).json({ error: 'Document response text is required for proposal assessment.' });
+    }
+
+    const criteriaText = Array.isArray(criteria) ? criteria.join('\n- ') : (criteria || 'Standard Funder Rigour, Innovation, Feasibility, and Impact criteria');
+    const questionsText = Array.isArray(questions) ? questions.join('\n- ') : (questions || 'Standard Proposal Objectives, Methodology, Outreach & Impact, and Budget Justification');
+
+    const prompt = `Perform an in-depth academic grant proposal assessment evaluating the provided draft document against the funder's criteria and application questions.
+
+FUNDER / SCHEME: "${funderName || 'General Research Funding Body'}"
+
+FUNDER CRITERIA & BENCHMARKS:
+"""
+${criteriaText}
+"""
+
+APPLICATION FORM QUESTIONS:
+"""
+${questionsText}
+"""
+
+CANDIDATE DRAFT / DOCUMENT RESPONSE TO ASSESS:
+"""
+${documentResponse}
+"""
+
+Evaluate systematically for:
+1. OVERALL ADHERENCE (0-100 score, holistic appraisal, and executive verdict).
+2. QUESTION-BY-QUESTION ADHERENCE, STRENGTH & RELEVANCE:
+   - Did the draft answer the funder's exact question?
+   - How robust and strong is the scholarly argument?
+   - How relevant is the provided content to what the funder requested?
+   - What specific elements or evidence are missing?
+   - What is the concrete recommendation to strengthen this response?
+3. CRITERIA COMPLIANCE (Compliant, Partially Met, Non-Compliant with direct citations from the draft).
+4. CORE STRENGTHS: Highlights where the draft excels.
+5. CRITICAL GAPS & RISKS: Specific blindspots, unbacked assertions, or missing compliance items that could lead to rejection.
+6. ACTIONABLE REVISION ROADMAP: Sequential checklist of concrete editorial and evidential enhancements for the researcher.`;
+
+    const ai = getGeminiClient();
+    const response = await ai.models.generateContent({
+      model: 'gemini-3.5-flash',
+      contents: prompt,
+      config: {
+        systemInstruction: 'You are a veteran grant review panel chair and expert evaluator. You assess research proposals with rigorous objectivity, highlighting exact adherence to funder requirements, evidential strength, and thematic relevance without overwriting the author voice.',
+        responseMimeType: 'application/json',
+        responseSchema: {
+          type: Type.OBJECT,
+          required: [
+            'overallAdherenceScore',
+            'adherenceVerdict',
+            'overallSummary',
+            'questionAssessments',
+            'criteriaCompliance',
+            'coreStrengths',
+            'criticalGapsAndRisks',
+            'revisionChecklist'
+          ],
+          properties: {
+            overallAdherenceScore: { type: Type.NUMBER },
+            adherenceVerdict: { type: Type.STRING },
+            overallSummary: { type: Type.STRING },
+            questionAssessments: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                required: ['question', 'adherence', 'strengthRating', 'relevanceRating', 'findings', 'missingElements', 'recommendation'],
+                properties: {
+                  question: { type: Type.STRING },
+                  adherence: { type: Type.STRING, description: 'Must be "Full", "Partial", or "Missing"' },
+                  strengthRating: { type: Type.STRING, description: 'Must be "High", "Moderate", or "Low"' },
+                  relevanceRating: { type: Type.STRING, description: 'Must be "High", "Moderate", or "Low"' },
+                  findings: { type: Type.STRING },
+                  missingElements: { type: Type.ARRAY, items: { type: Type.STRING } },
+                  recommendation: { type: Type.STRING }
+                }
+              }
+            },
+            criteriaCompliance: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                required: ['criterion', 'status', 'evidence', 'recommendations'],
+                properties: {
+                  criterion: { type: Type.STRING },
+                  status: { type: Type.STRING, description: 'Must be "Compliant", "Partially Met", or "Non-Compliant"' },
+                  evidence: { type: Type.STRING },
+                  recommendations: { type: Type.STRING }
+                }
+              }
+            },
+            coreStrengths: { type: Type.ARRAY, items: { type: Type.STRING } },
+            criticalGapsAndRisks: { type: Type.ARRAY, items: { type: Type.STRING } },
+            revisionChecklist: { type: Type.ARRAY, items: { type: Type.STRING } }
+          }
+        }
+      }
+    });
+
+    res.json(JSON.parse(response.text || '{}'));
+  } catch (error: any) {
+    console.error('Error in /api/gemini/funding/assess-proposal:', error);
+    res.status(500).json({ error: error.message || 'Failed to assess grant proposal' });
+  }
+});
+
 // ----------------- VITE MIDDLEWARE SETUP -----------------
 
 async function startServer() {

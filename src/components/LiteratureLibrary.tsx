@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import {
   Trash2,
   ChevronDown,
+  ChevronUp,
   ChevronRight,
   ChevronsUpDown,
   Search,
@@ -470,9 +471,9 @@ export default function LiteratureLibrary({
                   </span>
                 </div>
                 {inspectorPanels.citation ? (
-                  <ChevronDown className="w-4 h-4 text-stone-400" />
+                  <ChevronUp className="w-4 h-4 text-stone-400" />
                 ) : (
-                  <ChevronRight className="w-4 h-4 text-stone-400" />
+                  <ChevronDown className="w-4 h-4 text-stone-400" />
                 )}
               </button>
 
@@ -567,9 +568,9 @@ export default function LiteratureLibrary({
                   </span>
                 </div>
                 {inspectorPanels.metadata ? (
-                  <ChevronDown className="w-4 h-4 text-stone-400" />
+                  <ChevronUp className="w-4 h-4 text-stone-400" />
                 ) : (
-                  <ChevronRight className="w-4 h-4 text-stone-400" />
+                  <ChevronDown className="w-4 h-4 text-stone-400" />
                 )}
               </button>
 
@@ -630,19 +631,19 @@ export default function LiteratureLibrary({
                   </span>
                 </div>
                 {inspectorPanels.abstract ? (
-                  <ChevronDown className="w-4 h-4 text-stone-400" />
+                  <ChevronUp className="w-4 h-4 text-stone-400" />
                 ) : (
-                  <ChevronRight className="w-4 h-4 text-stone-400" />
+                  <ChevronDown className="w-4 h-4 text-stone-400" />
                 )}
               </button>
 
               {inspectorPanels.abstract && (
                 <div className="p-4 bg-white dark:bg-stone-900/60 border-t border-stone-200/80 dark:border-stone-800 space-y-4 animate-fadeIn">
-                  {/* Full Abstract Text */}
+                  {/* Full Abstract Text - Unboxed on Background */}
                   <div className="space-y-1.5">
                     <div className="flex items-center justify-between">
-                      <span className="text-[11px] font-semibold text-stone-600 dark:text-stone-300">
-                        Abstract / Paper Overview
+                      <span className="text-xs font-semibold text-stone-700 dark:text-stone-300">
+                        Abstract & paper overview
                       </span>
                       {selectedPaper.abstract && (
                         <button
@@ -652,72 +653,88 @@ export default function LiteratureLibrary({
                               navigator.clipboard.writeText(selectedPaper.abstract);
                             }
                           }}
-                          className="text-[10px] text-[#912A4A] dark:text-rose-400 hover:underline flex items-center gap-1 cursor-pointer font-medium"
+                          className="text-xs text-[#912A4A] dark:text-rose-400 hover:underline flex items-center gap-1 cursor-pointer font-medium"
                         >
-                          <Copy className="w-3 h-3" />
-                          <span>Copy Abstract</span>
+                          <Copy className="w-3.5 h-3.5" />
+                          <span>Copy abstract</span>
                         </button>
                       )}
                     </div>
                     {selectedPaper.abstract ? (
-                      <div className="font-sans text-xs text-stone-700 dark:text-stone-300 leading-relaxed bg-stone-50/80 dark:bg-stone-950/70 p-3.5 rounded-xl border border-stone-200/70 dark:border-stone-800 select-text">
+                      <p className="pl-3.5 border-l-2 border-[#912A4A]/40 font-sans text-xs text-stone-700 dark:text-stone-300 leading-relaxed italic select-text">
                         "{selectedPaper.abstract}"
-                      </div>
+                      </p>
                     ) : (
                       <p className="font-sans text-xs text-stone-400 italic">No abstract recorded for this paper yet.</p>
                     )}
                   </div>
 
-                  {/* Structured Summary Breakdown if available */}
+                  {/* Structured Summary Breakdown - Standardized Vertical Layout */}
                   {selectedPaper.structuredSummary && (
                     <div className="space-y-3 pt-3 border-t border-stone-150 dark:border-stone-800">
-                      <h5 className="font-semibold text-xs text-stone-800 dark:text-stone-200 flex items-center gap-1.5">
-                        <Sparkles className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400" />
-                        <span>Key Analytical Breakdown</span>
-                      </h5>
+                      <div className="flex items-center justify-between">
+                        <h5 className="font-semibold text-xs text-stone-800 dark:text-stone-200 flex items-center gap-1.5">
+                          <Sparkles className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400" />
+                          <span>Key analytical breakdown</span>
+                        </h5>
+                      </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                      {/* Vertical stack of analytical fields */}
+                      <div className="space-y-2.5 text-xs">
                         {selectedPaper.structuredSummary.researchQuestion && (
-                          <div className="p-3 bg-stone-50/70 dark:bg-stone-950/50 rounded-xl border border-stone-200/60 dark:border-stone-800/80 space-y-1">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 font-mono block">
-                              Research Question / Aim
+                          <div className="pl-3.5 border-l-2 border-[#1B0A3B]/40 dark:border-purple-400/40 space-y-1">
+                            <span className="text-[11px] font-semibold text-stone-800 dark:text-stone-200 block">
+                              Research aim & question
                             </span>
-                            <p className="text-stone-800 dark:text-stone-200 leading-relaxed font-medium">
+                            <p className="text-stone-700 dark:text-stone-300 leading-relaxed font-sans">
                               {selectedPaper.structuredSummary.researchQuestion}
                             </p>
                           </div>
                         )}
 
                         {selectedPaper.structuredSummary.methods && (
-                          <div className="p-3 bg-stone-50/70 dark:bg-stone-950/50 rounded-xl border border-stone-200/60 dark:border-stone-800/80 space-y-1">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-stone-500 font-mono block">
-                              Methodology & Design
+                          <div className="pl-3.5 border-l-2 border-stone-400 dark:border-stone-600 space-y-1">
+                            <span className="text-[11px] font-semibold text-stone-800 dark:text-stone-200 block">
+                              Methodology & design
                             </span>
-                            <p className="text-stone-800 dark:text-stone-200 leading-relaxed">
+                            <p className="text-stone-700 dark:text-stone-300 leading-relaxed font-sans">
                               {selectedPaper.structuredSummary.methods}
                             </p>
                           </div>
                         )}
 
                         {selectedPaper.structuredSummary.findings && (
-                          <div className="p-3 bg-emerald-50/40 dark:bg-emerald-950/20 rounded-xl border border-emerald-200/50 dark:border-emerald-900/40 space-y-1 sm:col-span-2">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-800 dark:text-emerald-300 font-mono block">
-                              Core Findings & Key Takeaways
+                          <div className="pl-3.5 border-l-2 border-emerald-600/60 space-y-1">
+                            <span className="text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 block">
+                              Core findings & key takeaways
                             </span>
-                            <p className="text-stone-800 dark:text-stone-200 leading-relaxed">
+                            <p className="text-stone-700 dark:text-stone-300 leading-relaxed font-sans">
                               {selectedPaper.structuredSummary.findings}
                             </p>
                           </div>
                         )}
 
                         {selectedPaper.structuredSummary.limitations && (
-                          <div className="p-3 bg-amber-50/40 dark:bg-amber-950/20 rounded-xl border border-amber-200/50 dark:border-amber-900/40 space-y-1 sm:col-span-2">
-                            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-800 dark:text-amber-300 font-mono block">
-                              Stated Scope & Limitations
+                          <div className="pl-3.5 border-l-2 border-amber-500/60 space-y-1">
+                            <span className="text-[11px] font-semibold text-amber-800 dark:text-amber-300 block">
+                              Stated scope & limitations
                             </span>
-                            <p className="text-stone-800 dark:text-stone-200 leading-relaxed">
+                            <p className="text-stone-700 dark:text-stone-300 leading-relaxed font-sans">
                               {selectedPaper.structuredSummary.limitations}
                             </p>
+                          </div>
+                        )}
+
+                        {selectedPaper.structuredSummary.keyQuotations && selectedPaper.structuredSummary.keyQuotations.length > 0 && (
+                          <div className="pl-3.5 border-l-2 border-stone-300 dark:border-stone-700 space-y-1">
+                            <span className="text-[11px] font-semibold text-stone-800 dark:text-stone-200 block">
+                              Key Quotations
+                            </span>
+                            <div className="space-y-1">
+                              {selectedPaper.structuredSummary.keyQuotations.map((q: string, idx: number) => (
+                                <p key={idx} className="text-stone-600 dark:text-stone-400 italic font-sans text-xs">"{q}"</p>
+                              ))}
+                            </div>
                           </div>
                         )}
                       </div>
@@ -741,9 +758,9 @@ export default function LiteratureLibrary({
                   </span>
                 </div>
                 {inspectorPanels.notes ? (
-                  <ChevronDown className="w-4 h-4 text-stone-400" />
+                  <ChevronUp className="w-4 h-4 text-stone-400" />
                 ) : (
-                  <ChevronRight className="w-4 h-4 text-stone-400" />
+                  <ChevronDown className="w-4 h-4 text-stone-400" />
                 )}
               </button>
 
@@ -782,9 +799,9 @@ export default function LiteratureLibrary({
                   </span>
                 </div>
                 {inspectorPanels.highlights ? (
-                  <ChevronDown className="w-4 h-4 text-stone-400" />
+                  <ChevronUp className="w-4 h-4 text-stone-400" />
                 ) : (
-                  <ChevronRight className="w-4 h-4 text-stone-400" />
+                  <ChevronDown className="w-4 h-4 text-stone-400" />
                 )}
               </button>
 
@@ -1144,8 +1161,8 @@ export default function LiteratureLibrary({
             </form>
           )}
 
-          {/* Reference Items Listing */}
-          <div className="space-y-3 max-h-[640px] overflow-y-auto pr-1">
+          {/* Reference Items Listing (Unboxed on Background with 2px Burgundy Horizontal Divider) */}
+          <div className="divide-y-2 divide-[#912A4A] dark:divide-[#912A4A] max-h-[640px] overflow-y-auto pr-1">
             {filteredPapers.map((p) => {
               const col = collections.find((c) => c.id === p.collectionId);
               const isExpanded = !!expandedPaperIds[p.id];
@@ -1154,74 +1171,105 @@ export default function LiteratureLibrary({
               return (
                 <div
                   key={p.id}
-                  className={`p-4 rounded-2xl border transition-all duration-150 shadow-2xs ${
-                    isSelected
-                      ? 'border-[#912A4A]/50 bg-stone-50/90 dark:bg-stone-850/90 ring-1 ring-[#912A4A]/25'
-                      : 'border-stone-200/90 dark:border-stone-800 bg-white/90 dark:bg-stone-900/90 hover:border-stone-300 dark:hover:border-stone-700'
-                  }`}
+                  className="py-4 transition-all duration-150 font-sans"
                 >
-                  {/* Collapsed View: Title, Author, Year, Tags & Inspect Action */}
-                  <div className="flex items-start justify-between gap-3">
-                    <div className="flex items-start gap-2.5 flex-1 min-w-0">
-                      <button
-                        type="button"
-                        onClick={(e) => togglePaperExpand(p.id, e)}
-                        className="p-1 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-500 dark:text-stone-400 shrink-0 cursor-pointer transition-colors mt-0.5"
-                        title={isExpanded ? 'Collapse reference snippet' : 'Expand reference snippet'}
-                        aria-label={isExpanded ? 'Collapse reference snippet' : 'Expand reference snippet'}
-                      >
-                        {isExpanded ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
-                      </button>
+                  {/* 1st Layer (Primary View): Full-Width Title on top, with chevron at top right, and tags/metadata sharing exact X position */}
+                  <div className="space-y-2">
+                    {/* Top Row: Title on Left, Actions & Chevron at Top Right */}
+                    <div
+                      onClick={(e) => togglePaperExpand(p.id, e)}
+                      className="flex items-start justify-between gap-3 cursor-pointer group"
+                    >
+                      <h4 className="font-serif font-bold text-stone-900 dark:text-stone-100 text-sm sm:text-base leading-snug flex-1 transition-colors group-hover:text-[#912A4A] dark:group-hover:text-rose-300">
+                        {p.title}
+                      </h4>
 
-                      <div className="flex-1 min-w-0">
-                        <h4 className="font-serif font-bold text-stone-900 dark:text-stone-100 text-sm leading-snug">
-                          {p.title}
-                        </h4>
-                        <p className="font-sans text-xs text-stone-500 dark:text-stone-400 mt-0.5">
-                          {p.authors || 'Unknown Author'} · {p.year || 'n.d.'}
-                          {p.journal && ` · ${p.journal}`}
-                        </p>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSelectedPaper(p);
+                            setViewMode('inspector');
+                          }}
+                          className="text-[11px] font-sans font-semibold text-[#912A4A] dark:text-rose-400 hover:text-white hover:bg-[#912A4A] px-2.5 py-1 rounded-lg border border-[#912A4A]/30 dark:border-rose-400/30 transition-colors cursor-pointer"
+                          title="Open Document Inspector"
+                        >
+                          Inspect
+                        </button>
+
+                        <button
+                          type="button"
+                          onClick={(e) => togglePaperExpand(p.id, e)}
+                          className="p-1 rounded-lg hover:bg-stone-100 dark:hover:bg-stone-800 text-stone-400 group-hover:text-stone-700 dark:group-hover:text-stone-200 cursor-pointer transition-colors"
+                          title={isExpanded ? 'Collapse reference snippet' : 'Expand reference snippet'}
+                          aria-label={isExpanded ? 'Collapse reference snippet' : 'Expand reference snippet'}
+                        >
+                          {isExpanded ? (
+                            <ChevronUp className="w-4 h-4 text-[#912A4A] dark:text-rose-400" />
+                          ) : (
+                            <ChevronDown className="w-4 h-4 text-stone-400 group-hover:text-stone-700 dark:group-hover:text-stone-200" />
+                          )}
+                        </button>
                       </div>
                     </div>
 
-                    <div className="flex items-center gap-1.5 shrink-0 flex-wrap justify-end">
-                      {col && (
-                        <span className="px-2 py-0.5 rounded-full border text-[10px] bg-stone-100 dark:bg-stone-800 border-stone-200/80 dark:border-stone-700 text-stone-600 dark:text-stone-300 font-medium">
-                          {col.name}
+                    {/* Metadata & Tags Row (Strictly Below Title, Sharing Exact Same X Position) */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 pt-0.5">
+                      <div className="flex flex-wrap items-center gap-2 text-xs">
+                        <span className="font-sans text-xs text-stone-600 dark:text-stone-300 font-medium">
+                          {p.authors || 'Unknown Author'} ({p.year || 'n.d.'})
                         </span>
-                      )}
+                        {p.journal && (
+                          <>
+                            <span className="text-stone-300 dark:text-stone-700">•</span>
+                            <span className="font-sans text-xs text-stone-500 dark:text-stone-400 italic">
+                              {p.journal}
+                            </span>
+                          </>
+                        )}
 
-                      {p.verificationStatus === 'verified' ? (
-                        <span className="text-[10px] bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-200/50 font-medium">
-                          Verified
-                        </span>
-                      ) : (
-                        <span className="text-[10px] bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 px-2 py-0.5 rounded-full border border-amber-200/50 font-medium">
-                          Incomplete
-                        </span>
-                      )}
+                        {/* Collection Pill */}
+                        {col && (
+                          <span className="px-2 py-0.5 rounded-full border text-[10px] bg-stone-100 dark:bg-stone-800 border-stone-200/80 dark:border-stone-700 text-stone-600 dark:text-stone-300 font-medium">
+                            {col.name}
+                          </span>
+                        )}
 
-                      {/* Open Full Inspector Button */}
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setSelectedPaper(p);
-                          setViewMode('inspector');
-                        }}
-                        className="text-[11px] font-sans font-semibold text-[#912A4A] dark:text-rose-400 hover:text-white hover:bg-[#912A4A] px-2.5 py-1 rounded-lg border border-[#912A4A]/30 dark:border-rose-400/30 transition-colors cursor-pointer ml-1"
-                        title="Open Document Inspector"
-                      >
-                        Inspect
-                      </button>
+                        {/* Verification Status */}
+                        {p.verificationStatus === 'verified' ? (
+                          <span className="text-[10px] bg-emerald-50 text-emerald-700 dark:bg-emerald-950/30 dark:text-emerald-400 px-2 py-0.5 rounded-full border border-emerald-200/50 font-medium">
+                            Verified
+                          </span>
+                        ) : (
+                          <span className="text-[10px] bg-amber-50 text-amber-700 dark:bg-amber-950/30 dark:text-amber-400 px-2 py-0.5 rounded-full border border-amber-200/50 font-medium">
+                            Incomplete
+                          </span>
+                        )}
+
+                        {/* Tags below title */}
+                        {p.tags && p.tags.length > 0 && (
+                          <div className="flex flex-wrap items-center gap-1">
+                            {p.tags.map((tag) => (
+                              <span
+                                key={tag}
+                                className="text-[10px] font-mono px-2 py-0.5 bg-[#912A4A]/5 dark:bg-rose-950/30 text-[#912A4A] dark:text-rose-300 rounded-md border border-[#912A4A]/15 dark:border-rose-900/30"
+                              >
+                                #{tag}
+                              </span>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
 
                   {/* Progressive Disclosure: In-line Citation & Quick Actions */}
                   {isExpanded && (
-                    <div className="mt-3.5 pt-3 border-t border-stone-150 dark:border-stone-800 space-y-2.5 animate-fadeIn font-sans">
+                    <div className="mt-3.5 pt-3 border-t border-stone-200/60 dark:border-stone-800 space-y-2.5 animate-fadeIn font-sans">
                       
-                      {/* Formatted Citation Preview Snippet */}
-                      <div className="p-3 rounded-xl bg-stone-50 dark:bg-stone-950/60 border border-stone-200/70 dark:border-stone-800 text-xs font-serif text-stone-800 dark:text-stone-200 leading-relaxed italic select-all">
+                      {/* Formatted Citation Preview Snippet (Unboxed with Left Burgundy Accent) */}
+                      <div className="pl-3.5 border-l-2 border-[#912A4A] text-xs font-serif text-stone-800 dark:text-stone-200 leading-relaxed italic select-all py-1">
                         <span className="font-mono text-[10px] uppercase font-bold not-italic text-[#912A4A] dark:text-rose-400 mr-1.5">
                           [{citationStyle}]:
                         </span>
@@ -1230,11 +1278,11 @@ export default function LiteratureLibrary({
 
                       {/* Progressive Disclosure: Paper Summary & Key Findings */}
                       {(p.abstract || p.structuredSummary || p.notes) && (
-                        <div className="rounded-xl border border-stone-200/70 dark:border-stone-800 bg-stone-50/40 dark:bg-stone-950/40 overflow-hidden">
+                        <div className="pt-1">
                           <button
                             type="button"
                             onClick={(e) => toggleSummaryExpand(p.id, e)}
-                            className="w-full px-3 py-2 text-left flex items-center justify-between gap-2 text-xs font-semibold text-stone-700 dark:text-stone-300 hover:bg-stone-100/60 dark:hover:bg-stone-800/60 transition-colors cursor-pointer"
+                            className="w-full py-1 text-left flex items-center justify-between gap-2 text-xs font-semibold text-stone-700 dark:text-stone-300 transition-colors cursor-pointer"
                           >
                             <div className="flex items-center gap-1.5">
                               <FileText className="w-3.5 h-3.5 text-[#912A4A] dark:text-rose-400" />
@@ -1242,53 +1290,104 @@ export default function LiteratureLibrary({
                             </div>
                             <span className="text-[11px] font-normal text-[#912A4A] dark:text-rose-400 flex items-center gap-1">
                               {expandedSummaryIds[p.id] ? 'Hide summary' : 'Read summary'}
-                              {expandedSummaryIds[p.id] ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                              {expandedSummaryIds[p.id] ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                             </span>
                           </button>
 
                           {expandedSummaryIds[p.id] && (
-                            <div className="p-3 pt-2 text-xs space-y-2.5 border-t border-stone-200/60 dark:border-stone-800 animate-fadeIn">
-                              {p.abstract && (
-                                <p className="text-stone-700 dark:text-stone-300 leading-relaxed bg-white dark:bg-stone-900 p-2.5 rounded-lg border border-stone-200/60 dark:border-stone-800">
-                                  {p.abstract}
-                                </p>
-                              )}
+                            <div className="pt-2 text-xs space-y-2.5 animate-fadeIn">
+                              {/* Standardized Vertical Layout matching Find main themes */}
+                              <div className="space-y-3 pt-1">
+                                {p.abstract && (
+                                  <div className="space-y-1">
+                                    <span className="text-[11px] font-semibold text-stone-700 dark:text-stone-300 block">
+                                      Abstract
+                                    </span>
+                                    <p className="text-stone-700 dark:text-stone-300 leading-relaxed italic text-xs pl-3.5 border-l-2 border-stone-300 dark:border-stone-700">
+                                      "{p.abstract}"
+                                    </p>
+                                  </div>
+                                )}
 
-                              {p.structuredSummary && (
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px] pt-1">
-                                  {p.structuredSummary.researchQuestion && (
-                                    <div className="p-2 bg-white dark:bg-stone-900 rounded-lg border border-stone-200/50 dark:border-stone-800">
-                                      <strong className="text-stone-900 dark:text-stone-100 block mb-0.5">Research Question:</strong>
-                                      <span className="text-stone-600 dark:text-stone-400">{p.structuredSummary.researchQuestion}</span>
-                                    </div>
-                                  )}
-                                  {p.structuredSummary.methods && (
-                                    <div className="p-2 bg-white dark:bg-stone-900 rounded-lg border border-stone-200/50 dark:border-stone-800">
-                                      <strong className="text-stone-900 dark:text-stone-100 block mb-0.5">Methodology:</strong>
-                                      <span className="text-stone-600 dark:text-stone-400">{p.structuredSummary.methods}</span>
-                                    </div>
-                                  )}
-                                  {p.structuredSummary.findings && (
-                                    <div className="p-2 bg-emerald-50/50 dark:bg-emerald-950/20 rounded-lg border border-emerald-200/40 dark:border-emerald-900/30 sm:col-span-2">
-                                      <strong className="text-emerald-900 dark:text-emerald-300 block mb-0.5">Key Findings:</strong>
-                                      <span className="text-stone-700 dark:text-stone-300">{p.structuredSummary.findings}</span>
-                                    </div>
-                                  )}
-                                </div>
-                              )}
+                                {p.structuredSummary && (
+                                  <div className="space-y-2.5 pt-1">
+                                    {p.structuredSummary.researchQuestion && (
+                                      <div className="pl-3.5 border-l-2 border-[#1B0A3B]/40 dark:border-purple-400/40 space-y-0.5">
+                                        <span className="text-[11px] font-semibold text-stone-800 dark:text-stone-200 block">
+                                          Research aim & question
+                                        </span>
+                                        <p className="text-stone-600 dark:text-stone-400 leading-relaxed text-xs">
+                                          {p.structuredSummary.researchQuestion}
+                                        </p>
+                                      </div>
+                                    )}
 
-                              {!p.abstract && !p.structuredSummary && p.notes && (
-                                <p className="text-stone-600 dark:text-stone-400 italic bg-white dark:bg-stone-900 p-2.5 rounded-lg border border-stone-200/60 dark:border-stone-800">
-                                  "{p.notes}"
-                                </p>
-                              )}
+                                    {p.structuredSummary.methods && (
+                                      <div className="pl-3.5 border-l-2 border-stone-400 dark:border-stone-600 space-y-0.5">
+                                        <span className="text-[11px] font-semibold text-stone-800 dark:text-stone-200 block">
+                                          Methodology & design
+                                        </span>
+                                        <p className="text-stone-600 dark:text-stone-400 leading-relaxed text-xs">
+                                          {p.structuredSummary.methods}
+                                        </p>
+                                      </div>
+                                    )}
+
+                                    {p.structuredSummary.findings && (
+                                      <div className="pl-3.5 border-l-2 border-emerald-600/60 space-y-0.5">
+                                        <span className="text-[11px] font-semibold text-emerald-800 dark:text-emerald-300 block">
+                                          Core findings & key takeaways
+                                        </span>
+                                        <p className="text-stone-700 dark:text-stone-300 leading-relaxed text-xs">
+                                          {p.structuredSummary.findings}
+                                        </p>
+                                      </div>
+                                    )}
+
+                                    {p.structuredSummary.limitations && (
+                                      <div className="pl-3.5 border-l-2 border-amber-500/60 space-y-0.5">
+                                        <span className="text-[11px] font-semibold text-amber-800 dark:text-amber-300 block">
+                                          Stated scope & limitations
+                                        </span>
+                                        <p className="text-stone-600 dark:text-stone-400 leading-relaxed text-xs">
+                                          {p.structuredSummary.limitations}
+                                        </p>
+                                      </div>
+                                    )}
+
+                                    {p.structuredSummary.keyQuotations && p.structuredSummary.keyQuotations.length > 0 && (
+                                      <div className="pl-3.5 border-l-2 border-stone-300 dark:border-stone-700 space-y-0.5">
+                                        <span className="text-[11px] font-semibold text-stone-800 dark:text-stone-200 block">
+                                          Key Quotations
+                                        </span>
+                                        <div className="space-y-1">
+                                          {p.structuredSummary.keyQuotations.map((quote: string, i: number) => (
+                                            <p key={i} className="text-stone-600 dark:text-stone-400 italic text-xs">"{quote}"</p>
+                                          ))}
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
+                                )}
+
+                                {!p.abstract && !p.structuredSummary && p.notes && (
+                                  <div className="pl-3.5 border-l-2 border-stone-300 dark:border-stone-700 space-y-0.5">
+                                    <span className="text-[11px] font-semibold text-stone-700 dark:text-stone-300 block">
+                                      Notes
+                                    </span>
+                                    <p className="text-stone-600 dark:text-stone-400 italic text-xs leading-relaxed">
+                                      "{p.notes}"
+                                    </p>
+                                  </div>
+                                )}
+                              </div>
                             </div>
                           )}
                         </div>
                       )}
 
                       {/* Actions in Expanded View */}
-                      <div className="flex items-center justify-between gap-2 pt-1 border-t border-stone-150 dark:border-stone-800 text-xs flex-wrap">
+                      <div className="flex items-center justify-between gap-2 pt-2 text-xs flex-wrap">
                         <div className="flex items-center gap-2">
                           {onInsertCitation && (
                             <button

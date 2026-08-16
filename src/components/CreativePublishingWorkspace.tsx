@@ -390,10 +390,13 @@ Open publishing preparation empowers scholars, open-access journals, and public 
       {/* ----------------------------------------------------------------- */}
       <div className="flex flex-wrap items-center justify-between gap-4 border-b border-stone-200/80 dark:border-stone-800/80 pb-4">
         <div className="space-y-1 max-w-2xl">
+          <h1 className="font-sans font-medium text-2xl sm:text-3xl text-stone-900 dark:text-stone-100 tracking-tight">
+            Publishing & Export
+          </h1>
           <p className="text-xs text-stone-600 dark:text-stone-300 leading-relaxed">
             Prepare your research manuscript, check submission readiness, and export open format documents (.odt, .docx, .md, .pdf, .epub).
           </p>
-          <div className="flex items-center gap-3 pt-0.5 text-[11px] font-mono text-stone-500">
+          <div className="flex items-center gap-3 pt-1 text-[11px] font-mono text-stone-500">
             <span>Word Count: <strong className="text-stone-800 dark:text-stone-200">{stats.words.toLocaleString()}</strong> / {activeTargetWords.toLocaleString()} w</span>
             <span>•</span>
             <span>Flesch Score: <strong className="text-stone-800 dark:text-stone-200">{stats.fleschEase}</strong>/100</span>
@@ -435,48 +438,48 @@ Open publishing preparation empowers scholars, open-access journals, and public 
       {/* MAIN NAVIGATION TABS (UNBOXED 4 TABS)                             */}
       {/* ----------------------------------------------------------------- */}
       {!isFocusMode && (
-        <div className="flex items-center gap-6 border-b border-stone-200/80 dark:border-stone-800/80 pb-2 text-xs font-medium">
+        <div className="flex items-center gap-6 border-b border-stone-200/80 dark:border-stone-800 pb-px text-xs font-medium" role="tablist">
           <button
             onClick={() => setActiveTab('write')}
-            className={`pb-2 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`pb-2.5 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'write'
-                ? 'border-[#912A4A] text-[#912A4A] dark:text-rose-300 font-bold'
+                ? 'border-[#912A4A] text-[#912A4A] dark:text-rose-300 font-semibold'
                 : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
             <Edit3 className="w-3.5 h-3.5" />
-            Manuscript Editor
+            <span>Manuscript Editor</span>
           </button>
 
           <button
             onClick={() => setActiveTab('documents')}
-            className={`pb-2 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`pb-2.5 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'documents'
-                ? 'border-[#912A4A] text-[#912A4A] dark:text-rose-300 font-bold'
+                ? 'border-[#912A4A] text-[#912A4A] dark:text-rose-300 font-semibold'
                 : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
             <BookOpen className="w-3.5 h-3.5" />
-            Document Library ({importedDocs.length})
+            <span>Document Library ({importedDocs.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('outline')}
-            className={`pb-2 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`pb-2.5 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'outline'
-                ? 'border-[#912A4A] text-[#912A4A] dark:text-rose-300 font-bold'
+                ? 'border-[#912A4A] text-[#912A4A] dark:text-rose-300 font-semibold'
                 : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
-            Outline & Notes ({outline.length + notes.length})
+            <span>Outline & Notes ({outline.length + notes.length})</span>
           </button>
 
           <button
             onClick={() => setActiveTab('export')}
-            className={`pb-2 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+            className={`pb-2.5 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
               activeTab === 'export'
-                ? 'border-[#912A4A] text-[#912A4A] dark:text-rose-300 font-bold'
+                ? 'border-[#912A4A] text-[#912A4A] dark:text-rose-300 font-semibold'
                 : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >

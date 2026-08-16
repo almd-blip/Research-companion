@@ -94,7 +94,7 @@ _Generated locally via Research Companion feedback engine._`;
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 text-left font-sans" id="feedback-module-view">
+    <div className="w-full space-y-6 text-left font-sans pb-16" id="feedback-module-view">
       
       {/* Header */}
       <div className="border-b border-stone-200 dark:border-stone-800 pb-5">

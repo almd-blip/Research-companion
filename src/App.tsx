@@ -42,7 +42,7 @@ import {
   Eye,
   Clock,
   ChevronDown,
-  ChevronRight,
+  ChevronUp,
   Search,
   Menu,
   X
@@ -429,7 +429,7 @@ export default function App() {
         >
           <img 
             src={theme === 'light' ? '/assets/logo_cream.png' : '/assets/logo_transparent.png'} 
-            alt="Second Thought Logo" 
+            alt="Pessoa Logo" 
             className="h-8 w-auto object-contain max-w-[140px]"
             referrerPolicy="no-referrer"
           />
@@ -463,7 +463,7 @@ export default function App() {
             >
               <img 
                 src={theme === 'light' ? '/assets/logo_cream.png' : '/assets/logo_transparent.png'} 
-                alt="Second Thought Publishing Logo" 
+                alt="Pessoa Logo" 
                 className="h-10 md:h-11 w-auto object-contain max-w-[170px]"
                 referrerPolicy="no-referrer"
               />
@@ -543,7 +543,7 @@ export default function App() {
                   className="p-1 text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200 rounded cursor-pointer"
                   title="Toggle submenu"
                 >
-                  {openSections.pause ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                  {openSections.pause ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                 </button>
               </div>
 
@@ -603,7 +603,7 @@ export default function App() {
                   className="p-1 text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200 rounded cursor-pointer"
                   title="Toggle submenu"
                 >
-                  {openSections.explore ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                  {openSections.explore ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                 </button>
               </div>
 
@@ -645,7 +645,7 @@ export default function App() {
                   className="p-1 text-stone-500 hover:text-stone-800 dark:text-stone-400 dark:hover:text-stone-200 rounded cursor-pointer"
                   title="Toggle submenu"
                 >
-                  {openSections.ready ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                  {openSections.ready ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
                 </button>
               </div>
 

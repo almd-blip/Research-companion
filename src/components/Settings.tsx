@@ -110,7 +110,7 @@ export default function Settings({
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 font-sans text-left" id="settings-module">
+    <div className="w-full space-y-6 font-sans text-left pb-16" id="settings-module">
       
       {/* Toast Notification */}
       {toast && (
@@ -120,59 +120,28 @@ export default function Settings({
       )}
 
       {/* Sub tabs header */}
-      <div className="border-b border-stone-200 dark:border-stone-800 flex justify-start items-center pb-2">
-        <div className="flex flex-wrap gap-4 text-left" role="tablist" aria-label="Settings categories">
+      <div className="flex items-center gap-6 border-b border-stone-200/80 dark:border-stone-800 pb-px text-xs font-medium" role="tablist" aria-label="Settings categories">
+        {[
+          { id: 'profile', label: 'Profile' },
+          { id: 'appearance', label: 'Appearance & accessibility' },
+          { id: 'ai', label: 'AI settings' },
+          { id: 'notifications', label: 'Notifications' },
+          { id: 'backup', label: 'Backup & data' },
+        ].map((tab) => (
           <button
+            key={tab.id}
             role="tab"
-            aria-selected={activeTab === 'profile'}
-            onClick={() => setActiveTab('profile')}
-            className={`font-sans text-xs pb-2 border-b-2 font-medium cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 rounded-xs px-1 text-left ${
-              activeTab === 'profile' ? 'border-amber-900 dark:border-amber-500 text-amber-900 dark:text-amber-400 font-bold' : 'border-transparent text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
+            aria-selected={activeTab === tab.id}
+            onClick={() => setActiveTab(tab.id as any)}
+            className={`pb-2.5 border-b-2 transition-all cursor-pointer flex items-center gap-1.5 ${
+              activeTab === tab.id
+                ? 'border-[#912A4A] text-[#912A4A] dark:text-rose-400 font-semibold'
+                : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-200'
             }`}
           >
-            Profile
+            <span>{tab.label}</span>
           </button>
-          <button
-            role="tab"
-            aria-selected={activeTab === 'appearance'}
-            onClick={() => setActiveTab('appearance')}
-            className={`font-sans text-xs pb-2 border-b-2 font-medium cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 rounded-xs px-1 text-left ${
-              activeTab === 'appearance' ? 'border-amber-900 dark:border-amber-500 text-amber-900 dark:text-amber-400 font-bold' : 'border-transparent text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
-            }`}
-          >
-            Appearance & accessibility
-          </button>
-          <button
-            role="tab"
-            aria-selected={activeTab === 'ai'}
-            onClick={() => setActiveTab('ai')}
-            className={`font-sans text-xs pb-2 border-b-2 font-medium cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 rounded-xs px-1 text-left ${
-              activeTab === 'ai' ? 'border-amber-900 dark:border-amber-500 text-amber-900 dark:text-amber-400 font-bold' : 'border-transparent text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
-            }`}
-          >
-            AI settings
-          </button>
-          <button
-            role="tab"
-            aria-selected={activeTab === 'notifications'}
-            onClick={() => setActiveTab('notifications')}
-            className={`font-sans text-xs pb-2 border-b-2 font-medium cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 rounded-xs px-1 text-left ${
-              activeTab === 'notifications' ? 'border-amber-900 dark:border-amber-500 text-amber-900 dark:text-amber-400 font-bold' : 'border-transparent text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
-            }`}
-          >
-            Notifications
-          </button>
-          <button
-            role="tab"
-            aria-selected={activeTab === 'backup'}
-            onClick={() => setActiveTab('backup')}
-            className={`font-sans text-xs pb-2 border-b-2 font-medium cursor-pointer transition-all focus:outline-none focus:ring-2 focus:ring-amber-500 focus:ring-offset-2 dark:focus:ring-offset-stone-950 rounded-xs px-1 text-left ${
-              activeTab === 'backup' ? 'border-amber-900 dark:border-amber-500 text-amber-900 dark:text-amber-400 font-bold' : 'border-transparent text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-100'
-            }`}
-          >
-            Backup & data
-          </button>
-        </div>
+        ))}
       </div>
 
       {/* TAB 1: PROFILE IDENTITY */}

@@ -370,7 +370,7 @@ export default function ResearchWellbeing({
   };
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6 font-sans px-2 sm:px-4" id="research-wellbeing-module">
+    <div className="w-full space-y-6 font-sans pb-16" id="research-wellbeing-module">
       
       {/* Header */}
       {activeChildDestination !== 'insights' && (

@@ -242,7 +242,7 @@ export default function ResearchHome({
   const activeProjectInfo = projectTypes.find(p => p.id === projectType);
 
   return (
-    <div className="space-y-10 max-w-5xl mx-auto font-sans text-left" id="research-home-module">
+    <div className="space-y-10 w-full font-sans text-left" id="research-home-module">
       
       {/* 1. Gentle supportive welcome */}
       <div className="border-b border-stone-200 dark:border-stone-800 pb-5">
@@ -263,7 +263,7 @@ export default function ResearchHome({
           Select your current physical or emotional state. We offer gentle, non-shaming strategies to fit your level of energy.
         </p>
 
-        <div className="flex gap-3 overflow-x-auto pb-3 pt-1 -mx-2 px-2 scroll-smooth select-none snap-x snap-mandatory" style={{ scrollbarWidth: 'thin' }}>
+        <div className="flex gap-3 overflow-x-auto pb-3 pt-1 scroll-smooth select-none snap-x snap-mandatory" style={{ scrollbarWidth: 'thin' }}>
           {arrivalMoods.map((m) => (
             <button
               key={m.value}
@@ -288,35 +288,35 @@ export default function ResearchHome({
           </div>
         )}
 
-        {/* Companion reflection dialogue box nested immediately after check-in */}
+        {/* Companion reflection dialogue nested immediately after check-in - Unboxed */}
         {(loadingAdvisor || advisorMessage) && (
-          <div className="bg-[#912A4A]/5 dark:bg-stone-900/20 border border-[#912A4A]/15 dark:border-stone-850 p-6 rounded-xl relative overflow-hidden animate-fadeIn mt-4 text-left">
+          <div className="pl-4 border-l-2 border-[#912A4A]/50 py-2 relative animate-fadeIn mt-4 text-left space-y-4">
             {loadingAdvisor ? (
-              <div className="flex flex-col items-center justify-center py-6 space-y-2">
-                <div className="w-5 h-5 border-2 border-[#912A4A] border-t-transparent dark:border-rose-400 dark:border-t-transparent rounded-full animate-spin"></div>
-                <p className="font-sans text-xs text-stone-500 italic">Thinking softly, organizing compassionate check-in steps...</p>
+              <div className="flex items-center gap-3 py-3 text-stone-500">
+                <div className="w-4 h-4 border-2 border-[#912A4A] border-t-transparent dark:border-rose-400 dark:border-t-transparent rounded-full animate-spin"></div>
+                <p className="font-sans text-xs italic">Thinking softly, organizing compassionate check-in steps...</p>
               </div>
             ) : (
-              <div className="space-y-4">
-                <div className="flex items-center gap-2">
-                  <h3 className="font-sans font-semibold text-xs text-[#912A4A] dark:text-rose-400">Your companion's gentle reflection</h3>
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="font-sans font-semibold text-xs text-[#912A4A] dark:text-rose-400 uppercase tracking-wider">
+                    Companion reflection
+                  </h3>
                 </div>
 
-                <div className="max-w-4xl">
-                  <p className="font-sans text-stone-700 dark:text-stone-300 text-sm leading-relaxed whitespace-pre-line italic font-light">
-                    "{advisorMessage.mentoringResponse}"
-                  </p>
-                </div>
+                <p className="font-sans text-stone-800 dark:text-stone-200 text-sm leading-relaxed whitespace-pre-line italic font-light max-w-4xl">
+                  "{advisorMessage.mentoringResponse}"
+                </p>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-[#912A4A]/10 dark:border-stone-800/40">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-3 border-t border-stone-200/60 dark:border-stone-800/60">
                   <div>
-                    <h4 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 mb-2.5 flex items-center gap-1.5">
+                    <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 mb-2">
                       Suggested micro-steps:
                     </h4>
-                    <ul className="space-y-2">
+                    <ul className="space-y-1.5">
                       {advisorMessage.actionSteps?.map((step: string, index: number) => (
-                        <li key={index} className="font-sans text-xs text-stone-600 dark:text-stone-400 flex items-start gap-2.5 font-light">
-                          <span className="font-mono text-[10px] bg-stone-100 dark:bg-stone-800 px-1.5 py-0.5 rounded text-stone-500 inline-block mt-0.5 font-semibold">{index + 1}</span>
+                        <li key={index} className="font-sans text-xs text-stone-600 dark:text-stone-400 flex items-start gap-2 font-light">
+                          <span className="font-mono text-[10px] text-[#912A4A] dark:text-rose-400 font-bold">•</span>
                           <span className="leading-relaxed">{step}</span>
                         </li>
                       ))}
@@ -324,14 +324,12 @@ export default function ResearchHome({
                   </div>
 
                   <div>
-                    <h4 className="font-sans font-bold text-xs text-stone-900 dark:text-stone-100 mb-2.5 flex items-center gap-1.5">
+                    <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 mb-2">
                       Reflective prompt to sit with:
                     </h4>
-                    <div className="p-3 bg-white dark:bg-stone-950 border border-stone-150 dark:border-stone-850 rounded-lg">
-                      <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed italic font-light">
-                        {advisorMessage.reflectionPrompt}
-                      </p>
-                    </div>
+                    <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed italic font-light pl-3 border-l border-stone-200 dark:border-stone-800">
+                      {advisorMessage.reflectionPrompt}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -350,14 +348,14 @@ export default function ResearchHome({
           Selecting your current project type helps the companion craft tailored recommendations and set a supportive tone.
         </p>
         
-        <div className="flex gap-3 overflow-x-auto pb-3 pt-1 -mx-2 px-2 scroll-smooth select-none snap-x snap-mandatory" style={{ scrollbarWidth: 'thin' }}>
+        <div className="flex gap-3 overflow-x-auto pb-3 pt-1 scroll-smooth select-none snap-x snap-mandatory" style={{ scrollbarWidth: 'thin' }}>
           {projectTypes.map((p) => (
             <button
               key={p.id}
               onClick={() => handleSelectProjectType(p.id)}
               className={`p-3 rounded-lg border text-left font-sans transition-all flex flex-col justify-between items-start cursor-pointer group shrink-0 snap-start h-20 min-w-[130px] md:min-w-[150px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#912A4A] focus-visible:ring-offset-2 dark:focus-visible:ring-offset-stone-950 ${
                 projectType === p.id
-                  ? 'bg-[#912A4A]/10 dark:bg-[#912A4A]/20 border-[#912A4A]/40 dark:border-rose-400/50 shadow-sm'
+                  ? 'bg-[#912A4A]/10 dark:bg-[#912A4A]/20 border-[#912A4A]/40 dark:border-rose-400/50 shadow-xs'
                   : 'bg-white dark:bg-stone-950 border-stone-200 dark:border-stone-800 hover:border-stone-300 dark:hover:border-stone-700'
               }`}
             >
@@ -386,7 +384,7 @@ export default function ResearchHome({
 
         {/* Custom Project Creation Form */}
         {isAddingCustom && (
-          <div className="p-4 bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-850 rounded-lg animate-fadeIn text-left max-w-md space-y-3">
+          <div className="p-4 bg-transparent border-l-2 border-[#912A4A]/40 pl-4 animate-fadeIn text-left max-w-md space-y-3">
             <h4 className="text-xs font-semibold text-stone-800 dark:text-stone-200">Create custom project type</h4>
             <form onSubmit={handleAddCustomProject} className="space-y-3">
               <div className="grid grid-cols-4 gap-2">
@@ -442,40 +440,38 @@ export default function ResearchHome({
         )}
 
         {activeProjectInfo && (
-          <div className="p-4 bg-[#912A4A]/5 dark:bg-stone-900/30 border border-[#912A4A]/15 dark:border-stone-800 rounded-lg flex items-start gap-3 text-xs animate-fadeIn text-left">
-            <div>
-              <p className="font-semibold text-stone-800 dark:text-stone-200">
-                Supporting your {activeProjectInfo.label} journey:
-              </p>
-              <p className="text-stone-500 dark:text-stone-400 mt-1 leading-relaxed font-light">
-                {activeProjectInfo.tip}
-              </p>
-            </div>
+          <div className="pl-3.5 border-l-2 border-[#912A4A]/40 text-xs animate-fadeIn text-left">
+            <p className="font-medium text-stone-800 dark:text-stone-200">
+              Supporting your {activeProjectInfo.label} journey:
+            </p>
+            <p className="text-stone-500 dark:text-stone-400 mt-1 leading-relaxed font-light">
+              {activeProjectInfo.tip}
+            </p>
           </div>
         )}
 
-        {/* Projects List Sub-Section nested logically inside "what are you working on" */}
-        <div className="space-y-4 pt-4">
+        {/* Projects List Sub-Section nested logically inside "what are you working on" - Unboxed */}
+        <div className="space-y-4 pt-4 border-t border-stone-100 dark:border-stone-850">
           <h3 className="font-sans font-semibold text-stone-900 dark:text-stone-100 text-xs">Active research projects ({journeys.length})</h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {journeys.map((j) => (
               <div
                 key={j.id}
-                className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-5 rounded-lg flex flex-col justify-between hover:border-[#912A4A]/30 dark:hover:border-stone-700 transition-all shadow-xs text-left"
+                className="pl-4 border-l-2 border-stone-200 dark:border-stone-800 hover:border-[#912A4A] dark:hover:border-rose-400 py-1 flex flex-col justify-between transition-all text-left"
               >
                 <div>
-                  <div className="flex justify-between items-start gap-2 mb-2">
+                  <div className="flex justify-between items-start gap-2 mb-1.5">
                     <h4 className="font-sans font-semibold text-stone-950 dark:text-stone-100 text-sm truncate">{j.title}</h4>
-                    <span className="font-mono text-[9px] bg-stone-100 dark:bg-stone-900 border border-stone-200/60 dark:border-stone-800/80 px-2 py-0.5 rounded text-stone-500 font-semibold">
+                    <span className="font-mono text-[9px] bg-stone-100 dark:bg-stone-900 px-2 py-0.5 rounded text-stone-500 font-semibold">
                       {j.type}
                     </span>
                   </div>
-                  <p className="font-sans text-xs text-stone-500 dark:text-stone-400 line-clamp-2 leading-relaxed mb-4 font-light">
+                  <p className="font-sans text-xs text-stone-500 dark:text-stone-400 line-clamp-2 leading-relaxed mb-3 font-light">
                     {j.description}
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between mt-2 pt-3 border-t border-stone-100 dark:border-stone-900 text-[11px] text-stone-400 font-mono">
+                <div className="flex items-center justify-between pt-2 border-t border-stone-100 dark:border-stone-900 text-[11px] text-stone-400 font-mono">
                   <span>{j.chapters.length} chapters · {j.tasks.filter(t => t.completed).length}/{j.tasks.length} tasks completed</span>
                   <button
                     onClick={() => {
@@ -493,88 +489,80 @@ export default function ResearchHome({
         </div>
       </section>
 
-      {/* 4. TODAY'S FOCUS: One small achievable task */}
-      <section className="space-y-4">
-        <h2 className="font-sans font-medium text-stone-950 dark:text-stone-100 text-lg flex items-center gap-2 border-b border-stone-100 dark:border-stone-850 pb-2.5">
+      {/* 4. TODAY'S FOCUS: One small achievable task - Unboxed */}
+      <section className="space-y-4 pt-4 border-t border-stone-100 dark:border-stone-850">
+        <h2 className="font-sans font-medium text-stone-950 dark:text-stone-100 text-lg flex items-center gap-2 pb-1">
           Choose today's focus
         </h2>
         
-        <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 p-6 rounded-lg flex flex-col justify-between shadow-sm text-left">
-          <div>
-            <p className="font-sans text-xs text-stone-500 leading-relaxed mb-4">
-              Writing and research projects are giant. Safeguard your emotional energy by choosing just **one small achievable task** today. No pressure for more.
-            </p>
+        <div className="pl-4 border-l-2 border-[#912A4A]/40 space-y-4 text-left">
+          <p className="font-sans text-xs text-stone-500 leading-relaxed">
+            Writing and research projects are giant. Safeguard your emotional energy by choosing just **one small achievable task** today. No pressure for more.
+          </p>
 
-            {savedFocus ? (
-              <div className="bg-emerald-50/10 dark:bg-emerald-950/10 border border-emerald-100 dark:border-emerald-900/40 p-4 rounded-lg flex justify-between items-start animate-fadeIn">
-                <div>
-                  <span className="text-[9px] font-mono text-emerald-800 dark:text-emerald-400 font-bold uppercase">Active focus</span>
-                  <p className="font-sans font-medium text-stone-800 dark:text-stone-200 text-sm mt-1">{savedFocus}</p>
+          {savedFocus ? (
+            <div className="p-3.5 bg-emerald-50/20 dark:bg-emerald-950/20 border-l-2 border-emerald-500 rounded-r-lg flex justify-between items-start animate-fadeIn">
+              <div>
+                <span className="text-[9px] font-mono text-emerald-800 dark:text-emerald-400 font-bold uppercase">Active focus</span>
+                <p className="font-sans font-medium text-stone-800 dark:text-stone-200 text-sm mt-1">{savedFocus}</p>
+              </div>
+              <button
+                onClick={handleClearFocus}
+                className="font-sans text-xs bg-emerald-800 hover:bg-emerald-700 text-white px-3 py-1.5 rounded-lg transition-colors cursor-pointer text-[11px] shadow-xs font-semibold"
+              >
+                Clear & Save Win!
+              </button>
+            </div>
+          ) : (
+            <div className="space-y-3.5 animate-fadeIn">
+              {/* Micro focus preset buttons */}
+              <div className="space-y-2">
+                <span className="text-[10px] font-bold text-stone-400 block uppercase font-mono">Anxiety-free presets</span>
+                <div className="flex flex-wrap gap-2">
+                  {focusPresets.map((preset) => (
+                    <button
+                      key={preset}
+                      onClick={() => handleSaveFocus(preset)}
+                      className="font-sans text-xs border border-stone-200 dark:border-stone-800 bg-transparent hover:bg-[#912A4A]/10 hover:border-[#912A4A]/30 text-stone-600 dark:text-stone-300 px-3 py-1.5 rounded-full transition-all cursor-pointer text-left"
+                    >
+                      {preset}
+                    </button>
+                  ))}
                 </div>
+              </div>
+
+              {/* Custom input */}
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (customFocus.trim()) {
+                    handleSaveFocus(customFocus.trim());
+                    setCustomFocus('');
+                  }
+                }}
+                className="flex gap-2 max-w-xl pt-1"
+              >
+                <label htmlFor="custom-focus-input" className="sr-only">Custom Focus Goal</label>
+                <input
+                  id="custom-focus-input"
+                  type="text"
+                  placeholder="Or write a custom micro-win (e.g. Draft 3 sentences)..."
+                  value={customFocus}
+                  onChange={(e) => setCustomFocus(e.target.value)}
+                  className="flex-1 font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded-lg bg-transparent text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-1 focus:ring-[#912A4A]"
+                  required
+                />
                 <button
-                  onClick={handleClearFocus}
-                  className="font-sans text-xs bg-emerald-800 hover:bg-emerald-700 text-white px-3 py-2 rounded-lg transition-colors cursor-pointer text-[11px] shadow-xs font-semibold"
+                  type="submit"
+                  className="font-sans text-xs bg-stone-900 dark:bg-stone-800 text-white px-4 py-2 rounded-lg shrink-0 hover:bg-stone-800 transition-colors font-semibold"
                 >
-                  Clear & Save Win!
+                  Anchor
                 </button>
-              </div>
-            ) : (
-              <div className="space-y-4 animate-fadeIn">
-                {/* Micro focus preset buttons */}
-                <div className="space-y-2">
-                  <span className="text-[10px] font-bold text-stone-400 block uppercase font-mono">Anxiety-free presets</span>
-                  <div className="flex flex-wrap gap-2">
-                    {focusPresets.map((preset) => (
-                      <button
-                        key={preset}
-                        onClick={() => handleSaveFocus(preset)}
-                        className="font-sans text-xs border border-stone-200 dark:border-stone-800 bg-stone-50/50 dark:bg-stone-900/50 hover:bg-[#912A4A]/10 hover:border-[#912A4A]/20 text-stone-600 dark:text-stone-300 px-3 py-1.5 rounded-full transition-all cursor-pointer text-left"
-                      >
-                        {preset}
-                      </button>
-                    ))}
-                  </div>
-                </div>
+              </form>
+            </div>
+          )}
 
-                <div className="relative flex py-1 items-center">
-                  <div className="flex-grow border-t border-stone-150 dark:border-stone-850"></div>
-                  <span className="flex-shrink mx-3 text-stone-400 text-[10px] font-mono">Or write a custom micro-win</span>
-                  <div className="flex-grow border-t border-stone-150 dark:border-stone-850"></div>
-                </div>
-
-                {/* Custom input */}
-                <form
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (customFocus.trim()) {
-                      handleSaveFocus(customFocus.trim());
-                      setCustomFocus('');
-                    }
-                  }}
-                  className="flex gap-2"
-                >
-                  <label htmlFor="custom-focus-input" className="sr-only">Custom Focus Goal</label>
-                  <input
-                    id="custom-focus-input"
-                    type="text"
-                    placeholder="e.g. Draft 3 sentences of introduction..."
-                    value={customFocus}
-                    onChange={(e) => setCustomFocus(e.target.value)}
-                    className="flex-1 font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded-lg bg-white dark:bg-stone-950 text-stone-800 dark:text-stone-200 focus:outline-none focus:ring-1 focus:ring-[#912A4A] focus:border-[#912A4A]"
-                    required
-                  />
-                  <button
-                    type="submit"
-                    className="font-sans text-xs bg-stone-900 dark:bg-stone-800 text-white px-4 py-2 rounded-lg shrink-0 hover:bg-stone-800 transition-colors font-semibold"
-                  >
-                    Anchor
-                  </button>
-                </form>
-              </div>
-            )}
-          </div>
-
-          <div className="mt-6 pt-4 border-t border-stone-100 dark:border-stone-850 flex justify-between items-center text-[10px] text-stone-400 font-mono">
+          <div className="pt-3 flex justify-between items-center text-[10px] text-stone-400 font-mono">
             <span>📚 {papers.length} references saved</span>
             <span>📂 {journeys.length} active projects</span>
           </div>

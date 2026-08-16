@@ -119,7 +119,7 @@ export const PrintModal: React.FC<PrintModalProps> = ({
               <div className="flex justify-between items-start gap-4">
                 <div>
                   <span className="text-[10px] font-mono uppercase tracking-widest text-stone-500">
-                    Second Thought — Printable Document
+                    Pessoa — Printable Document
                   </span>
                   <h1 className="text-2xl font-serif font-bold text-stone-900 mt-1">
                     {title}
@@ -142,7 +142,7 @@ export const PrintModal: React.FC<PrintModalProps> = ({
 
             {/* Footer */}
             <div className="pt-6 border-t border-stone-200 text-center text-[10px] font-mono text-stone-400">
-              Printed from Second Thought — Human-Centric Research & Writing Companion
+              Printed from Pessoa — Human-Centric Research & Writing Companion
             </div>
           </div>
         </div>

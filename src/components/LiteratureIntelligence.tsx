@@ -4,8 +4,10 @@
  */
 
 import { useState } from 'react';
+import { Sparkles, BookOpen, Layers } from 'lucide-react';
 import { Paper } from '../types';
 import { postWithAiRouting } from '../lib/localAiService';
+import HorizontalDisclosureRow from './HorizontalDisclosureRow';
 
 interface LiteratureIntelligenceProps {
   papers: Paper[];
@@ -18,28 +20,29 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
   const [loadingSummary, setLoadingSummary] = useState(false);
 
   // Synthesis states
-  const [selectedPaperIdsForSynthesis, setSelectedPaperIdsForSynthesis] = useState<string[]>([]);
+  const [selectedPaperIdsForSynthesis, setSelectedPaperIdsForSynthesis] = useState<string[]>(papers.map(p => p.id));
   const [synthesisResult, setSynthesisResult] = useState<any>(null);
   const [loadingSynthesis, setLoadingSynthesis] = useState(false);
 
   const selectedPaper = papers.find((p) => p.id === selectedPaperId);
 
-  const handleGenerateSummary = async () => {
-    if (!selectedPaper) return;
+  const handleGenerateSummary = async (paperToSummarize?: Paper) => {
+    const target = paperToSummarize || selectedPaper;
+    if (!target) return;
     setLoadingSummary(true);
 
     try {
       const res = await postWithAiRouting('/api/gemini/summarize', {
-        title: selectedPaper.title,
-        authors: selectedPaper.authors,
-        abstract: selectedPaper.abstract || '',
-        notes: selectedPaper.notes || '',
+        title: target.title,
+        authors: target.authors,
+        abstract: target.abstract || '',
+        notes: target.notes || '',
       });
 
       if (res.ok) {
         const data = await res.json();
         const updated: Paper = {
-          ...selectedPaper,
+          ...target,
           structuredSummary: data,
         };
         onUpdatePaper(updated);
@@ -55,6 +58,14 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
     setSelectedPaperIdsForSynthesis((prev) =>
       prev.includes(id) ? prev.filter((pId) => pId !== id) : [...prev, id]
     );
+  };
+
+  const handleSelectAllSynthesis = () => {
+    if (selectedPaperIdsForSynthesis.length === papers.length) {
+      setSelectedPaperIdsForSynthesis([]);
+    } else {
+      setSelectedPaperIdsForSynthesis(papers.map(p => p.id));
+    }
   };
 
   const handleRunSynthesis = async () => {
@@ -78,21 +89,25 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
 
   return (
     <div className="space-y-6" id="literature-intelligence-module">
-      {/* Sub tabs navigation */}
-      <div className="border-b border-stone-200 dark:border-stone-800 flex justify-between items-center pb-2">
+      {/* Sub tabs navigation - Unboxed on cream background */}
+      <div className="border-b border-stone-200/80 dark:border-stone-800 flex justify-between items-center pb-px">
         <div className="flex gap-4">
           <button
             onClick={() => setActiveSubTab('single')}
-            className={`font-sans text-xs pb-2 border-b-2 font-medium cursor-pointer ${
-              activeSubTab === 'single' ? 'border-amber-900 text-amber-900 dark:text-amber-400' : 'border-transparent text-stone-500 hover:text-stone-700'
+            className={`font-sans text-xs pb-2 border-b-2 font-medium cursor-pointer transition-colors ${
+              activeSubTab === 'single'
+                ? 'border-[#912A4A] text-[#912A4A] dark:text-rose-400 font-semibold'
+                : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-300'
             }`}
           >
             Single-Paper Meta Analysis
           </button>
           <button
             onClick={() => setActiveSubTab('synthesis')}
-            className={`font-sans text-xs pb-2 border-b-2 font-medium cursor-pointer ${
-              activeSubTab === 'synthesis' ? 'border-amber-900 text-amber-900 dark:text-amber-400' : 'border-transparent text-stone-500 hover:text-stone-700'
+            className={`font-sans text-xs pb-2 border-b-2 font-medium cursor-pointer transition-colors ${
+              activeSubTab === 'synthesis'
+                ? 'border-[#912A4A] text-[#912A4A] dark:text-rose-400 font-semibold'
+                : 'border-transparent text-stone-500 hover:text-stone-800 dark:hover:text-stone-300'
             }`}
           >
             Multi-Paper Synthesis Workshop
@@ -102,246 +117,288 @@ export default function LiteratureIntelligence({ papers, onUpdatePaper }: Litera
 
       {/* SINGLE PAPER ANALYSIS SECTION */}
       {activeSubTab === 'single' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Controls column */}
-          <div className="lg:col-span-1 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-5 rounded-lg h-fit space-y-4">
-            <div className="space-y-1.5">
-              <label className="font-sans font-medium text-[10px] text-stone-400 tracking-wide">Select Document</label>
-              <select
-                value={selectedPaperId}
-                onChange={(e) => setSelectedPaperId(e.target.value)}
-                className="w-full font-sans text-xs p-2.5 border border-stone-200 dark:border-stone-800 rounded bg-white dark:bg-stone-950 text-stone-800"
-              >
-                {papers.map((p) => (
-                  <option key={p.id} value={p.id}>{p.title}</option>
-                ))}
-              </select>
+        <div className="space-y-6 animate-fadeIn">
+          {/* Header */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-stone-200/70 dark:border-stone-800/80 pb-3">
+            <div>
+              <h3 className="font-sans font-semibold text-sm text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                <BookOpen className="w-4 h-4 text-[#912A4A] dark:text-rose-400" />
+                <span>Select Document to Inspect ({papers.length} articles)</span>
+              </h3>
+              <p className="font-sans text-xs text-stone-500 dark:text-stone-400">
+                Sorted alphabetically (A–Z) with full horizontal progressive disclosure.
+              </p>
             </div>
-
-            {selectedPaper && (
-              <div className="space-y-3 pt-3 border-t border-amber-900/10">
-                <p className="font-sans text-[11px] text-stone-600 dark:text-stone-400 leading-relaxed italic">
-                  "{selectedPaper.abstract || 'No abstract provided.'}"
-                </p>
-
-                <button
-                  onClick={handleGenerateSummary}
-                  disabled={loadingSummary}
-                  className="w-full font-sans text-xs bg-amber-900 text-white py-2.5 rounded hover:bg-amber-800 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
-                >
-                  
-                  {selectedPaper.structuredSummary ? 'Re-generate Intelligence' : 'Generate Structured Summary'}
-                </button>
-              </div>
-            )}
           </div>
 
-          {/* Results/Summary column */}
-          <div className="lg:col-span-2 space-y-6">
-            {loadingSummary ? (
-              <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-left flex flex-col items-start justify-start space-y-3">
-                <div className="w-6 h-6 border-2 border-amber-900 border-t-transparent rounded-full animate-spin"></div>
-                <p className="font-sans text-xs text-stone-500 italic">Gemini is parsing research methods, mapping participants, and assessing evidence strength...</p>
-              </div>
-            ) : selectedPaper?.structuredSummary ? (
-              <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-6">
-                
-                {/* Visual Title Header */}
-                <div className="border-b border-stone-100 dark:border-stone-900 pb-4 flex justify-between items-start gap-4">
-                  <div>
-                    <span className="font-sans text-[9px] text-amber-800 tracking-wide font-semibold">Gemini Intelligence Profile</span>
-                    <h2 className="font-sans font-bold text-stone-900 dark:text-stone-100 text-lg leading-snug mt-1">
-                      {selectedPaper.title}
-                    </h2>
-                  </div>
-                  
-                  {/* Evidence Strength Star Bar */}
-                  <div className="text-right flex flex-col items-end shrink-0">
-                    <span className="font-sans text-[9px] text-stone-400 tracking-wide mb-1">Evidence Strength</span>
-                    <div className="flex gap-0.5 text-amber-500 font-mono text-xs">
-                      ★★★★★
-                    </div>
-                  </div>
-                </div>
+          {/* Horizontal Paper Items List (Alphabetical Order A-Z) */}
+          <div className="space-y-1">
+            {[...papers]
+              .sort((a, b) => (a.title || '').localeCompare(b.title || ''))
+              .map((p) => {
+                const isSelected = p.id === selectedPaperId;
+                const keywordsList = [
+                  `${p.authors || 'Unknown'} (${p.year || 'n.d.'})`,
+                  p.journal ? p.journal : null,
+                  p.structuredSummary ? 'Summary Ready' : 'Unprocessed',
+                  ...(p.tags || [])
+                ].filter(Boolean) as string[];
 
-                {/* Structured Fields Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-1.5">
-                    <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100">Research Question</h4>
-                    <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                      {selectedPaper.structuredSummary.researchQuestion}
-                    </p>
-                  </div>
+                return (
+                  <HorizontalDisclosureRow
+                    key={p.id}
+                    id={`single-paper-row-${p.id}`}
+                    isExpanded={isSelected}
+                    onToggle={() => setSelectedPaperId(p.id)}
+                    prefix={
+                      <div
+                        className={`w-3.5 h-3.5 rounded-full border flex items-center justify-center ${
+                          isSelected
+                            ? 'border-teal-600 bg-teal-600 dark:border-teal-500 dark:bg-teal-500'
+                            : 'border-stone-300 dark:border-stone-600'
+                        }`}
+                      >
+                        {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                      </div>
+                    }
+                    title={p.title}
+                    keywords={keywordsList}
+                    summary={
+                      p.abstract ? (
+                        <p className="font-sans text-xs text-stone-700 dark:text-stone-300 leading-relaxed italic">
+                          "{p.abstract}"
+                        </p>
+                      ) : (
+                        <p className="text-xs text-stone-400 italic">No abstract text available.</p>
+                      )
+                    }
+                    children={
+                      <div className="space-y-3 pt-2">
+                        {p.structuredSummary ? (
+                          <div className="space-y-2">
+                            <h5 className="font-sans font-semibold text-xs text-stone-800 dark:text-stone-200 uppercase tracking-wide">
+                              Structured Analytical Breakdown
+                            </h5>
 
-                  <div className="space-y-1.5">
-                    <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100">Methodologies</h4>
-                    <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                      {selectedPaper.structuredSummary.methods}
-                    </p>
-                  </div>
+                            <HorizontalDisclosureRow
+                              title="1. Research Inquiry & Aim"
+                              keywords={['Focus & Purpose']}
+                              summary={p.structuredSummary.researchQuestion || 'Not explicitly stated in publication.'}
+                              defaultExpanded={true}
+                            />
 
-                  <div className="space-y-1.5">
-                    <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100">Participants & Subject</h4>
-                    <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                      {selectedPaper.structuredSummary.participants}
-                    </p>
-                  </div>
+                            <HorizontalDisclosureRow
+                              title="2. Methodology & Design"
+                              keywords={['Procedure', 'Study Design']}
+                              summary={p.structuredSummary.methods || 'Methodology extracted from publication text.'}
+                              defaultExpanded={false}
+                            />
 
-                  <div className="space-y-1.5">
-                    <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100">Key Outcomes</h4>
-                    <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                      {selectedPaper.structuredSummary.findings}
-                    </p>
-                  </div>
+                            <HorizontalDisclosureRow
+                              title="3. Participants & Sample"
+                              keywords={['Sample & Context']}
+                              summary={p.structuredSummary.participants || 'Participant cohorts and experimental settings.'}
+                              defaultExpanded={false}
+                            />
 
-                  <div className="space-y-1.5">
-                    <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100">Limitations Identified</h4>
-                    <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                      {selectedPaper.structuredSummary.limitations}
-                    </p>
-                  </div>
+                            <HorizontalDisclosureRow
+                              title="4. Core Findings & Takeaways"
+                              keywords={['Key Takeaway', 'Empirical Result']}
+                              summary={p.structuredSummary.findings || 'Primary analytical results.'}
+                              defaultExpanded={true}
+                            />
 
-                  <div className="space-y-1.5">
-                    <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100">Strength Justification</h4>
-                    <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                      {selectedPaper.structuredSummary.evidenceExplanation}
-                    </p>
-                  </div>
-                </div>
+                            <HorizontalDisclosureRow
+                              title="5. Limitations & Boundaries"
+                              keywords={['Boundaries', 'Scope Limits']}
+                              summary={p.structuredSummary.limitations || 'Boundary parameters and observational limits.'}
+                              defaultExpanded={false}
+                            />
 
-                {/* Key Quotes */}
-                {selectedPaper.structuredSummary.keyQuotations && (
-                  <div className="pt-4 border-t border-stone-100 dark:border-stone-900 space-y-2">
-                    <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100">Traceable Key Quotations</h4>
-                    <div className="space-y-2">
-                      {selectedPaper.structuredSummary.keyQuotations.map((quote, i) => (
-                        <blockquote key={i} className="pl-4 border-l-2 border-stone-200 dark:border-stone-800 font-sans text-xs text-stone-500 italic leading-relaxed">
-                          "{quote}"
-                        </blockquote>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                            <HorizontalDisclosureRow
+                              title="6. Evidence Justification"
+                              keywords={['Rigour', 'Evidence Strength']}
+                              summary={p.structuredSummary.evidenceExplanation || 'Assessed through methodology and sample size.'}
+                              defaultExpanded={false}
+                            />
 
-                {/* Future research directions */}
-                <div className="pt-4 border-t border-stone-100 dark:border-stone-900 space-y-1.5">
-                  <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100">Future Research Gaps</h4>
-                  <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                    {selectedPaper.structuredSummary.futureResearch}
-                  </p>
-                </div>
-              </div>
-            ) : (
-              <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-left text-stone-400 dark:text-stone-500 font-sans text-xs">
-                Select a reference from the library pane on the left, then click "Generate Structured Summary" to deploy our meta-analytical model.
-              </div>
-            )}
+                            {p.structuredSummary.keyQuotations && p.structuredSummary.keyQuotations.length > 0 && (
+                              <HorizontalDisclosureRow
+                                title="7. Traceable Key Quotations"
+                                keywords={['Excerpts', `${p.structuredSummary.keyQuotations.length} Quotations`]}
+                                summary={
+                                  <div className="space-y-1.5 pl-2">
+                                    {p.structuredSummary.keyQuotations.map((quote: string, i: number) => (
+                                      <p key={i} className="text-xs text-stone-600 dark:text-stone-400 italic">
+                                        "{quote}"
+                                      </p>
+                                    ))}
+                                  </div>
+                                }
+                                defaultExpanded={false}
+                              />
+                            )}
+
+                            {p.structuredSummary.futureResearch && (
+                              <HorizontalDisclosureRow
+                                title="8. Future Research Gaps"
+                                keywords={['Horizon', 'Future Inquiries']}
+                                summary={p.structuredSummary.futureResearch}
+                                defaultExpanded={false}
+                              />
+                            )}
+                          </div>
+                        ) : (
+                          <div className="p-3 bg-stone-50 dark:bg-stone-900/40 rounded-lg text-xs text-stone-500">
+                            No structured summary generated yet for this paper. Click below to generate an in-depth breakdown.
+                          </div>
+                        )}
+                      </div>
+                    }
+                    actions={
+                      <div className="flex items-center justify-between w-full pt-1">
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleGenerateSummary(p);
+                          }}
+                          disabled={loadingSummary}
+                          className="font-sans text-xs font-semibold bg-[#912A4A] text-white px-3.5 py-1.5 rounded-lg hover:bg-[#78223d] transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                        >
+                          <Sparkles className="w-3 h-3 text-rose-200" />
+                          <span>{loadingSummary ? 'Analyzing...' : p.structuredSummary ? 'Re-generate Summary' : 'Generate Summary'}</span>
+                        </button>
+                      </div>
+                    }
+                  />
+                );
+              })}
           </div>
         </div>
       )}
 
       {/* CROSS PAPER SYNTHESIS WORKSHOP */}
       {activeSubTab === 'synthesis' && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
-          {/* Paper selector checkboxes column */}
-          <div className="lg:col-span-1 bg-amber-50/20 dark:bg-stone-900/40 border border-amber-900/10 dark:border-stone-800 p-5 rounded-lg h-fit space-y-4">
-            <h3 className="font-sans font-medium text-xs text-amber-800 dark:text-amber-400 tracking-wide">Select Articles to Compare</h3>
-            <p className="font-sans text-[11px] text-stone-500 leading-tight">
-              Choose at least two documents from your library to compare their main ideas, agreements, and differences.
-            </p>
-
-            <div className="space-y-2 max-h-[300px] overflow-y-auto">
-              {papers.map((p) => (
-                <label
-                  key={p.id}
-                  className="flex items-start gap-3 p-2 bg-white dark:bg-stone-950 border border-stone-100 dark:border-stone-800 rounded text-xs font-sans cursor-pointer hover:bg-stone-50 transition-colors"
-                >
-                  <input
-                    type="checkbox"
-                    checked={selectedPaperIdsForSynthesis.includes(p.id)}
-                    onChange={() => handleToggleSynthesisPaper(p.id)}
-                    className="mt-0.5"
-                  />
-                  <div>
-                    <p className="font-semibold text-stone-800 dark:text-stone-200 line-clamp-2 leading-tight">{p.title}</p>
-                    <p className="text-[10px] text-stone-400 truncate mt-0.5">{p.authors}</p>
-                  </div>
-                </label>
-              ))}
+        <div className="space-y-6 animate-fadeIn">
+          {/* Header & Controls */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-stone-200/70 dark:border-stone-800/80 pb-3">
+            <div>
+              <h3 className="font-sans font-semibold text-sm text-stone-900 dark:text-stone-100 flex items-center gap-2">
+                <Layers className="w-4 h-4 text-[#912A4A] dark:text-rose-400" />
+                <span>Select Articles to Compare ({selectedPaperIdsForSynthesis.length}/{papers.length})</span>
+              </h3>
+              <p className="font-sans text-xs text-stone-500 dark:text-stone-400">
+                Sorted alphabetically (A–Z). Choose documents to synthesize agreements and divergence.
+              </p>
             </div>
 
-            <button
-              onClick={handleRunSynthesis}
-              disabled={loadingSynthesis || selectedPaperIdsForSynthesis.length < 2}
-              className="w-full font-sans text-xs bg-amber-900 text-white py-2.5 rounded hover:bg-amber-800 transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50"
-            >
-              Compare Main Ideas & Themes
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleSelectAllSynthesis}
+                className="font-sans text-xs text-stone-600 dark:text-stone-400 hover:text-stone-900 dark:hover:text-stone-200 hover:underline px-2 py-1 cursor-pointer"
+              >
+                {selectedPaperIdsForSynthesis.length === papers.length ? 'Deselect All' : 'Select All'}
+              </button>
+
+              <button
+                onClick={handleRunSynthesis}
+                disabled={loadingSynthesis || selectedPaperIdsForSynthesis.length < 2}
+                className="font-sans text-xs font-semibold bg-[#912A4A] text-white px-4 py-2 rounded-xl hover:bg-[#78223d] transition-all flex items-center justify-center gap-1.5 cursor-pointer disabled:opacity-50 shadow-2xs whitespace-nowrap"
+              >
+                <Sparkles className="w-3.5 h-3.5 text-rose-200" />
+                <span>{loadingSynthesis ? 'Comparing...' : 'Compare Main Ideas & Themes'}</span>
+              </button>
+            </div>
           </div>
 
-          {/* Result view column */}
-          <div className="lg:col-span-2 space-y-6">
+          {/* Horizontal Checkbox List (Alphabetical Order A-Z) */}
+          <div className="space-y-1">
+            {[...papers]
+              .sort((a, b) => (a.title || '').localeCompare(b.title || ''))
+              .map((p) => {
+                const isChecked = selectedPaperIdsForSynthesis.includes(p.id);
+                const keywordsList = [
+                  `${p.authors || 'Unknown'} (${p.year || 'n.d.'})`,
+                  p.journal ? p.journal : null,
+                  isChecked ? 'Included in Synthesis' : 'Excluded'
+                ].filter(Boolean) as string[];
+
+                return (
+                  <HorizontalDisclosureRow
+                    key={p.id}
+                    id={`synthesis-paper-row-${p.id}`}
+                    prefix={
+                      <input
+                        type="checkbox"
+                        checked={isChecked}
+                        onChange={() => handleToggleSynthesisPaper(p.id)}
+                        className="rounded text-teal-600 focus:ring-teal-500 accent-teal-600 dark:accent-teal-500 cursor-pointer"
+                      />
+                    }
+                    title={p.title}
+                    keywords={keywordsList}
+                    summary={
+                      p.abstract ? (
+                        <p className="font-sans text-xs text-stone-700 dark:text-stone-300 leading-relaxed italic">
+                          "{p.abstract}"
+                        </p>
+                      ) : (
+                        <p className="text-xs text-stone-400 italic">No abstract text available.</p>
+                      )
+                    }
+                    defaultExpanded={false}
+                  />
+                );
+              })}
+          </div>
+
+          {/* Results Area */}
+          <div className="space-y-4 pt-2">
             {loadingSynthesis ? (
-              <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-left flex flex-col items-start justify-start space-y-3">
-                <div className="w-6 h-6 border-2 border-amber-900 border-t-transparent rounded-full animate-spin"></div>
+              <div className="py-10 text-center flex flex-col items-center justify-center space-y-3">
+                <div className="w-6 h-6 border-2 border-[#912A4A] border-t-transparent rounded-full animate-spin"></div>
                 <p className="font-sans text-xs text-stone-500 italic">Comparing your articles, finding common topics, and spotting differences...</p>
               </div>
             ) : synthesisResult ? (
-              <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-6 space-y-6">
-                <div className="border-b border-stone-100 dark:border-stone-900 pb-3">
-                  <span className="font-sans text-[9px] text-amber-800 tracking-wide font-semibold">AI Synthesis Report</span>
-                  <h3 className="font-sans font-bold text-stone-900 dark:text-stone-100 text-base mt-1">Article Comparison Summary</h3>
-                </div>
+              <div className="space-y-3 animate-fadeIn">
+                <h4 className="font-sans font-bold text-stone-900 dark:text-stone-100 text-xs uppercase tracking-wide">
+                  Synthesis Comparison Report
+                </h4>
 
-                <div className="space-y-4">
-                  <div className="space-y-1.5">
-                    <h4 className="font-sans font-semibold text-xs text-emerald-800 dark:text-emerald-400 flex items-center gap-1">
-                      Where the Articles Agree
-                    </h4>
-                    <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                      {synthesisResult.agreements}
-                    </p>
-                  </div>
+                <HorizontalDisclosureRow
+                  title="Where the Articles Agree"
+                  keywords={['Consensus', 'Synthesis Agreement']}
+                  summary={synthesisResult.agreements}
+                  defaultExpanded={true}
+                />
 
-                  <div className="space-y-1.5 pt-4 border-t border-stone-100 dark:border-stone-900">
-                    <h4 className="font-sans font-semibold text-xs text-amber-800 dark:text-amber-400 flex items-center gap-1">
-                      Where the Articles Disagree or Differ
-                    </h4>
-                    <p className="font-sans text-xs text-stone-600 dark:text-stone-400 leading-relaxed">
-                      {synthesisResult.disagreements}
-                    </p>
-                  </div>
+                <HorizontalDisclosureRow
+                  title="Where the Articles Disagree or Differ"
+                  keywords={['Divergence', 'Epistemic Debate']}
+                  summary={synthesisResult.disagreements}
+                  defaultExpanded={true}
+                />
 
-                  {/* Thematic clusters */}
-                  {synthesisResult.thematicClusters && (
-                    <div className="space-y-3 pt-4 border-t border-stone-100 dark:border-stone-900">
-                      <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                        Main Topic Groups
-                      </h4>
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        {synthesisResult.thematicClusters.map((cluster: any, idx: number) => (
-                          <div key={idx} className="p-4 bg-stone-50 dark:bg-stone-900 rounded border border-stone-200/50 dark:border-stone-800 space-y-2">
-                            <span className="text-[10px] font-mono bg-stone-200/60 dark:bg-stone-800 px-1.5 py-0.5 rounded text-stone-500">Theme {idx + 1}</span>
-                            <h5 className="font-sans font-semibold text-stone-900 dark:text-stone-100 text-xs">{cluster.themeName}</h5>
-                            <p className="font-sans text-[11px] text-stone-600 dark:text-stone-400 leading-normal">{cluster.description}</p>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
+                {synthesisResult.thematicClusters?.map((cluster: any, idx: number) => (
+                  <HorizontalDisclosureRow
+                    key={idx}
+                    title={cluster.themeName}
+                    keywords={[`Thematic Cluster ${idx + 1}`]}
+                    summary={cluster.description}
+                    defaultExpanded={false}
+                  />
+                ))}
               </div>
             ) : (
-              <div className="bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-lg p-12 text-left text-stone-400 dark:text-stone-500 font-sans text-xs">
-                Select multiple papers in the synthesis console on the left, then click "Synthesize Relationships" to inspect multi-perspective thematic agreements and divisions.
-              </div>
+              <p className="text-xs text-stone-400 italic">
+                Select at least 2 articles and click "Compare Main Ideas & Themes".
+              </p>
             )}
           </div>
-
         </div>
       )}
-
     </div>
   );
 }

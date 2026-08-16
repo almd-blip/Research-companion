@@ -228,83 +228,83 @@ export default function KnowledgeGraph({ papers, journeys }: KnowledgeGraphProps
   };
 
   return (
-    <div className="flex flex-col lg:flex-row gap-6 h-full" id="knowledge-graph-module">
-      <div className="flex-1 bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 rounded-lg overflow-hidden flex flex-col">
-        <div className="p-4 border-b border-stone-200 dark:border-stone-800 bg-stone-50/80 dark:bg-stone-900/60 flex justify-between items-center">
+    <div className="flex flex-col gap-6 text-left" id="knowledge-graph-module">
+      {/* Connected Idea Map Top Section */}
+      <div className="bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 rounded-lg overflow-hidden flex flex-col">
+        <div className="p-4 border-b border-stone-200 dark:border-stone-800 bg-stone-50/80 dark:bg-stone-900/60 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
           <div>
-            <h3 className="font-sans font-medium text-stone-900 dark:text-stone-100">Connected Idea Map</h3>
+            <h3 className="font-sans font-medium text-stone-900 dark:text-stone-100 text-base">Connected Idea Map</h3>
             <p className="font-sans text-xs text-stone-500">Click and drag points to explore how your notes, articles, and topics connect.</p>
           </div>
-          <div className="flex gap-2 text-xs">
-            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-[#912A4A] inline-block"></span>Journey</span>
-            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-emerald-600 inline-block"></span>Paper</span>
-            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-blue-600 inline-block"></span>Concept</span>
-            <span className="flex items-center gap-1"><span className="w-2.5 h-2.5 rounded-full bg-violet-600 inline-block"></span>Theme</span>
+          <div className="flex flex-wrap gap-3 text-xs">
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#912A4A] inline-block"></span>Journey</span>
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-[#1D9E75] inline-block"></span>Paper</span>
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-blue-600 inline-block"></span>Concept</span>
+            <span className="flex items-center gap-1.5"><span className="w-2.5 h-2.5 rounded-full bg-violet-600 inline-block"></span>Theme</span>
           </div>
         </div>
-        <div ref={containerRef} className="flex-1 bg-white dark:bg-stone-950 relative min-h-[400px]">
+        <div ref={containerRef} className="bg-white dark:bg-stone-950 relative h-[480px]">
           <svg ref={svgRef} className="w-full h-full block" />
         </div>
       </div>
 
-      {/* Selected Node Inspector Sidebar */}
-      <div className="w-full lg:w-80 bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 rounded-lg p-5 flex flex-col justify-between">
-        <div>
-          <h4 className="font-sans font-medium text-xs text-[#912A4A] dark:text-rose-400 tracking-wide mb-3">Item Details</h4>
+      {/* Item details placed directly UNDER Connected Idea Map */}
+      <div className="bg-stone-50 dark:bg-stone-900/40 border border-stone-200 dark:border-stone-800 rounded-lg p-5">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between pb-2 border-b border-stone-200 dark:border-stone-800">
+            <h4 className="font-sans font-semibold text-sm text-stone-900 dark:text-stone-100 tracking-tight">Item Details</h4>
+            {selectedNode && (
+              <span className={`inline-block px-2.5 py-0.5 rounded text-xs font-mono capitalize ${
+                selectedNode.type === 'journey' ? 'bg-[#912A4A] text-white' :
+                selectedNode.type === 'paper' ? 'bg-[#1D9E75] text-white' :
+                selectedNode.type === 'concept' ? 'bg-blue-600 text-white' : 'bg-violet-600 text-white'
+              }`}>
+                {selectedNode.type}
+              </span>
+            )}
+          </div>
+
           {selectedNode ? (
-            <div className="space-y-4">
-              <div>
-                <span className={`inline-block px-2 py-0.5 rounded-full text-[10px] font-mono mb-2 capitalize ${
-                  selectedNode.type === 'journey' ? 'bg-[#912A4A]/10 text-[#912A4A]' :
-                  selectedNode.type === 'paper' ? 'bg-emerald-100 text-emerald-800' :
-                  selectedNode.type === 'concept' ? 'bg-blue-100 text-blue-800' : 'bg-violet-100 text-violet-800'
-                }`}>
-                  {selectedNode.type}
-                </span>
-                <h3 className="font-sans font-semibold text-stone-900 dark:text-stone-100 text-base leading-snug">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
+              <div className="space-y-2">
+                <h3 className="font-sans font-medium text-stone-900 dark:text-stone-100 text-base leading-snug">
                   {selectedNode.label}
                 </h3>
+                {selectedNode.type === 'paper' && (
+                  <p className="font-sans text-xs text-stone-600 dark:text-stone-400">
+                    {papers.find(p => p.id === selectedNode.id)?.authors} ({papers.find(p => p.id === selectedNode.id)?.year})
+                  </p>
+                )}
+                <p className="font-sans text-xs text-stone-400 pt-2">
+                  Click any connected node below to pivot your view, or drag nodes in the canvas above.
+                </p>
               </div>
 
-              {selectedNode.type === 'paper' && (
-                <p className="font-sans text-xs text-stone-600 dark:text-stone-400">
-                  {papers.find(p => p.id === selectedNode.id)?.authors} ({papers.find(p => p.id === selectedNode.id)?.year})
-                </p>
-              )}
-
               <div>
-                <h5 className="font-sans font-medium text-[11px] text-stone-400 dark:text-stone-500 mb-2">Direct connections</h5>
-                <div className="space-y-1.5 max-h-[180px] overflow-y-auto">
+                <h5 className="font-sans font-medium text-xs text-stone-600 dark:text-stone-400 mb-2">Direct connections</h5>
+                <div className="space-y-1.5 max-h-[220px] overflow-y-auto">
                   {getLinkedNodes(selectedNode.id).map(linked => (
                     <button
                       key={linked.id}
                       onClick={() => setSelectedNode(linked)}
-                      className="w-full text-left p-2 rounded border border-stone-100 dark:border-stone-800 bg-white dark:bg-stone-950 hover:bg-stone-50 dark:hover:bg-stone-900 font-sans text-xs flex items-center justify-between"
+                      className="w-full text-left p-2.5 rounded border border-stone-200 dark:border-stone-800 bg-white dark:bg-stone-950 hover:border-[#912A4A] font-sans text-xs flex items-center justify-between transition-colors cursor-pointer"
                     >
-                      <span className="truncate text-stone-700 dark:text-stone-300 pr-2">{linked.label}</span>
-                      <span className="text-[9px] font-mono text-stone-400 dark:text-stone-500 capitalize">{linked.type}</span>
+                      <span className="truncate text-stone-800 dark:text-stone-200 pr-2">{linked.label}</span>
+                      <span className="text-[10px] font-mono text-stone-500 capitalize shrink-0">{linked.type}</span>
                     </button>
                   ))}
                   {getLinkedNodes(selectedNode.id).length === 0 && (
-                    <p className="font-sans text-xs text-stone-400 italic">No connections established yet.</p>
+                    <p className="font-sans text-xs text-stone-400 italic">No direct connections established yet.</p>
                   )}
                 </div>
               </div>
             </div>
           ) : (
-            <div className="text-left py-12 text-stone-400 dark:text-stone-500 font-sans text-xs">
-              <p>Click on any node in the graph to inspect its details and trace academic connections.</p>
+            <div className="py-6 text-stone-500 dark:text-stone-400 font-sans text-xs">
+              <p>Click on any node in the Connected Idea Map above to inspect its details, linked citations, and trace relationships.</p>
             </div>
           )}
         </div>
-
-        {selectedNode && (
-          <div className="pt-4 border-t border-stone-200 dark:border-stone-800 mt-4 text-left">
-            <p className="font-sans text-[10px] text-stone-400">
-              Double click on nodes to reposition or zoom to recalibrate perspective.
-            </p>
-          </div>
-        )}
       </div>
     </div>
   );
