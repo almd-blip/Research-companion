@@ -225,13 +225,6 @@ export default function ResearchWorkspace({
 
   const activeJourney = journeys.find((j) => j.id === activeJourneyId) || journeys[0];
 
-if (!activeJourney) {
-  return (
-    <div className="p-8 text-center text-stone-500">
-      <p>No research projects yet. Create one to get started.</p>
-    </div>
-  );
-}
   // Sync selected chapter on load or active journey change
   useEffect(() => {
     if (activeJourney && activeJourney.chapters.length > 0) {
@@ -506,6 +499,16 @@ if (!activeJourney) {
     const updatedTasks = activeJourney.tasks.map((t) =>
       t.id === taskId ? { ...t, completed: !t.completed } : t
     );
+    onUpdateJourney({
+      ...activeJourney,
+      tasks: updatedTasks,
+    });
+  };
+
+  const handleDeleteTask = (taskId: string, e?: React.MouseEvent) => {
+    if (e) e.stopPropagation();
+    if (!activeJourney) return;
+    const updatedTasks = activeJourney.tasks.filter((t) => t.id !== taskId);
     onUpdateJourney({
       ...activeJourney,
       tasks: updatedTasks,
@@ -1322,13 +1325,13 @@ if (!activeJourney) {
                 <div
                   key={task.id}
                   onClick={() => handleToggleTask(task.id)}
-                  className={`p-3 rounded-lg border cursor-pointer flex items-center justify-between transition-all ${
+                  className={`group p-3 rounded-lg border cursor-pointer flex items-center justify-between transition-all ${
                     task.completed
                       ? 'bg-teal-50/30 dark:bg-teal-950/20 text-stone-400 border-teal-200/60 dark:border-teal-900/40'
                       : 'bg-stone-50 dark:bg-stone-950 text-stone-800 dark:text-stone-200 border-stone-200/70 dark:border-stone-800 hover:border-[#1D9E75]/40'
                   }`}
                 >
-                  <div className="flex items-center gap-2.5">
+                  <div className="flex items-center gap-2.5 min-w-0 pr-2">
                     <div
                       className={`w-4 h-4 rounded border flex items-center justify-center transition-colors shrink-0 ${
                         task.completed
@@ -1338,11 +1341,22 @@ if (!activeJourney) {
                     >
                       {task.completed && <Check className="w-3 h-3 stroke-[2.5]" />}
                     </div>
-                    <span className={task.completed ? 'line-through text-stone-400' : 'font-medium'}>
+                    <span className={`truncate ${task.completed ? 'line-through text-stone-400' : 'font-medium'}`}>
                       {task.text}
                     </span>
                   </div>
-                  {task.completed && <Check className="w-4 h-4 text-[#1D9E75] dark:text-[#28c093]" />}
+                  <div className="flex items-center gap-2 shrink-0">
+                    {task.completed && <Check className="w-4 h-4 text-[#1D9E75] dark:text-[#28c093]" />}
+                    <button
+                      type="button"
+                      onClick={(e) => handleDeleteTask(task.id, e)}
+                      className="p-1.5 text-stone-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-md transition-all cursor-pointer"
+                      title="Delete task"
+                      aria-label={`Delete task ${task.text}`}
+                    >
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </button>
+                  </div>
                 </div>
               ))}
             </div>
@@ -2195,11 +2209,11 @@ if (!activeJourney) {
                   <div
                     key={task.id}
                     onClick={() => handleToggleTask(task.id)}
-                    className={`p-2.5 rounded-lg border text-xs cursor-pointer flex justify-between items-center transition-colors ${
+                    className={`group p-2.5 rounded-lg border text-xs cursor-pointer flex justify-between items-center transition-colors ${
                       task.completed ? 'bg-teal-50/10 text-stone-400 border-teal-200/40 dark:border-teal-900/30' : 'bg-white/60 dark:bg-stone-900/60 text-stone-800 dark:text-stone-200 border-stone-200/60 dark:border-stone-800'
                     }`}
                   >
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 min-w-0 pr-2">
                       <div
                         className={`w-3.5 h-3.5 rounded border flex items-center justify-center transition-colors shrink-0 ${
                           task.completed
@@ -2209,9 +2223,20 @@ if (!activeJourney) {
                       >
                         {task.completed && <Check className="w-2.5 h-2.5 stroke-[2.5]" />}
                       </div>
-                      <span className={task.completed ? 'line-through' : ''}>{task.text}</span>
+                      <span className={`truncate ${task.completed ? 'line-through' : ''}`}>{task.text}</span>
                     </div>
-                    {task.completed && <Check className="w-3.5 h-3.5 text-[#1D9E75] dark:text-[#28c093]" />}
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      {task.completed && <Check className="w-3.5 h-3.5 text-[#1D9E75] dark:text-[#28c093]" />}
+                      <button
+                        type="button"
+                        onClick={(e) => handleDeleteTask(task.id, e)}
+                        className="p-1.5 text-stone-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-md transition-all cursor-pointer"
+                        title="Delete task"
+                        aria-label={`Delete task ${task.text}`}
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>

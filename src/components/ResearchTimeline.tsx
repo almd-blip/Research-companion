@@ -13,7 +13,8 @@ import {
   Plus, 
   X, 
   Filter, 
-  Target 
+  Target,
+  Trash2 
 } from 'lucide-react';
 import { ResearchJourney, TimelineEvent } from '../types';
 
@@ -135,6 +136,25 @@ export default function ResearchTimeline({
     setNewType('milestone');
     setNewDescription('');
     setIsAddingEvent(false);
+  };
+
+  const handleDeleteItem = (eventId: string, isTask?: boolean) => {
+    if (!onUpdateJourney) return;
+    if (isTask) {
+      const taskId = eventId.replace('task_', '');
+      onUpdateJourney({
+        ...currentJourney,
+        tasks: (currentJourney.tasks || []).filter((t) => t.id !== taskId),
+      });
+    } else {
+      onUpdateJourney({
+        ...currentJourney,
+        timeline: (currentJourney.timeline || []).filter((e) => e.id !== eventId),
+      });
+    }
+    if (selectedEvent?.id === eventId) {
+      setSelectedEvent(null);
+    }
   };
 
   const getTypeIcon = (type: TimelineEvent['type']) => {
@@ -377,9 +397,25 @@ export default function ResearchTimeline({
                   <span className={`text-xs px-2 py-0.5 rounded border ${getTypeColorClasses(item.type)}`}>
                     {getTypeLabel(item.type)}
                   </span>
-                  <span className="text-xs font-semibold text-[#912A4A]">
-                    {item.daysRemaining === 0 ? 'Due today' : `In ${item.daysRemaining} days`}
-                  </span>
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-xs font-semibold text-[#912A4A]">
+                      {item.daysRemaining === 0 ? 'Due today' : `In ${item.daysRemaining} days`}
+                    </span>
+                    {onUpdateJourney && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteItem(item.id, (item as any).isTask);
+                        }}
+                        className="p-1 text-stone-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded transition-colors cursor-pointer"
+                        title="Delete this task or deadline"
+                        aria-label="Delete"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
                 </div>
                 <h4 className="font-sans font-semibold text-xs text-[#1B0A3B] dark:text-stone-100 group-hover:text-[#1D9E75] transition-colors line-clamp-1">
                   {item.title}
@@ -491,11 +527,27 @@ export default function ResearchTimeline({
                         <span className={`text-xs px-1.5 py-0.5 rounded border font-medium ${getTypeColorClasses(ev.type)}`}>
                           {getTypeLabel(ev.type)}
                         </span>
-                        {isUpcoming && (
-                          <span className="text-xs font-semibold text-[#912A4A] bg-[#912A4A]/10 px-1 rounded">
-                            {days === 0 ? 'Today' : `${days}d`}
-                          </span>
-                        )}
+                        <div className="flex items-center gap-1">
+                          {isUpcoming && (
+                            <span className="text-xs font-semibold text-[#912A4A] bg-[#912A4A]/10 px-1 rounded">
+                              {days === 0 ? 'Today' : `${days}d`}
+                            </span>
+                          )}
+                          {onUpdateJourney && (
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleDeleteItem(ev.id, (ev as any).isTask);
+                              }}
+                              className="p-0.5 text-stone-400 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded transition-colors cursor-pointer"
+                              title="Delete this task or milestone"
+                              aria-label="Delete"
+                            >
+                              <Trash2 className="w-3 h-3" />
+                            </button>
+                          )}
+                        </div>
                       </div>
 
                       <h4 className="font-sans font-semibold text-xs text-[#1B0A3B] dark:text-stone-100 line-clamp-2">
@@ -548,11 +600,21 @@ export default function ResearchTimeline({
             {selectedEvent.description || 'No detailed description logged for this milestone.'}
           </p>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-stone-200/60 dark:border-stone-800">
+          <div className="flex items-center justify-between gap-2 pt-2 border-t border-stone-200/60 dark:border-stone-800">
+            {onUpdateJourney && (
+              <button
+                type="button"
+                onClick={() => handleDeleteItem(selectedEvent.id, (selectedEvent as any).isTask)}
+                className="px-3 py-1.5 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/40 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-colors cursor-pointer"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete {(selectedEvent as any).isTask ? 'task' : 'milestone'}</span>
+              </button>
+            )}
             <button
               type="button"
               onClick={() => setSelectedEvent(null)}
-              className="px-3 py-1.5 bg-stone-900 text-white rounded-lg text-xs font-medium cursor-pointer"
+              className="px-3 py-1.5 bg-stone-900 dark:bg-stone-100 text-white dark:text-stone-900 rounded-lg text-xs font-medium cursor-pointer ml-auto"
             >
               Done viewing
             </button>

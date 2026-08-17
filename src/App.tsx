@@ -471,7 +471,7 @@ export default function App() {
           </div>
 
           {/* Simple Search Input Field (18pts below logo, 18pts above Accessibility) */}
-          <div className="mt-[18pt] mb-0 px-1" id="sidebar-search-container">
+          <div className="mt-[18pt] mb-0" id="sidebar-search-container">
             <div className="relative flex items-center">
               <Search className="w-3.5 h-3.5 absolute left-2.5 text-[#1B0A3B]/60 dark:text-stone-500 pointer-events-none" />
               <input
@@ -497,7 +497,7 @@ export default function App() {
           </div>
 
           {/* Accessibility Navigation: 18pts under search bar and 18pts above Pause & Breathe */}
-          <div className="mt-[18pt] mb-[18pt] px-1" id="sidebar-accessibility-container">
+          <div className="mt-[18pt] mb-[18pt]" id="sidebar-accessibility-container">
             <button
               role="tab"
               aria-selected={activeTab === 'accessibility'}
@@ -532,9 +532,9 @@ export default function App() {
                     handleNavigate('wellbeing');
                     setOpenSections((prev) => ({ ...prev, pause: true }));
                   }}
-                  className={`flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-colors cursor-pointer ${
+                  className={`flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-extrabold tracking-wide flex items-center gap-2 transition-colors cursor-pointer ${
                     activeTab === 'wellbeing' || activeTab === 'focus'
-                      ? 'text-[#1B0A3B] font-bold dark:text-white'
+                      ? 'text-[#1B0A3B] dark:text-white'
                       : 'text-[#1B0A3B] hover:text-[#1B0A3B] hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a]'
                   }`}
                 >
@@ -556,7 +556,7 @@ export default function App() {
               </div>
 
               {openSections.pause && (
-                <div className="pl-3.5 space-y-0.5 ml-1">
+                <div className="space-y-0.5">
                   <button
                     role="tab"
                     aria-selected={activeTab === 'wellbeing'}
@@ -564,10 +564,10 @@ export default function App() {
                     className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-xs font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                       activeTab === 'wellbeing'
                         ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                        : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                        : 'text-[#1B0A3B]/80 hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                     }`}
                   >
-                    Wellbeing centre
+                    <span className="pl-5.5">Wellbeing centre</span>
                   </button>
                   <button
                     role="tab"
@@ -576,10 +576,10 @@ export default function App() {
                     className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-xs font-sans flex items-center justify-between transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                       activeTab === 'focus'
                         ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                        : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                        : 'text-[#1B0A3B]/80 hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                     }`}
                   >
-                    <span>Focus space</span>
+                    <span className="pl-5.5">Focus space</span>
                     {focusTimerRunning && (
                       <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-[#1d9e75]/20 text-[#1d9e75] dark:text-[#28c093] font-semibold flex items-center gap-1 shrink-0">
                         <Clock className="w-3 h-3" />
@@ -600,9 +600,9 @@ export default function App() {
                     handleNavigate('about');
                     setOpenSections((prev) => ({ ...prev, explore: true }));
                   }}
-                  className={`flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-colors cursor-pointer ${
+                  className={`flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-extrabold tracking-wide flex items-center gap-2 transition-colors cursor-pointer ${
                     activeTab === 'about'
-                      ? 'text-[#1B0A3B] font-bold dark:text-white'
+                      ? 'text-[#1B0A3B] dark:text-white'
                       : 'text-[#1B0A3B] hover:text-[#1B0A3B] hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a]'
                   }`}
                 >
@@ -624,7 +624,7 @@ export default function App() {
               </div>
 
               {openSections.explore && (
-                <div className="pl-3.5 space-y-0.5 ml-1">
+                <div className="space-y-0.5">
                   <button
                     role="tab"
                     aria-selected={activeTab === 'about'}
@@ -632,10 +632,10 @@ export default function App() {
                     className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-xs font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                       activeTab === 'about'
                         ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                        : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                        : 'text-[#1B0A3B]/80 hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                     }`}
                   >
-                    About
+                    <span className="pl-5.5">About</span>
                   </button>
                 </div>
               )}
@@ -650,9 +650,9 @@ export default function App() {
                     handleNavigate('dashboard');
                     setOpenSections((prev) => ({ ...prev, ready: true }));
                   }}
-                  className={`flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-bold flex items-center gap-2 transition-colors cursor-pointer ${
+                  className={`flex-grow text-left px-2.5 py-1.5 rounded-md text-xs font-sans font-extrabold tracking-wide flex items-center gap-2 transition-colors cursor-pointer ${
                     activeTab === 'dashboard' || activeTab === 'research' || activeTab === 'ai_assistant'
-                      ? 'text-[#1B0A3B] font-bold dark:text-white'
+                      ? 'text-[#1B0A3B] dark:text-white'
                       : 'text-[#1B0A3B] hover:text-[#1B0A3B] hover:bg-stone-200/60 dark:text-stone-300 dark:hover:text-white dark:hover:bg-[#25114a]'
                   }`}
                 >
@@ -674,7 +674,7 @@ export default function App() {
               </div>
 
               {openSections.ready && (
-                <div className="pl-3.5 space-y-0.5 ml-1">
+                <div className="space-y-0.5">
                   
                   {/* Primary Landing View: Projects */}
                   <button
@@ -684,20 +684,20 @@ export default function App() {
                     className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-xs font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                       activeTab === 'dashboard'
                         ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                        : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                        : 'text-[#1B0A3B]/80 hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                     }`}
                   >
-                    Projects
+                    <span className="pl-5.5">Projects</span>
                   </button>
 
                   {/* Document Analytical, Referencing & Data Tools Submenu */}
                   <div className="pt-2.5 pb-1">
-                    <span className="text-[11.5px] font-sans font-semibold text-[#1B0A3B] dark:text-stone-200 block px-2">
+                    <span className="text-[11.5px] font-sans font-semibold text-[#1B0A3B] dark:text-stone-200 block px-2.5 pl-8">
                       Research & writing tools
                     </span>
                   </div>
 
-                  <div className="pl-1.5 space-y-0.5">
+                  <div className="space-y-0.5">
                     <button
                       role="tab"
                       aria-selected={activeTab === 'research' && researchSubTab === 'plan'}
@@ -705,10 +705,10 @@ export default function App() {
                       className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-[11px] font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                         activeTab === 'research' && researchSubTab === 'plan'
                           ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                          : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                          : 'text-[#1B0A3B]/80 hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                       }`}
                     >
-                      Roadmap and Plan
+                      <span className="pl-7">Roadmap and Plan</span>
                     </button>
 
                     <button
@@ -718,10 +718,10 @@ export default function App() {
                       className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-[11px] font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                         activeTab === 'research' && researchSubTab === 'references'
                           ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                          : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                          : 'text-[#1B0A3B]/80 hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                       }`}
                     >
-                      References
+                      <span className="pl-7">References</span>
                     </button>
 
                     <button
@@ -731,10 +731,10 @@ export default function App() {
                       className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-[11px] font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                         activeTab === 'research' && researchSubTab === 'literature'
                           ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                          : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                          : 'text-[#1B0A3B]/80 hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                       }`}
                     >
-                      Paper Summaries
+                      <span className="pl-7">Paper Summaries</span>
                     </button>
 
                     <button
@@ -744,10 +744,10 @@ export default function App() {
                       className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-[11px] font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                         activeTab === 'research' && researchSubTab === 'analysis'
                           ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                          : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                          : 'text-[#1B0A3B]/80 hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                       }`}
                     >
-                      Concept Map
+                      <span className="pl-7">Concept Map</span>
                     </button>
 
                     <button
@@ -757,10 +757,10 @@ export default function App() {
                       className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-[11px] font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                         activeTab === 'research' && researchSubTab === 'writing'
                           ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                          : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                          : 'text-[#1B0A3B]/80 hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                       }`}
                     >
-                      Writing Assistant
+                      <span className="pl-7">Writing Assistant</span>
                     </button>
 
                     <button
@@ -770,10 +770,10 @@ export default function App() {
                       className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-[11px] font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                         activeTab === 'research' && researchSubTab === 'publishing'
                           ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                          : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                          : 'text-[#1B0A3B]/80 hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                       }`}
                     >
-                      Publishing & Export
+                      <span className="pl-7">Publishing & Export</span>
                     </button>
 
                     <button
@@ -783,10 +783,10 @@ export default function App() {
                       className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-[11px] font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                         activeTab === 'research' && researchSubTab === 'funding'
                           ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                          : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                          : 'text-[#1B0A3B]/80 hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                       }`}
                     >
-                      Grants & Proposals
+                      <span className="pl-7">Grants & Proposals</span>
                     </button>
 
                     <button
@@ -796,10 +796,10 @@ export default function App() {
                       className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-[11px] font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                         activeTab === 'research' && researchSubTab === 'perspective_check'
                           ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                          : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                          : 'text-[#1B0A3B]/80 hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                       }`}
                     >
-                      Perspective Check
+                      <span className="pl-7">Perspective Check</span>
                     </button>
 
                     <button
@@ -809,10 +809,10 @@ export default function App() {
                       className={`w-full text-left px-2.5 py-1.5 rounded-l-md rounded-r-none text-[11px] font-sans flex items-center transition-all cursor-pointer border-l-0 border-t-0 border-b-0 border-r-2 ${
                         activeTab === 'ai_assistant'
                           ? 'bg-stone-100/90 text-[#1B0A3B] font-semibold border-r-[#1D9E75] dark:bg-stone-800/60 dark:text-white dark:border-r-[#28c093]'
-                          : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
+                          : 'text-[#1B0A3B]/80 hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] dark:hover:text-white border-r-transparent'
                       }`}
                     >
-                      Ask AI
+                      <span className="pl-7">Ask AI</span>
                     </button>
                   </div>
                 </div>
@@ -834,7 +834,7 @@ export default function App() {
                 : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] border-r-transparent'
             }`}
           >
-            Feedback
+            <span className="pl-5.5">Feedback</span>
           </button>
           <button
             role="tab"
@@ -846,7 +846,7 @@ export default function App() {
                 : 'text-[#1B0A3B] hover:bg-stone-200/50 hover:text-[#1B0A3B] dark:text-stone-300 dark:hover:bg-[#25114a] border-r-transparent'
             }`}
           >
-            Settings
+            <span className="pl-5.5">Settings</span>
           </button>
         </div>
       </aside>

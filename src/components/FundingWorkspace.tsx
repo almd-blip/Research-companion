@@ -4,9 +4,10 @@
  */
 
 import React, { useState, useRef } from 'react';
-import { Plus, Minus, Trash2, Upload, FileText, CheckCircle2, AlertCircle, Sparkles, RefreshCw, Check, ArrowRight } from 'lucide-react';
+import { Plus, Minus, Trash2, Upload, FileText, CheckCircle2, AlertCircle, Sparkles, RefreshCw, Check, ArrowRight, X } from 'lucide-react';
 import { ResearchJourney, Paper } from '../types';
 import { postWithAiRouting } from '../lib/localAiService';
+import BoilerplateDropdown from './BoilerplateDropdown';
 
 interface FundingWorkspaceProps {
   journeys: ResearchJourney[];
@@ -73,6 +74,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
   const [selectedDraftSource, setSelectedDraftSource] = useState<'journey_chapter' | 'custom_text'>('journey_chapter');
   const [selectedChapterId, setSelectedChapterId] = useState<string>(activeJourney?.chapters[0]?.id || '');
   const [customDraftText, setCustomDraftText] = useState<string>('');
+  const [templateFeedback, setTemplateFeedback] = useState<string | null>(null);
   
   const [isAssessing, setIsAssessing] = useState(false);
   const [assessmentResult, setAssessmentResult] = useState<ProposalAssessmentResult | null>(null);
@@ -81,6 +83,51 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
   const criteriaFileInputRef = useRef<HTMLInputElement>(null);
   const questionsFileInputRef = useRef<HTMLInputElement>(null);
   const draftFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Handle template injection into active response draft
+  const handleInjectTemplate = (content: string, templateTitle: string, mode: 'append' | 'replace') => {
+    if (selectedDraftSource === 'custom_text') {
+      if (mode === 'replace' || !customDraftText.trim()) {
+        setCustomDraftText(content);
+      } else {
+        setCustomDraftText((prev) => prev.trim() + '\n\n' + content);
+      }
+    } else if (selectedDraftSource === 'journey_chapter' && activeJourney) {
+      const currentChapter = activeJourney.chapters.find((c) => c.id === selectedChapterId) || activeJourney.chapters[0];
+      if (currentChapter) {
+        const newContent = (mode === 'replace' || !currentChapter.content.trim())
+          ? content
+          : currentChapter.content.trim() + '\n\n' + content;
+        
+        const updatedChapters = activeJourney.chapters.map((ch) =>
+          ch.id === currentChapter.id ? { ...ch, content: newContent } : ch
+        );
+        onUpdateJourney({
+          ...activeJourney,
+          chapters: updatedChapters,
+        });
+      }
+    }
+
+    setTemplateFeedback(`Injected "${templateTitle}" boilerplate into response draft (${mode === 'replace' ? 'replaced' : 'appended'}).`);
+    setTimeout(() => {
+      setTemplateFeedback(null);
+    }, 4500);
+  };
+
+  // Direct editing of chapter content from within the assessment response card
+  const handleUpdateCurrentChapterContent = (newContent: string) => {
+    if (!activeJourney) return;
+    const currentChapter = activeJourney.chapters.find((c) => c.id === selectedChapterId) || activeJourney.chapters[0];
+    if (!currentChapter) return;
+    const updatedChapters = activeJourney.chapters.map((ch) =>
+      ch.id === currentChapter.id ? { ...ch, content: newContent } : ch
+    );
+    onUpdateJourney({
+      ...activeJourney,
+      chapters: updatedChapters,
+    });
+  };
 
   // Get active text to evaluate
   const getDraftTextToEvaluate = (): string => {
@@ -357,42 +404,51 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
             {/* 3. Candidate Response Document / Draft */}
             <div className="space-y-3 bg-stone-50 dark:bg-stone-900/50 p-5 rounded-lg border border-stone-200 dark:border-stone-800 flex flex-col justify-between">
               <div className="space-y-2">
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
                   <h3 className="font-sans font-medium text-stone-900 dark:text-stone-100 text-sm">
                     3. Candidate Response Draft
                   </h3>
-                  <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedDraftSource('journey_chapter')}
-                      className={`text-[10px] px-2 py-0.5 rounded transition-colors cursor-pointer ${
-                        selectedDraftSource === 'journey_chapter'
-                          ? 'bg-[#1B0A3B] text-white font-medium'
-                          : 'text-stone-500 hover:text-stone-800'
-                      }`}
-                    >
-                      Journey
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => setSelectedDraftSource('custom_text')}
-                      className={`text-[10px] px-2 py-0.5 rounded transition-colors cursor-pointer ${
-                        selectedDraftSource === 'custom_text'
-                          ? 'bg-[#1B0A3B] text-white font-medium'
-                          : 'text-stone-500 hover:text-stone-800'
-                      }`}
-                    >
-                      Custom
-                    </button>
+                  
+                  <div className="flex items-center gap-1.5 shrink-0 ml-auto">
+                    {/* Load Template Dropdown Button */}
+                    <BoilerplateDropdown
+                      onInjectTemplate={handleInjectTemplate}
+                      currentDraftText={getDraftTextToEvaluate()}
+                    />
+
+                    <div className="flex items-center gap-1 bg-stone-200/70 dark:bg-stone-800 p-0.5 rounded-md">
+                      <button
+                        type="button"
+                        onClick={() => setSelectedDraftSource('journey_chapter')}
+                        className={`text-[10px] px-2 py-0.5 rounded transition-colors cursor-pointer ${
+                          selectedDraftSource === 'journey_chapter'
+                            ? 'bg-[#1B0A3B] text-white font-medium shadow-xs'
+                            : 'text-stone-600 dark:text-stone-300 hover:text-stone-900'
+                        }`}
+                      >
+                        Journey
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => setSelectedDraftSource('custom_text')}
+                        className={`text-[10px] px-2 py-0.5 rounded transition-colors cursor-pointer ${
+                          selectedDraftSource === 'custom_text'
+                            ? 'bg-[#1B0A3B] text-white font-medium shadow-xs'
+                            : 'text-stone-600 dark:text-stone-300 hover:text-stone-900'
+                        }`}
+                      >
+                        Custom
+                      </button>
+                    </div>
                   </div>
                 </div>
 
                 <div className="min-h-[32px] flex items-center justify-between text-[11px] text-stone-500">
                   {selectedDraftSource === 'journey_chapter' ? (
-                    <span>Select draft chapter from current journey:</span>
+                    <span>Select & edit draft chapter from current journey:</span>
                   ) : (
                     <>
-                      <span>Paste or upload proposal draft:</span>
+                      <span>Paste, write, or inject proposal response:</span>
                       <button
                         type="button"
                         onClick={() => draftFileInputRef.current?.click()}
@@ -426,13 +482,12 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
                       ))}
                     </select>
 
-                    <div className="p-3 bg-white dark:bg-stone-950 border border-stone-200 dark:border-stone-800 rounded-md h-40 overflow-y-auto font-sans text-xs text-stone-700 dark:text-stone-300 leading-relaxed">
-                      {getDraftTextToEvaluate() ? (
-                        <p className="whitespace-pre-line">{getDraftTextToEvaluate()}</p>
-                      ) : (
-                        <p className="text-stone-400 italic">This chapter is currently empty. Add content or switch to custom text.</p>
-                      )}
-                    </div>
+                    <textarea
+                      value={activeJourney?.chapters.find((c) => c.id === selectedChapterId)?.content || ''}
+                      onChange={(e) => handleUpdateCurrentChapterContent(e.target.value)}
+                      className="w-full font-sans text-xs p-3 bg-white dark:bg-stone-950 border border-stone-300 dark:border-stone-700 rounded-md h-52 focus:outline-none focus:border-[#912A4A] leading-relaxed"
+                      placeholder="Write chapter response or use 'Load Template' above to inject institutional boilerplate..."
+                    />
                   </div>
                 ) : (
                   <div>
@@ -440,7 +495,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
                       value={customDraftText}
                       onChange={(e) => setCustomDraftText(e.target.value)}
                       className="w-full font-sans text-xs p-3 bg-white dark:bg-stone-950 border border-stone-300 dark:border-stone-700 rounded-md h-52 focus:outline-none focus:border-[#912A4A] leading-relaxed"
-                      placeholder="Paste full proposal response section here..."
+                      placeholder="Paste response text or use 'Load Template' dropdown above to inject institutional boilerplate..."
                     />
                   </div>
                 )}
@@ -449,8 +504,25 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
 
           </div>
 
+          {/* Feedback banner when template is loaded */}
+          {templateFeedback && (
+            <div className="p-3 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-lg text-xs text-emerald-900 dark:text-emerald-200 flex items-center justify-between gap-2 animate-fadeIn">
+              <div className="flex items-center gap-2">
+                <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0" />
+                <span>{templateFeedback}</span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setTemplateFeedback(null)}
+                className="text-emerald-700 hover:text-emerald-900 dark:text-emerald-300 dark:hover:text-white p-0.5 cursor-pointer"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+
           {/* Burgundy Dividing Line 24pt below 1, 2, and 3 */}
-          <hr className="border-0 border-b border-[#912A4A]/30 dark:border-rose-900/40 my-8" style={{ marginTop: '24pt', marginBottom: '24pt' }} />
+          <hr className="border-0 border-t border-[#912A4A]/30 dark:border-rose-900/40 my-8" style={{ marginTop: '24pt', marginBottom: '24pt' }} />
 
           {/* Assessment Action Button */}
           <div>
@@ -737,18 +809,34 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
 
             {/* Impact Statement */}
             <div className="space-y-3 pb-6">
-              <button
-                type="button"
-                onClick={() => setOpenImpact(!openImpact)}
-                className="w-full flex items-center justify-between pb-2 text-left cursor-pointer group border-b border-stone-200 dark:border-stone-800"
-              >
-                <h3 className="font-sans font-semibold text-stone-950 dark:text-stone-100 text-sm">
-                  Societal Impact & Outreach Statement
-                </h3>
-                <span className="p-1 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 font-mono text-xs flex items-center justify-center w-6 h-6 shrink-0">
-                  {openImpact ? <Minus className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
-                </span>
-              </button>
+              <div className="flex items-center justify-between pb-2 border-b border-stone-200 dark:border-stone-800">
+                <button
+                  type="button"
+                  onClick={() => setOpenImpact(!openImpact)}
+                  className="flex-grow flex items-center justify-between text-left cursor-pointer group pr-3"
+                >
+                  <h3 className="font-sans font-semibold text-stone-950 dark:text-stone-100 text-sm">
+                    Societal Impact & Outreach Statement
+                  </h3>
+                  <span className="p-1 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 font-mono text-xs flex items-center justify-center w-6 h-6 shrink-0">
+                    {openImpact ? <Minus className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                  </span>
+                </button>
+                {openImpact && (
+                  <BoilerplateDropdown
+                    onInjectTemplate={(content, title, mode) => {
+                      const current = activeJourney.fundingDetails?.impactStatement || '';
+                      const newText = (mode === 'replace' || !current.trim())
+                        ? content
+                        : current.trim() + '\n\n' + content;
+                      handleUpdateImpact(newText);
+                      setTemplateFeedback(`Injected "${title}" into Societal Impact statement.`);
+                      setTimeout(() => setTemplateFeedback(null), 4000);
+                    }}
+                    currentDraftText={activeJourney.fundingDetails?.impactStatement || ''}
+                  />
+                )}
+              </div>
 
               {openImpact && (
                 <div className="pt-2 space-y-3 animate-fadeIn">
@@ -760,7 +848,7 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
                     value={activeJourney.fundingDetails?.impactStatement || ''}
                     onChange={(e) => handleUpdateImpact(e.target.value)}
                     className="w-full font-sans text-xs p-3 bg-white dark:bg-stone-950 border border-stone-300 dark:border-stone-700 rounded text-stone-900 dark:text-stone-100 h-36 focus:outline-none focus:border-[#912A4A] leading-relaxed"
-                    placeholder="Draft the pathway to impact..."
+                    placeholder="Draft the pathway to impact or use 'Load Template' above..."
                   />
                 </div>
               )}
@@ -770,24 +858,41 @@ export default function FundingWorkspace({ journeys, papers, onUpdateJourney }: 
 
           {/* Reusable Snippets Sidebar */}
           <div className="lg:col-span-1 space-y-3 pb-6">
-            <button
-              type="button"
-              onClick={() => setOpenBio(!openBio)}
-              className="w-full flex items-center justify-between pb-2 text-left cursor-pointer group border-b border-stone-200 dark:border-stone-800"
-            >
-              <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100">
-                Reusable Bios & Capability Profile
-              </h4>
-              <span className="p-1 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 font-mono text-xs flex items-center justify-center w-6 h-6 shrink-0">
-                {openBio ? <Minus className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
-              </span>
-            </button>
+            <div className="flex items-center justify-between pb-2 border-b border-stone-200 dark:border-stone-800">
+              <button
+                type="button"
+                onClick={() => setOpenBio(!openBio)}
+                className="flex-grow flex items-center justify-between text-left cursor-pointer group pr-2"
+              >
+                <h4 className="font-sans font-semibold text-xs text-stone-900 dark:text-stone-100">
+                  Reusable Bios & Capability Profile
+                </h4>
+                <span className="p-1 rounded bg-stone-100 dark:bg-stone-800 text-stone-600 dark:text-stone-300 font-mono text-xs flex items-center justify-center w-6 h-6 shrink-0">
+                  {openBio ? <Minus className="w-3.5 h-3.5" /> : <Plus className="w-3.5 h-3.5" />}
+                </span>
+              </button>
+            </div>
 
             {openBio && (
               <div className="pt-2 space-y-4 animate-fadeIn">
-                <p className="font-sans text-[11px] text-stone-500">
-                  Store reusable descriptions (bios, lab capability statements) to paste into proposal applications.
-                </p>
+                <div className="flex items-center justify-between gap-2">
+                  <p className="font-sans text-[11px] text-stone-500">
+                    Store reusable descriptions (bios, lab capability statements).
+                  </p>
+                  <BoilerplateDropdown
+                    onInjectTemplate={(content, title) => {
+                      if (!activeJourney) return;
+                      const snippets = activeJourney.reusableSnippets || [];
+                      onUpdateJourney({
+                        ...activeJourney,
+                        reusableSnippets: [...snippets, content],
+                      });
+                      setTemplateFeedback(`Saved "${title}" boilerplate as reusable capability snippet.`);
+                      setTimeout(() => setTemplateFeedback(null), 4000);
+                    }}
+                    currentDraftText=""
+                  />
+                </div>
 
                 <div className="space-y-3 max-h-[300px] overflow-y-auto pr-1">
                   {activeJourney.reusableSnippets?.map((snip, idx) => (
